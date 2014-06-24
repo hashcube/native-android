@@ -705,6 +705,13 @@ function copyIcons(builder, project, destDir) {
 	copyNotifyIcon(builder, project, destDir, "xxh", "xxhigh");
 }
 
+//asset key for amazon gamecircle
+function copyAssetKey(builder, project, destDir) {
+	var destPath = path.join(destDir, "assets");
+	var assetsPath = project.manifest.assets || {};
+	builder.common.copyFileSync(assetsPath[0], path.join(destPath, assetsPath[0]));
+}
+
 function copySplash(builder, project, destDir, next) {
 	var destPath = path.join(destDir, "assets/resources");
 	wrench.mkdirSyncRecursive(destPath);
@@ -1247,6 +1254,8 @@ exports.build = function(builder, project, opts, next) {
 			copyMusic(builder, project, destDir);
 			copyResDir(project, destDir);
 			copySplash(builder, project, destDir, f());
+			//should be done in a better way
+			copyAssetKey(builder, project, destDir);
 
 			installAddonCode(builder, {
 				addonConfig: addonConfig,
