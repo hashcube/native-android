@@ -18,7 +18,11 @@ public class TeaLeafReceiver extends BroadcastReceiver {
 		String action = intent.getAction();
 		if (action.equals("com.android.vending.INSTALL_REFERRER")) {
 			try {
-				PluginManager.callAll("setInstallReferrer", "");
+				new Thread(new Runnable() {
+					public void run() {
+						PluginManager.callAll("setInstallReferrer", context, intent);
+					}
+				}).start();
 				Bundle bundle = intent.getExtras();
 				String referrer = URLDecoder.decode(bundle.getString("referrer"), "UTF-8");
 				Settings.build(context);
@@ -29,6 +33,5 @@ public class TeaLeafReceiver extends BroadcastReceiver {
 			}
 		}
 	}
-
 }
 
