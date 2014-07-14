@@ -63,12 +63,6 @@
 
 		<activity android:name="com.tealeaf.CrashRecover" android:configChanges="keyboard|keyboardHidden|orientation" android:excludeFromRecents="true" android:exported="false" android:stateNotNeeded="true" android:process=":CrashRecover" />
 
-
-		<!-- Used for install referral measurement-->
-		<service android:name="com.google.analytics.tracking.android.CampaignTrackingService"/>
-		<receiver android:name="com.google.analytics.tracking.android.CampaignTrackingReceiver" android:exported="true"/>
-		<receiver android:name="com.google.ads.InstallReceiver" android:exported="true"/>
-		<receiver android:name="com.google.android.apps.analytics.AnalyticsReceiver" android:exported="true" />
 		<receiver android:name="com.tealeaf.TeaLeafReceiver" android:exported="true">
 			<intent-filter>
 				<action android:name="com.android.vending.INSTALL_REFERRER" />
