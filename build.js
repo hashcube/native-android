@@ -1181,7 +1181,7 @@ exports.build = function(builder, project, opts, next) {
 	var names = studio.split(/\./g).reverse();
 	studio = names.join('.');
 
-	var androidTarget = "android-15";
+	var androidTarget = "android-21";
 
 	var studioName = project.manifest.studio && project.manifest.studio.name;
 	var servicesURL = opts.servicesURL;
