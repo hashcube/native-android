@@ -38,42 +38,51 @@ release: all
 
 # update the proper projects / subprojects, and update any plugin projects
 # this will also build the native code and TeaLeaf
-all:
-	android update project -p TeaLeaf --target android-27 --subprojects
-	android update project -p GCTestApp --target android-27 --subprojects
-	android update project -p appcompat-v7 --target android-27 --subprojects
-	ndk-build -C TeaLeaf -Bj8 RELEASE=$(RELEASE_FLAG) JSPROF=$(PROFILE_FLAG) GPROF=${GPROF_FLAG} V8SYMBOLS=${V8_SYMBOLS}
-	ant -f TeaLeaf/build.xml $(MODE)
+
+#Seems this is not needed because gradle do all the job when imports the project
+#todo check if it goes ok from build.js or switch to call from here
+#all:
+#	android update project -p TeaLeaf --target android-27 --subprojects
+#	android update project -p GCTestApp --target android-27 --subprojects
+#	android update project -p appcompat-v7 --target android-27 --subprojects
+#	ndk-build -C TeaLeaf -Bj8 RELEASE=$(RELEASE_FLAG) JSPROF=$(PROFILE_FLAG) GPROF=${GPROF_FLAG} V8SYMBOLS=${V8_SYMBOLS}
+#	ant -f TeaLeaf/build.xml $(MODE)
 
 
 # install plugins for the test app (uninstalling them from Tealeaf)
 # then build and install the test app
-install:
-	adb uninstall com.tealeaf.test_app
-	cp GCTestApp/AndroidManifest.xml GCTestApp/.AndroidManifest.xml
-	ant -f GCTestApp/build.xml debug
-	ant -f GCTestApp/build.xml installd
-	cp GCTestApp/.AndroidManifest.xml GCTestApp/AndroidManifest.xml
-	adb shell am start -n com.tealeaf.test_app/com.tealeaf.test_app.TestAppActivity
+
+#todo done by me, removed test app installation
+#install:
+#	adb uninstall com.tealeaf.test_app
+#	cp GCTestApp/AndroidManifest.xml GCTestApp/.AndroidManifest.xml
+#	ant -f GCTestApp/build.xml debug
+#	ant -f GCTestApp/build.xml installd
+#	cp GCTestApp/.AndroidManifest.xml GCTestApp/AndroidManifest.xml
+#	adb shell am start -n com.tealeaf.test_app/com.tealeaf.test_app.TestAppActivity
 
 
 # cleans the  TeaLeaf native code as well as supporting project
 # also cleans plugins
 clean:
-	ndk-build -C TeaLeaf clean
-	ant -f TeaLeaf/build.xml clean
-	ant -f GCTestApp/build.xml clean
-	ant -f appcompat-v7/build.xml clean
+    ./gradlew clean
+#	ndk-build -C TeaLeaf clean
+#	ant -f TeaLeaf/build.xml clean
+#	ant -f GCTestApp/build.xml clean
+#	ant -f appcompat-v7/build.xml clean
 
 analyze:
 	./scripts/analyze.sh
 
-test:
-	bash ./scripts/run_tests.sh
+#todo , removed by me
+#test:
+#	bash ./scripts/run_tests.sh
 
+#todo , removed parts by me
+#todo , fix checkSymlinks and fix how to copy nactive-core and where to
 #updates requried projects and plugins
 setup:
 	node checkSymlinks
-	android update project -p TeaLeaf --target android-27 --subprojects
-	android update project -p GCTestApp --target android-27 --subprojects
-	android update project -p appcompat-v7 --target android-27 --subprojects
+#	android update project -p TeaLeaf --target android-27 --subprojects
+#	android update project -p GCTestApp --target android-27 --subprojects
+#	android update project -p appcompat-v7 --target android-27 --subprojects

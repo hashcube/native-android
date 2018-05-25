@@ -147,7 +147,7 @@ var replaceTextBetween = function(text, startToken, endToken, replaceText) {
 };
 
 function injectAppLinks(outputPath, android_manifest) {
-  var manifestXml = path.join(outputPath, 'AndroidManifest.xml');
+  var manifestXml = path.join("app/src/main/", outputPath, 'AndroidManifest.xml');
   var app_links = android_manifest.app_links;
   var template = '<data android:host="curr_host" android:scheme="curr_scheme"/>';
   var result = '';
@@ -189,7 +189,7 @@ function injectAppLinks(outputPath, android_manifest) {
 function injectPluginXML(opts) {
   var moduleConfig = opts.moduleConfig;
   var outputPath = opts.outputPath;
-  var manifestXml = path.join(outputPath, 'AndroidManifest.xml');
+  var manifestXml = path.join( outputPath,"app/src/main" , 'AndroidManifest.xml');
 
   var readPluginXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
     var injectionXML = moduleConfig[moduleName].config.injectionXML;
@@ -252,7 +252,9 @@ var installModuleCode = function (api, app, opts) {
         .then(function (contents) {
           var pkgName = contents.match(/(package[\s]+)([a-z.A-Z0-9]+)/g)[0].split(' ')[1];
           var pkgDir = pkgName.replace(/\./g, "/");
-          var outFile = path.join(outputPath, "src", pkgDir, path.basename(filePath));
+            // Todo test if libs folder is copied to correct place
+            // Todo and think why we need it at all
+          var outFile = path.join(outputPath, "app/src/main", pkgDir, path.basename(filePath));
 
           logger.log("Installing Java package", pkgName, "to", outFile);
 
@@ -278,13 +280,15 @@ var installModuleCode = function (api, app, opts) {
       var src = path.join(baseDir, filePath);
       var basename = path.basename(filePath);
       return Promise.all([
-        fs.copyAsync(src, path.join(outputPath, 'libs', 'armeabi', basename)),
-        fs.copyAsync(src, path.join(outputPath, 'libs', 'armeabi-v7a', basename))
+        fs.copyAsync(src, path.join(outputPath, "app/src/main", 'libs', 'armeabi', basename)),
+        fs.copyAsync(src, path.join(outputPath, "app/src/main", 'libs', 'armeabi-v7a', basename))
       ]);
     } else {
-      return fs.copyAsync(path.join(baseDir, filePath), path.join(outputPath, filePath));
+      return fs.copyAsync(path.join(baseDir, filePath), path.join(outputPath, "app/src/main", filePath));
     }
   }
+// Todo check if we need install libraries because gradle imports everything from project including libraries
+
 
   function installLibraries(libraries) {
     if (!libraries || !libraries.length) { return; }
@@ -327,10 +331,10 @@ var installModuleCode = function (api, app, opts) {
         return fs.appendFileAsync(projectPropertiesFile, libraryReferences);
       });
   }
-
+ // Todo check if needed then add line to gradle or ...
   function installJar(jarFile) {
     logger.log("Installing module JAR:", jarFile);
-    var jarDestPath = path.join(outputPath, "libs", path.basename(jarFile));
+    var jarDestPath = path.join(outputPath,"app/src/main", "libs", path.basename(jarFile));
 
     logger.log("Installing JAR file:", jarDestPath);
     return fs.unlinkAsync(jarDestPath)
@@ -404,7 +408,7 @@ function transformXSL(api, inFile, outFile, xslFile, params) {
       fs.writeFileAsync(outFile, contents, 'utf-8');
     });
 }
-
+/* Seems this is not required with gradle
 function buildSupportProjects(api, config) {
   var rootDir = __dirname;
   var tealeafDir = path.join(__dirname, 'TeaLeaf');
@@ -422,10 +426,10 @@ function buildSupportProjects(api, config) {
 
       return spawnWithLogger(api, 'ndk-build', args , {cwd: tealeafDir});
     });
-}
+}*/
 
 function saveLocalizedStringsXmls(outputPath, titles) {
-  var stringsXmlPath = path.join(outputPath, "res/values/strings.xml");
+  var stringsXmlPath = path.join(outputPath, "app/src/main", "res/values/strings.xml");
   var stringsXml = fs.readFileSync(stringsXmlPath, "utf-8");
   return Promise.map(Object.keys(titles), function (lang) {
       var title = titles[lang];
@@ -470,61 +474,106 @@ function executeOnCreate(api, app, config, opts) {
 }
 
 function makeAndroidProject(api, app, config, opts) {
-  var projectPropertiesFile = path.join(opts.outputPath, 'project.properties');
-  return fs.unlinkAsync(projectPropertiesFile)
-    .catch(function () {}) // ignore error if file doesn't exist
-    .then(function () {
-      return spawnWithLogger(api, 'android', [
-          "create", "project", "--target", ANDROID_TARGET, "--name", app.manifest.shortName,
-          "--path", opts.outputPath, "--activity", config.activityName,
-          "--package", config.packageName
-        ])
-        .catch(BuildError, function (err) {
-          if (err.stdout && /not valid/i.test(err.stdout)) {
-            logger.log(chalk.yellow([
-                '',
-                'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
-                'you have installed the Android SDK properly, and use the',
-                '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
-                ''
-              ].join('\n')));
-          }
+    var projectPropertiesFile = path.join(opts.outputPath, 'project.properties');
+    return fs.unlinkAsync(projectPropertiesFile)
+        .catch(function () {}) // ignore error if file doesn't exist
+        .then(function () {
+            /* ant original
+            return spawnWithLogger(api, 'android', [
+                "create", "project", "--target", ANDROID_TARGET, "--name", app.manifest.shortName,
+                "--path", opts.outputPath, "--activity", config.activityName,
+                "--package", config.packageName
+              ])*/
+            return spawnWithLogger(api, 'sh', [
+                "./gradleops/template ", app.manifest.shortName, "gradleops/Ndk/",
+            ])
+            // Todo need to build later somewhere with ./build -i -r app.manifest.shortName/
+                .catch(BuildError, function (err) {
+                    if (err.stdout && /not valid/i.test(err.stdout)) {
+                        logger.log(chalk.yellow([
+                            '',
+                            'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
+                            'you have installed the Android SDK properly, and use the',
+                            '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
+                            ''
+                        ].join('\n')));
+                    }
 
-          if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
-            logger.log(chalk.yellow([
-                '',
-                'You must install the Android SDK first. Please ensure the ',
-                '"android" tool is available from the command line by adding',
-                'the sdk\'s "tools/" directory to your system path.',
-                ''
-              ].join('\n')));
-          }
+                    if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
+                        logger.log(chalk.yellow([
+                            '',
+                            'You must install the Android SDK first. Please ensure the ',
+                            '"android" tool is available from the command line by adding',
+                            'the sdk\'s "tools/" directory to your system path.',
+                            ''
+                        ].join('\n')));
+                    }
 
-          throw err;
-        });
-    })
-    .then(function () {
-      var tealeafDir = path.relative(opts.outputPath, path.join(__dirname, "TeaLeaf"));
-      return spawnWithLogger(api, 'android', [
-          "update", "project", "--target", ANDROID_TARGET,
-          "--path", opts.outputPath,
-          "--library", tealeafDir
-        ]);
-    })
-    .then(function () {
-      var jumbo_txt = app.manifest.android.dex_jumbo ? 'dex.force.jumbo=true\n' : '',
-        dexDir = '\nout.dexed.absolute.dir=../.dex/\nsource.dir=src\n' + jumbo_txt;
-      return [
-        fs.appendFileAsync(projectPropertiesFile, dexDir),
-        saveLocalizedStringsXmls(opts.outputPath, config.titles),
-        updateManifest(api, app, config, opts),
-        updateActivity(config, opts),
-        executeOnCreate(api, app, config, opts)
-      ];
-    })
-    .all();
+                    throw err;
+                }.catch(Error, function (err) {
+                        if (err.stdout && /not valid/i.test(err.stdout)) {
+                            logger.log(chalk.yellow([
+                                '',
+                                'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
+                                'you have installed the Android SDK properly, and use the',
+                                '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
+                                ''
+                            ].join('\n')));
+                        }
+
+                        if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
+                            logger.log(chalk.yellow([
+                                '',
+                                'You must install the Android SDK first. Please ensure the ',
+                                '"android" tool is available from the command line by adding',
+                                'the sdk\'s "tools/" directory to your system path.',
+                                ''
+                            ].join('\n')));
+                        }
+
+                        throw err;
+                    }));
+
+        })
+
+            //It is supposed to be made in gradle on once or with gradle
+        /* Todo fix Tealeaf joining later when successful project generated
+        // path opts.outputPath changed to "/"+app.manifest.shortName
+           .then(function () {
+              var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "TeaLeaf"));
+              return spawnWithLogger(api, 'android', [
+                  "update", "project", "--target", ANDROID_TARGET,
+                  "--path", opts.outputPath,
+                  "--library", tealeafDir
+                ]);
+            })*/
+       /** Run gradle in project directory -p dir
+        *  and import TeaLeaf build into project*/
+        // Todo debug ant project importing from command line and if does not work then use this command from inside of gradle script
+        .then(function () {
+            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "TeaLeaf"));
+            return spawnWithLogger(api, './gradle', [
+                "-p", "/"+app.manifest.shortName,
+                "ant.importBuild", "TeaLeaf/build.xml"
+            ]);
+        })
+        //   Todo analize and fix or remove this later when successful project generated
+         .then(function () {
+              var dexDir = '\nout.dexed.absolute.dir=../.dex/\nsource.dir=src\n';
+              return [
+                  // Todo: test, should be working in this directory
+                fs.appendFileAsync(projectPropertiesFile, dexDir),
+                // Todo: test
+                saveLocalizedStringsXmls(opts.outputPath, config.titles),
+                // Todo: test
+                updateManifest(api, app, config, opts),
+                updateActivity(config, opts)
+              ];
+            })
+        .all();
 }
 
+// Todo fix sign apk path and command
 function signAPK(api, shortName, outputPath, debug) {
   var signArgs, alignArgs;
   var binDir = path.join(outputPath, "bin");
@@ -571,7 +620,7 @@ function signAPK(api, shortName, outputPath, debug) {
       return spawnWithLogger(api, 'zipalign', alignArgs , {cwd: binDir});
     });
 }
-
+// Todo fix replace apk path and command
 function repackAPK(api, outputPath, apkName, cb) {
   var apkPath = path.join('bin', apkName);
   spawnWithLogger(api, 'zip', [apkPath, '-d', 'META-INF/*'], {cwd: outputPath}, function (err) {
@@ -583,6 +632,7 @@ function repackAPK(api, outputPath, apkName, cb) {
 function copyAssets(app, project, destPath) {
   var assetsPath = project.manifest.assets || [];
 
+  // Fixed for gradle structure
   return Promise.map(assetsPath, function(asset) {
     logger.log('Copying', asset, 'to ' + path.join(destPath, asset));
     return fs.copyAsync(asset, path.join(destPath, asset));
@@ -632,7 +682,7 @@ function copyRoundIcon(app, outputPath, tag, size) {
 }
 
 function copyIcon(app, outputPath, tag, size) {
-  var destPath = path.join(outputPath, "res/mipmap-" + tag + "dpi/icon.png");
+  var destPath = path.join(outputPath , "res/mipmap-" + tag + "dpi/icon.png");
   var android = app.manifest.android;
   var iconPath = android.icons && android.icons[size];
 
@@ -827,7 +877,7 @@ function updateManifest(api, app, config, opts) {
   });
 
   var defaultManifest = path.join(__dirname, "TeaLeaf/AndroidManifest.xml");
-  var outputManifest = path.join(opts.outputPath, "AndroidManifest.xml");
+  var outputManifest = path.join(opts.outputPath,  "app/src/main", "AndroidManifest.xml");
 
   fs.copyAsync(defaultManifest, outputManifest)
     .then(function () {
@@ -849,7 +899,7 @@ function updateManifest(api, app, config, opts) {
     }, {concurrency: 1}) // Run the plugin XSLT in series instead of parallel
     .then(function() {
       logger.log("Applying final XSL transformation");
-      var xmlPath = path.join(opts.outputPath, "AndroidManifest.xml");
+      var xmlPath = path.join(opts.outputPath,  "app/src/main","AndroidManifest.xml");
       return transformXSL(api, xmlPath, xmlPath,
           path.join(__dirname, "AndroidManifest.xsl"),
           params);
@@ -857,8 +907,10 @@ function updateManifest(api, app, config, opts) {
 }
 
 function updateActivity(config, opts) {
+    // Todo debug
+
   var activityFile = path.join(opts.outputPath,
-      "src",
+      "app/src/main/java",
       config.packageName.replace(/\./g, "/"),
       config.activityName + ".java");
 
@@ -870,7 +922,7 @@ function updateActivity(config, opts) {
       return fs.writeFileAsync(activityFile, contents);
     });
 }
-
+// todo check What is this?
 function createProject(api, app, config) {
 
   var tasks = [];
@@ -940,14 +992,14 @@ exports.build = function(api, app, config, cb) {
     })
     .then(function copyResourcesToProject() {
       return [
-        copyIcons(app, config.outputPath),
-        copyMusic(app, config.outputPath),
-        copyResDir(app, config.outputPath),
-        copySplash(api, app, config.outputPath),
-        copyAssets(api, app, config.outputPath)
+        copyIcons(app, config.outputPath + "/app/src/main"),
+        copyMusic(app, config.outputPath + "/app/src/main"),
+        copyResDir(app, config.outputPath + "/app/src/main"),
+        copySplash(api, app, config.outputPath + "/app/src/main"),
+        copyAssets(api, app, config.outputPath + "/app/src/main")
       ];
     })
-    .all()
+    .all() // Todo fix or remove "repack apk" and path
     .then(function buildAPK() {
       if (!skipAPK) {
         if (config.repack) {
@@ -989,6 +1041,7 @@ exports.build = function(api, app, config, cb) {
     .nodeify(cb);
 };
 
+// Todo fix or remove
 function moveAPK(api, app, config, apkBuildName) {
   var shortName = app.manifest.shortName;
   var apkPath = path.join(config.outputPath, shortName + ".apk");
