@@ -530,7 +530,7 @@ function makeAndroidProject(api, app, config, opts) {
         // so todo: verify libpng path is not used in game copied files
         .then(function () {
             return spawnWithLogger(api, 'ndk-build', [
-                "NDK_PROJECT_PATH="+__dirname + "/gradleops/" + app.manifest.shortNam+"/app/src/main",
+                "NDK_PROJECT_PATH="+__dirname + "/gradleops/" + app.manifest.shortName+"/app/src/main",
             ], {cwd: __dirname + "/gradleops/" + app.manifest.shortName})
                 .catch(BuildError, function (err) {
                     if (err.stdout && /not valid/i.test(err.stdout)) {
