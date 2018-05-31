@@ -526,6 +526,11 @@ function makeAndroidProject(api, app, config, opts) {
                 "clean"//,  "-p",__dirname+"/gradleops/"+app.manifest.shortName
             ], {cwd: __dirname+"/gradleops/"+app.manifest.shortName});
         })
+         .then(function () {
+            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "TeaLeaf"));
+            return spawnWithLogger(api, 'pwd', ["-L"]);
+            //return spawnWithLogger(api, 'printf',  [opts.outputPath])
+        })
         // build ndk libtealeaf.so, formerly named manually libpng.so ,
         // so todo: verify libpng path is not used in game copied files
         .then(function () {
@@ -555,6 +560,11 @@ function makeAndroidProject(api, app, config, opts) {
 
                     throw err;
                 });
+        })
+        .then(function () {
+            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "TeaLeaf"));
+            return spawnWithLogger(api, 'pwd', ["-L"]);
+            //return spawnWithLogger(api, 'printf',  [opts.outputPath])
         })
         // build Android project
         .then(function () {
