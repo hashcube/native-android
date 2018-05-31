@@ -531,7 +531,7 @@ function makeAndroidProject(api, app, config, opts) {
         .then(function () {
             return spawnWithLogger(api, 'ndk-build', [
                 "NDK_PROJECT_PATH=app/src/main",
-            ], {cwd: __dirname + "/gradleops/" + app.manifest.shortName})
+            ], {cwd: "./modules/devkit-core/modules/native-android/gradleops/" + app.manifest.shortName})
                 .catch(BuildError, function (err) {
                     if (err.stdout && /not valid/i.test(err.stdout)) {
                         logger.log(chalk.yellow([
