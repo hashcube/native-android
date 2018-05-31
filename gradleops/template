@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+cd modules/devkit-core/modules/native-android/gradleops
 set -ex
 new="$1"
 shift
@@ -14,7 +15,11 @@ new_lower="$(echo "$new" | tr 'A-Z' 'a-z')"
 old_lower="$(echo "$old" | tr 'A-Z' 'a-z')"
 cp -r "$old" "$new"
 cd "$new"
-find . -type f -print0 | xargs -0 sed -i "s/${old}/${new}/g"
-find . -type f -print0 | xargs -0 sed -i "s/${old_lower}/${new_lower}/g"
+#Linux
+#find . -type f -print0 | xargs -0 sed -i "s/${old}/${new}/g"
+#find . -type f -print0 | xargs -0 sed -i "s/${old_lower}/${new_lower}/g"
+#Mac
+find . -type f -print0 | xargs -0 sed -i "" "s/${old}/${new}/g"
+find . -type f -print0 | xargs -0 sed -i "" "s/${old_lower}/${new_lower}/g"
 cd 'app/src/main/java/com/cirosantilli/android_cheat'
 mv "$old_lower" "$new_lower"

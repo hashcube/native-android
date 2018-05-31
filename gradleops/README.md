@@ -1,6 +1,9 @@
 # Gradle
 
-Pre-requisites:
+Pre-requisites for original repository Android cheat sheet for copying gradle projects
+https://github.com/cirosantilli/android-cheat.git:
+
+
 
 - install Android Studio and the SDK
 - ensure that `adb shell` works, i.e. you can connect with USB or TCP to a device or emulator instance
