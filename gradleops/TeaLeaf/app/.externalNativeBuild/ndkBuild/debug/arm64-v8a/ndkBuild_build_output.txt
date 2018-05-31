@@ -1,0 +1,9 @@
+rm -f /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/arm64-v8a/*
+rm -f /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/arm64-v8a/gdbserver
+rm -f /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/arm64-v8a/gdb.setup
+mkdir -p /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/arm64-v8a
+echo [arm64-v8a] "Gdbserver      ": "[aarch64-linux-android] /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/arm64-v8a/gdbserver"
+install -p /Users/alex/Library/Android/sdk/ndk-bundle/prebuilt/android-arm64/gdbserver/gdbserver /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/arm64-v8a/gdbserver
+echo [arm64-v8a] "Gdbsetup       ": "/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/arm64-v8a/gdb.setup"
+echo "set solib-search-path /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/obj/local/arm64-v8a" > /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/arm64-v8a/gdb.setup
+echo "directory /Users/alex/Library/Android/sdk/ndk-bundle/sysroot /Users/alex/Library/Android/sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++" >> /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/arm64-v8a/gdb.setup

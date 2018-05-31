@@ -1,0 +1,3 @@
+rm -f /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/release/lib/mips64/*
+rm -f /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/release/lib/mips64/gdbserver
+rm -f /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/release/lib/mips64/gdb.setup

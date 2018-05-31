@@ -1,0 +1,9 @@
+rm -f /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/mips/*
+rm -f /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/mips/gdbserver
+rm -f /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/mips/gdb.setup
+mkdir -p /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/mips
+echo [mips] "Gdbserver      ": "[mips64el-linux-android] /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/mips/gdbserver"
+install -p /Users/alex/Library/Android/sdk/ndk-bundle/prebuilt/android-mips/gdbserver/gdbserver /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/mips/gdbserver
+echo [mips] "Gdbsetup       ": "/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/mips/gdb.setup"
+echo "set solib-search-path /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/obj/local/mips" > /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/mips/gdb.setup
+echo "directory /Users/alex/Library/Android/sdk/ndk-bundle/sysroot /Users/alex/Library/Android/sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++" >> /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/native-android/gradleops/TeaLeaf/app/build/intermediates/ndkBuild/debug/lib/mips/gdb.setup

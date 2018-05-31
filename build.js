@@ -512,7 +512,7 @@ function makeAndroidProject(api, app, config, opts) {
                 // new name and location
                 app.manifest.shortName,
                 // template name and location
-                "TeaLeafGradle" // Change to TeaLeafGradle
+                "TeaLeaf" // Change to TeaLeaf
             ], {cwd: './modules/devkit-core/modules/native-android/gradleops/'})
         })
         .then(function () {
