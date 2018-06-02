@@ -1,0 +1,35 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.androidseed">
+
+
+
+    <supports-screens android:resizeable="true" android:smallScreens="true" android:anyDensity="true" android:largeScreens="true" android:normalScreens="true"/>
+    <uses-feature android:glEsVersion="0x00020000"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="18"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <!--START_PLUGINS_MANIFEST-->
+    <!--END_PLUGINS_MANIFEST-->
+    <application android:name="com.tealeaf.TeaLeafApplication">
+    <!-- These are all the assumed default values; change as necessary and remove any others -->
+
+    <activity android:name="com.androidseed.AndroidSeedActivity"
+        android:launchMode="singleTask"
+        android:configChanges="keyboardHidden|orientation|screenSize"
+        android:label="AndroidSeed"
+        android:screenOrientation="unspecified"
+        android:windowSoftInputMode="stateUnspecified|adjustPan">
+
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.LAUNCHER"/>
+        </intent-filter>
+    </activity>
+
+    <!--START_PLUGINS_APPLICATION-->
+    <!--END_PLUGINS_APPLICATION-->
+
+    </application>
+</manifest>

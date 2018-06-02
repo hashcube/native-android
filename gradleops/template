@@ -14,13 +14,17 @@ new="$(echo "$new" | sed -E 's/\/$//')"
 new_lower="$(echo "$new" | tr 'A-Z' 'a-z')"
 old_lower="$(echo "$old" | tr 'A-Z' 'a-z')"
 cp -r "$old" "$new"
-cp -r "../native-core/", "app/src/main/jni/core/"
 cd "$new"
+cp -r ../../native-core tealeaf/src/main/jni/core
 #Linux
 #find . -type f -print0 | xargs -0 sed -i "s/${old}/${new}/g"
 #find . -type f -print0 | xargs -0 sed -i "s/${old_lower}/${new_lower}/g"
 #Mac
 find . -type f -print0 | xargs -0 sed -i "" "s/${old}/${new}/g"
 find . -type f -print0 | xargs -0 sed -i "" "s/${old_lower}/${new_lower}/g"
-cd 'app/src/main/java/com'
+# don't need now to rename cpp file names 
+#cd tealeaf/src/main/jni/core
+#for file in '*tealeaf*' ; do mv $file ${file//$old_lower/${new_lower}} ; done
+#cd ../../java/com
+cd app/src/main/java/com
 mv "$old_lower" "$new_lower"

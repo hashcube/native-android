@@ -189,7 +189,7 @@ function injectAppLinks(outputPath, android_manifest) {
 function injectPluginXML(opts) {
   var moduleConfig = opts.moduleConfig;
   var outputPath = opts.outputPath;
-  var manifestXml = path.join( outputPath,"app/src/main" , 'AndroidManifest.xml');
+  var manifestXml = path.join( outputPath,"tealeaf/src/main" , 'AndroidManifest.xml');
 
   var readPluginXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
     var injectionXML = moduleConfig[moduleName].config.injectionXML;
@@ -280,11 +280,11 @@ var installModuleCode = function (api, app, opts) {
       var src = path.join(baseDir, filePath);
       var basename = path.basename(filePath);
       return Promise.all([
-        fs.copyAsync(src, path.join(outputPath, "app/src/main", 'libs', 'armeabi', basename)),
-        fs.copyAsync(src, path.join(outputPath, "app/src/main", 'libs', 'armeabi-v7a', basename))
+        fs.copyAsync(src, path.join(outputPath, "tealeaf/src/main", 'libs', 'armeabi', basename)),
+        fs.copyAsync(src, path.join(outputPath, "tealeaf/src/main", 'libs', 'armeabi-v7a', basename))
       ]);
     } else {
-      return fs.copyAsync(path.join(baseDir, filePath), path.join(outputPath, "app/src/main", filePath));
+      return fs.copyAsync(path.join(baseDir, filePath), path.join(outputPath, "tealeaf/src/main", filePath));
     }
   }
 // Todo check if we need install libraries because gradle imports everything from project including libraries
@@ -293,7 +293,7 @@ var installModuleCode = function (api, app, opts) {
   function installLibraries(libraries) {
     if (!libraries || !libraries.length) { return; }
 
-    var projectPropertiesFile = path.join(outputPath, "project.properties");
+    var projectPropertiesFile = path.join(__dirname+"/gradleops/"+app.manifest.shortName, "project.properties");
 
     var libraryFiles = libraries.map(function (library) {
       return path.join(modulePath, 'android', library);
@@ -411,7 +411,7 @@ function transformXSL(api, inFile, outFile, xslFile, params) {
 /* Seems this is not required with gradle
 function buildSupportProjects(api, config) {
   var rootDir = __dirname;
-  var tealeafDir = path.join(__dirname, 'TeaLeaf');
+  var tealeafDir = path.join(__dirname, 'AndroidSeed');
   var singleArch = config.argv.arch;
   return Promise.try(function () {
       if (config.argv.clean || singleArch) {
@@ -480,21 +480,21 @@ todos
 3)Unable to open assets/resources/native.js
 */
 function makeAndroidProject(api, app, config, opts) {
-    var projectPropertiesFile = path.join(opts.outputPath, 'project.properties');
+    var projectPropertiesFile = path.join(__dirname+"/gradleops/"+app.manifest.shortName, 'project.properties');
     return fs.unlinkAsync(projectPropertiesFile)
         .catch(function () {}) // ignore error if file doesn't exist
         .then(function () {
-            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "TeaLeaf"));
+            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "AndroidSeed"));
             return spawnWithLogger(api, 'pwd', ["-L"]);
             //return spawnWithLogger(api, 'printf',  [opts.outputPath])
         })
        /* .then(function () {
-            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "TeaLeaf"));
+            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "AndroidSeed"));
             return spawnWithLogger(api, 'cd',['/modules/devkit-core/modules/native-android/gradleops/']);
             //return spawnWithLogger(api, 'printf',  [opts.outputPath])
         })*/
         .then(function () {
-            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "TeaLeaf"));
+            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "AndroidSeed"));
             //return spawnWithLogger(api, 'pwd', ["-L"]);
             return spawnWithLogger(api, 'printf',  [__dirname])
         })
@@ -512,11 +512,11 @@ function makeAndroidProject(api, app, config, opts) {
                 // new name and location
                 app.manifest.shortName,
                 // template name and location
-                "TeaLeaf" // Change to TeaLeaf
+                "AndroidSeed" // Change to AndroidSeed
             ], {cwd: './modules/devkit-core/modules/native-android/gradleops/'})
         })
         .then(function () {
-            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "TeaLeaf"));
+            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "AndroidSeed"));
             return spawnWithLogger(api, 'pwd', ["-L"]);
             //return spawnWithLogger(api, 'printf',  [opts.outputPath])
         })
@@ -527,94 +527,35 @@ function makeAndroidProject(api, app, config, opts) {
             ], {cwd: __dirname+"/gradleops/"+app.manifest.shortName});
         })
          .then(function () {
-            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "TeaLeaf"));
+            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "AndroidSeed"));
             return spawnWithLogger(api, 'pwd', ["-L"]);
             //return spawnWithLogger(api, 'printf',  [opts.outputPath])
         })
-        // build ndk libtealeaf.so, formerly named manually libpng.so ,
-        // so todo: verify libpng path is not used in game copied files
+        // Rename activity
         .then(function () {
-            return spawnWithLogger(api, 'ndk-build', [
-                "NDK_PROJECT_PATH=app/src/main",
-            ], {cwd: "./modules/devkit-core/modules/native-android/gradleops/" + app.manifest.shortName})
-                .catch(BuildError, function (err) {
-                    if (err.stdout && /not valid/i.test(err.stdout)) {
-                        logger.log(chalk.yellow([
-                            '',
-                            'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
-                            'you have installed the Android SDK properly, and use the',
-                            '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
-                            ''
-                        ].join('\n')));
-                    }
-
-                    if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
-                        logger.log(chalk.yellow([
-                            '',
-                            'You must install the Android SDK first. Please ensure the ',
-                            '"android" tool is available from the command line by adding',
-                            'the sdk\'s "tools/" directory to your system path.',
-                            ''
-                        ].join('\n')));
-                    }
-
-                    throw err;
-                });
-        })
-        .then(function () {
-            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "TeaLeaf"));
-            return spawnWithLogger(api, 'pwd', ["-L"]);
-            //return spawnWithLogger(api, 'printf',  [opts.outputPath])
-        })
-        // build Android project
-        .then(function () {
-            return spawnWithLogger(api, './gradlew', [
-                "build",  //,  "-p",__dirname+"/gradleops/"+app.manifest.shortName
-            ], {cwd: __dirname+"/gradleops/"+app.manifest.shortName})
-                .catch(BuildError, function (err) {
-                    if (err.stdout && /not valid/i.test(err.stdout)) {
-                        logger.log(chalk.yellow([
-                            '',
-                            'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
-                            'you have installed the Android SDK properly, and use the',
-                            '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
-                            ''
-                        ].join('\n')));
-                    }
-
-                    if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
-                        logger.log(chalk.yellow([
-                            '',
-                            'You must install the Android SDK first. Please ensure the ',
-                            '"android" tool is available from the command line by adding',
-                            'the sdk\'s "tools/" directory to your system path.',
-                            ''
-                        ].join('\n')));
-                    }
-
-                    throw err;
-                });
+            var activityFileOld = path.join(__dirname+"/gradleops/"+app.manifest.shortName,
+                "app/src/main/java",
+                "com", app.manifest.shortName,
+                "AndroidSeedActivity" + ".java");
+            var activityFileNew = path.join(__dirname+"/gradleops/"+app.manifest.shortName,
+                "app/src/main/java",
+                "com", app.manifest.shortName,
+                app.manifest.shortName + "Activity.java");
+            return spawnWithLogger(api, 'mv', [activityFileOld,activityFileNew]);
         })
         // 1)Unable to open assets/resources/native.js todo: continue copying files
         // 2)  Todo analize and fix or remove this later when successful project generated
-         .then(function () {
-              var dexDir = '\nout.dexed.absolute.dir=../.dex/\nsource.dir=src\n';
-              return [
-                  // Todo: test, should be working in this directory
-                fs.appendFileAsync(projectPropertiesFile, dexDir),
-                // Todo: test
-                saveLocalizedStringsXmls(opts.outputPath, config.titles),
-                // Todo: test
-                updateManifest(api, app, config, opts),
-                updateActivity(config, opts)
-              ];
-            })
-        // 3) Todo check what is here working
         .then(function () {
-            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "TeaLeaf"));
-            return spawnWithLogger(api, 'mv', ["/modules/devkit-core/modules/native-android/gradleops/"+app.manifest.shortName,
-                "/build/debug/native-android/"+app.manifest.shortName]);
-            //return spawnWithLogger(api, 'printf',  [opts.outputPath])
+            var dexDir = '\nout.dexed.absolute.dir=../.dex/\nsource.dir=src\n';
+            return [
+                // Do not need this string after migration to gadle
+                //fs.appendFileAsync(projectPropertiesFile, dexDir),
+                // Todo: test
+                saveLocalizedStringsXmls( __dirname+"/gradleops/"+app.manifest.shortName, config.titles),
+                // Todo: check what should be here
+                //updateManifest(api, app, config, opts),
+                updateActivity(app, config, opts)
+            ];
         })
         .all();
 }
@@ -675,6 +616,7 @@ function repackAPK(api, outputPath, apkName, cb) {
   });
 }
 
+//Todo debug
 function copyAssets(app, project, destPath) {
   var assetsPath = project.manifest.assets || [];
 
@@ -916,14 +858,14 @@ function updateManifest(api, app, config, opts) {
     gameHash: app.manifest.version,
     sdkHash: config.sdkVersion,
     androidHash: androidVersion,
-    minSdkVersion: config.argv['min-sdk-version'] || 14,
+    minSdkVersion: config.argv['min-sdk-version'] || 21,
     targetSdkVersion: config.argv['target-sdk-version'] || 27,
     debuggable: config.debug ? 'true' : 'false',
     otherApps: otherApps.join('|')
   });
 
-  var defaultManifest = path.join(__dirname, "TeaLeaf/AndroidManifest.xml");
-  var outputManifest = path.join(opts.outputPath,  "app/src/main", "AndroidManifest.xml");
+  var defaultManifest = path.join(__dirname, "gradleops/AndroidSeed/tealeaf/src/main/AndroidManifest.xml");
+  var outputManifest = path.join(__dirname,  "gradleops/"+app.manifest.shortName+"/app/src/main", "AndroidManifest.xml");
 
   fs.copyAsync(defaultManifest, outputManifest)
     .then(function () {
@@ -945,19 +887,20 @@ function updateManifest(api, app, config, opts) {
     }, {concurrency: 1}) // Run the plugin XSLT in series instead of parallel
     .then(function() {
       logger.log("Applying final XSL transformation");
-      var xmlPath = path.join(opts.outputPath,  "app/src/main","AndroidManifest.xml");
+      // has been set to app manifest instead of tealeaf manifest
+      var xmlPath = path.join(__dirname,  "gradleops/AndroidSeed/app/src/main", "AndroidManifest.xml");
       return transformXSL(api, xmlPath, xmlPath,
           path.join(__dirname, "AndroidManifest.xsl"),
           params);
     });
 }
 
-function updateActivity(config, opts) {
+function updateActivity(app, config, opts) {
     // Todo debug
-
-  var activityFile = path.join(opts.outputPath,
+                                //was opts.outputPath
+  var activityFile = path.join(__dirname+"/gradleops/"+app.manifest.shortName,
       "app/src/main/java",
-      config.packageName.replace(/\./g, "/"),
+      "com", app.manifest.shortName,
       config.activityName + ".java");
 
   return fs.readFileAsync(activityFile, 'utf-8')
@@ -968,6 +911,9 @@ function updateActivity(config, opts) {
       return fs.writeFileAsync(activityFile, contents);
     });
 }
+
+
+
 // todo check What is this?
 function createProject(api, app, config) {
 
@@ -1039,24 +985,95 @@ exports.build = function(api, app, config, cb) {
     })
     .then(function copyResourcesToProject() {
       return [
-        copyIcons(app, config.outputPath + "/app/src/main"),
-        copyMusic(app, config.outputPath + "/app/src/main"),
-        copyResDir(app, config.outputPath + "/app/src/main"),
-        copySplash(api, app, config.outputPath + "/app/src/main"),
-        copyAssets(api, app, config.outputPath + "/app/src/main")
+          // changed from config.outputPath to gradle project path
+        copyIcons(app, __dirname+"/gradleops/"+app.manifest.shortName + "/app/src/main/res"),
+        copyMusic(app, __dirname+"/gradleops/"+app.manifest.shortName + "/app/src/main"),
+        copyResDir(app, __dirname+"/gradleops/"+app.manifest.shortName + "/app/src/main"),
+        copySplash(api, app, __dirname+"/gradleops/"+app.manifest.shortName + "/app/src/main"),
+          //Todo debug, unclear value of path
+        copyAssets(api, app, __dirname+"/gradleops/"+app.manifest.shortName + "/app/src/main")
       ];
     })
     .all() // Todo fix or remove "repack apk" and path
+
     .then(function buildAPK() {
       if (!skipAPK) {
-        if (config.repack) {
+          // try to replace repack by moving here build assemble
+        /*if (config.repack) {
           return repackAPK(api, config.outputPath, apkBuildName);
         } else {
           var antScheme = (config.debug ? "debug" : "release");
           return spawnWithLogger(api, 'ant', [antScheme], {
               cwd: config.outputPath
             });
-        }
+        }*/
+          // build ndk libtealeaf.so, formerly named manually libpng.so ,
+          // so todo: !!! uncomment for ndk compilation after successful debug
+
+              return spawnWithLogger(api, 'ndk-build', [
+                  "NDK_PROJECT_PATH=tealeaf/src/main",
+              ], {cwd: "./modules/devkit-core/modules/native-android/gradleops/" + app.manifest.shortName})
+                  .catch(BuildError, function (err) {
+                      if (err.stdout && /not valid/i.test(err.stdout)) {
+                          logger.log(chalk.yellow([
+                              '',
+                              'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
+                              'you have installed the Android SDK properly, and use the',
+                              '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
+                              ''
+                          ].join('\n')));
+                      }
+
+                      if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
+                          logger.log(chalk.yellow([
+                              '',
+                              'You must install the Android SDK first. Please ensure the ',
+                              '"android" tool is available from the command line by adding',
+                              'the sdk\'s "tools/" directory to your system path.',
+                              ''
+                          ].join('\n')));
+                      }
+
+                      throw err;
+                  })
+
+          // build Android project
+          .then(function () {
+                  return spawnWithLogger(api, './gradlew', [
+                      "build",
+                  ], {cwd: __dirname+"/gradleops/"+app.manifest.shortName})
+                      .catch(BuildError, function (err) {
+                          if (err.stdout && /not valid/i.test(err.stdout)) {
+                              logger.log(chalk.yellow([
+                                  '',
+                                  'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
+                                  'you have installed the Android SDK properly, and use the',
+                                  '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
+                                  ''
+                              ].join('\n')));
+                          }
+
+                          if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
+                              logger.log(chalk.yellow([
+                                  '',
+                                  'You must install the Android SDK first. Please ensure the ',
+                                  '"android" tool is available from the command line by adding',
+                                  'the sdk\'s "tools/" directory to your system path.',
+                                  ''
+                              ].join('\n')));
+                          }
+
+                          throw err;
+                      });
+              })
+
+          // Todo fix moving assembled project if needed for next puposes or just deliver .apk build
+          /*.then(function () {
+              //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "AndroidSeed"));
+              return spawnWithLogger(api, 'mv', ["/modules/devkit-core/modules/native-android/gradleops/"+app.manifest.shortName,
+                  "/build/debug/native-android/"+app.manifest.shortName]);
+              //return spawnWithLogger(api, 'printf',  [opts.outputPath])
+          })*/
       }
     })
     .then(function () {
@@ -1088,19 +1105,18 @@ exports.build = function(api, app, config, cb) {
     .nodeify(cb);
 };
 
-// Todo fix or remove
 function moveAPK(api, app, config, apkBuildName) {
   var shortName = app.manifest.shortName;
-  var apkPath = path.join(config.outputPath, shortName + ".apk");
+  var apkPath = path.join(__dirname,"gradleops",shortName,"app/build/outputs/apk/debug", "app-debug.apk");
   var destApkPath = path.join(config.outputPath, "bin", apkBuildName);
   return Promise.all([
-      existsAsync(destApkPath),
-      fs.unlinkAsync(apkPath)
+      existsAsync(apkPath),
+      fs.unlinkAsync(destApkPath)
         .catch(function () {}) // ignore if it didn't exist
     ])
     .spread(function (exists) {
       if (exists) {
-        return fs.copyAsync(destApkPath, apkPath);
+        return fs.copyAsync(apkPath,destApkPath);
       } else {
         throw new BuildError("apk failed to build (missing " + destApkPath + ")");
       }
