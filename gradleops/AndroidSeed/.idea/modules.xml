@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AndroidSeed.iml" filepath="$PROJECT_DIR$/AndroidSeed.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/mainapp.iml" filepath="$PROJECT_DIR$/app/mainapp.iml" />
       <module fileurl="file://$PROJECT_DIR$/tealeaf/tealeaf.iml" filepath="$PROJECT_DIR$/tealeaf/tealeaf.iml" />
     </modules>
