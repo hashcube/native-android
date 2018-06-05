@@ -3,11 +3,11 @@
 	<xsl:param name="package" />
 	<xsl:param name="title" />
 	<xsl:param name="activity" />
-	<xsl:param name="version" />
-	<xsl:param name="versionCode" />
+	<xsl:param name="version">23</xsl:param>
+	<xsl:param name="versionCode">23</xsl:param>
 
-	<xsl:param name="minSdkVersion">8</xsl:param>
-	<xsl:param name="targetSdkVersion">14</xsl:param>
+	<xsl:param name="minSdkVersion">21</xsl:param>
+	<xsl:param name="targetSdkVersion">27</xsl:param>
 
 	<xsl:param name="gameHash">0.0</xsl:param>
 	<xsl:param name="sdkHash">1.0</xsl:param>
@@ -16,7 +16,7 @@
 	<xsl:param name="appid"></xsl:param>
 	<xsl:param name="fullscreen">true</xsl:param>
 	<xsl:param name="shortname">tealeaf</xsl:param>
-	<xsl:param name="studioName">Wee Cat Studios</xsl:param>
+	<xsl:param name="studioName">Hashcube</xsl:param>
 	<xsl:param name="codeHost">s.wee.cat</xsl:param>
 	<xsl:param name="tcpHost">s.wee.cat</xsl:param>
 	<xsl:param name="codePort">80</xsl:param>

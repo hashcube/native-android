@@ -146,7 +146,7 @@ var replaceTextBetween = function(text, startToken, endToken, replaceText) {
   return newText;
 };
 
-function injectAppLinks(outputPath, android_manifest) {
+function injectAppLinks(outputPath, android_manifest, app) {
     // Todo debug this path
   var manifestXml = path.join(__dirname, "gradleops/"+app.manifest.shortName+"/tealeaf/src/main",  'AndroidManifest.xml');
   var app_links = android_manifest.app_links;
@@ -378,9 +378,14 @@ function transformXSL(api, inFile, outFile, xslFile, params) {
         logger.error("settings for AndroidManifest: value for", chalk.yellow(key), "is not a string");
       }
 
+
       params[key] = JSON.stringify(params[key]);
     }
   }
+
+    //Remove package changing because it is applied to com.teleaf library but actual package is already set in :app module
+    // Hardcode for now
+    params['package'] = "com.tealeaf"
 
   var outFileTemp = outFile + ".temp";
   return new Promise(function (resolve, reject) {
@@ -474,85 +479,63 @@ function executeOnCreate(api, app, config, opts) {
     });
 }
 
-/*
-todos
-1)change project
-2)	 fix building
-3)Unable to open assets/resources/native.js
-*/
 function makeAndroidProject(api, app, config, opts) {
     var projectPropertiesFile = path.join(__dirname+"/gradleops/"+app.manifest.shortName, 'project.properties');
     return fs.unlinkAsync(projectPropertiesFile)
         .catch(function () {}) // ignore error if file doesn't exist
         .then(function () {
-            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "AndroidSeed"));
             return spawnWithLogger(api, 'pwd', ["-L"]);
-            //return spawnWithLogger(api, 'printf',  [opts.outputPath])
         })
-       /* .then(function () {
-            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "AndroidSeed"));
-            return spawnWithLogger(api, 'cd',['/modules/devkit-core/modules/native-android/gradleops/']);
-            //return spawnWithLogger(api, 'printf',  [opts.outputPath])
-        })*/
         .then(function () {
-            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "AndroidSeed"));
-            //return spawnWithLogger(api, 'pwd', ["-L"]);
             return spawnWithLogger(api, 'printf',  [__dirname])
         })
         .then(function () {
-            /* ant original
-            return spawnWithLogger(api, 'android', [
-                "create", "project", "--target", ANDROID_TARGET, "--name", app.manifest.shortName,
-                "--path", opts.outputPath, "--activity", config.activityName,
-                "--package", config.packageName
-              ])*/
             return spawnWithLogger(api, 'bash', [
-                // script path
+                // script path which copies gradle seed project to new named project
                 "./template",
                 // new name and location
                 app.manifest.shortName,
                 // template name and location
-                "AndroidSeed" // Change to AndroidSeed
+                "AndroidSeed",
+                // new package
+                config.packageName
             ], {cwd: './modules/devkit-core/modules/native-android/gradleops/'})
         })
         .then(function () {
-            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "AndroidSeed"));
             return spawnWithLogger(api, 'pwd', ["-L"]);
-            //return spawnWithLogger(api, 'printf',  [opts.outputPath])
         })
         // Clean gradle projects
         .then(function () {
             return spawnWithLogger(api, './gradlew', [
-                "clean"//,  "-p",__dirname+"/gradleops/"+app.manifest.shortName
+                "clean"
             ], {cwd: __dirname+"/gradleops/"+app.manifest.shortName});
         })
          .then(function () {
-            //var tealeafDir = path.relative("/"+app.manifest.shortName, path.join(__dirname, "AndroidSeed"));
             return spawnWithLogger(api, 'pwd', ["-L"]);
-            //return spawnWithLogger(api, 'printf',  [opts.outputPath])
+        })
+        // make new package dir
+        .then(function () {
+            return spawnWithLogger(api, 'mkdir', ["-p", path.join(__dirname+"/gradleops/"+app.manifest.shortName,
+                "app/src/main/java",
+                config.packageName.split('.').join('/'))]);
         })
         // Rename activity
         .then(function () {
             var activityFileOld = path.join(__dirname+"/gradleops/"+app.manifest.shortName,
                 "app/src/main/java",
-                "com", app.manifest.shortName,
+                 "com", app.manifest.shortName,
                 "AndroidSeedActivity" + ".java");
             var activityFileNew = path.join(__dirname+"/gradleops/"+app.manifest.shortName,
                 "app/src/main/java",
-                "com", app.manifest.shortName,
+                config.packageName.split('.').join('/'),
                 app.manifest.shortName + "Activity.java");
             return spawnWithLogger(api, 'mv', [activityFileOld,activityFileNew]);
         })
-        // 1)Unable to open assets/resources/native.js todo: continue copying files
-        // 2)  Todo analize and fix or remove this later when successful project generated
         .then(function () {
             var dexDir = '\nout.dexed.absolute.dir=../.dex/\nsource.dir=src\n';
             return [
-                // Do not need this string after migration to gadle
-                //fs.appendFileAsync(projectPropertiesFile, dexDir),
                 // Todo: test
                 saveLocalizedStringsXmls( __dirname+"/gradleops/"+app.manifest.shortName, config.titles),
-                // Todo: check what should be here
                 updateManifest(api, app, config, opts),
                 updateActivity(app, config, opts)
             ];
@@ -607,7 +590,7 @@ function signAPK(api, shortName, outputPath, debug) {
       return spawnWithLogger(api, 'zipalign', alignArgs , {cwd: binDir});
     });
 }
-// Todo fix replace apk path and command
+// seems this is not needed
 function repackAPK(api, outputPath, apkName, cb) {
   var apkPath = path.join('bin', apkName);
   spawnWithLogger(api, 'zip', [apkPath, '-d', 'META-INF/*'], {cwd: outputPath}, function (err) {
@@ -857,7 +840,7 @@ function updateManifest(api, app, config, opts) {
     title: "@string/title",
     activity: config.packageName + "." + config.activityName,
     version: "" + config.version,
-    appid: app.manifest.appID.replace(PUNCTUATION_REGEX, ""), // Strip punctuation.,
+    appid: app.manifest.appID.replace(PUNCTUATION_REGEX, "SET APP ID IN CONFIG"), // Strip punctuation.,
     shortname: app.manifest.shortName,
     fullscreen: app.manifest.android.fullscreen,
     orientation: orientation,
@@ -871,13 +854,13 @@ function updateManifest(api, app, config, opts) {
     otherApps: otherApps.join('|')
   });
 
-  var defaultManifest = path.join(__dirname, "gradleops/AndroidSeed/tealeaf/src/main/AndroidManifest.xml");
-  var outputManifest =  path.join(__dirname, "gradleops/"+app.manifest.shortName+"/tealeaf/src/main", "AndroidManifest.xml");
+  // Not required because gradle project is created by copying project which includes tealeaf module installed
+ // var defaultManifest = path.join(__dirname, "gradleops/AndroidSeed/tealeaf/src/main/AndroidManifest.xml");
+ // var outputManifest =  path.join(__dirname, "gradleops/"+app.manifest.shortName+"/tealeaf/src/main", "AndroidManifest.xml");
+ // fs.copyAsync(defaultManifest, outputManifest)
 
-  fs.copyAsync(defaultManifest, outputManifest)
-    .then(function () {
-      return injectAppLinks(path.join(__dirname, "gradleops/AndroidSeed/tealeaf/src/main/"), app.manifest.android);
-    })
+    injectAppLinks(path.join(__dirname, "gradleops/AndroidSeed/tealeaf/src/main/"), app.manifest.android, app)
+
     .then(function () {
       return injectPluginXML(opts);
     })
@@ -892,9 +875,17 @@ function updateManifest(api, app, config, opts) {
         return transformXSL(api, defaultManifest, outputManifest, xslPath, params);
       }
     }, {concurrency: 1}) // Run the plugin XSLT in series instead of parallel
+
     .then(function() {
+        /** Before this copy to original file seed of mygame/manifest.json:
+         copy 1: "fullscreen" : true,       // do not use strings like "true"
+         copy 2:  "gameHash" : 82378912738917238,
+         Otherwise you will seize following error in console
+         [error]  settings for AndroidManifest: value for fullscreen is not a string
+         [error]  settings for AndroidManifest: value for gameHash is not a string
+        */
+        // todo find place in the seed to set fields "fullscreen" and "gameHash"
       logger.log("Applying final XSL transformation");
-      // has been set to app manifest instead of tealeaf manifest
       var xmlPath = path.join(__dirname,  "gradleops/"+app.manifest.shortName+"/tealeaf/src/main", "AndroidManifest.xml");
       return transformXSL(api, xmlPath, xmlPath,
           path.join(__dirname, "AndroidManifest.xsl"),
@@ -903,11 +894,9 @@ function updateManifest(api, app, config, opts) {
 }
 
 function updateActivity(app, config, opts) {
-    // Todo debug
-                                //was opts.outputPath
   var activityFile = path.join(__dirname+"/gradleops/"+app.manifest.shortName,
       "app/src/main/java",
-      "com", app.manifest.shortName,
+      config.packageName.split('.').join('/'),
       config.activityName + ".java");
 
   return fs.readFileAsync(activityFile, 'utf-8')
@@ -1002,7 +991,7 @@ exports.build = function(api, app, config, cb) {
         copyAssets(api, app, __dirname+"/gradleops/"+app.manifest.shortName + "/app/src/main/assets")
       ];
     })
-    .all() // Todo fix or remove "repack apk" and path
+    .all() 
 
     .then(function buildAPK() {
       if (!skipAPK) {
@@ -1016,9 +1005,7 @@ exports.build = function(api, app, config, cb) {
             });
         }*/
           // build ndk libtealeaf.so, formerly named manually libpng.so ,
-          // todo gitignore fix: find out why jni/obj, jni/gen and jni/profilers were in gitignore, should they be assembled by devkit?
-          // so todo: !!! uncomment for ndk compilation after successful debug
-
+          // todo make sure gitignore to fix: find out why jni/obj, jni/gen and jni/profilers were in gitignore, should they be assembled by devkit?
               return spawnWithLogger(api, 'ndk-build', [
                   "NDK_PROJECT_PATH=tealeaf/src/main",
               ], {cwd: "./modules/devkit-core/modules/native-android/gradleops/" + app.manifest.shortName})
@@ -1050,6 +1037,7 @@ exports.build = function(api, app, config, cb) {
           .then(function () {
                   return spawnWithLogger(api, './gradlew', [
                       "build",
+                      //'--debug', '--stacktrace', // UNCOMMENT TO DEBUG
                   ], {cwd: __dirname+"/gradleops/"+app.manifest.shortName})
                       .catch(BuildError, function (err) {
                           if (err.stdout && /not valid/i.test(err.stdout)) {

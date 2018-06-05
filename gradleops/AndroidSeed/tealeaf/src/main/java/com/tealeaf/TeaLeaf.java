@@ -292,7 +292,7 @@ public class TeaLeaf extends FragmentActivity {
 		PushBroadcastReceiver.scheduleNext(this, 10);
 
 		glView = new TeaLeafGLSurfaceView(this);
-		if (isTestApp == true || isTestApp == false) {
+		if (isTestApp == true) {
 			startGame();
 		}
 

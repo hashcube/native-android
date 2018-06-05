@@ -20,6 +20,14 @@ cp -r ../../native-core tealeaf/src/main/jni/core
 #find . -type f -print0 | xargs -0 sed -i "s/${old}/${new}/g"
 #find . -type f -print0 | xargs -0 sed -i "s/${old_lower}/${new_lower}/g"
 #Mac
+#Changing packages
+package_old="com.$old_lower"
+package_new="$1"
+printf "printing packages \n" 
+printf $package_old '\n'
+printf $package_new '\n'
+find . -type f -print0 | xargs -0 sed -i "" "s/${package_old}/${package_new}/g"
+#Changing names
 find . -type f -print0 | xargs -0 sed -i "" "s/${old}/${new}/g"
 find . -type f -print0 | xargs -0 sed -i "" "s/${old_lower}/${new_lower}/g"
 # don't need now to rename cpp file names 

@@ -7,11 +7,12 @@ android {
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 27
-        // debug if needed multiDexEnabled true
-        // todo remove this and debug
+
         ndk {
             moduleName "libpng"
         }
+        versionCode 1
+        versionName "1.0"
     }
 
    useLibrary 'org.apache.http.legacy'
