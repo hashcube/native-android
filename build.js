@@ -187,6 +187,11 @@ function injectAppLinks(outputPath, android_manifest, app) {
     });
 };
 
+
+
+//todo 1 why it was changed but works from devkit.native.launchClient to gc.native.launchClient in gradleops/AndroidSeed/tealeaf/src/main/AndroidManifest.xml
+//todo 2 commit results
+//todo 3 test creating new apps in current devkit by creating mygame2 and in new devkit in /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit by creating app in it
 function injectPluginXML(opts) {
   var moduleConfig = opts.moduleConfig;
   var outputPath = opts.outputPath;
@@ -445,7 +450,7 @@ function saveLocalizedStringsXmls(outputPath, titles) {
       var inner = '<string name="title">' + title + '</string>';
       var finalXml = first + inner + second;
       var values = lang == 'en' ? 'values' : 'values-' + lang;
-      var stringsFile = path.join(outputPath, 'res', values, 'strings.xml');
+      var stringsFile = path.join(outputPath, "app/src/main",'res', values, 'strings.xml');
       return fs.outputFileAsync(stringsFile, finalXml, 'utf-8');
     });
 }
@@ -534,7 +539,6 @@ function makeAndroidProject(api, app, config, opts) {
         .then(function () {
             var dexDir = '\nout.dexed.absolute.dir=../.dex/\nsource.dir=src\n';
             return [
-                // Todo: test
                 saveLocalizedStringsXmls( __dirname+"/gradleops/"+app.manifest.shortName, config.titles),
                 updateManifest(api, app, config, opts),
                 updateActivity(app, config, opts)
@@ -840,7 +844,7 @@ function updateManifest(api, app, config, opts) {
     title: "@string/title",
     activity: config.packageName + "." + config.activityName,
     version: "" + config.version,
-    appid: app.manifest.appID.replace(PUNCTUATION_REGEX, "SET APP ID IN CONFIG"), // Strip punctuation.,
+    appid: app.manifest.appID.replace(PUNCTUATION_REGEX, ""), // Strip punctuation.,
     shortname: app.manifest.shortName,
     fullscreen: app.manifest.android.fullscreen,
     orientation: orientation,
