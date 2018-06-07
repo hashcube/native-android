@@ -146,9 +146,8 @@ var replaceTextBetween = function(text, startToken, endToken, replaceText) {
   return newText;
 };
 
-function injectAppLinks(outputPath, android_manifest, app) {
-    // Todo debug this path
-  var manifestXml = path.join(__dirname, "gradleops/"+app.manifest.shortName+"/tealeaf/src/main",  'AndroidManifest.xml');
+function injectAppLinks(android_manifest, app) {
+  var manifestXml = path.join(__dirname, "gradleops/"+app.manifest.shortName+"/app/src/main",  'AndroidManifest.xml');
   var app_links = android_manifest.app_links;
   var template = '<data android:host="curr_host" android:scheme="curr_scheme"/>';
   var result = '';
@@ -189,13 +188,13 @@ function injectAppLinks(outputPath, android_manifest, app) {
 
 
 
-//todo 1 why it was changed but works from devkit.native.launchClient to gc.native.launchClient in gradleops/AndroidSeed/tealeaf/src/main/AndroidManifest.xml
-//todo 2 commit results
-//todo 3 test creating new apps in current devkit by creating mygame2 and in new devkit in /Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit by creating app in it
+//todo 1 find why it was changed but works from devkit.native.launchClient to gc.native.launchClient in gradleops/AndroidSeed/tealeaf/src/main/AndroidManifest.xml
+
+
 function injectPluginXML(opts) {
   var moduleConfig = opts.moduleConfig;
-  var outputPath = opts.outputPath;
-  var manifestXml =  path.join(__dirname, "gradleops/AndroidSeed/tealeaf/src/main",  'AndroidManifest.xml');
+  //var outputPath = opts.outputPath;
+  var manifestXml =  path.join(__dirname, "gradleops", app.manifest.shortName,"app/src/main",  'AndroidManifest.xml');
 
   var readPluginXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
     var injectionXML = moduleConfig[moduleName].config.injectionXML;
@@ -247,6 +246,7 @@ function injectPluginXML(opts) {
     });
 }
 
+// do not remove now
 var installModuleCode = function (api, app, opts) {
   var moduleConfig = opts.moduleConfig;
   var outputPath = opts.outputPath;
@@ -258,8 +258,6 @@ var installModuleCode = function (api, app, opts) {
         .then(function (contents) {
           var pkgName = contents.match(/(package[\s]+)([a-z.A-Z0-9]+)/g)[0].split(' ')[1];
           var pkgDir = pkgName.replace(/\./g, "/");
-            // Todo test if libs folder is copied to correct place
-            // Todo and think why we need it at all
           var outFile = path.join(__dirname, "gradleops/AndroidSeed", "app/src/main", pkgDir, path.basename(filePath));
 
           logger.log("Installing Java package", pkgName, "to", outFile);
@@ -294,8 +292,6 @@ var installModuleCode = function (api, app, opts) {
     }
   }
 // Todo check if we need install libraries because gradle imports everything from project including libraries
-
-
   function installLibraries(libraries) {
     if (!libraries || !libraries.length) { return; }
 
@@ -439,6 +435,8 @@ function buildSupportProjects(api, config) {
     });
 }*/
 
+
+// not tested because not used now, will get back to it later
 function saveLocalizedStringsXmls(outputPath, titles) {
   var stringsXmlPath = path.join(outputPath, "app/src/main", "res/values/strings.xml");
   var stringsXml = fs.readFileSync(stringsXmlPath, "utf-8");
@@ -863,7 +861,7 @@ function updateManifest(api, app, config, opts) {
  // var outputManifest =  path.join(__dirname, "gradleops/"+app.manifest.shortName+"/tealeaf/src/main", "AndroidManifest.xml");
  // fs.copyAsync(defaultManifest, outputManifest)
 
-    injectAppLinks(path.join(__dirname, "gradleops/AndroidSeed/tealeaf/src/main/"), app.manifest.android, app)
+    injectAppLinks(app.manifest.android, app)
 
     .then(function () {
       return injectPluginXML(opts);
@@ -926,12 +924,14 @@ function createProject(api, app, config) {
         })
         .return(moduleConfig);
     })
+    /* now it seems this is not needed but need to test of use with plugins, etc in production
     .then(function (moduleConfig) {
       return installModuleCode(api, app, {
           moduleConfig: moduleConfig,
           outputPath: config.outputPath
         });
-    }));
+    })*/
+  );
 
   // TODO: if build switches between release to debug, clean project
   // var cleanProj = (builder.common.config.get("lastBuildWasDebug") != config.debug) || config.clean;
