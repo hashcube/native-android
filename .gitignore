@@ -49,7 +49,6 @@ proguard-project.txt
 # was before TeaLeaf/src/com/tealeaf/plugin/plugins
 gradleops/AndroidSeed/tealeaf/plugin/plugins
 plugins/config.json
-gradleops/AndroidSeed/gradle
 
 #manifest
 manifest.json
