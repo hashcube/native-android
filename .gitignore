@@ -59,3 +59,4 @@ manifest.json
 !gradleops/AndroidSeed/tealeaf/src/main/jni/profiler
 !gradleops/AndroidSeed/app/src/main/jni/gen
 !gradleops/AndroidSeed/app/src/main/jni/obj
+!gradleops/AndroidSeed/app/src/main/jni/gen
