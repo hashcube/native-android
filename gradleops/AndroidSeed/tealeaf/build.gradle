@@ -47,21 +47,10 @@ android {
 }
 
 dependencies {
+    api fileTree(dir: 'libs', include: ['*.jar','*.so','*.aar'])
     implementation 'com.google.code.gson:gson:2.2.1'
-    //compile files('libs/org.apache.http.legacy.jar')
-    compile fileTree(dir: 'libs', include: ['.jar','.so'])
-
-
-
     implementation 'com.android.support:support-compat:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
-   /* implementation 'android.arch.lifecycle:extensions:1.1.0'
-    implementation 'android.arch.lifecycle:compiler:1.1.0'
-    compile "android.arch.lifecycle:extensions:1.1.0"
-    compile "android.arch.persistence.room:runtime:1.1.0"
-    annotationProcessor "android.arch.lifecycle:compiler:1.1.0"
-    annotationProcessor "android.arch.persistence.room:compiler:1.1.0"*/
-
 }
 
 

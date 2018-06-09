@@ -2,4 +2,5 @@
 <resources>
     <string name="title">TeaLeaf</string>
     <string name="game_name">AndroidSeed</string>
+    <string name="app_name">@string/game_name</string>
 </resources>

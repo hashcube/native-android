@@ -191,7 +191,7 @@ function injectAppLinks(android_manifest, app) {
 //todo 1 find why it was changed but works from devkit.native.launchClient to gc.native.launchClient in gradleops/AndroidSeed/tealeaf/src/main/AndroidManifest.xml
 
 
-function injectPluginXML(opts) {
+function injectPluginXML(opts, app) {
   var moduleConfig = opts.moduleConfig;
   //var outputPath = opts.outputPath;
   var manifestXml =  path.join(__dirname, "gradleops", app.manifest.shortName,"app/src/main",  'AndroidManifest.xml');
@@ -258,7 +258,7 @@ var installModuleCode = function (api, app, opts) {
         .then(function (contents) {
           var pkgName = contents.match(/(package[\s]+)([a-z.A-Z0-9]+)/g)[0].split(' ')[1];
           var pkgDir = pkgName.replace(/\./g, "/");
-          var outFile = path.join(__dirname, "gradleops/AndroidSeed", "app/src/main", pkgDir, path.basename(filePath));
+          var outFile = path.join(__dirname, "gradleops", app.manifest.shortName, "tealeaf/src/main/java", pkgDir, path.basename(filePath));
 
           logger.log("Installing Java package", pkgName, "to", outFile);
 
@@ -291,8 +291,8 @@ var installModuleCode = function (api, app, opts) {
       return fs.copyAsync(path.join(baseDir, filePath), path.join(outputPath, "tealeaf/src/main", filePath));
     }
   }
-// Todo check if we need install libraries because gradle imports everything from project including libraries
-  function installLibraries(libraries) {
+// Don't need this seems gradle has been set up to read all libraries in libs directory, just need to copy jars
+ /* function installLibraries(libraries) {
     if (!libraries || !libraries.length) { return; }
 
     var projectPropertiesFile = path.join(__dirname+"/gradleops/"+app.manifest.shortName, "project.properties");
@@ -332,17 +332,17 @@ var installModuleCode = function (api, app, opts) {
 
         return fs.appendFileAsync(projectPropertiesFile, libraryReferences);
       });
-  }
- // Todo check if needed then add line to gradle or ...
+  }*/
+
   function installJar(jarFile) {
     logger.log("Installing module JAR:", jarFile);
-    var jarDestPath = path.join(outputPath,"app/src/main", "libs", path.basename(jarFile));
+    var jarDestPath = path.join(__dirname+"/gradleops/"+app.manifest.shortName, "tealeaf/libs", path.basename(jarFile));
 
     logger.log("Installing JAR file:", jarDestPath);
     return fs.unlinkAsync(jarDestPath)
       .catch(function () {})
       .then(function () {
-        return fs.symlinkAsync(jarFile, jarDestPath, 'junction');
+        return fs.copy(jarFile, jarDestPath, 'junction');
       });
   }
 
@@ -363,7 +363,8 @@ var installModuleCode = function (api, app, opts) {
       tasks.push(installJar(path.join(modulePath, 'android', jar)));
     });
 
-    tasks.push(installLibraries(config.libraries));
+    // don't need this, see line 295 `function installLibraries(`
+    //tasks.push(installLibraries(config.libraries));
   }
 
   return Promise.all(tasks);
@@ -539,7 +540,8 @@ function makeAndroidProject(api, app, config, opts) {
             return [
                 saveLocalizedStringsXmls( __dirname+"/gradleops/"+app.manifest.shortName, config.titles),
                 updateManifest(api, app, config, opts),
-                updateActivity(app, config, opts)
+                updateActivity(app, config, opts),
+                executeOnCreate(api, app, config, opts)
             ];
         })
         .all();
@@ -860,11 +862,12 @@ function updateManifest(api, app, config, opts) {
  // var defaultManifest = path.join(__dirname, "gradleops/AndroidSeed/tealeaf/src/main/AndroidManifest.xml");
  // var outputManifest =  path.join(__dirname, "gradleops/"+app.manifest.shortName+"/tealeaf/src/main", "AndroidManifest.xml");
  // fs.copyAsync(defaultManifest, outputManifest)
-
+    var defaultManifest = path.join(__dirname, "gradleops/"+app.manifest.shortName+"/app/src/main", "AndroidManifest.xml");
+    var outputManifest =  defaultManifest; //path.join(__dirname, "gradleops/"+app.manifest.shortName+"/tealeaf/src/main", "AndroidManifest.xml");
     injectAppLinks(app.manifest.android, app)
 
     .then(function () {
-      return injectPluginXML(opts);
+      return injectPluginXML(opts, app);
     })
     .then(function () {
       return Object.keys(opts.moduleConfig);
@@ -924,13 +927,13 @@ function createProject(api, app, config) {
         })
         .return(moduleConfig);
     })
-    /* now it seems this is not needed but need to test of use with plugins, etc in production
+    // now it seems this is not needed but need to test of use with plugins, etc in production
     .then(function (moduleConfig) {
       return installModuleCode(api, app, {
           moduleConfig: moduleConfig,
           outputPath: config.outputPath
         });
-    })*/
+    })
   );
 
   // TODO: if build switches between release to debug, clean project
