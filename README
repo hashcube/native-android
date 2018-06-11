@@ -1,1 +1,22 @@
 This is the native 'tealeaf' platform for android devices
+
+## Errors
+
+# If you see this error
+
++ xargs -0 sed -i '' s/com.androidseed/com.example.studio.mygame/g
+                    sed: RE error: illegal byte sequence
+  [native-android]  android complete
+           [build]  [error]  Error: bash exited with non-zero exit code (1)
+                    build failed
+
+Then:
+1) open script to edit native-android/gradleops/template,
+2) comment `find` commands for different OS
+3) comment out `find` commands for correct OS
+
+# if this error happend on Mac, then 
+Add the following lines to your ~/.bash_profile or ~/.zshrc file(s).
+                                     
+export LC_CTYPE=C 
+export LANG=C

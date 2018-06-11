@@ -1012,6 +1012,7 @@ exports.build = function(api, app, config, cb) {
             });
         }*/
           // build ndk libtealeaf.so, formerly named manually libpng.so ,
+          // !!!todo!!! uncomment before pushing
           // todo make sure gitignore to fix: find out why jni/obj, jni/gen and jni/profilers were in gitignore, should they be assembled by devkit?
               return spawnWithLogger(api, 'ndk-build', [
                   "NDK_PROJECT_PATH=tealeaf/src/main",
