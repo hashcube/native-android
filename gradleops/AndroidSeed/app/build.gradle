@@ -5,7 +5,7 @@ android {
     buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "com.example.studio.mygame"
-        minSdkVersion 23
+        minSdkVersion 21
         targetSdkVersion 27
         multiDexEnabled true
         versionCode 1
