@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-cd modules/devkit-core/modules/native-android/gradleops
+export LC_ALL=C
+echo y | sdkmanager --licenses
+pwd -L
+cd /modules/devkit-core/modules/native-android/gradleops/
 set -ex
 new="$1"
 shift
