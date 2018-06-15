@@ -3,6 +3,7 @@ package com.tealeaf;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v7.widget.AppCompatEditText;
 import android.widget.RelativeLayout;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -31,7 +32,7 @@ import com.tealeaf.event.InputKeyboardSubmitEvent;
 import org.json.JSONObject;
 
 
-public class EditTextView extends EditText {
+public class EditTextView extends AppCompatEditText {
 
 	private static EditTextView instance;
 	private Activity activity;

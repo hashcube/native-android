@@ -25,6 +25,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.support.v7.widget.AppCompatEditText;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -37,7 +38,7 @@ import android.widget.EditText;
 @SuppressWarnings("deprecation")
 public class TextInputView extends AbsoluteLayout {
 
-	private class TextBox extends EditText {
+	private class TextBox extends AppCompatEditText {
 		private float opacity = 1.0f;
 		private AnimationSet set = new AnimationSet(true);
 		public TextBox(Context context) {

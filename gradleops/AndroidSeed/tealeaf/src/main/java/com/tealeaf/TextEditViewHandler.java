@@ -1,5 +1,6 @@
 package com.tealeaf;
 
+import android.support.v7.widget.AppCompatEditText;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -316,7 +317,7 @@ public class TextEditViewHandler {
 		};	
 	}
 
-	public static class TextEditView extends EditText {
+	public static class TextEditView extends AppCompatEditText {
 
 		private TextEditViewHandler handler;
 
