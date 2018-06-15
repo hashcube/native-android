@@ -1,22 +1,22 @@
 This is the native 'tealeaf' platform for android devices
 
+## Installation
+
+1. Install android tools, then download and unpdack android-ndk-r9b
+2. Export path:
+export ANDROID_HOME=/home/USERNAME/Android/Sdk
+export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+export PATH=$PATH:/path/to/ndk-r9b/android-ndk-r9b
+
+3. Install and configure NDK tools with installed SDK Manger (see 1)
+
 ## Errors
 
-# If you see this error
-
-+ xargs -0 sed -i '' s/com.androidseed/com.example.studio.mygame/g
-                    sed: RE error: illegal byte sequence
-  [native-android]  android complete
-           [build]  [error]  Error: bash exited with non-zero exit code (1)
-                    build failed
-
-Then:
-1) open script to edit native-android/gradleops/template,
-2) comment `find` commands for different OS
-3) comment out `find` commands for correct OS
-
-# if this error happend on Mac, then 
-Add the following lines to your ~/.bash_profile or ~/.zshrc file(s).
-                                     
-export LC_CTYPE=C 
-export LANG=C
+# Ubuntu
+Deskription
+# Warning: File /home/user/.android/repositories.cfg could not be loaded.  
+do:
+touch ~/.android/repositories.cfg
+and install required sdk with sdkmanager
+or
+install required sdk with Android Studio
