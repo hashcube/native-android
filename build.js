@@ -494,6 +494,10 @@ function makeAndroidProject(api, app, config, opts) {
             return spawnWithLogger(api, 'printf',  [__dirname])
         })
         .then(function () {
+            return spawnWithLogger(api, 'rm', ["-rf",__dirname+"/gradleops/"+app.manifest.shortName])
+        })
+        // call gradle project to copy seed
+        .then(function () {
             return spawnWithLogger(api, 'bash', [
                 // script path which copies gradle seed project to new named project
                 "./template",
@@ -1012,7 +1016,6 @@ exports.build = function(api, app, config, cb) {
             });
         }*/
           // build ndk libtealeaf.so, formerly named manually libpng.so ,
-          // !!!todo!!! uncomment before pushing
           // todo make sure gitignore to fix: find out why jni/obj, jni/gen and jni/profilers were in gitignore, should they be assembled by devkit?
               return spawnWithLogger(api, 'ndk-build', [
                   "NDK_PROJECT_PATH=tealeaf/src/main",
@@ -1045,7 +1048,7 @@ exports.build = function(api, app, config, cb) {
           .then(function () {
                   return spawnWithLogger(api, './gradlew', [
                       "build",
-                      //'--debug', '--stacktrace', // UNCOMMENT TO DEBUG
+                      '--debug', '--stacktrace', // UNCOMMENT TO DEBUG
                   ], {cwd: __dirname+"/gradleops/"+app.manifest.shortName})
                       .catch(BuildError, function (err) {
                           if (err.stdout && /not valid/i.test(err.stdout)) {
