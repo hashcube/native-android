@@ -13,6 +13,10 @@ android {
         }
         versionCode 1
         versionName "1.0"
+        lintOptions {
+            disable 'LongLogTag'
+            abortOnError false
+        }
     }
 
    useLibrary 'org.apache.http.legacy'
@@ -47,9 +51,16 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar','*.so','*.aar'])
     implementation 'com.google.code.gson:gson:2.2.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'
+
+    //<!--START_PLUGINS_BULK_DEPENDENCIES-->
+    //<!--END_PLUGINS_BULK_DEPENDENCIES-->
+
+    //<!--START_PLUGINS_DEPENDENCIES-->
+    //<!--END_PLUGINS_DEPENDENCIES-->
+
+    
 }
 
 

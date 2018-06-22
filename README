@@ -33,3 +33,17 @@ https://stackoverflow.com/a/38902589
 
 Then make sure sdkmanager command works from terminal
 https://developer.android.com/studio/command-line/sdkmanager
+
+
+# Mac 
+# version = re.match(r'(\d\.\d\.?\d*)', version).groups()[0]
+AttributeError: 'NoneType' object has no attribute 'groups'
+gyp ERR! configure error 
+gyp ERR! stack Error: `gyp` failed with exit code: 1
+
+do:
+1. Make sure you select correct Xcode.app path with 
+`xcode-select -print-path`
+2. Point xcode-select to the Xcode Developer directory using the following command
+`sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
+More at https://github.com/nodejs/node-gyp/issues/569

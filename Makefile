@@ -65,7 +65,7 @@ release: all
 # cleans the  TeaLeaf native code as well as supporting project
 # also cleans plugins
 clean:
-    ./gradlew clean
+	./gradlew clean
 #	ndk-build -C TeaLeaf clean
 #	ant -f TeaLeaf/build.xml clean
 #	ant -f GCTestApp/build.xml clean

@@ -10,7 +10,10 @@ android {
         multiDexEnabled true
         versionCode 1
         versionName "1.0"
-
+        lintOptions {
+            disable 'LongLogTag'
+            abortOnError false
+        }
      }
     buildTypes {
         release {
@@ -30,3 +33,9 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation project(path: ':tealeaf')
 }
+
+
+    //<!--START_ANDROID_PLUGINS-->
+
+
+    //<!--END_ANDROID_PLUGINS-->
