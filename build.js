@@ -136,6 +136,13 @@ var replaceTextBetween = function(text, startToken, endToken, replaceText) {
   var start = text.indexOf(startToken);
   var end = text.indexOf(endToken);
   if (start == -1 || end == -1) {
+
+      if(replaceText.includes('google-services')) {
+          logger.log('newText:' + newText);
+          logger.log('start:' + start);
+          logger.log('end:' + end);
+      }
+
     return text;
   }
   var offset = text.substring(start).indexOf("\n") + 1;
@@ -219,6 +226,28 @@ function injectPluginXML(opts, app) {
 
         if (injectionTealeafGradleXML) {
             var filepath = path.join(moduleConfig[moduleName].path, 'android', injectionTealeafGradleXML);
+            logger.log('Reading injectionTealeafModuleGradleXML Gradle XML:', filepath);
+
+            return fs.readFileAsync(filepath, 'utf-8');
+        }
+    });
+
+    var readTealeafGradleManifestPlaceholdersXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
+        var injectionTealeafGradleXML = moduleConfig[moduleName].config.injectionManifestPlaceholdersGradleXML;
+
+        if (injectionTealeafGradleXML) {
+            var filepath = path.join(moduleConfig[moduleName].path, 'android', injectionTealeafGradleXML);
+            logger.log('Reading Tealeaf Gradle XML:', filepath);
+
+            return fs.readFileAsync(filepath, 'utf-8');
+        }
+    });
+
+    var readAppGradleDevkitPluginsDependenciesXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
+        var injectionAppGradleXML = moduleConfig[moduleName].config.injectionAppModuleGradleXML;
+
+        if (injectionAppGradleXML) {
+            var filepath = path.join(moduleConfig[moduleName].path, 'android', injectionAppGradleXML);
             logger.log('Reading Tealeaf Gradle XML:', filepath);
 
             return fs.readFileAsync(filepath, 'utf-8');
@@ -236,6 +265,19 @@ function injectPluginXML(opts, app) {
         }
     });
 
+    var readTealeafGradleAndroidPluginsXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
+        var injectionTealeafGradleXML = moduleConfig[moduleName].config.injectionTealeafModuleGradleAndroidPluginsGradleXML;
+
+        if (injectionTealeafGradleXML) {
+            var filepath = path.join(moduleConfig[moduleName].path, 'android', injectionTealeafGradleXML);
+            logger.log('Reading App  Gradle XML:', filepath);
+
+            return fs.readFileAsync(filepath, 'utf-8');
+        }
+    });
+
+
+
     var readGradleClasspathAndroidPluginsXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
         var injectionMainGradleXML = moduleConfig[moduleName].config.injectionGradleClasspathXML;
 
@@ -247,6 +289,7 @@ function injectPluginXML(opts, app) {
         }
     });
 
+// TODO update devkit howto `## using and setting up android plugins`
 
 
   return Promise.all([
@@ -317,6 +360,68 @@ function injectPluginXML(opts, app) {
               logger.log('No plugin gradle dependency to inject');
           }
       })
+      // read and apply manifest placeholders to tealeaf build.gradle
+      .then(function () {
+
+          return Promise.all([
+              fs.readFileAsync(gradleTealeafBuildFile, 'utf-8')]
+              .concat(readTealeafGradleManifestPlaceholdersXMLFiles)
+          )
+      })
+      .then(function (results) {
+          var xml = results.shift();
+
+          if (results && results.length > 0 && xml && xml.length > 0) {
+              var tealeafGradleBuildStr = '';
+              var XML_START_MANIFEST_PLACEHOLDERS =  '//<!--START_MANIFEST_PLACEHOLDERS-->';
+              var XML_END_MANIFEST_PLACEHOLDERS = '//<!--END_MANIFEST_PLACEHOLDERSS-->';
+
+              for (var i = 0; i < results.length; ++i) {
+                  var gradleXml = results[i];
+                  if (!gradleXml) { continue; }
+
+                  tealeafGradleBuildStr += getTextBetween(gradleXml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS );
+                  // logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
+              }
+
+              xml = replaceTextBetween(xml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS , tealeafGradleBuildStr);
+
+              return fs.writeFileAsync(gradleTealeafBuildFile, xml, 'utf-8');
+          } else {
+              logger.log('No plugin gradle dependency to inject');
+          }
+      })
+      // read and apply plugins to tealeaf build.gradle
+      .then(function () {
+
+          return Promise.all([
+              fs.readFileAsync(gradleAppBuildFile, 'utf-8')]
+              .concat(readAppGradleDevkitPluginsDependenciesXMLFiles)
+          )
+      })
+      .then(function (results) {
+          var xml = results.shift();
+
+          if (results && results.length > 0 && xml && xml.length > 0) {
+              var tealeafGradleBuildStr = '';
+              var XML_START_PLUGINS_DEPENDENCIES =  '//<!--START_PLUGINS_DEPENDENCIES-->';
+              var XML_END_PLUGINS_DEPENDENCIES = '//<!--END_PLUGINS_DEPENDENCIES-->';
+
+              for (var i = 0; i < results.length; ++i) {
+                  var gradleXml = results[i];
+                  if (!gradleXml) { continue; }
+
+                  tealeafGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_DEPENDENCIES, XML_END_PLUGINS_DEPENDENCIES );
+                  // logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
+              }
+
+              xml = replaceTextBetween(xml, XML_START_PLUGINS_DEPENDENCIES, XML_END_PLUGINS_DEPENDENCIES , tealeafGradleBuildStr);
+
+              return fs.writeFileAsync(gradleAppBuildFile, xml, 'utf-8');
+          } else {
+              logger.log('No plugin gradle dependency to inject');
+          }
+      })
       // read and apply plugins to app build.gradle (mainly to integrate Google Play Services plugin)
       .then(function () {
 
@@ -346,6 +451,39 @@ function injectPluginXML(opts, app) {
               xml = replaceTextBetween(xml, XML_START_ANDROID_PLUGINS, XML_END_ANDROID_PLUGINS , appGradleBuildStr);
 
               return fs.writeFileAsync(gradleAppBuildFile, xml, 'utf-8');
+          } else {
+              logger.log('No plugin gradle dependency to inject');
+          }
+      })
+      // read and apply plugins to ** tealeaf ** build.gradle (mainly to integrate Google Play Services plugin)
+      .then(function () {
+
+          return Promise.all([
+              fs.readFileAsync(gradleTealeafBuildFile, 'utf-8')]
+              .concat(readTealeafGradleAndroidPluginsXMLFiles)
+          )
+      })
+      .then(function (results) {
+          var xml = results.shift();
+
+          if (results && results.length > 0 && xml && xml.length > 0) {
+              var appGradleBuildStr = '';
+              var XML_START_ANDROID_PLUGINS =  '//<!--START_ANDROID_PLUGINS-->';
+              var XML_END_ANDROID_PLUGINS = '//<!--END_ANDROID_PLUGINS-->';
+
+              for (var i = 0; i < results.length; ++i) {
+                  var gradleXml = results[i];
+                  if (!gradleXml) {
+                      continue;
+                  }
+
+                  appGradleBuildStr += getTextBetween(gradleXml, XML_START_ANDROID_PLUGINS, XML_END_ANDROID_PLUGINS );
+                  //logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
+              }
+
+              xml = replaceTextBetween(xml, XML_START_ANDROID_PLUGINS, XML_END_ANDROID_PLUGINS , appGradleBuildStr);
+
+              return fs.writeFileAsync(gradleTealeafBuildFile, xml, 'utf-8');
           } else {
               logger.log('No plugin gradle dependency to inject');
           }
@@ -382,6 +520,14 @@ function injectPluginXML(opts, app) {
           }
       });
 }
+
+// TODO
+1 START_MANIFEST_PLACEHOLDERS area is not filled
+probably because onesignal_app_id is not found by injector type (probably no injector at all)
+make sure correct onesignal_app_id is placed
+
+2 START_MANIFEST_PLACEHOLDERS must be added to app/build.gradle (application compilation error) - check if tealeaf/build.gradle is required
+
 
 // do not remove now
 var installModuleCode = function (api, app, opts) {
@@ -492,6 +638,11 @@ var installModuleCode = function (api, app, opts) {
 
     config.copyFiles && config.copyFiles.forEach(function (filename) {
       tasks.push(handleFile(path.join(modulePath, 'android'), filename, config.injectionSource));
+    });
+
+    config.copyCustomFiles && config.copyCustomFiles.forEach(function (customfile) {
+      tasks.push(fs.copyAsync(path.join(modulePath, 'android', customfile.file),
+          path.join(__dirname, "gradleops", app.manifest.shortName, customfile.path, customfile.file)));
     });
 
     config.copyGameFiles && config.copyGameFiles.forEach(function (filename) {

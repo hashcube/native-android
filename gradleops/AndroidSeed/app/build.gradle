@@ -14,6 +14,10 @@ android {
             disable 'LongLogTag'
             abortOnError false
         }
+        
+    //<!--START_MANIFEST_PLACEHOLDERS-->
+    //<!--END_MANIFEST_PLACEHOLDERS-->
+        
      }
     buildTypes {
         release {
@@ -32,6 +36,9 @@ dependencies {
 
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation project(path: ':tealeaf')
+    
+    //<!--START_PLUGINS_DEPENDENCIES-->
+    //<!--END_PLUGINS_DEPENDENCIES-->
 }
 
 
