@@ -136,13 +136,6 @@ var replaceTextBetween = function(text, startToken, endToken, replaceText) {
   var start = text.indexOf(startToken);
   var end = text.indexOf(endToken);
   if (start == -1 || end == -1) {
-
-      if(replaceText.includes('google-services')) {
-          logger.log('newText:' + newText);
-          logger.log('start:' + start);
-          logger.log('end:' + end);
-      }
-
     return text;
   }
   var offset = text.substring(start).indexOf("\n") + 1;
@@ -232,11 +225,11 @@ function injectPluginXML(opts, app) {
         }
     });
 
-    var readTealeafGradleManifestPlaceholdersXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
-        var injectionTealeafGradleXML = moduleConfig[moduleName].config.injectionManifestPlaceholdersGradleXML;
+    var readAppGradleManifestPlaceholdersXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
+        var injectionAppGradleXML = moduleConfig[moduleName].config.injectionManifestPlaceholdersGradleXML;
 
-        if (injectionTealeafGradleXML) {
-            var filepath = path.join(moduleConfig[moduleName].path, 'android', injectionTealeafGradleXML);
+        if (injectionAppGradleXML) {
+            var filepath = path.join(moduleConfig[moduleName].path, 'android', injectionAppGradleXML);
             logger.log('Reading Tealeaf Gradle XML:', filepath);
 
             return fs.readFileAsync(filepath, 'utf-8');
@@ -360,12 +353,12 @@ function injectPluginXML(opts, app) {
               logger.log('No plugin gradle dependency to inject');
           }
       })
-      // read and apply manifest placeholders to tealeaf build.gradle
+      // read and apply manifest placeholders to app build.gradle
       .then(function () {
 
           return Promise.all([
-              fs.readFileAsync(gradleTealeafBuildFile, 'utf-8')]
-              .concat(readTealeafGradleManifestPlaceholdersXMLFiles)
+              fs.readFileAsync(gradleAppBuildFile, 'utf-8')]
+              .concat(readAppGradleManifestPlaceholdersXMLFiles)
           )
       })
       .then(function (results) {
@@ -374,14 +367,62 @@ function injectPluginXML(opts, app) {
           if (results && results.length > 0 && xml && xml.length > 0) {
               var tealeafGradleBuildStr = '';
               var XML_START_MANIFEST_PLACEHOLDERS =  '//<!--START_MANIFEST_PLACEHOLDERS-->';
-              var XML_END_MANIFEST_PLACEHOLDERS = '//<!--END_MANIFEST_PLACEHOLDERSS-->';
+              var XML_END_MANIFEST_PLACEHOLDERS = '//<!--END_MANIFEST_PLACEHOLDERS-->';
 
               for (var i = 0; i < results.length; ++i) {
                   var gradleXml = results[i];
                   if (!gradleXml) { continue; }
 
-                  tealeafGradleBuildStr += getTextBetween(gradleXml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS );
-                  // logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
+
+                  var textBetween = getTextBetween(gradleXml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS);
+                  let textBetweenLower = textBetween.toLowerCase();
+                  if(textBetweenLower.includes('onesignal')){
+                      let onesignalAppID = app.manifest.android.onesignalAppID;
+                      logger.log('onesignalAppID1: ', onesignalAppID);
+                      textBetween = textBetween.replace('onesignalAppID', onesignalAppID)
+                  }
+
+                  tealeafGradleBuildStr += textBetween
+
+              }
+
+              xml = replaceTextBetween(xml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS , tealeafGradleBuildStr);
+
+              return fs.writeFileAsync(gradleAppBuildFile, xml, 'utf-8');
+          } else {
+              logger.log('No plugin gradle dependency to inject');
+          }
+      })
+      // read and apply manifest placeholders to tealeaf build.gradle
+      .then(function () {
+
+          return Promise.all([
+              fs.readFileAsync(gradleTealeafBuildFile, 'utf-8')]
+              .concat(readAppGradleManifestPlaceholdersXMLFiles)
+          )
+      })
+      .then(function (results) {
+          var xml = results.shift();
+
+          if (results && results.length > 0 && xml && xml.length > 0) {
+              var tealeafGradleBuildStr = '';
+              var XML_START_MANIFEST_PLACEHOLDERS =  '//<!--START_MANIFEST_PLACEHOLDERS-->';
+              var XML_END_MANIFEST_PLACEHOLDERS = '//<!--END_MANIFEST_PLACEHOLDERS-->';
+
+              for (var i = 0; i < results.length; ++i) {
+                  var gradleXml = results[i];
+                  if (!gradleXml) { continue; }
+
+
+                  var textBetween = getTextBetween(gradleXml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS);
+                  let textBetweenLower = textBetween.toLowerCase();
+                  if(textBetweenLower.includes('onesignal')){
+                      let onesignalAppID = app.manifest.android.onesignalAppID;
+                      logger.log('onesignalAppID1: ', onesignalAppID);
+                      textBetween = textBetween.replace('onesignalAppID', onesignalAppID)
+                  }
+
+                  tealeafGradleBuildStr += textBetween
               }
 
               xml = replaceTextBetween(xml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS , tealeafGradleBuildStr);
@@ -522,11 +563,10 @@ function injectPluginXML(opts, app) {
 }
 
 // TODO
-1 START_MANIFEST_PLACEHOLDERS area is not filled
-probably because onesignal_app_id is not found by injector type (probably no injector at all)
-make sure correct onesignal_app_id is placed
+/*
 
-2 START_MANIFEST_PLACEHOLDERS must be added to app/build.gradle (application compilation error) - check if tealeaf/build.gradle is required
+1 how devkit onesignal uses gcm in manifest and code (what are additional services)
+*/
 
 
 // do not remove now

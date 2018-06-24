@@ -47,3 +47,9 @@ do:
 2. Point xcode-select to the Xcode Developer directory using the following command
 `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
 More at https://github.com/nodejs/node-gyp/issues/569
+
+#After you have made some changes in native-android go to devkit-core repositoty updated native-android submodule:
+1) git submodule update --init --force --remote
+2) git add .
+3) git commit -m "updates of native-android"
+4) git push origin YOURBRANCH
