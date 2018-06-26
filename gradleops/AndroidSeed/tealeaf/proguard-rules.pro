@@ -23,3 +23,6 @@
 #-dontoptimize
 -dontnote **
 -dontwarn **
+
+//<!--START_PLUGINS_PROGUARD-->
+//<!--END_PLUGINS_PROGUARD-->
