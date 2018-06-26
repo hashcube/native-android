@@ -283,14 +283,13 @@ function injectPluginXML(opts, app) {
     });
 
 // TODO update devkit howto `## using and setting up android plugins`
-
+// update devkit readme to use export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
 
     return Promise.all([
         fs.readFileAsync(manifestXml, 'utf-8')
     ].concat(readPluginXMLFiles))
         .then(function (results) {
             var xml = results.shift();
-
             // TODO: don't use regular expressions
 
             if (results && results.length > 0 && xml && xml.length > 0) {
@@ -332,7 +331,6 @@ function injectPluginXML(opts, app) {
 
         .then(function (results) {
             var xml = results.shift();
-
             if (results && results.length > 0 && xml && xml.length > 0) {
                 var tealeafGradleBuildStr = '';
                 var XML_START_PLUGINS_DEPENDENCIES =  '//<!--START_PLUGINS_DEPENDENCIES-->';
@@ -364,7 +362,6 @@ function injectPluginXML(opts, app) {
 
         .then(function (results) {
             var xml = results.shift();
-
             if (results && results.length > 0 && xml && xml.length > 0) {
                 var tealeafGradleBuildStr = '';
                 var XML_START_MANIFEST_PLACEHOLDERS =  '//<!--START_MANIFEST_PLACEHOLDERS-->';
@@ -405,7 +402,6 @@ function injectPluginXML(opts, app) {
 
         .then(function (results) {
             var xml = results.shift();
-
             if (results && results.length > 0 && xml && xml.length > 0) {
                 var tealeafGradleBuildStr = '';
                 var XML_START_MANIFEST_PLACEHOLDERS =  '//<!--START_MANIFEST_PLACEHOLDERS-->';
@@ -445,7 +441,6 @@ function injectPluginXML(opts, app) {
 
         .then(function (results) {
             var xml = results.shift();
-
             if (results && results.length > 0 && xml && xml.length > 0) {
                 var tealeafGradleBuildStr = '';
                 var XML_START_PLUGINS_DEPENDENCIES =  '//<!--START_PLUGINS_DEPENDENCIES-->';
@@ -477,7 +472,6 @@ function injectPluginXML(opts, app) {
 
         .then(function (results) {
             var xml = results.shift();
-
             if (results && results.length > 0 && xml && xml.length > 0) {
                 var appGradleBuildStr = '';
                 var XML_START_ANDROID_PLUGINS =  '//<!--START_ANDROID_PLUGINS-->';
@@ -511,7 +505,6 @@ function injectPluginXML(opts, app) {
 
         .then(function (results) {
             var xml = results.shift();
-
             if (results && results.length > 0 && xml && xml.length > 0) {
                 var appGradleBuildStr = '';
                 var XML_START_ANDROID_PLUGINS =  '//<!--START_ANDROID_PLUGINS-->';
@@ -545,7 +538,6 @@ function injectPluginXML(opts, app) {
 
         .then(function (results) {
             var xml = results.shift();
-
             if (results && results.length > 0 && xml && xml.length > 0) {
                 var mainGradleBuildStr = '';
                 var XML_START_GOOGLE_PLAY_PLUGINS_CLASSPATH =  '//<!--START_GOOGLE_PLAY_PLUGINS_CLASSPATH-->';
@@ -566,6 +558,9 @@ function injectPluginXML(opts, app) {
                 logger.log('No plugin gradle dependency to inject');
             }
         })
+        .then (function () {
+                return installJarsDependencies(app)
+            })
         });
 }
 
@@ -700,11 +695,11 @@ var installModuleCode = function (api, app, opts) {
             tasks.push(handleFile(app.paths.root, filename, config.injectionSource));
         });
 
-
         config.jars && config.jars.forEach(function (jar) {
             tasks.push(installJar(path.join(modulePath, 'android', jar)));
-            alljars.push(jar);
         });
+
+
 
         // don't need this, see line 295 `function installLibraries(`
         // tasks.push(installLibraries(config.libraries));
@@ -713,7 +708,9 @@ var installModuleCode = function (api, app, opts) {
     return Promise.all(tasks);
 };
 
-function installJarsDependencies(jars, app) {
+
+/** install jar dependencies from libs folder where jars and aars previously copied to*/
+function installJarsDependencies(app) {
 
 
     var gradleBuildFile =  path.join(__dirname, "gradleops", app.manifest.shortName,"tealeaf",  'build.gradle');
@@ -729,8 +726,10 @@ function installJarsDependencies(jars, app) {
             var gradleJarDependencyStr =''
             gradleJarDependencyStr = getTextBetween(gradleBuildFileData, XML_START_PLUGINS_BULK_DEPENDENCIES, XML_END_PLUGINS_BULK_DEPENDENCIES);
 
-
-            jars && jars.forEach(function (jar) {
+            const libsDir = path.join(__dirname, "gradleops", app.manifest.shortName,"tealeaf",  'libs');
+            const fsNotExtra = require('fs');
+            const files = fs.readdirSync(libsDir);
+                files.forEach(function (jar) {
                 logger.log("Installing JARs in gradle:", jar);
                 archivesDependencies +=  "implementation files('libs/"+path.basename(jar)+"')" + "\n"
             });
@@ -1287,7 +1286,6 @@ function updateActivity(app, config, opts) {
         });
 }
 
-var alljars = [];
 
 
 function createProject(api, app, config) {
@@ -1307,10 +1305,6 @@ function createProject(api, app, config) {
                 moduleConfig: moduleConfig,
                 outputPath: config.outputPath
             });
-        })
-        .then (function () {
-            logger.log("alljars1:", alljars);
-            return installJarsDependencies(alljars, app)
         })
     );
 
