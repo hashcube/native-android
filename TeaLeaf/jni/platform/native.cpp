@@ -114,9 +114,10 @@ void report_gl_error(int code, gl_error **errors_hash, bool unrecoverable) {
     }
 
     int length = (int)shim->env->GetArrayLength(gl_errors_arr);
-    int *error_arr = (int*)shim->env->GetIntArrayElements(gl_errors_arr, 0);
+    jint *error_arr = shim->env->GetIntArrayElements(gl_errors_arr, 0);
+
     for (int i = 0; i < length; i++) {
-        int err = error_arr[i];
+        int err = (int) error_arr1[i];
         gl_error *error_obj = (gl_error *)malloc(sizeof(gl_error));
         error_obj->error_code = err;
         HASH_ADD_INT(*errors_hash, error_code, error_obj);
