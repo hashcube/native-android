@@ -595,17 +595,17 @@ function injectPluginXML(opts, app) {
                             if (results && results.length > 0 && xml && xml.length > 0) {
                                 var mainGradleBuildStr = '';
                                 var XML_START_PLUGINS_REPOSITORIES =  '//<!--START_PLUGINS_REPOSITORIES-->';
-                                var XML_START_PLUGINS_REPOSITORIES = '//<!--START_PLUGINS_REPOSITORIES-->';
+                                var XML_END_PLUGINS_REPOSITORIES = '//<!--END_PLUGINS_REPOSITORIES-->';
 
                                 for (var i = 0; i < results.length; ++i) {
                                     var gradleXml = results[i];
                                     if (!gradleXml) { continue; }
 
-                                    mainGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_REPOSITORIES, XML_START_PLUGINS_REPOSITORIES );
+                                    mainGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_REPOSITORIES, XML_END_PLUGINS_REPOSITORIES );
 
                                 }
 
-                                xml = replaceTextBetween(xml, XML_START_PLUGINS_REPOSITORIES, XML_START_PLUGINS_REPOSITORIES , mainGradleBuildStr);
+                                xml = replaceTextBetween(xml, XML_START_PLUGINS_REPOSITORIES, XML_END_PLUGINS_REPOSITORIES , mainGradleBuildStr);
 
                                 return fs.writeFileAsync(gradleClasspathMainBuildFile, xml, 'utf-8');
                             } else {
@@ -626,16 +626,16 @@ function injectPluginXML(opts, app) {
                                     if (results && results.length > 0 && xml && xml.length > 0) {
                                         var mainGradleBuildStr = '';
                                         var XML_START_PLUGINS_PROGUARD =  '//<!--START_PLUGINS_PROGUARD-->';
-                                        var XML_START_PLUGINS_PROGUARD = '//<!--START_PLUGINS_PROGUARD-->';
+                                        var XML_END_PLUGINS_PROGUARD = '//<!--END_PLUGINS_PROGUARD-->';
 
                                         for (var i = 0; i < results.length; ++i) {
                                             var gradleXml = results[i];
                                             if (!gradleXml) { continue; }
 
-                                            mainGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_PROGUARD, XML_START_PLUGINS_PROGUARD );
+                                            mainGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_PROGUARD, XML_END_PLUGINS_PROGUARD );
                                         }
 
-                                        xml = replaceTextBetween(xml, XML_START_PLUGINS_PROGUARD, XML_START_PLUGINS_PROGUARD , mainGradleBuildStr);
+                                        xml = replaceTextBetween(xml, XML_START_PLUGINS_PROGUARD, XML_END_PLUGINS_PROGUARD , mainGradleBuildStr);
 
                                         return fs.writeFileAsync(gradleProguardTealeafFile, xml, 'utf-8');
                                     } else {
@@ -645,10 +645,7 @@ function injectPluginXML(opts, app) {
                                 .then (function () {
                                     return installJarsDependencies(app)
                                 })
-                        })
-                                .then (function () {
-                                    return installJarsDependencies(app)
-                                });
+                        });
 
 }
 
