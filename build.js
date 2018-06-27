@@ -201,6 +201,7 @@ function injectPluginXML(opts, app) {
     var gradleTealeafBuildFile =  path.join(__dirname, "gradleops", app.manifest.shortName, "tealeaf", 'build.gradle');
     var gradleAppBuildFile =  path.join(__dirname, "gradleops", app.manifest.shortName, "app", 'build.gradle');
     var gradleClasspathMainBuildFile =  path.join(__dirname, "gradleops", app.manifest.shortName, 'build.gradle');
+    var gradleProguardTealeafFile =  path.join(__dirname, "gradleops", app.manifest.shortName, 'tealeaf', 'proguard-rules.pro');
 
 
     var readPluginXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
@@ -276,6 +277,28 @@ function injectPluginXML(opts, app) {
 
         if (injectionMainGradleXML) {
             var filepath = path.join(moduleConfig[moduleName].path, 'android', injectionMainGradleXML);
+            logger.log('Reading Main Gradle XML:', filepath);
+
+            return fs.readFileAsync(filepath, 'utf-8');
+        }
+    });
+
+    var readGradleAndroidPluginsRepositoriesXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
+        var injectionRepositoriesXML = moduleConfig[moduleName].config.injectionRepositoriesXML;
+
+        if (injectionRepositoriesXML) {
+            var filepath = path.join(moduleConfig[moduleName].path, 'android', injectionRepositoriesXML);
+            logger.log('Reading Main Gradle XML:', filepath);
+
+            return fs.readFileAsync(filepath, 'utf-8');
+        }
+    });
+
+    var readProguardTealeafXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
+        var proguardXML = moduleConfig[moduleName].config.proguardXML;
+
+        if (proguardXML) {
+            var filepath = path.join(moduleConfig[moduleName].path, 'android', proguardXML);
             logger.log('Reading Main Gradle XML:', filepath);
 
             return fs.readFileAsync(filepath, 'utf-8');
@@ -550,7 +573,7 @@ function injectPluginXML(opts, app) {
                     mainGradleBuildStr += getTextBetween(gradleXml, XML_START_GOOGLE_PLAY_PLUGINS_CLASSPATH, XML_END_GOOGLE_PLAY_PLUGINS_CLASSPATH );
                     // logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
                 }
-                logger.log("mainGradleBuildStr: "+ mainGradleBuildStr);
+
                 xml = replaceTextBetween(xml, XML_START_GOOGLE_PLAY_PLUGINS_CLASSPATH, XML_END_GOOGLE_PLAY_PLUGINS_CLASSPATH , mainGradleBuildStr);
 
                 return fs.writeFileAsync(gradleClasspathMainBuildFile, xml, 'utf-8');
@@ -558,10 +581,75 @@ function injectPluginXML(opts, app) {
                 logger.log('No plugin gradle dependency to inject');
             }
         })
-        .then (function () {
-                return installJarsDependencies(app)
-            })
-        });
+        })
+        // read and apply plugins repositories to main build.gradle
+                .then(function () {
+
+                    return Promise.all([
+                        fs.readFileAsync(gradleClasspathMainBuildFile, 'utf-8')]
+                        .concat(readGradleAndroidPluginsRepositoriesXMLFiles)
+                    )
+
+                        .then(function (results) {
+                            var xml = results.shift();
+                            if (results && results.length > 0 && xml && xml.length > 0) {
+                                var mainGradleBuildStr = '';
+                                var XML_START_PLUGINS_REPOSITORIES =  '//<!--START_PLUGINS_REPOSITORIES-->';
+                                var XML_START_PLUGINS_REPOSITORIES = '//<!--START_PLUGINS_REPOSITORIES-->';
+
+                                for (var i = 0; i < results.length; ++i) {
+                                    var gradleXml = results[i];
+                                    if (!gradleXml) { continue; }
+
+                                    mainGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_REPOSITORIES, XML_START_PLUGINS_REPOSITORIES );
+
+                                }
+
+                                xml = replaceTextBetween(xml, XML_START_PLUGINS_REPOSITORIES, XML_START_PLUGINS_REPOSITORIES , mainGradleBuildStr);
+
+                                return fs.writeFileAsync(gradleClasspathMainBuildFile, xml, 'utf-8');
+                            } else {
+                                logger.log('No plugin gradle dependency to inject');
+                            }
+                        })
+                })
+        // read and apply plugins proguard settings
+                        .then(function () {
+
+                            return Promise.all([
+                                fs.readFileAsync(gradleProguardTealeafFile, 'utf-8')]
+                                .concat(readProguardTealeafXMLFiles)
+                            )
+
+                                .then(function (results) {
+                                    var xml = results.shift();
+                                    if (results && results.length > 0 && xml && xml.length > 0) {
+                                        var mainGradleBuildStr = '';
+                                        var XML_START_PLUGINS_PROGUARD =  '//<!--START_PLUGINS_PROGUARD-->';
+                                        var XML_START_PLUGINS_PROGUARD = '//<!--START_PLUGINS_PROGUARD-->';
+
+                                        for (var i = 0; i < results.length; ++i) {
+                                            var gradleXml = results[i];
+                                            if (!gradleXml) { continue; }
+
+                                            mainGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_PROGUARD, XML_START_PLUGINS_PROGUARD );
+                                        }
+
+                                        xml = replaceTextBetween(xml, XML_START_PLUGINS_PROGUARD, XML_START_PLUGINS_PROGUARD , mainGradleBuildStr);
+
+                                        return fs.writeFileAsync(gradleProguardTealeafFile, xml, 'utf-8');
+                                    } else {
+                                        logger.log('No plugin gradle dependency to inject');
+                                    }
+                                })
+                                .then (function () {
+                                    return installJarsDependencies(app)
+                                })
+                        })
+                                .then (function () {
+                                    return installJarsDependencies(app)
+                                });
+
 }
 
 // TODO
