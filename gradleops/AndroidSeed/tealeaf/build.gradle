@@ -1,3 +1,6 @@
+//<!--START_PLUGINS_PATCH-->
+//<!--END_PLUGINS_PATCH-->
+
 apply plugin: 'com.android.library'
 
 android {
@@ -73,4 +76,5 @@ dependencies {
     //<!--START_ANDROID_PLUGINS-->
     //<!--END_ANDROID_PLUGINS-->
 
-
+    //<!--START_ANDROID_PLUGINS_CUSTOM_SETTINGS-->
+    //<!--END_ANDROID_PLUGINS_CUSTOM_SETTINGS-->

@@ -270,6 +270,28 @@ function injectPluginXML(opts, app) {
         }
     });
 
+    var readTealeafGradleAndroidPluginsCustomSettingsXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
+        var injectionTealeafModulePluginsCustomSettingsGradleXML = moduleConfig[moduleName].config.injectionTealeafModulePluginsCustomSettingsGradleXML;
+
+        if (injectionTealeafModulePluginsCustomSettingsGradleXML) {
+            var filepath = path.join(moduleConfig[moduleName].path, 'android', injectionTealeafModulePluginsCustomSettingsGradleXML);
+            logger.log('Reading App  Gradle XML:', filepath);
+
+            return fs.readFileAsync(filepath, 'utf-8');
+        }
+    });
+
+    var readTealeafGradleAndroidPatchesPluginsXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
+        var injectionTealeafPatchesPluginsGradleXML = moduleConfig[moduleName].config.injectionGradleTealeafPatchXML;
+
+        if (injectionTealeafPatchesPluginsGradleXML) {
+            var filepath = path.join(moduleConfig[moduleName].path, 'android', injectionTealeafPatchesPluginsGradleXML);
+            logger.log('Reading App  Gradle XML:', filepath);
+
+            return fs.readFileAsync(filepath, 'utf-8');
+        }
+    });
+
 
 
     var readGradleClasspathAndroidPluginsXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
@@ -285,6 +307,17 @@ function injectPluginXML(opts, app) {
 
     var readGradleAndroidPluginsRepositoriesXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
         var injectionRepositoriesXML = moduleConfig[moduleName].config.injectionRepositoriesXML;
+
+        if (injectionRepositoriesXML) {
+            var filepath = path.join(moduleConfig[moduleName].path, 'android', injectionRepositoriesXML);
+            logger.log('Reading Main Gradle XML:', filepath);
+
+            return fs.readFileAsync(filepath, 'utf-8');
+        }
+    });
+
+    var readGradleAndroidBuildScriptRepositoriesXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
+        var injectionRepositoriesXML = moduleConfig[moduleName].config.injectionBuildScriptRepositoriesXML;
 
         if (injectionRepositoriesXML) {
             var filepath = path.join(moduleConfig[moduleName].path, 'android', injectionRepositoriesXML);
@@ -551,6 +584,73 @@ function injectPluginXML(opts, app) {
             }
         })
         })
+
+        // read and apply plugins ** patches to ** tealeaf ** build.gradle (mainly to integrate Google Play Services plugin)
+       .then(function () {
+
+            return Promise.all([
+                fs.readFileAsync(gradleTealeafBuildFile, 'utf-8')]
+                .concat(readTealeafGradleAndroidPatchesPluginsXMLFiles)
+            )
+
+                .then(function (results) {
+                    var xml = results.shift();
+                    if (results && results.length > 0 && xml && xml.length > 0) {
+                        var appGradleBuildStr = '';
+                        var XML_START_PLUGINS_PATCH =  '//<!--START_PLUGINS_PATCH-->';
+                        var XML_END_PLUGINS_PATCH = '//<!--END_PLUGINS_PATCH-->';
+
+                        for (var i = 0; i < results.length; ++i) {
+                             var gradleXml = results[i];
+                            if (!gradleXml) {
+                                continue;
+                            }
+
+                            appGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_PATCH, XML_END_PLUGINS_PATCH );
+                            //logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
+                        }
+
+                        xml = replaceTextBetween(xml, XML_START_PLUGINS_PATCH, XML_END_PLUGINS_PATCH , appGradleBuildStr);
+
+                        return fs.writeFileAsync(gradleTealeafBuildFile, xml, 'utf-8');
+                    } else {
+                        logger.log('No plugin gradle dependency to inject');
+                    }
+                })
+        })
+       // read and apply plugins ** custom settings to ** tealeaf ** build.gradle (mainly to make varios google play services to be compatible)
+        .then(function () {
+
+            return Promise.all([
+                fs.readFileAsync(gradleTealeafBuildFile, 'utf-8')]
+                .concat(readTealeafGradleAndroidPluginsCustomSettingsXMLFiles)
+            )
+
+                .then(function (results) {
+                    var xml = results.shift();
+                    if (results && results.length > 0 && xml && xml.length > 0) {
+                        var appGradleBuildStr = '';
+                        var XML_START_ANDROID_PLUGINS_CUSTOM_SETTINGS =  '//<!--START_ANDROID_PLUGINS_CUSTOM_SETTINGS-->';
+                        var XML_END_ANDROID_PLUGINS_CUSTOM_SETTINGS = '//<!--END_ANDROID_PLUGINS_CUSTOM_SETTINGS-->';
+
+                        for (var i = 0; i < results.length; ++i) {
+                            var gradleXml = results[i];
+                            if (!gradleXml) {
+                                continue;
+                            }
+
+                            appGradleBuildStr += getTextBetween(gradleXml, XML_START_ANDROID_PLUGINS_CUSTOM_SETTINGS, XML_END_ANDROID_PLUGINS_CUSTOM_SETTINGS );
+                            //logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
+                        }
+
+                        xml = replaceTextBetween(xml, XML_START_ANDROID_PLUGINS_CUSTOM_SETTINGS, XML_END_ANDROID_PLUGINS_CUSTOM_SETTINGS , appGradleBuildStr);
+
+                        return fs.writeFileAsync(gradleTealeafBuildFile, xml, 'utf-8');
+                    } else {
+                        logger.log('No plugin gradle dependency to inject');
+                    }
+                })
+        })
         // read and apply plugins to main build.gradle (mainly to integrate Google Play Services plugin)
         .then(function () {
 
@@ -613,6 +713,39 @@ function injectPluginXML(opts, app) {
                             }
                         })
                 })
+
+
+    // read and apply plugins buildscript repositories to main build.gradle
+        .then(function () {
+
+            return Promise.all([
+                fs.readFileAsync(gradleClasspathMainBuildFile, 'utf-8')]
+                .concat(readGradleAndroidBuildScriptRepositoriesXMLFiles)
+            )
+
+                .then(function (results) {
+                    var xml = results.shift();
+                    if (results && results.length > 0 && xml && xml.length > 0) {
+                        var mainGradleBuildStr = '';
+                        var XML_START_BUILDSCRIPT_REPOS =  '//<!--START_BUILDSCRIPT_REPOS-->';
+                        var XML_END_BUILDSCRIPT_REPOS = '//<!--END_BUILDSCRIPT_REPOS-->';
+
+                        for (var i = 0; i < results.length; ++i) {
+                            var gradleXml = results[i];
+                            if (!gradleXml) { continue; }
+
+                            mainGradleBuildStr += getTextBetween(gradleXml, XML_START_BUILDSCRIPT_REPOS, XML_END_BUILDSCRIPT_REPOS );
+
+                        }
+
+                        xml = replaceTextBetween(xml, XML_START_BUILDSCRIPT_REPOS, XML_END_BUILDSCRIPT_REPOS , mainGradleBuildStr);
+
+                        return fs.writeFileAsync(gradleClasspathMainBuildFile, xml, 'utf-8');
+                    } else {
+                        logger.log('No plugin gradle dependency to inject');
+                    }
+                })
+        })
         // read and apply plugins proguard settings
                         .then(function () {
 
@@ -650,13 +783,13 @@ function injectPluginXML(opts, app) {
 }
 
 // TODO
+//Fix pathching ironsource repo after it downloads it switches to somewhat point
 /*
 
 1 how devkit onesignal uses gcm in manifest and code (what are additional services)
 2 migrate from jars to gradle
-        ironsource
-        gameplay (just check if it is possible to remove arch-android and replace it with implementation)
-        crashlytics (much work)
+
+3 review manifests for redundant settings after dependencies have been updated
 */
 
 
@@ -768,6 +901,9 @@ var installModuleCode = function (api, app, opts) {
         var modulePath = moduleConfig[moduleName].path;
 
         config.copyFiles && config.copyFiles.forEach(function (filename) {
+            tasks.push(handleFile(path.join(modulePath, 'android'), filename, config.injectionSource));
+        });
+        config.copyFilesToApp && config.copyFiles.forEach(function (filename) {
             tasks.push(handleFile(path.join(modulePath, 'android'), filename, config.injectionSource));
         });
 
