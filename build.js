@@ -1790,21 +1790,26 @@ function installAPK(api, config, apkPath, opts) {
         });
 }
 
+// todo 0
+/*test newly pushed changes to assemble apk by cloning new devkit into places where testing repo exists after remobing it
+Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/hashcube/devkit/
+
+    then todo 1*/
+
+//Todo 1 assemble sudoku with new repositories
+
+// Todo 2 test and debug sign apk path and command
+
+// Todo 8 find place in the seed to set fields "fullscreen" and "gameHash"
+
+// Todo 10 make sure gitignore to fix: find out why jni/obj, jni/gen and jni/profilers were in gitignore, should they be assembled by devkit?
 
 // TODO now: check what resources are copied to project build old dir
-
-// Todo 1 later: removed this function and copy directly to required path without intermediate copying to outdated output path in line :
 
 //todo 2 how devkit onesignal uses gcm in manifest and code (what are additional services)
 
 //todo 3 review manifests for redundant settings after dependencies have been updated but not metadata in manifest which is used by js source
 
 //todo 5 find why it was changed but works from devkit.native.launchClient to gc.native.launchClient in gradleops/AndroidSeed/tealeaf/src/main/AndroidManifest.xml
-
-// Todo 6 test and debug sign apk path and command
-// function copyJSAssets(app, project, destPath, config) {
-// todo 8 find place in the seed to set fields "fullscreen" and "gameHash"
-
-// todo 10 make sure gitignore to fix: find out why jni/obj, jni/gen and jni/profilers were in gitignore, should they be assembled by devkit?
 
 // todo 23 update devkit howto `## using and setting up android plugins`

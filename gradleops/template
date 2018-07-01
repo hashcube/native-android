@@ -23,9 +23,10 @@ old="$(echo "$old" | sed -E 's/\/$//')"
 new="$(echo "$new" | sed -E 's/\/$//')"
 new_lower="$(echo "$new" | tr 'A-Z' 'a-z')"
 old_lower="$(echo "$old" | tr 'A-Z' 'a-z')"
-cp -r "$old" "$new"
-cd "$new"
-cp -r ../../native-core tealeaf/src/main/jni/core
+cp -r "$old" "../../../../../build/""$new"
+cd "../../../../../build/""$new"
+echo "pwd "$PWD
+cp -r ../../modules/devkit-core/modules/native-android/native-core tealeaf/src/main/jni/core
 #Changing packages
 package_old="com.$old_lower"
 package_new="$1"
@@ -34,7 +35,7 @@ printf $package_old '\n'
 printf $package_new '\n'
 #Changing names
 #Mac
-if [ $(../ostype.sh) == "osx" ]; then
+if [ $(../../modules/devkit-core/modules/native-android/gradleops/ostype.sh) == "osx" ]; then
 	find . -type f -print0 | xargs -0 sed -i "" "s/${package_old}/${package_new}/g"
 	find . -type f -print0 | xargs -0 sed -i "" "s/${old}/${new}/g"
 	find . -type f -print0 | xargs -0 sed -i "" "s/${old_lower}/${new_lower}/g"
@@ -44,6 +45,7 @@ else
     find ./ -type f -print0 | xargs -0 sed -i "s/${old}/${new}/g"
     find ./ -type f -print0 | xargs -0 sed -i "s/${old_lower}/${new_lower}/g"
 fi
+pwd
 cd app/src/main/java/com
 mv "$old_lower" "$new_lower"
 
