@@ -24,5 +24,5 @@
 -dontnote **
 -dontwarn **
 
-//<!--START_PLUGINS_PROGUARD-->
-//<!--END_PLUGINS_PROGUARD-->
+#<!--START_PLUGINS_PROGUARD-->
+#<!--END_PLUGINS_PROGUARD-->
