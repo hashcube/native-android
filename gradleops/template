@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
+echo "Start preparing android project ..."
+export JAVA_HOME=`/usr/libexec/java_home -v 1.8 `
+CURJAVA=$(java -version 2>&1 >/dev/null | grep 'java version' | awk '{print $3}')
+if [[ $CURJAVA == *"1.8."* ]] ; then
+	echo "Using Java 1.8"
+else
+     echo "Java 1.8 not found, please install Java 1.8"
+ 	 echo "Stopping ..."
+  	 exit 1
+fi
 export LC_ALL=C
-echo y | sdkmanager --licenses
 set -ex
 new="$1"
 shift
@@ -37,3 +46,4 @@ else
 fi
 cd app/src/main/java/com
 mv "$old_lower" "$new_lower"
+

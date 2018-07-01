@@ -21,19 +21,6 @@ and install required sdk with sdkmanager
 or
 install required sdk with Android Studio
 
-description:
-# ./template: line 3: sdkmanager: command not found
-do:
-# Ubuntu
-The directory contains a file called android, so presumably what they mean is run ./android sdk (unless . happens to part of your PATH), so that you don't need to navigate there and run ./android.
-Also see: How to add a directory to the PATH?
-https://askubuntu.com/questions/60218/how-to-add-a-directory-to-the-path
-# Mac
-https://stackoverflow.com/a/38902589
-
-Then make sure sdkmanager command works from terminal
-https://developer.android.com/studio/command-line/sdkmanager
-
 
 # Mac 
 # version = re.match(r'(\d\.\d\.?\d*)', version).groups()[0]
