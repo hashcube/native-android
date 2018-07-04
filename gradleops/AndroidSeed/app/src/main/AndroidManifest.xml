@@ -18,7 +18,9 @@
     <!--START_PLUGINS_MANIFEST-->
     <!--END_PLUGINS_MANIFEST-->
     
-    <application android:name="com.tealeaf.TeaLeafApplication">
+    <application android:name="com.tealeaf.TeaLeafApplication"
+      android:icon="@mipmap/icon"
+      android:roundIcon="@mipmap/round_icon">
     <!-- These are all the assumed default values; change as necessary and remove any others -->
 <meta-data android:name="gameHash" android:value="Unknown" />
 		<meta-data android:name="sdkHash" android:value="Unknown" />

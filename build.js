@@ -379,28 +379,28 @@ function injectPluginXML(opts, app) {
                 .concat(readTealeafGradleDevkitPluginsDependenciesXMLFiles)
             )
 
-        .then(function (results) {
-            var xml = results.shift();
-            if (results && results.length > 0 && xml && xml.length > 0) {
-                var tealeafGradleBuildStr = '';
-                var XML_START_PLUGINS_DEPENDENCIES =  '//<!--START_PLUGINS_DEPENDENCIES-->';
-                var XML_END_PLUGINS_DEPENDENCIES = '//<!--END_PLUGINS_DEPENDENCIES-->';
+                .then(function (results) {
+                    var xml = results.shift();
+                    if (results && results.length > 0 && xml && xml.length > 0) {
+                        var tealeafGradleBuildStr = '';
+                        var XML_START_PLUGINS_DEPENDENCIES =  '//<!--START_PLUGINS_DEPENDENCIES-->';
+                        var XML_END_PLUGINS_DEPENDENCIES = '//<!--END_PLUGINS_DEPENDENCIES-->';
 
-                for (var i = 0; i < results.length; ++i) {
-                    var gradleXml = results[i];
-                    if (!gradleXml) { continue; }
+                        for (var i = 0; i < results.length; ++i) {
+                            var gradleXml = results[i];
+                            if (!gradleXml) { continue; }
 
-                    tealeafGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_DEPENDENCIES, XML_END_PLUGINS_DEPENDENCIES );
-                    // logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
-                }
+                            tealeafGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_DEPENDENCIES, XML_END_PLUGINS_DEPENDENCIES );
+                            // logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
+                        }
 
-                xml = replaceTextBetween(xml, XML_START_PLUGINS_DEPENDENCIES, XML_END_PLUGINS_DEPENDENCIES , tealeafGradleBuildStr);
+                        xml = replaceTextBetween(xml, XML_START_PLUGINS_DEPENDENCIES, XML_END_PLUGINS_DEPENDENCIES , tealeafGradleBuildStr);
 
-                return fs.writeFileAsync(gradleTealeafBuildFile, xml, 'utf-8');
-            } else {
-                logger.log('No plugin gradle dependency to inject');
-            }
-        })
+                        return fs.writeFileAsync(gradleTealeafBuildFile, xml, 'utf-8');
+                    } else {
+                        logger.log('No plugin gradle dependency to inject');
+                    }
+                })
         })
         // read and apply manifest placeholders to app build.gradle
         .then(function () {
@@ -410,37 +410,37 @@ function injectPluginXML(opts, app) {
                 .concat(readAppGradleManifestPlaceholdersXMLFiles)
             )
 
-        .then(function (results) {
-            var xml = results.shift();
-            if (results && results.length > 0 && xml && xml.length > 0) {
-                var tealeafGradleBuildStr = '';
-                var XML_START_MANIFEST_PLACEHOLDERS =  '//<!--START_MANIFEST_PLACEHOLDERS-->';
-                var XML_END_MANIFEST_PLACEHOLDERS = '//<!--END_MANIFEST_PLACEHOLDERS-->';
+                .then(function (results) {
+                    var xml = results.shift();
+                    if (results && results.length > 0 && xml && xml.length > 0) {
+                        var tealeafGradleBuildStr = '';
+                        var XML_START_MANIFEST_PLACEHOLDERS =  '//<!--START_MANIFEST_PLACEHOLDERS-->';
+                        var XML_END_MANIFEST_PLACEHOLDERS = '//<!--END_MANIFEST_PLACEHOLDERS-->';
 
-                for (var i = 0; i < results.length; ++i) {
-                    var gradleXml = results[i];
-                    if (!gradleXml) { continue; }
+                        for (var i = 0; i < results.length; ++i) {
+                            var gradleXml = results[i];
+                            if (!gradleXml) { continue; }
 
 
-                    var textBetween = getTextBetween(gradleXml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS);
-                    let textBetweenLower = textBetween.toLowerCase();
-                    if(textBetweenLower.includes('onesignal')){
-                        let onesignalAppID = app.manifest.android.onesignalAppID;
-                        logger.log('onesignalAppID1: ', onesignalAppID);
-                        textBetween = textBetween.replace('onesignalAppID', onesignalAppID)
+                            var textBetween = getTextBetween(gradleXml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS);
+                            let textBetweenLower = textBetween.toLowerCase();
+                            if(textBetweenLower.includes('onesignal')){
+                                let onesignalAppID = app.manifest.android.onesignalAppID;
+                                logger.log('onesignalAppID1: ', onesignalAppID);
+                                textBetween = textBetween.replace('onesignalAppID', onesignalAppID)
+                            }
+
+                            tealeafGradleBuildStr += textBetween
+
+                        }
+
+                        xml = replaceTextBetween(xml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS , tealeafGradleBuildStr);
+
+                        return fs.writeFileAsync(gradleAppBuildFile, xml, 'utf-8');
+                    } else {
+                        logger.log('No plugin gradle dependency to inject');
                     }
-
-                    tealeafGradleBuildStr += textBetween
-
-                }
-
-                xml = replaceTextBetween(xml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS , tealeafGradleBuildStr);
-
-                return fs.writeFileAsync(gradleAppBuildFile, xml, 'utf-8');
-            } else {
-                logger.log('No plugin gradle dependency to inject');
-            }
-        })
+                })
         })
         // read and apply manifest placeholders to tealeaf build.gradle
         .then(function () {
@@ -450,36 +450,36 @@ function injectPluginXML(opts, app) {
                 .concat(readAppGradleManifestPlaceholdersXMLFiles)
             )
 
-        .then(function (results) {
-            var xml = results.shift();
-            if (results && results.length > 0 && xml && xml.length > 0) {
-                var tealeafGradleBuildStr = '';
-                var XML_START_MANIFEST_PLACEHOLDERS =  '//<!--START_MANIFEST_PLACEHOLDERS-->';
-                var XML_END_MANIFEST_PLACEHOLDERS = '//<!--END_MANIFEST_PLACEHOLDERS-->';
+                .then(function (results) {
+                    var xml = results.shift();
+                    if (results && results.length > 0 && xml && xml.length > 0) {
+                        var tealeafGradleBuildStr = '';
+                        var XML_START_MANIFEST_PLACEHOLDERS =  '//<!--START_MANIFEST_PLACEHOLDERS-->';
+                        var XML_END_MANIFEST_PLACEHOLDERS = '//<!--END_MANIFEST_PLACEHOLDERS-->';
 
-                for (var i = 0; i < results.length; ++i) {
-                    var gradleXml = results[i];
-                    if (!gradleXml) { continue; }
+                        for (var i = 0; i < results.length; ++i) {
+                            var gradleXml = results[i];
+                            if (!gradleXml) { continue; }
 
 
-                    var textBetween = getTextBetween(gradleXml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS);
-                    let textBetweenLower = textBetween.toLowerCase();
-                    if(textBetweenLower.includes('onesignal')){
-                        let onesignalAppID = app.manifest.android.onesignalAppID;
-                        logger.log('onesignalAppID1: ', onesignalAppID);
-                        textBetween = textBetween.replace('onesignalAppID', onesignalAppID)
+                            var textBetween = getTextBetween(gradleXml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS);
+                            let textBetweenLower = textBetween.toLowerCase();
+                            if(textBetweenLower.includes('onesignal')){
+                                let onesignalAppID = app.manifest.android.onesignalAppID;
+                                logger.log('onesignalAppID1: ', onesignalAppID);
+                                textBetween = textBetween.replace('onesignalAppID', onesignalAppID)
+                            }
+
+                            tealeafGradleBuildStr += textBetween
+                        }
+
+                        xml = replaceTextBetween(xml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS , tealeafGradleBuildStr);
+
+                        return fs.writeFileAsync(gradleTealeafBuildFile, xml, 'utf-8');
+                    } else {
+                        logger.log('No plugin gradle dependency to inject');
                     }
-
-                    tealeafGradleBuildStr += textBetween
-                }
-
-                xml = replaceTextBetween(xml, XML_START_MANIFEST_PLACEHOLDERS, XML_END_MANIFEST_PLACEHOLDERS , tealeafGradleBuildStr);
-
-                return fs.writeFileAsync(gradleTealeafBuildFile, xml, 'utf-8');
-            } else {
-                logger.log('No plugin gradle dependency to inject');
-            }
-        })
+                })
         })
         // read and apply plugins to tealeaf build.gradle
         .then(function () {
@@ -489,28 +489,28 @@ function injectPluginXML(opts, app) {
                 .concat(readAppGradleDevkitPluginsDependenciesXMLFiles)
             )
 
-        .then(function (results) {
-            var xml = results.shift();
-            if (results && results.length > 0 && xml && xml.length > 0) {
-                var tealeafGradleBuildStr = '';
-                var XML_START_PLUGINS_DEPENDENCIES =  '//<!--START_PLUGINS_DEPENDENCIES-->';
-                var XML_END_PLUGINS_DEPENDENCIES = '//<!--END_PLUGINS_DEPENDENCIES-->';
+                .then(function (results) {
+                    var xml = results.shift();
+                    if (results && results.length > 0 && xml && xml.length > 0) {
+                        var tealeafGradleBuildStr = '';
+                        var XML_START_PLUGINS_DEPENDENCIES =  '//<!--START_PLUGINS_DEPENDENCIES-->';
+                        var XML_END_PLUGINS_DEPENDENCIES = '//<!--END_PLUGINS_DEPENDENCIES-->';
 
-                for (var i = 0; i < results.length; ++i) {
-                    var gradleXml = results[i];
-                    if (!gradleXml) { continue; }
+                        for (var i = 0; i < results.length; ++i) {
+                            var gradleXml = results[i];
+                            if (!gradleXml) { continue; }
 
-                    tealeafGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_DEPENDENCIES, XML_END_PLUGINS_DEPENDENCIES );
-                    // logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
-                }
+                            tealeafGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_DEPENDENCIES, XML_END_PLUGINS_DEPENDENCIES );
+                            // logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
+                        }
 
-                xml = replaceTextBetween(xml, XML_START_PLUGINS_DEPENDENCIES, XML_END_PLUGINS_DEPENDENCIES , tealeafGradleBuildStr);
+                        xml = replaceTextBetween(xml, XML_START_PLUGINS_DEPENDENCIES, XML_END_PLUGINS_DEPENDENCIES , tealeafGradleBuildStr);
 
-                return fs.writeFileAsync(gradleAppBuildFile, xml, 'utf-8');
-            } else {
-                logger.log('No plugin gradle dependency to inject');
-            }
-        })
+                        return fs.writeFileAsync(gradleAppBuildFile, xml, 'utf-8');
+                    } else {
+                        logger.log('No plugin gradle dependency to inject');
+                    }
+                })
         })
         // read and apply plugins to app build.gradle (mainly to integrate Google Play Services plugin)
         .then(function () {
@@ -520,30 +520,30 @@ function injectPluginXML(opts, app) {
                 .concat(readAppGradleAndroidPluginsXMLFiles)
             )
 
-        .then(function (results) {
-            var xml = results.shift();
-            if (results && results.length > 0 && xml && xml.length > 0) {
-                var appGradleBuildStr = '';
-                var XML_START_ANDROID_PLUGINS =  '//<!--START_ANDROID_PLUGINS-->';
-                var XML_END_ANDROID_PLUGINS = '//<!--END_ANDROID_PLUGINS-->';
+                .then(function (results) {
+                    var xml = results.shift();
+                    if (results && results.length > 0 && xml && xml.length > 0) {
+                        var appGradleBuildStr = '';
+                        var XML_START_ANDROID_PLUGINS =  '//<!--START_ANDROID_PLUGINS-->';
+                        var XML_END_ANDROID_PLUGINS = '//<!--END_ANDROID_PLUGINS-->';
 
-                for (var i = 0; i < results.length; ++i) {
-                    var gradleXml = results[i];
-                    if (!gradleXml) {
-                        continue;
+                        for (var i = 0; i < results.length; ++i) {
+                            var gradleXml = results[i];
+                            if (!gradleXml) {
+                                continue;
+                            }
+
+                            appGradleBuildStr += getTextBetween(gradleXml, XML_START_ANDROID_PLUGINS, XML_END_ANDROID_PLUGINS );
+                            //logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
+                        }
+
+                        xml = replaceTextBetween(xml, XML_START_ANDROID_PLUGINS, XML_END_ANDROID_PLUGINS , appGradleBuildStr);
+
+                        return fs.writeFileAsync(gradleAppBuildFile, xml, 'utf-8');
+                    } else {
+                        logger.log('No plugin gradle dependency to inject');
                     }
-
-                    appGradleBuildStr += getTextBetween(gradleXml, XML_START_ANDROID_PLUGINS, XML_END_ANDROID_PLUGINS );
-                    //logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
-                }
-
-                xml = replaceTextBetween(xml, XML_START_ANDROID_PLUGINS, XML_END_ANDROID_PLUGINS , appGradleBuildStr);
-
-                return fs.writeFileAsync(gradleAppBuildFile, xml, 'utf-8');
-            } else {
-                logger.log('No plugin gradle dependency to inject');
-            }
-        })
+                })
         })
         // read and apply plugins to ** tealeaf ** build.gradle (mainly to integrate Google Play Services plugin)
         .then(function () {
@@ -553,34 +553,34 @@ function injectPluginXML(opts, app) {
                 .concat(readTealeafGradleAndroidPluginsXMLFiles)
             )
 
-        .then(function (results) {
-            var xml = results.shift();
-            if (results && results.length > 0 && xml && xml.length > 0) {
-                var appGradleBuildStr = '';
-                var XML_START_ANDROID_PLUGINS =  '//<!--START_ANDROID_PLUGINS-->';
-                var XML_END_ANDROID_PLUGINS = '//<!--END_ANDROID_PLUGINS-->';
+                .then(function (results) {
+                    var xml = results.shift();
+                    if (results && results.length > 0 && xml && xml.length > 0) {
+                        var appGradleBuildStr = '';
+                        var XML_START_ANDROID_PLUGINS =  '//<!--START_ANDROID_PLUGINS-->';
+                        var XML_END_ANDROID_PLUGINS = '//<!--END_ANDROID_PLUGINS-->';
 
-                for (var i = 0; i < results.length; ++i) {
-                    var gradleXml = results[i];
-                    if (!gradleXml) {
-                        continue;
+                        for (var i = 0; i < results.length; ++i) {
+                            var gradleXml = results[i];
+                            if (!gradleXml) {
+                                continue;
+                            }
+
+                            appGradleBuildStr += getTextBetween(gradleXml, XML_START_ANDROID_PLUGINS, XML_END_ANDROID_PLUGINS );
+                            //logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
+                        }
+
+                        xml = replaceTextBetween(xml, XML_START_ANDROID_PLUGINS, XML_END_ANDROID_PLUGINS , appGradleBuildStr);
+
+                        return fs.writeFileAsync(gradleTealeafBuildFile, xml, 'utf-8');
+                    } else {
+                        logger.log('No plugin gradle dependency to inject');
                     }
-
-                    appGradleBuildStr += getTextBetween(gradleXml, XML_START_ANDROID_PLUGINS, XML_END_ANDROID_PLUGINS );
-                    //logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
-                }
-
-                xml = replaceTextBetween(xml, XML_START_ANDROID_PLUGINS, XML_END_ANDROID_PLUGINS , appGradleBuildStr);
-
-                return fs.writeFileAsync(gradleTealeafBuildFile, xml, 'utf-8');
-            } else {
-                logger.log('No plugin gradle dependency to inject');
-            }
-        })
+                })
         })
 
         // read and apply plugins ** patches to ** tealeaf ** build.gradle (mainly to integrate Google Play Services plugin)
-       .then(function () {
+        .then(function () {
 
             return Promise.all([
                 fs.readFileAsync(gradleTealeafBuildFile, 'utf-8')]
@@ -595,7 +595,7 @@ function injectPluginXML(opts, app) {
                         var XML_END_PLUGINS_PATCH = '//<!--END_PLUGINS_PATCH-->';
 
                         for (var i = 0; i < results.length; ++i) {
-                             var gradleXml = results[i];
+                            var gradleXml = results[i];
                             if (!gradleXml) {
                                 continue;
                             }
@@ -612,7 +612,7 @@ function injectPluginXML(opts, app) {
                     }
                 })
         })
-       // read and apply plugins ** custom settings to ** tealeaf ** build.gradle (mainly to make varios google play services to be compatible)
+        // read and apply plugins ** custom settings to ** tealeaf ** build.gradle (mainly to make varios google play services to be compatible)
         .then(function () {
 
             return Promise.all([
@@ -653,63 +653,63 @@ function injectPluginXML(opts, app) {
                 .concat(readGradleClasspathAndroidPluginsXMLFiles)
             )
 
-        .then(function (results) {
-            var xml = results.shift();
-            if (results && results.length > 0 && xml && xml.length > 0) {
-                var mainGradleBuildStr = '';
-                var XML_START_GOOGLE_PLAY_PLUGINS_CLASSPATH =  '//<!--START_GOOGLE_PLAY_PLUGINS_CLASSPATH-->';
-                var XML_END_GOOGLE_PLAY_PLUGINS_CLASSPATH = '//<!--END_GOOGLE_PLAY_PLUGINS_CLASSPATH-->';
+                .then(function (results) {
+                    var xml = results.shift();
+                    if (results && results.length > 0 && xml && xml.length > 0) {
+                        var mainGradleBuildStr = '';
+                        var XML_START_GOOGLE_PLAY_PLUGINS_CLASSPATH =  '//<!--START_GOOGLE_PLAY_PLUGINS_CLASSPATH-->';
+                        var XML_END_GOOGLE_PLAY_PLUGINS_CLASSPATH = '//<!--END_GOOGLE_PLAY_PLUGINS_CLASSPATH-->';
 
-                for (var i = 0; i < results.length; ++i) {
-                    var gradleXml = results[i];
-                    if (!gradleXml) { continue; }
+                        for (var i = 0; i < results.length; ++i) {
+                            var gradleXml = results[i];
+                            if (!gradleXml) { continue; }
 
-                    mainGradleBuildStr += getTextBetween(gradleXml, XML_START_GOOGLE_PLAY_PLUGINS_CLASSPATH, XML_END_GOOGLE_PLAY_PLUGINS_CLASSPATH );
-                    // logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
-                }
+                            mainGradleBuildStr += getTextBetween(gradleXml, XML_START_GOOGLE_PLAY_PLUGINS_CLASSPATH, XML_END_GOOGLE_PLAY_PLUGINS_CLASSPATH );
+                            // logger.log('tealeafGradleBuildStr: '+tealeafGradleBuildStr);
+                        }
 
-                xml = replaceTextBetween(xml, XML_START_GOOGLE_PLAY_PLUGINS_CLASSPATH, XML_END_GOOGLE_PLAY_PLUGINS_CLASSPATH , mainGradleBuildStr);
+                        xml = replaceTextBetween(xml, XML_START_GOOGLE_PLAY_PLUGINS_CLASSPATH, XML_END_GOOGLE_PLAY_PLUGINS_CLASSPATH , mainGradleBuildStr);
 
-                return fs.writeFileAsync(gradleClasspathMainBuildFile, xml, 'utf-8');
-            } else {
-                logger.log('No plugin gradle dependency to inject');
-            }
-        })
+                        return fs.writeFileAsync(gradleClasspathMainBuildFile, xml, 'utf-8');
+                    } else {
+                        logger.log('No plugin gradle dependency to inject');
+                    }
+                })
         })
         // read and apply plugins repositories to main build.gradle
-                .then(function () {
+        .then(function () {
 
-                    return Promise.all([
-                        fs.readFileAsync(gradleClasspathMainBuildFile, 'utf-8')]
-                        .concat(readGradleAndroidPluginsRepositoriesXMLFiles)
-                    )
+            return Promise.all([
+                fs.readFileAsync(gradleClasspathMainBuildFile, 'utf-8')]
+                .concat(readGradleAndroidPluginsRepositoriesXMLFiles)
+            )
 
-                        .then(function (results) {
-                            var xml = results.shift();
-                            if (results && results.length > 0 && xml && xml.length > 0) {
-                                var mainGradleBuildStr = '';
-                                var XML_START_PLUGINS_REPOSITORIES =  '//<!--START_PLUGINS_REPOSITORIES-->';
-                                var XML_END_PLUGINS_REPOSITORIES = '//<!--END_PLUGINS_REPOSITORIES-->';
+                .then(function (results) {
+                    var xml = results.shift();
+                    if (results && results.length > 0 && xml && xml.length > 0) {
+                        var mainGradleBuildStr = '';
+                        var XML_START_PLUGINS_REPOSITORIES =  '//<!--START_PLUGINS_REPOSITORIES-->';
+                        var XML_END_PLUGINS_REPOSITORIES = '//<!--END_PLUGINS_REPOSITORIES-->';
 
-                                for (var i = 0; i < results.length; ++i) {
-                                    var gradleXml = results[i];
-                                    if (!gradleXml) { continue; }
+                        for (var i = 0; i < results.length; ++i) {
+                            var gradleXml = results[i];
+                            if (!gradleXml) { continue; }
 
-                                    mainGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_REPOSITORIES, XML_END_PLUGINS_REPOSITORIES );
+                            mainGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_REPOSITORIES, XML_END_PLUGINS_REPOSITORIES );
 
-                                }
+                        }
 
-                                xml = replaceTextBetween(xml, XML_START_PLUGINS_REPOSITORIES, XML_END_PLUGINS_REPOSITORIES , mainGradleBuildStr);
+                        xml = replaceTextBetween(xml, XML_START_PLUGINS_REPOSITORIES, XML_END_PLUGINS_REPOSITORIES , mainGradleBuildStr);
 
-                                return fs.writeFileAsync(gradleClasspathMainBuildFile, xml, 'utf-8');
-                            } else {
-                                logger.log('No plugin gradle dependency to inject');
-                            }
-                        })
+                        return fs.writeFileAsync(gradleClasspathMainBuildFile, xml, 'utf-8');
+                    } else {
+                        logger.log('No plugin gradle dependency to inject');
+                    }
                 })
+        })
 
 
-    // read and apply plugins buildscript repositories to main build.gradle
+        // read and apply plugins buildscript repositories to main build.gradle
         .then(function () {
 
             return Promise.all([
@@ -741,38 +741,38 @@ function injectPluginXML(opts, app) {
                 })
         })
         // read and apply plugins proguard settings
-                        .then(function () {
+        .then(function () {
 
-                            return Promise.all([
-                                fs.readFileAsync(gradleProguardTealeafFile, 'utf-8')]
-                                .concat(readProguardTealeafXMLFiles)
-                            )
+            return Promise.all([
+                fs.readFileAsync(gradleProguardTealeafFile, 'utf-8')]
+                .concat(readProguardTealeafXMLFiles)
+            )
 
-                                .then(function (results) {
-                                    var xml = results.shift();
-                                    if (results && results.length > 0 && xml && xml.length > 0) {
-                                        var mainGradleBuildStr = '';
-                                        var XML_START_PLUGINS_PROGUARD =  '#<!--START_PLUGINS_PROGUARD-->';
-                                        var XML_END_PLUGINS_PROGUARD = '#<!--END_PLUGINS_PROGUARD-->';
+                .then(function (results) {
+                    var xml = results.shift();
+                    if (results && results.length > 0 && xml && xml.length > 0) {
+                        var mainGradleBuildStr = '';
+                        var XML_START_PLUGINS_PROGUARD =  '#<!--START_PLUGINS_PROGUARD-->';
+                        var XML_END_PLUGINS_PROGUARD = '#<!--END_PLUGINS_PROGUARD-->';
 
-                                        for (var i = 0; i < results.length; ++i) {
-                                            var gradleXml = results[i];
-                                            if (!gradleXml) { continue; }
+                        for (var i = 0; i < results.length; ++i) {
+                            var gradleXml = results[i];
+                            if (!gradleXml) { continue; }
 
-                                            mainGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_PROGUARD, XML_END_PLUGINS_PROGUARD );
-                                        }
+                            mainGradleBuildStr += getTextBetween(gradleXml, XML_START_PLUGINS_PROGUARD, XML_END_PLUGINS_PROGUARD );
+                        }
 
-                                        xml = replaceTextBetween(xml, XML_START_PLUGINS_PROGUARD, XML_END_PLUGINS_PROGUARD , mainGradleBuildStr);
+                        xml = replaceTextBetween(xml, XML_START_PLUGINS_PROGUARD, XML_END_PLUGINS_PROGUARD , mainGradleBuildStr);
 
-                                        return fs.writeFileAsync(gradleProguardTealeafFile, xml, 'utf-8');
-                                    } else {
-                                        logger.log('No plugin gradle dependency to inject');
-                                    }
-                                })
-                                .then (function () {
-                                    return installJarsDependencies(app)
-                                })
-                        });
+                        return fs.writeFileAsync(gradleProguardTealeafFile, xml, 'utf-8');
+                    } else {
+                        logger.log('No plugin gradle dependency to inject');
+                    }
+                })
+                .then (function () {
+                    return installJarsDependencies(app)
+                })
+        });
 
 }
 
@@ -932,7 +932,7 @@ function installJarsDependencies(app) {
             const libsDir = path.join(projectPath,"tealeaf",  'libs');
             const fsNotExtra = require('fs');
             const files = fs.readdirSync(libsDir);
-                files.forEach(function (jar) {
+            files.forEach(function (jar) {
                 logger.log("Installing JARs in gradle:", jar);
                 archivesDependencies +=  "implementation files('libs/"+path.basename(jar)+"')" + "\n"
             });
@@ -1025,30 +1025,6 @@ function saveLocalizedStringsXmls(outputPath, titles) {
         return fs.outputFileAsync(stringsFile, finalXml, 'utf-8');
     });
 }
-
-function saveFirebaseStrings(config) {
-    var stringsFirebaseXmlPath = path.join(config.outputPath, "res/values/firebase_strings.xml");
-    var stringsXmlPath = path.join(projectPath, "tealeaf/src/main", "res/values/strings.xml");
-    if(fs.existsSync(stringsFirebaseXmlPath) && fs.existsSync(stringsXmlPath)){
-        var stringsFirebaseXml = fs.readFileSync(stringsFirebaseXmlPath, "utf-8");
-
-        var stringsXml = fs.readFileSync(stringsXmlPath, "utf-8");
-
-        var XML_START_FIREBASE_STRINGS =  '<!--START_FIREBASE_STRINGS-->';
-        var XML_END_FIREBASE_STRINGS = '<!--END_FIREBASE_STRINGS-->';
-        var XML_START_RESOURCES =  '<resources>';
-        var XML_END_RESOURCES = '</resources>';
-
-        var  strings = getTextBetween(stringsFirebaseXml, XML_START_RESOURCES, XML_END_RESOURCES );
-
-        stringsXml = replaceTextBetween(stringsXml, XML_START_FIREBASE_STRINGS, XML_END_FIREBASE_STRINGS , strings);
-
-        return fs.writeFileAsync(stringsXmlPath, stringsXml, 'utf-8');
-
-    }
-}
-
-
 
 function executeOnCreate(api, app, config, opts) {
     var modules = app.modules;
@@ -1147,8 +1123,7 @@ function makeAndroidProject(api, app, config, opts) {
                 saveLocalizedStringsXmls(projectPath, config.titles),
                 updateManifest(api, app, config, opts),
                 updateActivity(app, config, opts),
-                executeOnCreate(api, app, config, opts),
-                saveFirebaseStrings(config)
+                executeOnCreate(api, app, config, opts)
             ];
         })
         .all();
@@ -1223,7 +1198,7 @@ function copyAssets(app, project, destPath) {
 function copyJSAssets(app, project, destPath, config) {
     var jsResourcesAssetsPath = path.resolve( config.outputPath, "assets/resources" );
     return fs.copyAsync(jsResourcesAssetsPath, destPath+"/resources");
-       // todo check where assets are inserted, calls error if .then(fs.removeAsync(path.join(jsResourcesAssetsPath,"../")));
+    // todo check where assets are inserted, calls error if .then(fs.removeAsync(path.join(jsResourcesAssetsPath,"../")));
 }
 
 function copyIcons(app, outputPath) {
@@ -1588,12 +1563,11 @@ exports.build = function(api, app, config, cb) {
         .then(function copyResourcesToProject() {
             return [
                 // changed from config.outputPath to gradle project path
-                copyIcons(app, projectPath + "/app/src/main/res"),
+                copyIcons(app, projectPath + "/app/src/main"),
                 copyMusic(app, projectPath + "/app/src/main"),
                 copyResDir(app, projectPath + "/app/src/main"),
                 copySplash(api, app, projectPath + "/app/src/main"),
-                copyJSAssets(api, app, projectPath + "/app/src/main/assets", config),
-                copyAssets(api, app, projectPath + "/app/src/main/assets")
+                copyAssets(api, app, projectPath + "/app/src/main")
             ];
         })
         .all()
@@ -1610,7 +1584,7 @@ exports.build = function(api, app, config, cb) {
                     });
                 }*/
                 // build ndk libtealeaf.so, formerly named manually libpng.so ,
-               return spawnWithLogger(api, 'ndk-build', [
+                return spawnWithLogger(api, 'ndk-build', [
                     "NDK_PROJECT_PATH=tealeaf/src/main",
                 ], {cwd: projectPath})
                     .catch(BuildError, function (err) {
@@ -1790,21 +1764,15 @@ function installAPK(api, config, apkPath, opts) {
         });
 }
 
-// todo 0
-/*test newly pushed changes to assemble apk by cloning new devkit into places where testing repo exists after remobing it
-Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/hashcube/devkit/
-
-    then todo 1*/
 
 //Todo 1 assemble sudoku with new repositories
 
-// Todo 2 test and debug sign apk path and command
+// Todo 2 a) test and debug sign sudoku apk path and command
+// Todo 2 b) test released
 
 // Todo 8 find place in the seed to set fields "fullscreen" and "gameHash"
 
 // Todo 10 make sure gitignore to fix: find out why jni/obj, jni/gen and jni/profilers were in gitignore, should they be assembled by devkit?
-
-// TODO now: check what resources are copied to project build old dir
 
 //todo 2 how devkit onesignal uses gcm in manifest and code (what are additional services)
 
