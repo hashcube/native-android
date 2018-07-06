@@ -23,7 +23,6 @@ old="$(echo "$old" | sed -E 's/\/$//')"
 new="$(echo "$new" | sed -E 's/\/$//')"
 new_lower="$(echo "$new" | tr 'A-Z' 'a-z')"
 old_lower="$(echo "$old" | tr 'A-Z' 'a-z')"
-cp -r "$old" "../../../../../build/""$new"
 cd "../../../../../build/""$new"
 echo "pwd "$PWD
 cp -r ../../modules/devkit-core/modules/native-android/native-core tealeaf/src/main/jni/core

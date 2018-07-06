@@ -1067,9 +1067,6 @@ function makeAndroidProject(api, app, config, opts) {
         .then(function () {
             return spawnWithLogger(api, 'printf',  [__dirname])
         })
-        .then(function () {
-            return spawnWithLogger(api, 'rm', ["-rf",projectPath])
-        })
         // accept all Android SDK licences in separate script to avoid variables messing
         .then(function () {
             return spawnWithLogger(api, 'bash', [
@@ -1193,12 +1190,6 @@ function copyAssets(app, project, destPath) {
         logger.log('Copying', asset, 'to ' + path.join(destPath, asset));
         return fs.copyAsync(asset, path.join(destPath, asset));
     });
-}
-
-function copyJSAssets(app, project, destPath, config) {
-    var jsResourcesAssetsPath = path.resolve( config.outputPath, "assets/resources" );
-    return fs.copyAsync(jsResourcesAssetsPath, destPath+"/resources");
-    // todo check where assets are inserted, calls error if .then(fs.removeAsync(path.join(jsResourcesAssetsPath,"../")));
 }
 
 function copyIcons(app, outputPath) {
@@ -1763,21 +1754,3 @@ function installAPK(api, config, apkPath, opts) {
                 });
         });
 }
-
-
-//Todo 1 assemble sudoku with new repositories
-
-// Todo 2 a) test and debug sign sudoku apk path and command
-// Todo 2 b) test released
-
-// Todo 8 find place in the seed to set fields "fullscreen" and "gameHash"
-
-// Todo 10 make sure gitignore to fix: find out why jni/obj, jni/gen and jni/profilers were in gitignore, should they be assembled by devkit?
-
-//todo 2 how devkit onesignal uses gcm in manifest and code (what are additional services)
-
-//todo 3 review manifests for redundant settings after dependencies have been updated but not metadata in manifest which is used by js source
-
-//todo 5 find why it was changed but works from devkit.native.launchClient to gc.native.launchClient in gradleops/AndroidSeed/tealeaf/src/main/AndroidManifest.xml
-
-// todo 23 update devkit howto `## using and setting up android plugins`
