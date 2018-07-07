@@ -411,12 +411,12 @@ function injectPluginXML(opts, app) {
                             if(textBetweenLower.includes('onesignal')){
                                 let onesignalAppID = app.manifest.android.onesignalAppID;
                                 logger.log('onesignalAppID1: ', onesignalAppID);
-                                textBetween = textBetween.replace('onesignalAppID', onesignalAppID)
+                                textBetween = textBetween.replace('onesignalAppID', onesignalAppID);
                             }
 
 
-                            appGradleBuildStr_MANIFEST_PLACEHOLDERS += textBetween
-                            appGradleBuildStr_PLUGINS_DEPENDENCIES += getTextBetween(gradleXml,XML_START_PLUGINS_DEPENDENCIES, XML_END_PLUGINS_DEPENDENCIES);
+                            appGradleBuildStr_MANIFEST_PLACEHOLDERS += textBetween;
+                            appGradleBuildStr_PLUGINS_DEPENDENCIES += getTextBetween(gradleXml, XML_START_PLUGINS_DEPENDENCIES, XML_END_PLUGINS_DEPENDENCIES);
                             appGradleBuildStr_ANDROID_PLUGINS += getTextBetween(gradleXml, XML_START_ANDROID_PLUGINS, XML_END_ANDROID_PLUGINS);
 
                         }
