@@ -5,7 +5,7 @@
 
 
 	package="com.tealeaf">
-	<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="27" />
+	<uses-sdk android:targetSdkVersion="27" />
 
 	<supports-screens android:resizeable="true" android:smallScreens="true" android:anyDensity="true" android:largeScreens="true" android:normalScreens="true" />
 
