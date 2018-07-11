@@ -801,7 +801,8 @@ function makeAndroidProject(api, app, config, opts) {
                 saveLocalizedStringsXmls(projectPath, config.titles),
                 updateManifest(api, app, config, opts),
                 updateActivity(app, config, opts),
-                executeOnCreate(api, app, config, opts)
+                executeOnCreate(api, app, config, opts),
+                setGradleVersion(app)
             ];
         })
         .all();
@@ -1144,6 +1145,19 @@ function updateManifest(api, app, config, opts) {
             return transformXSL(api, xmlPath, xmlPath,
                 path.join(__dirname, "AndroidManifest.xsl"),
                 params, config);
+        });
+}
+
+function setGradleVersion(app) {
+    var gradleFile = path.join(projectPath,
+        "app", "build.gradle");
+
+    return fs.readFileAsync(gradleFile, 'utf-8')
+        .then(function (contents) {
+            contents = contents
+                .replace(/versionCode 1/g, "versionCode "+app.manifest.android.versionCode)
+                .replace(/versionName "1.0"/g,"versionName  \""+app.manifest.version+"\"");
+            return fs.writeFileAsync(gradleFile, contents);
         });
 }
 
