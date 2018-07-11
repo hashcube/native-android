@@ -1256,6 +1256,8 @@ exports.build = function(api, app, config, cb) {
                       cwd: config.outputPath
                     });
                 }*/
+                // Todo check this parameters from previos Makefile
+                //  #	ndk-build -C TeaLeaf -Bj8 RELEASE=$(RELEASE_FLAG) JSPROF=$(PROFILE_FLAG) GPROF=${GPROF_FLAG} V8SYMBOLS=${V8_SYMBOLS}
                 // build ndk libtealeaf.so, formerly named manually libpng.so ,
                 return spawnWithLogger(api, 'ndk-build', [
                     "NDK_PROJECT_PATH=tealeaf/src/main",
