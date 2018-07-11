@@ -18,7 +18,7 @@
     <!--START_PLUGINS_MANIFEST-->
     <!--END_PLUGINS_MANIFEST-->
     
-    <application android:name="com.tealeaf.TeaLeafApplication"
+    <application android:label="${appName}" android:name="com.tealeaf.TeaLeafApplication"
       android:icon="@mipmap/icon"
       android:roundIcon="@mipmap/round_icon">
     <!-- These are all the assumed default values; change as necessary and remove any others -->
@@ -44,7 +44,7 @@
         <activity android:name="com.androidseed.AndroidSeedActivity"
             android:launchMode="singleTask"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/game_name"
+            android:label="${appName}"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateUnspecified|adjustPan" >
             <intent-filter>

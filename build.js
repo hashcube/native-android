@@ -674,7 +674,7 @@ function transformXSL(api, inFile, outFile, xslFile, params, config) {
             return fs.readFileAsync(outFileTemp, 'utf-8');
         })
         .then(function(contents) {
-            contents = contents.replace(/android:label=\"[^\"]*\"/g, "android:label=\""+params.title+"\"");
+            //contents = contents.replace(/android:label=\"[^\"]*\"/g, "android:label=\""+params.title+"\"");
             fs.writeFile(outFile, contents, 'utf-8');
         });
 }
@@ -802,7 +802,7 @@ function makeAndroidProject(api, app, config, opts) {
                 updateManifest(api, app, config, opts),
                 updateActivity(app, config, opts),
                 executeOnCreate(api, app, config, opts),
-                setGradleVersion(app)
+                setGradleParameters(app)
             ];
         })
         .all();
@@ -1148,7 +1148,7 @@ function updateManifest(api, app, config, opts) {
         });
 }
 
-function setGradleVersion(app) {
+function setGradleParameters(app) {
     var gradleFile = path.join(projectPath,
         "app", "build.gradle");
 
@@ -1156,7 +1156,9 @@ function setGradleVersion(app) {
         .then(function (contents) {
             contents = contents
                 .replace(/versionCode 1/g, "versionCode "+app.manifest.android.versionCode)
-                .replace(/versionName "1.0"/g,"versionName  \""+app.manifest.version+"\"");
+                .replace(/versionName "1.0"/g,"versionName  \""+app.manifest.version+"\"")
+                .replace(/GameNamePlaceholderRelease/g, app.manifest.title)
+                .replace(/GameNamePlaceholderDebug/g, app.manifest.title+" debug");
             return fs.writeFileAsync(gradleFile, contents);
         });
 }
