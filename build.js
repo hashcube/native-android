@@ -817,11 +817,11 @@ function signAPK(api, shortName, outputPath, debug) {
         signArgs = [
             "-sigalg", "MD5withRSA", "-digestalg", "SHA1",
             "-keystore", keyPath, "-storepass", "android",
-            "-signedjar", shortName + "-debug-unaligned.apk",
-            shortName + "-debug.apk", "androiddebugkey"
+            "-signedjar", "app-debug-unaligned.apk",
+            "app-debug.apk", "androiddebugkey"
         ];
         alignArgs = [
-            "-f", "-v", "4", shortName + "-debug-unaligned.apk", shortName + "-debug.apk"
+            "-f", "-v", "4", "app-debug-unaligned.apk", "app-debug.apk"
         ];
     } else {
         var keystore = process.env['DEVKIT_ANDROID_KEYSTORE'];
@@ -837,22 +837,23 @@ function signAPK(api, shortName, outputPath, debug) {
         if (!key) { throw new BuildError('missing environment variable DEVKIT_ANDROID_KEY'); }
 
         signArgs = [
-            "-sigalg", "MD5withRSA", "-digestalg", "SHA1",
-            "-keystore", keystore, "-storepass", storepass, "-keypass", keypass,
-            "-signedjar", shortName + "-unaligned.apk",
-            shortName + "-release-unsigned.apk", key
+            "sign", "--ks", keystore, "--ks-pass", "pass:"+storepass, "--key-pass", "pass:"+keypass,
+            "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false", "--verbose",
+            "app-release-aligned.apk" //shortName + "app-release-unsigned.apk", key
         ];
 
         alignArgs = [
-            "-f", "-v", "4", shortName + "-unaligned.apk", shortName + "-aligned.apk"
+            "-f", "-v", "4", "app-release-unsigned.apk", "app-release-aligned.apk" //shortName + "-unaligned.apk", shortName + "-aligned.apk"
         ];
     }
 
-    return spawnWithLogger(api, 'jarsigner', signArgs, {cwd: binDir})
+    var releaseApkDir = path.join(outputPath, "../../"+shortName+"/app/build/outputs/apk/release/");
+    return spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/27.0.3/zipalign', alignArgs , {cwd: releaseApkDir})
         .then(function () {
-            return spawnWithLogger(api, 'zipalign', alignArgs , {cwd: binDir});
+            spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/27.0.3/apksigner', signArgs, {cwd: releaseApkDir})
         });
 }
+
 // seems this is not needed
 function repackAPK(api, outputPath, apkName, cb) {
     var apkPath = path.join('bin', apkName);
