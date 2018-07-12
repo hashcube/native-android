@@ -507,7 +507,7 @@ function injectPluginXML(opts, app) {
                     }
                 })
                 .then (function () {
-                    return installJarsDependencies(app)
+                    return installJarsDependencies()
                 })
         });
 }
@@ -603,7 +603,7 @@ var installModuleCode = function (api, app, opts) {
 
 
 /** install jar dependencies from libs folder where jars and aars previously copied to*/
-function installJarsDependencies(app) {
+function installJarsDependencies() {
 
 
     var gradleBuildFile =  path.join(projectPath,"tealeaf",  'build.gradle');
@@ -621,17 +621,21 @@ function installJarsDependencies(app) {
 
             const libsDir = path.join(projectPath,"tealeaf",  'libs');
             const fsNotExtra = require('fs');
-            const files = fs.readdirSync(libsDir);
-            files.forEach(function (jar) {
-                logger.log("Installing JARs in gradle:", jar);
-                archivesDependencies +=  "implementation files('libs/"+path.basename(jar)+"')" + "\n"
-            });
+            if(fs.existsSync(libsDir)) {
+                const files = fs.readdirSync(libsDir);
+                files.forEach(function (jar) {
+                    logger.log("Installing JARs in gradle:", jar);
+                    archivesDependencies += "implementation files('libs/" + path.basename(jar) + "')" + "\n"
+                });
 
-            gradleJarDependencyStr +=   gradleJarDependencyStr + "\n"+ archivesDependencies ;
+                gradleJarDependencyStr += gradleJarDependencyStr + "\n" + archivesDependencies;
 
-            gradleBuildFileData = replaceTextBetween(gradleBuildFileData, XML_START_PLUGINS_BULK_DEPENDENCIES, XML_END_PLUGINS_BULK_DEPENDENCIES, gradleJarDependencyStr);
-            return fs.writeFileAsync(gradleBuildFile, gradleBuildFileData , 'utf-8');
-
+                gradleBuildFileData = replaceTextBetween(gradleBuildFileData, XML_START_PLUGINS_BULK_DEPENDENCIES, XML_END_PLUGINS_BULK_DEPENDENCIES, gradleJarDependencyStr);
+                return fs.writeFileAsync(gradleBuildFile, gradleBuildFileData, 'utf-8');
+            }
+            else{
+                return Promise.resolve("Success");
+            }
         })
 }
 
@@ -699,7 +703,6 @@ function buildSupportProjects(api, config) {
 }*/
 
 
-// todo test
 function saveLocalizedStringsXmls(outputPath, titles) {
     var stringsXmlPath = path.join(outputPath, "app/src/main", "res/values/strings.xml");
     var stringsXml = fs.readFileSync(stringsXmlPath, "utf-8");
@@ -808,7 +811,8 @@ function makeAndroidProject(api, app, config, opts) {
         .all();
 }
 
-function signAPK(api, shortName, outputPath, debug) {
+// todo test debug sign
+function signAPK(api, shortName, outputPath, debug, config) {
     var signArgs, alignArgs;
     var binDir = path.join(outputPath, "bin");
 
@@ -818,11 +822,16 @@ function signAPK(api, shortName, outputPath, debug) {
         signArgs = [
             "-sigalg", "MD5withRSA", "-digestalg", "SHA1",
             "-keystore", keyPath, "-storepass", "android",
-            "-signedjar", "app-debug-unaligned.apk",
-            "app-debug.apk", "androiddebugkey"
+            "-signedjar", "app-debug-aligned.apk",
+            "app-signed.apk", "androiddebugkey"
         ];
+        /*signArgs = [
+            "sign", "--ks", keystore, "--ks-pass", "pass:"+storepass, "--key-pass", "pass:"+keypass,
+            "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false", "--verbose",
+            "app-debug-aligned.apk" //shortName + "app-release-unsigned.apk", key
+        ];*/
         alignArgs = [
-            "-f", "-v", "4", "app-debug-unaligned.apk", "app-debug.apk"
+            "-f", "-v", "4", "app-debug.apk", "app-debug-aligned.apk"
         ];
     } else {
         var keystore = process.env['DEVKIT_ANDROID_KEYSTORE'];
@@ -848,10 +857,11 @@ function signAPK(api, shortName, outputPath, debug) {
         ];
     }
 
-    var releaseApkDir = path.join(outputPath, "../../"+shortName+"/app/build/outputs/apk/release/");
-    return spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/27.0.3/zipalign', alignArgs , {cwd: releaseApkDir})
+    var scheme = (config.debug ? "debug" : "release");
+    var apkDir = path.join(outputPath, "../../"+shortName+"/app/build/outputs/apk/"+scheme+"/");
+    return spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/27.0.3/zipalign', alignArgs , {cwd: apkDir})
         .then(function () {
-            spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/27.0.3/apksigner', signArgs, {cwd: releaseApkDir})
+            spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/27.0.3/apksigner', signArgs, {cwd: apkDir})
         });
 }
 
@@ -1230,12 +1240,12 @@ exports.build = function(api, app, config, cb) {
     var apkBuildName = "";
     if (!config.debug) {
         if (skipSigning) {
-            apkBuildName = shortName + "-release-unsigned.apk";
+            apkBuildName = "app-release-unsigned.apk";
         } else {
-            apkBuildName = shortName + "-aligned.apk";
+            apkBuildName = "app-release-aligned.apk";
         }
     } else {
-        apkBuildName = shortName + "-debug.apk";
+        apkBuildName = "app-debug.apk";
     }
 
     if (!app.manifest.android) {
@@ -1304,8 +1314,13 @@ exports.build = function(api, app, config, cb) {
 
                     // build Android project
                     .then(function () {
+                        var assembleCommand = 'build'
+
+                        if (!config.debug) {
+                            assembleCommand = 'assembleRelease'
+                        }
                         return spawnWithLogger(api, './gradlew', [
-                            "build"
+                            assembleCommand
                             // , '--debug', '--stacktrace', // UNCOMMENT TO DEBUG
                         ], {cwd: projectPath})
                             .catch(BuildError, function (err) {
@@ -1342,28 +1357,34 @@ exports.build = function(api, app, config, cb) {
         })
         .then(function () {
             if (!skipSigning) {
-                return signAPK(api, shortName, config.outputPath, config.debug);
+                return signAPK(api, shortName, config.outputPath, config.debug, config);
             }
         })
         .then(function () {
             if (!skipAPK) {
-                return moveAPK(api, app, config, apkBuildName)
-                    .tap(function (apkPath) {
-                        logger.log("built", chalk.yellow(config.packageName));
-                        logger.log("saved to " + chalk.blue(apkPath));
-                    })
-                    .then(function (apkPath) {
-                        if (argv.reveal) {
-                            require('child_process').exec('open --reveal "' + apkPath + '"');
-                        }
+                // Need a timeout because it copied unsigned build
+                var millisecondsToWait = 3000;
+                setTimeout(function() {
+                    // Whatever you want to do after the wait
 
-                        if (argv.install || argv.open) {
-                            return installAPK(api, config, apkPath, {
-                                open: !!argv.open,
-                                clearStorage: argv.clearStorage
-                            });
-                        }
-                    });
+                    return moveAPK(api, app, config, apkBuildName)
+                        .tap(function (apkPath) {
+                            logger.log("built", chalk.yellow(config.packageName));
+                            logger.log("saved to " + chalk.blue(apkPath));
+                        })
+                        .then(function (apkPath) {
+                            if (argv.reveal) {
+                                require('child_process').exec('open --reveal "' + apkPath + '"');
+                            }
+
+                            if (argv.install || argv.open) {
+                                return installAPK(api, config, apkPath, {
+                                    open: !!argv.open,
+                                    clearStorage: argv.clearStorage
+                                });
+                            }
+                        });
+                }, millisecondsToWait);
             }
         })
         .nodeify(cb);
@@ -1371,7 +1392,8 @@ exports.build = function(api, app, config, cb) {
 
 function moveAPK(api, app, config, apkBuildName) {
     var shortName = app.manifest.shortName;
-    var apkPath = path.join(projectPath,"app/build/outputs/apk/debug", "app-debug.apk");
+    var scheme = (config.debug ? "debug" : "release");
+    var apkPath = path.join(projectPath,"app/build/outputs/apk",scheme, apkBuildName);
     var destApkPath = path.join(config.outputPath, "bin", apkBuildName);
     return Promise.all([
         existsAsync(apkPath),
