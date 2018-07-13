@@ -24,7 +24,7 @@ export DEVKIT_ANDROID_KEY='you alias name'
 To debug with specific keys
 `devkit debug native-andid --signing true`
 For release
-`devkit release native-andid --signing true`
+`devkit release native-andid`
 
 
 
