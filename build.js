@@ -1192,9 +1192,13 @@ function setGradleParameters(app) {
 
     return fs.readFileAsync(gradleFile, 'utf-8')
         .then(function (contents) {
+
+            const versionCode = app.manifest.android.versionCode ? app.manifest.android.versionCode : "1"
+            var versionName = app.manifest.android.version ? app.manifest.android.version : "1.0"
+
             contents = contents
-                .replace(/versionCode 1/g, "versionCode "+app.manifest.android.versionCode)
-                .replace(/versionName "1.0"/g,"versionName  \""+app.manifest.version+"\"")
+                .replace(/versionCode 1/g, "versionCode "+versionCode)
+                .replace(/versionName "1.0"/g,"versionName  \""+versionName+"\"")
                 .replace(/GameNamePlaceholderRelease/g, app.manifest.title)
                 .replace(/GameNamePlaceholderDebug/g, app.manifest.title+" debug");
             return fs.writeFileAsync(gradleFile, contents);
