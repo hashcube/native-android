@@ -10,6 +10,24 @@ export PATH=$PATH:/path/to/ndk-r9b/android-ndk-r9b
 
 3. Install and configure NDK tools with installed SDK Manger (see 1)
 
+
+## Debug, Release and sign
+Debugging with specific sgning keys might be required by some APIs and plugins or sign release build just:
+1) set up environment variables and use:
+```
+export DEVKIT_ANDROID_KEYSTORE='path/to/your/keystore'
+export DEVKIT_ANDROID_STOREPASS='your keystore pass'
+export DEVKIT_ANDROID_KEYPASS='your alias pass'
+export DEVKIT_ANDROID_KEY='you alias name'
+```
+2) Sign apk
+To debug with specific keys
+`devkit debug native-andid --signing true`
+For release
+`devkit release native-andid --signing true`
+
+
+
 ## Errors
 
  
