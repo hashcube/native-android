@@ -22,9 +22,9 @@ export DEVKIT_ANDROID_KEY='you alias name'
 ```
 2) Sign apk
 To debug with specific keys
-`devkit debug native-andid --signing true`
+`devkit debug native-android --signing true`
 For release
-`devkit release native-andid`
+`devkit release native-android`
 
 
 
