@@ -17,10 +17,11 @@
 	<xsl:param name="fullscreen">true</xsl:param>
 	<xsl:param name="shortname">tealeaf</xsl:param>
 	<xsl:param name="studioName">Hashcube</xsl:param>
-	<xsl:param name="codeHost">s.wee.cat</xsl:param>
-	<xsl:param name="tcpHost">s.wee.cat</xsl:param>
+	<!-- <xsl:param name="codeHost">s.wee.cat</xsl:param>
+	<xsl:param name="tcpHost">s.wee.cat</xslpassivePol:param>
 	<xsl:param name="codePort">80</xsl:param>
 	<xsl:param name="tcpPort">4747</xsl:param>
+	-->
 	<xsl:param name="entryPoint">gc.native.launchClient</xsl:param>
 	<xsl:param name="pushUrl">http://staging.api.gameclosure.com/push/%s/?device=%s&amp;version=%s</xsl:param>
 	<xsl:param name="servicesUrl">http://api.gameclosure.com</xsl:param>

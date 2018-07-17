@@ -1087,15 +1087,15 @@ function updateManifest(api, app, config, opts) {
         disableLogs: config.debug ? 'false' : 'true',
 
         // Filled defaults
-        // TODO: REMOVE ALL OF THESE FLAGS
-        codeHost: "s.wee.cat",
+        // TODO: check if they are in manifest
+        /*codeHost: "s.wee.cat",
         tcpHost: "s.wee.cat",
         codePort: "80",
         tcpPort: "4747",
         activePollTimeInSeconds: "10",
         passivePollTimeInSeconds: "20",
         syncPolling: "false",
-        develop: config.debug ? 'true' : 'false',
+        develop: config.debug ? 'true' : 'false'*/
     };
 
     var orientations = app.manifest.supportedOrientations;
@@ -1194,7 +1194,7 @@ function setGradleParameters(app) {
         .then(function (contents) {
 
             const versionCode = app.manifest.android.versionCode ? app.manifest.android.versionCode : "1"
-            var versionName = app.manifest.android.version ? app.manifest.android.version : "1.0"
+            var versionName = app.manifest.version ? app.manifest.version : "1.0"
 
             contents = contents
                 .replace(/versionCode 1/g, "versionCode "+versionCode)
