@@ -167,7 +167,6 @@ var replaceTextBetween = function(text, startToken, endToken, replaceText) {
     newText += replaceText;
     newText += text.substring(end);
     if(replaceText.includes('google-services')) {
-        logger.log('newText:', newText);
     }
     return newText;
 };
@@ -1094,8 +1093,8 @@ function updateManifest(api, app, config, opts) {
         tcpPort: "4747",
         activePollTimeInSeconds: "10",
         passivePollTimeInSeconds: "20",
-        syncPolling: "false",
-        develop: config.debug ? 'true' : 'false'*/
+        syncPolling: "false",*/
+        develop: config.debug ? 'true' : 'false'
     };
 
     var orientations = app.manifest.supportedOrientations;
