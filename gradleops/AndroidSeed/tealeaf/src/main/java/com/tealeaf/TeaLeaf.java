@@ -17,6 +17,7 @@ package com.tealeaf;
 import java.io.InputStream;
 import java.io.File;
 import java.util.List;
+import java.util.Arrays;
 import android.content.pm.ActivityInfo;
 
 import com.tealeaf.event.BackButtonEvent;
@@ -269,6 +270,8 @@ public class TeaLeaf extends FragmentActivity {
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
 		group = new FrameLayout(this);
+		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+		group.setLayoutParams(params);
 		setContentView(group);
 
 		// TextEditViewHandler setup
@@ -298,36 +301,12 @@ public class TeaLeaf extends FragmentActivity {
 
 		glViewPaused = false;
 
-		// default screen dimensions
-		Display display = getWindow().getWindowManager().getDefaultDisplay();
-		int width = display.getWidth();
-		int height = display.getHeight();
-		int orientation = getRequestedOrientation();
-
-		// gets real screen dimensions without nav bars on recent API versions
-		if (isFullScreen && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			Point screenSize = new Point();
-			try {
-				display.getRealSize(screenSize);
-				width = screenSize.x;
-				height = screenSize.y;
-			} catch (NoSuchMethodError e) {}
-		}
-
-		// flip width and height based on orientation
-		if ((orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE && height > width)
-			|| (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT && width > height))
-		{
-			int tempWidth = width;
-			width = height;
-			height = tempWidth;
-		}
-
+		// TODO: might cause issue in landscape mode as not taking orientation changes 
 		final AbsoluteLayout absLayout = new AbsoluteLayout(this);
-		absLayout.setLayoutParams(new android.view.ViewGroup.LayoutParams(width, height));
-		absLayout.addView(glView, new android.view.ViewGroup.LayoutParams(width, height));
-
+		absLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		absLayout.addView(glView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		group.addView(absLayout);
+		hideSystemDecor();
 		editText = EditTextView.Init(this);
 
 
@@ -426,6 +405,17 @@ public class TeaLeaf extends FragmentActivity {
 		setLaunchUri();
 	}
 
+	private void hideSystemDecor() {
+		// games are inherently full screen and immersive, hide OS UI bars
+		if (isFullScreen && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			int uiFlag = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN
+					| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+					| View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+
+			getWindow().getDecorView().setSystemUiVisibility(uiFlag);
+		}
+	}
+
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -483,6 +473,12 @@ public class TeaLeaf extends FragmentActivity {
 		}
 	}
 
+	private class DispatcheventsAsync extends AsyncTask<String, Integer, String> {
+		protected String doInBackground(String... params) {
+			NativeShim.dispatchEvents(params);
+			return null;
+		}		
+	}
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
@@ -497,17 +493,7 @@ public class TeaLeaf extends FragmentActivity {
 			// always send acquired focus event
 			EventQueue.pushEvent(new WindowFocusAcquiredEvent());
 
-			// games are inherently full screen and immersive, hide OS UI bars
-			if (isFullScreen && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-				int uiFlag = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-						| View.SYSTEM_UI_FLAG_FULLSCREEN
-						| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-						| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-						| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-						| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-
-				getWindow().getDecorView().setSystemUiVisibility(uiFlag);
-			}
+			hideSystemDecor();
 		} else {
 			logger.log("{focus} Lost focus");
 			ActivityState.onWindowFocusLost();
@@ -521,9 +507,7 @@ public class TeaLeaf extends FragmentActivity {
 				//always send lost focus event
 				String[] events = {new WindowFocusLostEvent().pack()};
 
-				// DANGER: Calling dispatchEvents() is NOT thread-safe.
-				// Doing it here because the GLThread is paused.
-				NativeShim.dispatchEvents(events);
+				new DispatcheventsAsync().execute(events);
 			}
 		}
 	}
@@ -563,9 +547,7 @@ public class TeaLeaf extends FragmentActivity {
 					if (jsRunning) {
 						String[] events = {new PauseEvent().pack()};
 
-						// DANGER: Calling dispatchEvents() is NOT thread-safe.
-						// Doing it here because the GLThread is paused.
-						NativeShim.dispatchEvents(events);
+						new DispatcheventsAsync().execute(events);
 					}
 					glView.setRendererStateReloading();
 				}
