@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.io.File;
 import java.util.List;
 import android.content.pm.ActivityInfo;
-
+import android.os.AsyncTask;
 import com.tealeaf.event.BackButtonEvent;
 import com.tealeaf.event.JSUpdateNotificationEvent;
 import com.tealeaf.event.KeyboardScreenResizeEvent;
