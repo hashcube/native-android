@@ -10,9 +10,7 @@ tags
 local.properties
 .gradleops/AndroidSeed/idea
 .gradleops/AndroidSeed/idea/gradle.xml
-.gradleops/AndroidSeed/idea/dictionaries		  
-.gradleops/AndroidSeed/idea/dictionaries
-.gradleops/AndroidSeed/idea/libraries		  
+.gradleops/AndroidSeed/idea/dictionaries		  	  
 .gradleops/AndroidSeed/idea/libraries
  +.idea/misc.xml
 # build directories
@@ -55,6 +53,12 @@ manifest.json
 
 # generated symlinks (checkSymlinks)
 .gradleops/AndroidSeed/tealeaf/src/main/jni/core
+<<<<<<< HEAD
 gradleops/AndroidSeed/tealeaf/src/main/jni/profiler
 gradleops/AndroidSeed/tealeaf/src/main/jni/gen
 gradleops/AndroidSeed/tealeaf/src/main/jni/obj
+=======
+!gradleops/AndroidSeed/tealeaf/src/main/jni/profiler
+!gradleops/AndroidSeed/tealeaf/src/main/jni/gen
+!gradleops/AndroidSeed/tealeaf/src/main/jni/obj
+>>>>>>> 6b95fa32c083ce42e9819978cb8f80c75e89360b

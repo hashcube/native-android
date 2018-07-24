@@ -36,18 +36,8 @@ release: PROFILE_FLAG = 0
 release: MODE = release
 release: all
 
-#todo, removed by me, check
-#	ndk-build -C TeaLeaf -Bj8 RELEASE=$(RELEASE_FLAG) JSPROF=$(PROFILE_FLAG) GPROF=${GPROF_FLAG} V8SYMBOLS=${V8_SYMBOLS}
-
 analyze:
 	./scripts/analyze.sh
 
-#todo, removed by me, do we need to run test in future
-#test:
-#	bash ./scripts/run_tests.sh
-
-
-#todo, fix checkSymlinks
-#updates requried projects and plugins
 setup:
 	node checkSymlinks

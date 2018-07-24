@@ -2,7 +2,7 @@ This is the native 'tealeaf' platform for android devices
 
 ## Installation
 
-1. Install android tools, then download and unpdack android-ndk-r9b
+1. Install android tools, then download and unpack android-ndk-r9b
 2. Export path:
 export ANDROID_HOME=/home/USERNAME/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
@@ -31,7 +31,7 @@ For release
 ## Errors
 
  
-deskription:
+description:
 # Warning: File /home/user/.android/repositories.cfg could not be loaded.  
 do:
 touch ~/.android/repositories.cfg
