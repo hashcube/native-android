@@ -10,9 +10,7 @@ tags
 local.properties
 .gradleops/AndroidSeed/idea
 .gradleops/AndroidSeed/idea/gradle.xml
-.gradleops/AndroidSeed/idea/dictionaries		  
-.gradleops/AndroidSeed/idea/dictionaries
-.gradleops/AndroidSeed/idea/libraries		  
+.gradleops/AndroidSeed/idea/dictionaries		  	  
 .gradleops/AndroidSeed/idea/libraries
  +.idea/misc.xml
 # build directories
