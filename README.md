@@ -58,3 +58,10 @@ More at https://github.com/nodejs/node-gyp/issues/569
 2) git add .
 3) git commit -m "updates of native-android"
 4) git push origin YOURBRANCH
+
+### Plugins modification and update
+Next plugins are made as Gradle library projects and can be edited in Android Studio:<br />
+Gameplay
+Gamecircle
+Facebook
+Please note that these plugins library projects are not imported as project modules, instead they are imported as AAR (Android archive) which contain necessary source code and resources. You can see this in android/config.json of each library project plugin This requires to rebuild .aar file after plugin source code has been modified with proces: Import project into Android Studio -> Add changes -> Build -> Rebuild project. This will rebuild .aar file, the path to which is already in config.json.
