@@ -26,7 +26,8 @@ To debug with specific keys
 For release
 `devkit release native-android`
 
-
+### Warning!
+Do not update barista submodule. Current source code requires specific commit `f2356f0`
 
 ## Errors
 
