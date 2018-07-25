@@ -49,7 +49,6 @@ new_lower="$(echo "$new" | tr 'A-Z' 'a-z')"
 old_lower="$(echo "$old" | tr 'A-Z' 'a-z')"
 cd "../../../../../build/""$new"
 echo "pwd "$PWD
-cp -r ../../modules/devkit-core/modules/native-android/native-core tealeaf/src/main/jni/core
 
 #Changing packages
 package_old="com.$old_lower"

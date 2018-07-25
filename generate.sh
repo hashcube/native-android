@@ -1,7 +1,9 @@
 #!/bin/sh
 
-cd ../barista/
+cd barista
 npm install
-cd ../TeaLeaf/
-../barista/bin/barista -e v8 -o AndroidSeed/tealeaf/src/main/jni/gen/ AndroidSeed/tealeaf/src/main/jni/core/templates/*.json
+cd ..
+barista/bin/barista -e v8 -o 'gradleops/AndroidSeed/tealeaf/src/main/jni/gen/' 'gradleops/AndroidSeed/tealeaf/src/main/jni/core/templates/*.json'
+
+
 
