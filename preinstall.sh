@@ -24,5 +24,5 @@ fi
 
 git submodule update --init --recursive
 
-error "Done preinstall"
+echo "Done preinstall"
 exit 1
