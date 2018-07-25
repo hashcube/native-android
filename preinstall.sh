@@ -11,8 +11,6 @@ NDK_MESSAGE="\033[1;31mERROR\033[0m: You must install android and android-ndk fi
 #fi
 #command -v ndk-build >/dev/null 2>&1 || { echo -e $NDK_MESSAGE; exit 1; }
 
-error "Running preinstall"
-
 remoteurl=`git config --get remote.origin.url`
 
 node scripts/submodules.js
@@ -24,5 +22,3 @@ fi
 
 git submodule update --init --recursive
 
-echo "Done preinstall"
-exit 1
