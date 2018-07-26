@@ -55,3 +55,4 @@ manifest.json
 gradleops/AndroidSeed/tealeaf/src/main/jni/core
 gradleops/AndroidSeed/tealeaf/src/main/libs
 gradleops/AndroidSeed/tealeaf/src/main/obj
+!gradleops/AndroidSeed/tealeaf/src/main/jni/gen
