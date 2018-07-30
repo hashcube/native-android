@@ -58,12 +58,9 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:host="*" android:scheme="tealeaf" />
             </intent-filter>
-            <!-- TODO remove ignoring, comment out autoVeryfy
-            remove: tools:ignore="AppLinkUrlError"
-            add: android:autoVerify="true"-->
             <intent-filter
                 android:label="app_links"
-                tools:ignore="AppLinkUrlError" >
+                android:autoVerify="true" >
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
