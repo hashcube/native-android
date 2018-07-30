@@ -143,8 +143,7 @@
     newText += text.substring(0, afterStart);
     newText += replaceText;
     newText += text.substring(end);
-    if(replaceText.includes('google-services')) {
-    }
+
     return newText;
   };
 
