@@ -6,6 +6,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 27
     buildToolsVersion 'BuildToolVersionlaceholder'
+    
     defaultConfig {
         applicationId "com.androidseed"
         minSdkVersion 19
