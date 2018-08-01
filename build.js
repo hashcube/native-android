@@ -748,10 +748,10 @@ function makeAndroidProject(api, app, config, opts) {
     .all()// Clean gradle projects
     .then(
       function () {
-        return setGradleParameters(app).then(spawnWithLogger(api, './gradlew', [
-            "clean"
-          ], {cwd: projectPath})
-        )})
+      return setGradleParameters(app).then(spawnWithLogger(api, './gradlew', [
+        "clean"
+      ], {cwd: projectPath})
+    )})
 }
 
 function signAPK(api, app, shortName, outputPath, debug, config) {
@@ -1119,20 +1119,20 @@ function setGradleParameters(app) {
     var gradleAppFile = path.join(projectPath,
       "app", "build.gradle");
     return fs.readFileAsync(gradleAppFile, 'utf-8')
-      .then(function (contents) {
+    .then(function (contents) {
 
-        var versionCode = app.manifest.android.versionCode ? app.manifest.android.versionCode : "1"
-        var versionName = app.manifest.version ? app.manifest.version : "1.0"
+      var versionCode = app.manifest.android.versionCode ? app.manifest.android.versionCode : "1"
+      var versionName = app.manifest.version ? app.manifest.version : "1.0"
 
-        contents = contents
-          .replace(/versionCode 1/g, "versionCode " + versionCode)
-          .replace(/versionName "1.0"/g, "versionName  \"" + versionName + "\"")
-          .replace(/GameNamePlaceholderRelease/g, app.manifest.title)
-          .replace(/GameNamePlaceholderDebug/g, app.manifest.title + " debug")
-          .replace(/BuildToolVersionlaceholder/g, app.manifest.android.buildToolsVersion);
-        return fs.writeFileAsync(gradleAppFile, contents);
-      });
-  }
+      contents = contents
+        .replace(/versionCode 1/g, "versionCode " + versionCode)
+        .replace(/versionName "1.0"/g, "versionName  \"" + versionName + "\"")
+        .replace(/GameNamePlaceholderRelease/g, app.manifest.title)
+        .replace(/GameNamePlaceholderDebug/g, app.manifest.title + " debug")
+        .replace(/BuildToolVersionlaceholder/g, app.manifest.android.buildToolsVersion);
+      return fs.writeFileAsync(gradleAppFile, contents);
+    });
+}
 
   var writeTealeafGradle = function() {
     var gradleTeleafFile = path.join(projectPath,
