@@ -195,6 +195,7 @@ function injectPluginXML(opts) {
   var gradleAppBuildFile =  path.join(projectPath, "app", 'build.gradle');
   var gradleClasspathMainBuildFile =  path.join(projectPath, 'build.gradle');
   var gradleProguardTealeafFile =  path.join(projectPath, 'tealeaf', 'proguard-rules.pro');
+  var stylesFile =  path.join(projectPath, 'tealeaf/src/main/res/values/styles.xml');
 
 
   var readPluginXMLFiles = Object.keys(moduleConfig).map(function (moduleName) {
@@ -251,6 +252,18 @@ function injectPluginXML(opts) {
       return fs.readFileAsync(filepath, 'utf-8');
     }
   });
+
+  var readStylesFiles = Object.keys(moduleConfig).map(function (moduleName) {
+    var stylesXML = moduleConfig[moduleName].config.injectionStyles;
+
+    if (stylesXML) {
+      var filepath = path.join(moduleConfig[moduleName].path, 'android', stylesXML);
+      logger.log('Reading Main Gradle XML:', filepath);
+
+      return fs.readFileAsync(filepath, 'utf-8');
+    }
+  });
+
 
   return Promise.all([
     fs.readFileAsync(manifestXml, 'utf-8')
@@ -433,6 +446,38 @@ function injectPluginXML(opts) {
             xml = replaceTextBetween(xml, XML_START_BUILDSCRIPT_REPOS, XML_END_BUILDSCRIPT_REPOS, mainGradleBuildStrBuildscriptRepos);
 
             return fs.writeFileAsync(gradleClasspathMainBuildFile, xml, 'utf-8');
+          } else {
+            logger.log('No plugin gradle dependency to inject');
+          }
+        })
+    })
+    // read and apply styles
+    .then(function () {
+
+      return Promise.all([
+        fs.readFileAsync(stylesFile, 'utf-8')]
+        .concat(readStylesFiles)
+      )
+
+        .then(function (results) {
+          var xml = results.shift();
+          if (results && results.length > 0 && xml && xml.length > 0) {
+
+            var styles = '';
+
+            var XML_START_STYLES =  '//<!--START_STYLES-->';
+            var XML_END_STYLES = '//<!--END_STYLES-->';
+
+            for (var i = 0; i < results.length; ++i) {
+              var gradleXml = results[i];
+              if (!gradleXml) { continue; }
+
+              styles += getTextBetween(gradleXml, XML_START_STYLES, XML_END_STYLES);
+            }
+
+            xml = replaceTextBetween(xml, XML_START_STYLES, XML_END_STYLES, styles);
+
+            return fs.writeFileAsync(stylesFile, xml, 'utf-8');
           } else {
             logger.log('No plugin gradle dependency to inject');
           }
@@ -741,8 +786,7 @@ function makeAndroidProject(api, app, config, opts) {
         saveLocalizedStringsXmls(projectPath, config.titles),
         updateManifest(api, app, config, opts),
         updateActivity(app, config),
-        executeOnCreate(api, app, config, opts),
-
+        executeOnCreate(api, app, config, opts)
       ]);
     })
     .all()// Clean gradle projects
