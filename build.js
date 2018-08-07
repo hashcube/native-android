@@ -1137,6 +1137,14 @@ function updateManifest(api, app, config, opts) {
         var xslPath = path.join(module.path, 'android', config.injectionXSL);
         return transformXSL(api, defaultManifest, outputManifest, xslPath, params, config);
       }
+      if (config.transformGradleApp) {
+        var transformFilePath = path.join(module.path, 'android', config.transformGradleApp);
+        return transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config);
+      }
+      if (config.transformGradleTealeaf) {
+        var transformFilePath = path.join(module.path, 'android', config.transformGradleTealeaf);
+        return transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config);
+      }
     }, {concurrency: 1}) // Run the plugin XSLT in series instead of parallel
 
     .then(function() {
