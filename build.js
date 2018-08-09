@@ -23,8 +23,8 @@ var chalk = require('chalk');
 // unexpected exceptions show stack, build errors should just show the error
 // message to the user
 var BuildError = function (message, showStack) {
-	this.message = chalk.red(message);
-	this.showStack = showStack || false;
+  this.message = chalk.red(message);
+  this.showStack = showStack || false;
 };
 
 util.inherits(BuildError, Error);
