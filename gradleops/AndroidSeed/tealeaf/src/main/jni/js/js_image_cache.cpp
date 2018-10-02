@@ -19,21 +19,22 @@ extern "C" {
 #include "core/image-cache/include/image_cache.h"
 }
 
+#include "include/v8.h"
 using namespace v8;
 
-Handle<Value> js_image_cache_remove(const Arguments &args) {
+void js_image_cache_remove(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOGFN("in image cache delete");
-    HandleScope handleScope;
-    String::Utf8Value str(args[0]);
+    HandleScope handleScope(isolate);
+    String::Utf8Value str(isolate, args[0]);
     const char *url = ToCString(str);
     image_cache_remove(url);
     LOGFN("end image cache delete");
-    return Undefined();
 }
 
-Handle<ObjectTemplate> js_image_cache_get_template() {
-    Handle<ObjectTemplate> image_cache = ObjectTemplate::New();
-    image_cache->Set(String::New("remove"), FunctionTemplate::New(js_image_cache_remove));
-
+Local<ObjectTemplate> js_image_cache_get_template() {
+    Isolate *isolate = Isolate::GetCurrent();
+    Handle<ObjectTemplate> image_cache = ObjectTemplate::New(isolate);
+    image_cache->Set(String::NewFromUtf8(isolate, "remove"), FunctionTemplate::New(isolate, js_image_cache_remove));
     return image_cache;
 }

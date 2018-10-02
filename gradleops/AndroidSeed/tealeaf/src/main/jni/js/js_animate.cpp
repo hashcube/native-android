@@ -21,39 +21,41 @@
 #include "js/js_context.h"
 #include "core/tealeaf_context.h"
 
+#include "include/v8.h"
 using namespace v8;
 
-// Handle<Value> js_view_wrap_render(const Arguments &args) {
+// Local<Value> js_view_wrap_render(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
-// 	Handle<Object> thiz = args.This();
-// 	Handle<Object> style = Handle<Object>::Cast(thiz->Get(STRING_CACHE_style));
+// 	Local<Object> thiz = args.This();
+// 	Local<Object> style = Local<Object>::Cast(thiz->Get(STRING_CACHE_style));
 
-// 	if (style.IsEmpty()) { return Undefined(); }
-// 	Handle<Value> visible = Handle<Object>::Cast(style->Get(STRING_CACHE_visible));
-// 	if (visible.IsEmpty() || !visible->ToBoolean()->Value()) { return Undefined(); }
+// 	if (style.IsEmpty()) { return Undefined(isolate); }
+// 	Local<Value> visible = Local<Object>::Cast(style->Get(STRING_CACHE_visible));
+// 	if (visible.IsEmpty() || !visible->ToBoolean()->Value()) { return Undefined(isolate); }
 
 // 	context_2d *ctx = GET_CONTEXT2D_FROM(args[0]->ToObject());
 
 
 // }
 
-// Handle<Value> js_view_wrap_tick(const Arguments &args) {
+// Local<Value> js_view_wrap_tick(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 // }
 
 
-static inline void build_style_frame(anim_frame *frame, Handle<Object> target) {
+static inline void build_style_frame(anim_frame *frame, Local<Object> target) {
 
 #define ADD_PROP(const_name, prop)								\
 		_ADD_PROP(const_name, prop, false);							\
 		_ADD_PROP(const_name, d ## prop, true);
 
 #define _ADD_PROP(const_name, prop, _is_delta) do {				\
-		Handle<Value> value = target->Get(String::New(#prop));		\
+    Isolate *isolate = Isolate::GetCurrent(); \
+    Local<Value> value = target->Get(String::NewFromUtf8(isolate, #prop)); \
 		if (value->IsNumber()) {									\
 			style_prop *p = anim_frame_add_style_prop(frame);		\
 			p->name = const_name;									\
-			p->target = (double) value->NumberValue();				\
+			p->target = (double) value->NumberValue(isolate->GetCurrentContext()).ToChecked();				\
 			p->is_delta = _is_delta;								\
 		}															\
 	} while(0)
@@ -73,17 +75,18 @@ static inline void build_style_frame(anim_frame *frame, Handle<Object> target) {
     frame->type = STYLE_FRAME;
 }
 
-static void build_func_frame(anim_frame *frame, Handle<Function> cb) {
-    frame->cb = Persistent<Function>::New(cb);
+static void build_func_frame(anim_frame *frame, Local<Function> cb) {
+    Isolate *isolate = Isolate::GetCurrent();
+    frame->cb.Reset(isolate, Persistent<Function>(isolate, cb));
     frame->type = FUNC_FRAME;
 }
 
 #define GET_TIMESTEP_ANIMATION(thiz) ( (view_animation*) Local<External>::Cast(thiz->GetInternalField(0))->Value() )
 
-static void build_frame(Handle<Object> target, const Arguments &args, void (*next)(view_animation *, anim_frame *, unsigned int, unsigned int)) {
+static void build_frame(Local<Object> target, const v8::FunctionCallbackInfo<v8::Value> &args, void (*next)(view_animation *, anim_frame *, unsigned int, unsigned int)) {
     LOGFN("build_frame");
-
-    Handle<Object> thiz = Handle<Object>::Cast(args.This());
+    Isolate *isolate = args.GetIsolate();
+    Local<Object> thiz = Local<Object>::Cast(args.This());
     view_animation *anim = GET_TIMESTEP_ANIMATION(thiz);
     anim_frame *frame = anim_frame_get();
 
@@ -92,17 +95,17 @@ static void build_frame(Handle<Object> target, const Arguments &args, void (*nex
     unsigned int transition = 0;
     if (target->IsFunction()) {
         duration = 0;
-        build_func_frame(frame, Handle<Function>::Cast(target));
+        build_func_frame(frame, Local<Function>::Cast(target));
     } else {
         build_style_frame(frame, target);
     }
 
     if (!args[1]->IsUndefined()) {
-        duration = args[1]->Int32Value();
+        duration = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     }
 
     if (!args[2]->IsUndefined()) {
-        transition = args[2]->Int32Value();
+        transition = args[2]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     }
 
     next(anim, frame, duration, transition);
@@ -110,139 +113,165 @@ static void build_frame(Handle<Object> target, const Arguments &args, void (*nex
     LOGFN("end build_frame");
 }
 
-Handle<Value> js_animate_now(const Arguments &args) {
-    Handle<Object> target = Handle<Object>::Cast(args[0]);
+void js_animate_now(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Local<Object> target = Local<Object>::Cast(args[0]);
     if (!target->IsUndefined()) {
         build_frame(target, args, view_animation_now);
     }
 
-    return Handle<Object>::Cast(args.This());
+   // return Local<Object>::Cast(args.This());
 }
 
-Handle<Value> js_animate_then(const Arguments &args) {
-    Handle<Object> target = Handle<Object>::Cast(args[0]);
+void js_animate_then(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Local<Object> target = Local<Object>::Cast(args[0]);
     if (!target->IsUndefined()) {
         build_frame(target, args, view_animation_then);
     }
 
-    return Handle<Object>::Cast(args.This());
+  //  return Local<Object>::Cast(args.This());
 }
 
-Handle<Value> js_animate_commit(const Arguments &args) {
-    Handle<Object> thiz = Handle<Object>::Cast(args.This());
+void js_animate_commit(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Local<Object> thiz = Local<Object>::Cast(args.This());
     view_animation *anim = GET_TIMESTEP_ANIMATION(thiz);
     view_animation_commit(anim);
-    return thiz;
+   // return thiz;
 }
 
-Handle<Value> js_animate_clear(const Arguments &args) {
-    Handle<Object> thiz = Handle<Object>::Cast(args.This());
+void js_animate_clear(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Local<Object> thiz = Local<Object>::Cast(args.This());
     view_animation *anim = GET_TIMESTEP_ANIMATION(thiz);
     view_animation_clear(anim);
-    return thiz;
+   // return thiz;
 }
 
-Handle<Value> js_animate_wait(const Arguments &args) {
-    Handle<Object> thiz = Handle<Object>::Cast(args.This());
-    int duration = args[0]->Int32Value();
+void js_animate_wait(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    Local<Object> thiz = Local<Object>::Cast(args.This());
+    int duration = args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked();
 
     view_animation *anim = GET_TIMESTEP_ANIMATION(thiz);
     view_animation_wait(anim, duration);
-    return thiz;
+  //  return thiz;
 }
 
 
-Handle<Value> js_animate_pause(const Arguments &args) {
-    Handle<Object> thiz = Handle<Object>::Cast(args.This());
+void js_animate_pause(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Local<Object> thiz = Local<Object>::Cast(args.This());
     view_animation *anim = GET_TIMESTEP_ANIMATION(thiz);
     view_animation_pause(anim);
-    return thiz;
+  //  return thiz;
 }
 
-Handle<Value> js_animate_resume(const Arguments &args) {
-    Handle<Object> thiz = Handle<Object>::Cast(args.This());
+void js_animate_resume(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Local<Object> thiz = Local<Object>::Cast(args.This());
     view_animation *anim = GET_TIMESTEP_ANIMATION(thiz);
     view_animation_resume(anim);
-    return thiz;
+  //  return thiz;
 }
 
-Handle<Value> js_animate_is_paused(const Arguments &args) {
-    Handle<Object> thiz = Handle<Object>::Cast(args.This());
+void js_animate_is_paused(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Local<Object> thiz = Local<Object>::Cast(args.This());
     view_animation *anim = GET_TIMESTEP_ANIMATION(thiz);
-    return Boolean::New(anim->is_paused);
+   // return Boolean::New(anim->is_paused);
 }
 
-Handle<Value> js_animate_has_frames(const Arguments &args) {
-    Handle<Object> thiz = Handle<Object>::Cast(args.This());
+void js_animate_has_frames(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Local<Object> thiz = Local<Object>::Cast(args.This());
     view_animation *anim = GET_TIMESTEP_ANIMATION(thiz);
-    return Boolean::New((bool) anim->frame_head);
+  //  return Boolean::New((bool) anim->frame_head);
 }
 
+
+// Old, now using weakCallbackForObjectHolder below
 static void js_animation_finalize(Persistent<Value> js_anim, void *param) {
-    HandleScope scope;
+    Isolate *isolate = Isolate::GetCurrent();
+    HandleScope scope(isolate);
 
     view_animation *anim = static_cast<view_animation*>( param );
     view_animation_release(anim);
 
-    js_anim.Dispose();
-    js_anim.Clear();
+    js_anim.Reset();
 }
 
-Handle<Value> js_animate_constructor(const Arguments &args) {
-    Handle<Object> thiz = Handle<Object>::Cast(args.This());
-    Handle<Object> js_timestep_view = Handle<Object>::Cast(args[0]);
+static void weakCallbackForObjectHolder(const v8::WeakCallbackInfo<view_animation> &data) {
+    Isolate *isolate = Isolate::GetCurrent();
+    HandleScope scope(isolate);
 
-    timestep_view *view = GET_TIMESTEP_VIEW(Handle<Object>::Cast(js_timestep_view->Get(STRING_CACHE___view)));
+    view_animation_release(static_cast<view_animation*>( data.GetParameter()));
+    delete data.GetParameter();
+}
+
+void js_animate_constructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    Local<Object> thiz = Local<Object>::Cast(args.This());
+    Local<Object> js_timestep_view = Local<Object>::Cast(args[0]);
+
+    timestep_view *view = GET_TIMESTEP_VIEW(Local<Object>::Cast(js_timestep_view->Get(STRING_CACHE___view.Get(isolate))));
     view_animation *anim = view_animation_init(view);
 
-    thiz->SetInternalField(0, External::New(anim));
-    Persistent<Object> js_anim = Persistent<Object>::New(thiz);
-    js_anim.MakeWeak(anim, js_animation_finalize);
-    anim->js_anim = js_anim;
+    thiz->SetInternalField(0, External::New(isolate, anim));
+    Persistent<Object> js_anim(isolate, thiz);
+    //static void js_animation_finalize(Persistent<Value> js_anim, void *param) {
+    //       void (*)                   (const WeakCallbackInfo<view_animation_t> &)
+    js_anim.SetWeak(anim, weakCallbackForObjectHolder, v8::WeakCallbackType::kParameter);
 
-    return thiz;
+   /* tealeaf/src/main/jni/deps/v8/include/v8.h:638:18:
+    note: candidate function [with P = view_animation_t] not viable: no known conversion from
+    'void (Persistent<v8::Value>, void *)' to 'typename WeakCallbackInfo<view_animation_t>::Callback'
+    (aka 'void (*)(const WeakCallbackInfo<view_animation_t> &)') for 2nd argument*/
+
+
+    anim->js_anim = js_anim.Get(isolate);
+
+    //return thiz;
 }
 
-void def_animate_add_to_group(Handle<Object> js_anim) {
+void def_animate_add_to_group(Local<Object> js_anim) {
+    Isolate *isolate = Isolate::GetCurrent();
     LOGFN("def_animate_add_to_group");
-    Handle<Function> addToGroup = Handle<Function>::Cast(js_anim->Get(STRING_CACHE__addToGroup));
+    Local<Function> addToGroup = Local<Function>::Cast(js_anim->Get(STRING_CACHE__addToGroup.Get(isolate)));
     if (!addToGroup.IsEmpty() && addToGroup->IsFunction()) {
-        Handle<Value> args[] = {js_anim};
+        Local<Value> args[] = {js_anim};
         addToGroup->Call(js_anim, 1, args);
     }
     LOGFN("end def_animate_add_to_group");
 }
 
-void def_animate_remove_from_group(Handle<Object> js_anim) {
+void def_animate_remove_from_group(Local<Object> js_anim) {
+    Isolate *isolate = Isolate::GetCurrent();
     LOGFN("def_animate_remove_from_group");
-    Handle<Function> finish = Handle<Function>::Cast(js_anim->Get(STRING_CACHE__removeFromGroup));
+    Local<Function> finish = Local<Function>::Cast(js_anim->Get(STRING_CACHE__removeFromGroup.Get(isolate)));
     if (!finish.IsEmpty() && finish->IsFunction()) {
-        Handle<Value> args[] = {js_anim};
+        Local<Value> args[] = {js_anim};
         finish->Call(js_anim, 1, args);
     }
     LOGFN("end def_animate_remove_from_group");
 }
 
-void def_animate_cb(Handle<Object> js_view, Handle<Object> cb, double tt, double t) {
-    Handle<Value> args[] = {Number::New(tt), Number::New(t)};
-    Handle<Function>::Cast(cb)->Call(js_view, 2, args);
+void def_animate_cb(Local<Object> js_view, Local<Object> cb, double tt, double t) {
+    Isolate *isolate = Isolate::GetCurrent();
+    Local<Value> args[] = {Number::New(isolate, tt), Number::New(isolate, t)};
+    Local<Function>::Cast(cb)->Call(js_view, 2, args);
 }
 
-Handle<FunctionTemplate> get_animate_class() {
-    Handle<FunctionTemplate> animate_class = FunctionTemplate::New();
+Local<FunctionTemplate> get_animate_class() {
+    Isolate *isolate = Isolate::GetCurrent();
+    Local<FunctionTemplate> animate_class = FunctionTemplate::New(isolate);
     animate_class->SetCallHandler(js_animate_constructor);
 
-    Handle<Template> proto = animate_class->PrototypeTemplate();
-    animate_class->InstanceTemplate()->SetInternalFieldCount(1);
-    proto->Set("now", FunctionTemplate::New(js_animate_now));
-    proto->Set("then", FunctionTemplate::New(js_animate_then));
-    proto->Set("commit", FunctionTemplate::New(js_animate_commit));
-    proto->Set("clear", FunctionTemplate::New(js_animate_clear));
-    proto->Set("wait", FunctionTemplate::New(js_animate_wait));
-    proto->Set("pause", FunctionTemplate::New(js_animate_pause));
-    proto->Set("resume", FunctionTemplate::New(js_animate_resume));
-    proto->Set("isPaused", FunctionTemplate::New(js_animate_is_paused));
-    proto->Set("hasFrames", FunctionTemplate::New(js_animate_has_frames));
+    Local<Template> proto = animate_class->PrototypeTemplate();
+    //Local<ObjectTemplate> global = ObjectTemplate::New(isolate);
+   // animate_class->InstanceTemplate()->SetInternalFieldCount(1);
+    proto->Set(String::NewFromUtf8(isolate,"now"), FunctionTemplate::New(isolate, js_animate_now));
+    proto->Set(String::NewFromUtf8(isolate,"then"), FunctionTemplate::New(isolate, js_animate_then));
+    proto->Set(String::NewFromUtf8(isolate,"commit"), FunctionTemplate::New(isolate, js_animate_commit));
+    proto->Set(String::NewFromUtf8(isolate,"clear"), FunctionTemplate::New(isolate, js_animate_clear));
+    proto->Set(String::NewFromUtf8(isolate,"wait"), FunctionTemplate::New(isolate, js_animate_wait));
+    proto->Set(String::NewFromUtf8(isolate,"pause"), FunctionTemplate::New(isolate, js_animate_pause));
+    proto->Set(String::NewFromUtf8(isolate,"resume"), FunctionTemplate::New(isolate, js_animate_resume));
+    proto->Set(String::NewFromUtf8(isolate,"isPaused"), FunctionTemplate::New(isolate, js_animate_is_paused));
+    proto->Set(String::NewFromUtf8(isolate,"hasFrames"), FunctionTemplate::New(isolate, js_animate_has_frames));
 
     return animate_class;
 }

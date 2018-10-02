@@ -16,6 +16,8 @@
  */
 #include "platform/platform.h"
 #include "platform/local_storage.h"
+#include <stdlib.h> // pulls in declaration of malloc, free
+#include <string.h> // pulls in declaration for strlen.
 
 
 void local_storage_set_data(const char *key, const char *data) {

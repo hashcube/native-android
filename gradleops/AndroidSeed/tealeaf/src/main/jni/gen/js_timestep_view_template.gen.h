@@ -19,6 +19,6 @@
 #define JS_TIMESTEP_VIEW_TEMPLATE_H
 
 #include "js/js.h"
-v8::Handle<v8::FunctionTemplate> js_timestep_view_get_template();
+v8::Local<v8::FunctionTemplate> js_timestep_view_get_template();
 
 #endif //JS_TIMESTEP_VIEW_TEMPLATE_H

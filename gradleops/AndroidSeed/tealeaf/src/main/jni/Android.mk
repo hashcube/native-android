@@ -24,6 +24,13 @@ LOCAL_EXPORT_LDLIBS := -lz
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/libpng
 include $(BUILD_STATIC_LIBRARY)
 
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libjansson
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libjansson.a
+include $(PREBUILT_STATIC_LIBRARY)
+
 # build libzip
 include $(CLEAR_VARS)
 LOCAL_MODULE    := libzip
@@ -87,13 +94,19 @@ LOCAL_LDLIBS := -lz
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
 
-LOCAL_LDFLAGS := -Wl,-Map,tealeaf.map
+LOCAL_LDFLAGS := -Wl,-Map,tealeaf.map, --verbose
 
 -include ${LOCAL_PATH}/profiler/android-ndk-profiler.mk
 
+#include $(CLEAR_VARS)
+#LOCAL_MODULE := gnustl
+#LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libgnustl_static.a
+#include $(PREBUILT_STATIC_LIBRARY)
+
+
 include $(CLEAR_VARS)
 LOCAL_MODULE := curl-prebuilt
-LOCAL_SRC_FILES := lib/libcurl.a
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libcurl.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -106,20 +119,91 @@ LOCAL_MODULE := ssl-prebuilt
 LOCAL_SRC_FILES := lib/libssl.a
 include $(PREBUILT_STATIC_LIBRARY)
 
+#correct order libv8_initializers libv8_init v8_base v8_libplatform v8_libbase v8_libsampler v8_snapshot v8_inspector
+
 include $(CLEAR_VARS)
-LOCAL_MODULE := libv8a
-LOCAL_SRC_FILES := lib/libv8.a
+LOCAL_MODULE := libv8_initializers
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_initializers.a
 include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libv8_init
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_init.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libv8_base
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_base.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libv8_libplatform
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_libplatform.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libv8_libbase
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_libbase.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libv8_libsampler
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_libsampler.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libv8_nosnapshot
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_nosnapshot.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libv8_snapshot
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_snapshot.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+# seems not needed for nosnaphot release
+#include $(CLEAR_VARS)
+#LOCAL_MODULE := libv8_external_snapshot
+#LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_external_snapshot.a
+#include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libinspector
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libinspector.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libtorque_base
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libtorque_base.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+
+
+
+
+
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib/include
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/deps/src
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
+# *** v8 updated
+
+#include $(CLEAR_VARS)
+#LOCAL_MODULE := libjpeg
+#LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libjpeg.a
+#include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libturbojpeg
-LOCAL_SRC_FILES := lib/libturbojpeg.a
+#LDFLAGS:=-Wl,Bsymbolic
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libturbojpeg.a
 include $(PREBUILT_STATIC_LIBRARY)
 
-include $(CLEAR_VARS)
-LOCAL_MODULE := libjansson
-LOCAL_SRC_FILES := lib/libjansson.a
-include $(PREBUILT_STATIC_LIBRARY)
+
 
 
 include $(CLEAR_VARS)
@@ -206,11 +290,11 @@ LOCAL_SRC_FILES :=  	js/js.cpp                             \
 			js/js_string_cache.cpp                            \
 			gen/js_timestep_image_map_template.gen.cpp
 
-PROFILE_SRC_FILES := 	lib/v8-profiler/cpu_profiler.cpp	  \
-			lib/v8-profiler/heap_profiler.cpp	              \
-			lib/v8-profiler/node.cpp		                  \
-			lib/v8-profiler/node_buffer.cpp		              \
-			lib/v8-profiler/profiler.cpp
+#PROFILE_SRC_FILES := 	lib/v8-profiler/cpu_profiler.cpp	  \
+#			lib/v8-profiler/heap_profiler.cpp	              \
+#			lib/v8-profiler/node.cpp		                  \
+#			lib/v8-profiler/node_buffer.cpp		              \
+#			lib/v8-profiler/profiler.cpp
 
 QR_SRC_FILES := \
 	core/qr/libqrencode/bitstream.c \
@@ -228,15 +312,25 @@ QR_SRC_FILES := \
 	core/qr/quirc/version_db.c \
 	core/qr/adapter/qrprocess.c
 
-LOCAL_STATIC_LIBRARIES := curl-prebuilt libzip cpufeatures libturbojpeg libjansson libpng libv8a
-LOCAL_LDLIBS := -llog -lGLESv2 -lz
-LOCAL_CFLAGS += -Wall -Werror -Wno-narrowing -Wno-psabi -Wno-unused-function -Wno-unused-but-set-variable -O3 -funroll-loops -ftree-vectorize -ffast-math -Wno-maybe-uninitialized
+#correct order v8_base v8_libplatform v8_libbase v8_libsampler v8_snapshot v8_inspector
+LOCAL_STATIC_LIBRARIES := curl-prebuilt libzip cpufeatures libturbojpeg libjansson libpng  libv8_initializers libv8_init libv8_base libv8_libplatform libv8_libbase libv8_libsampler libv8_nosnapshot libv8_snapshot libinspector libtorque_base gnustl #libicui18n libicuuc #libv8_external_snapshot
+
+
+LOCAL_LDLIBS := -llog -landroid -lGLESv2 -lz
+
+#Removed -Wall -Werror for source code updates, must be put back and fix build on release after update phase
+#Removed -std=gnu++11 in order to avoid <<--error: invalid argument '-std=gnu++11' not allowed with 'C/ObjC'-->>
+LOCAL_CFLAGS += -Wno-narrowing -Wno-unused-function -funroll-loops -ftree-vectorize -ffast-math -Wno-uninitialized -Wc++11-narrowing -w  # -O3 
+
 
 ifeq ($(APP_ABI),armeabi-v7a)
-	LOCAL_CFLAGS += -march=armv7-a -mfloat-abi=softfp 
+	LOCAL_CFLAGS += -march=armv7-a -mfloat-abi=softfp
 endif
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib/include
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib/src
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/core
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/core/deps
@@ -245,32 +339,34 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/core/qr
 LOCAL_SHARED_LIBRARIES += ssl-prebuilt
 LOCAL_SHARED_LIBRARIES += crypto-prebuilt
 
+
+LOCAL_CFLAGS += -DPROFILE -fno-omit-frame-pointer -fno-function-sections
+
 # QR codes
 LOCAL_SRC_FILES += $(QR_SRC_FILES)
-
-#RELEASE will stub out the LOG function
+#RELEASE will stub out the LOG funLIBRARIESction
 ifeq (${RELEASE}, 1)
 LOCAL_CFLAGS += -DRELEASE
 APP_OPTIM := release
 
 # Add profiler to release mode
-ifeq (${JSPROF}, 1)
-LOCAL_CFLAGS += -DENABLE_PROFILER -DREMOTE_DEBUG
-LOCAL_SRC_FILES += $(PROFILE_SRC_FILES)
+#ifeq (${JSPROF}, 1)
+#LOCAL_CFLAGS += -DENABLE_PROFILER -DREMOTE_DEBUG
+#LOCAL_SRC_FILES += $(PROFILE_SRC_FILES)
+#LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8
+#endif
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8
-endif
-
 # DEBUG build
 else
 # Profiler is always on for debug mode
-LOCAL_CFLAGS += -DHASH_DEBUG=1 -DDEBUG -gstabs+ -DENABLE_PROFILER -DREMOTE_DEBUG
+LOCAL_CFLAGS += -DHASH_DEBUG=1 -DDEBUG -DREMOTE_DEBUG #-DU_USING_ICU_NAMESPACE=1
 APP_OPTIM := debug
 LOCAL_SRC_FILES += $(PROFILE_SRC_FILES)
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8
 endif
 
 ifeq (${GPROF}, 1)
-LOCAL_CFLAGS += -DPROFILE -pg -fno-omit-frame-pointer -fno-function-sections
+LOCAL_CFLAGS += -DPROFILE -fno-omit-frame-pointer -fno-function-sections
 LOCAL_STATIC_LIBRARIES += andprof
 endif
 include $(BUILD_SHARED_LIBRARY)

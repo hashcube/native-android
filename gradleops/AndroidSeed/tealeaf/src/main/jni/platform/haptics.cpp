@@ -44,7 +44,7 @@ void haptics_vibrate(long long* pattern, int repeat, int patternLen) {
     jmethodID method = env->GetMethodID(shim->type, "vibrate", "([JI)V");
 
     jlongArray jPattern = env->NewLongArray(patternLen);
-    env->SetLongArrayRegion(jPattern, 0, patternLen, pattern);
+    env->SetLongArrayRegion(jPattern, 0, patternLen,  (jlong*)pattern);
 
     env->CallVoidMethod(shim->instance, method, jPattern, repeat);
 }

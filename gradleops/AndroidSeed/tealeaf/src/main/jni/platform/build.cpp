@@ -15,7 +15,7 @@
  * along with the Game Closure SDK.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "platform/platform.h"
-#include "platform/build.h"
+
 #include "core/types.h"
 #include <string.h>
 

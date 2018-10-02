@@ -19,7 +19,7 @@
 #include <sys/time.h>
 
 #include "core/util/detect.h"
-#include "timestep/timestep_animate.h"
+#include "core/timestep/timestep_animate.h"
 
 #include "core/config.h"
 #include "core/tealeaf_context.h"
@@ -35,17 +35,21 @@
 #include "js/js_socket.h"
 #include "js/js_timer.h"
 #include "js/js_location.h"
+#include "js/js_string_cache.h"
+
 
 #include "platform/platform.h"
 
 #if defined(REMOTE_DEBUG)
-#include "v8/v8-debug.h"
+#include "src/debug/debug.h"
 #endif
 
 #if defined(ENABLE_PROFILER)
 #include "lib/v8-profiler/profiler.h"
 #endif
 
+
+#include "include/v8.h"
 using namespace v8;
 
 static Persistent<Context> m_context;
@@ -72,14 +76,16 @@ static DECL_BENCH(et);
 
 CEXPORT void eval_str(const char *str) {
     Locker l(m_isolate);
-    HandleScope handle_scope;
+    Isolate *isolate = Isolate::GetCurrent();
+    HandleScope handle_scope(isolate);;
     if (m_context.IsEmpty()) {
         LOG("{js} ERROR: Could not evaluate. JavaScript engine is not running yet");
         return;
     }
-    Context::Scope context_scope(m_context);
-    Handle<String> source = String::New(str);
-    Handle<String> file_name = STRING_CACHE_none;
+    Handle<Context> context = getContext();
+    Context::Scope context_scope(context);
+    Handle<String> source = String::NewFromUtf8(m_isolate, str);
+    Handle<String> file_name = Local<String>::New(m_isolate, STRING_CACHE_none.Get(isolate));
     ExecuteString(source, file_name, true);
 }
 
@@ -90,32 +96,43 @@ CEXPORT void eval_str(const char *str) {
 
 Persistent<Function> *tickFunction = NULL;
 
-Handle<Value> timer_start(const Arguments& args) {
-    HandleScope handleScope;
+
+void timer_start(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = Isolate::GetCurrent();
+    HandleScope handleScope(isolate);
     Handle<Context> context = getContext();
     LOGFN("setTick");
     Context::Scope context_scope(context);
 
+    // Old block
     if (tickFunction == NULL) {
         // tickFunction = (Persistent<Function>*)calloc(1, sizeof(Persistent<Function>)); // this needs to be tested still
         tickFunction = new Persistent<Function>();
     }
-    *tickFunction = Persistent<Function>::New(Local<Function>::Cast(args[0]->ToObject()));
+
+    // Updated at Aug 28 2018
+    if (args[0]->IsFunction()) {
+        Local<v8::Function> function = Local<Function>::Cast(args[0]);
+        //Handle<Function> fun = Handle<Function>::Cast(args[0]->ToObject());
+        tickFunction->Reset(isolate, function);
+    }
+
     LOGFN("end setTick");
     MARK(et);
-    return Undefined();
+    //return Undefined(isolate);
 }
 
-Handle<Value> getGlobalObject(const Arguments& args) {
-    LOGFN("get global obj");
+//Handle<Value> getGlobalObject(const Arguments& args) {
+Handle<Value> getGlobalObject(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    LOG("get global obj");
     Handle<Context> context = getContext();
     Handle<Value> globalObject = context->Global();
     LOGFN("end get global obj");
     return globalObject;
 }
 
-Handle<Context> getContext() {
-    return m_context;
+Local<Context> getContext() {
+    return m_context.Get(m_isolate);
 }
 
 Isolate *getIsolate() {
@@ -128,25 +145,26 @@ const char* ToCString(const String::Utf8Value& value) {
 
 // Executes a string within the current v8 context.
 Handle<Value> ExecuteString(v8::Handle<v8::String> source, v8::Handle<v8::Value> name, bool report_exceptions) {
-    v8::HandleScope handle_scope;
-    v8::TryCatch try_catch;
-    v8::Handle<v8::Script> script = v8::Script::Compile(source, name);
+    v8::Isolate *isolate = Isolate::GetCurrent();
+    EscapableHandleScope handle_scope(isolate);;
+    v8::TryCatch try_catch(m_isolate);
+    v8::Local<v8::Script> script = v8::Script::Compile(getContext(),source).ToLocalChecked(); //, name->ToString()
     if (script.IsEmpty()) {
         // Print errors that happened during compilation.
         if (report_exceptions)
             ReportException(&try_catch);
-        return Undefined();
+        return Undefined(m_isolate);
     } else {
-        v8::Handle<v8::Value> result = script->Run();
+        v8::Local<v8::Value> result = script->Run(getContext()).ToLocalChecked();
         if (result.IsEmpty()) {
             assert(try_catch.HasCaught());
             // Print errors that happened during execution.
             if (report_exceptions)
                 ReportException(&try_catch);
-            return Undefined();
+            return Undefined(m_isolate);
         } else {
             assert(!try_catch.HasCaught());
-            return handle_scope.Close(result);
+            return handle_scope.Escape(result);
         }
     }
 }
@@ -159,11 +177,12 @@ static inline void log_error(const char *message) {
     Handle<Object> global = context->Global();
     bool logged = false;
     if (!global.IsEmpty()) {
-        Handle<Object> native = Handle<Object>::Cast(global->Get(STRING_CACHE_NATIVE));
+        // original: Handle<Object> native = Handle<Object>::Cast(global->Get(STRING_CACHE_NATIVE));
+        Handle<Object> native = (global->Get(STRING_CACHE_NATIVE.Get(m_isolate))->ToObject(context)).ToLocalChecked();
         if (!native.IsEmpty() && native->IsObject()) {
-            Handle<Function> log = Handle<Function>::Cast(native->Get(STRING_CACHE___log));
+            Handle<Function> log = Handle<Function>::Cast(native->Get(STRING_CACHE___log.Get(m_isolate)));
             if (!log.IsEmpty() && log->IsFunction()) {
-                Handle<Value> args[] = { STRING_CACHE_ERROR, String::New(message) };
+                Handle<Value> args[] = { STRING_CACHE_ERROR.Get(m_isolate), String::NewFromUtf8(m_isolate,message) };
                 Handle<Value> ret = log->Call(global, 2, args);
                 if (!ret.IsEmpty()) {
                     logged = true;
@@ -180,9 +199,10 @@ static inline void window_on_error(const char *msg, const char *url, int line_nu
     Handle<Context> context = getContext();
     Handle<Object> global = context->Global();
     if (!global.IsEmpty()) {
-        Handle<Function> on_error = Handle<Function>::Cast(global->Get(STRING_CACHE_onerror));
+        //Handle<Function> on_error = Handle<Function>::Cast(global->Get(STRING_CACHE_onerror));
+        Handle<Function> on_error =  Local<Function>::Cast(global->Get(STRING_CACHE_onerror.Get(m_isolate)));
         if (!on_error.IsEmpty() && on_error->IsFunction()) {
-            Handle<Value> args[] = { String::New(msg), String::New(url), Number::New(line_number) };
+            Handle<Value> args[] = { String::NewFromUtf8(m_isolate,msg), String::NewFromUtf8(m_isolate, url), Number::New(m_isolate, line_number) };
             on_error->Call(global, 3, args);
         }
     }
@@ -205,19 +225,17 @@ static void remote_log_error(const char *message, const char *url, int line_numb
 //// JS Object Wrapper
 
 void js_object_wrapper_init(PERSISTENT_JS_OBJECT_WRAPPER *obj) {
-    obj->Clear();
+    obj->Reset();
 }
 
 void js_object_wrapper_root(PERSISTENT_JS_OBJECT_WRAPPER *obj, JS_OBJECT_WRAPPER target) {
     js_object_wrapper_delete(obj);
-
-    *obj = Persistent<Object>::New(target);
+    obj->Reset(Isolate::GetCurrent(), target);
 }
 
 void js_object_wrapper_delete(PERSISTENT_JS_OBJECT_WRAPPER *obj) {
     if (!obj->IsEmpty()) {
-        obj->Dispose();
-        obj->Clear();
+        obj->Reset();
     }
 }
 
@@ -227,32 +245,32 @@ DECL_BENCH(gc_bench);
 static const char *m_gc_type = "Unknown";
 #endif
 
-void gc_start(GCType type, GCCallbackFlags flags) {
+void gc_start(Isolate* isolate, GCType type, GCCallbackFlags flags) {
 #ifndef RELEASE
-    MARK(gc_bench);
+MARK(gc_bench);
 
-    static const char* types[] = {
+static const char* types[] = {
         "Unknown",
         "Scavenge",
         "Mark/Sweep/Compact",
         "All"
-    };
+};
 
-    m_gc_type = types[type];
+m_gc_type = types[type];
 #endif
 }
 
-void gc_end(GCType type, GCCallbackFlags flags) {
+void gc_end(Isolate* isolate, GCType type, GCCallbackFlags flags) {
 #ifndef RELEASE
-    LOGDEBUG("{jsdebug} GC took %dms (%s)", ELAPSED(gc_bench), m_gc_type);
+LOGDEBUG("{jsdebug} GC took %dms (%s)", ELAPSED(gc_bench), m_gc_type);
 #endif
 }
 
 void ReportException(v8::TryCatch* try_catch) {
     LOG("{js} Reporting exception");
 
-    v8::HandleScope handle_scope;
-    v8::String::Utf8Value exception(try_catch->Exception());
+    v8::Isolate *isolate = Isolate::GetCurrent();     HandleScope handle_scope(isolate);;
+    v8::String::Utf8Value exception(isolate, try_catch->Exception());
     v8::Handle<v8::Message> message = try_catch->Message();
     if (message.IsEmpty()) {
         LOG("{js} WARNING: No exception message");
@@ -264,17 +282,17 @@ void ReportException(v8::TryCatch* try_catch) {
         window_on_error(exception_string, "", -1);
         remote_log_error(exception_string, "", -1);
     } else {
-        v8::String::Utf8Value filename(message->GetScriptResourceName());
+        v8::String::Utf8Value filename(isolate, message->GetScriptResourceName());
         const char* filename_string = ToCString(filename);
-        int linenum = message->GetLineNumber();
+        int linenum = message->GetLineNumber(getContext()).ToChecked();
         char buf[512];
         snprintf(buf, sizeof(buf), "%s line: %i", filename_string, linenum);
         log_error(buf);
-        v8::String::Utf8Value sourceline(message->GetSourceLine());
+        v8::String::Utf8Value sourceline(isolate, message->GetSourceLine(getContext()).ToLocalChecked());
         const char* sourceline_string = ToCString(sourceline);
         log_error(sourceline_string);
 
-        v8::String::Utf8Value stack_trace(try_catch->StackTrace());
+        v8::String::Utf8Value stack_trace(isolate, try_catch->StackTrace(getContext()).ToLocalChecked());
         const char* stack_trace_string = "no line";
         if (stack_trace.length() > 0) {
             stack_trace_string = ToCString(stack_trace);
@@ -288,11 +306,11 @@ void ReportException(v8::TryCatch* try_catch) {
 Handle<Function> get_on_resize() {
     Handle<Object> global = getContext()->Global();
     if(!global.IsEmpty()) {
-        Handle<Object> native = Handle<Object>::Cast(global->Get(STRING_CACHE_NATIVE));
+        Handle<Object> native = Handle<Object>::Cast(global->Get(STRING_CACHE_NATIVE.Get(m_isolate)));
         if(!native.IsEmpty()) {
-            Handle<Object> screen = Handle<Object>::Cast(native->Get(STRING_CACHE_screen));
+            Handle<Object> screen = Handle<Object>::Cast(native->Get(STRING_CACHE_screen.Get(m_isolate)));
             if(!screen.IsEmpty()) {
-                Handle<Function> on_resize = Handle<Function>::Cast(screen->Get(STRING_CACHE_onResize));
+                Handle<Function> on_resize = Handle<Function>::Cast(screen->Get(STRING_CACHE_onResize.Get(m_isolate)));
                 return on_resize;
             }
         }
@@ -308,10 +326,11 @@ CEXPORT void js_tick(long dt) {
         return;
     }
 
-    HandleScope handle_scope;
+    Isolate *isolate = Isolate::GetCurrent();
+    HandleScope handle_scope(isolate);
     Handle<Context> context = getContext();
     Context::Scope context_scope(context);
-    TryCatch try_catch;
+    TryCatch try_catch(isolate);
 
     if (dt > 1000) {
         dt = 1;
@@ -325,7 +344,7 @@ CEXPORT void js_tick(long dt) {
         if (!resize.IsEmpty() && resize->IsFunction()) {
             int screen_width = config_get_screen_width();
             int screen_height = config_get_screen_height();
-            Handle<Value> args[] = { Integer::New(screen_width), Integer::New(screen_height) };
+            Handle<Value> args[] = { Integer::New(isolate, screen_width), Integer::New(isolate, screen_height) };
             Handle<Value> ret = resize->Call(global, 2, args);
             if (ret.IsEmpty()) {
                 ReportException(&try_catch);
@@ -338,9 +357,9 @@ CEXPORT void js_tick(long dt) {
     }
 
     view_animation_tick_animations(dt);
-    Handle<Function> func = *tickFunction;
+    Handle<Function> func = tickFunction->Get(isolate);
     if (func->IsFunction()) {
-        Handle<Value> args[] = { Number::New(dt) };
+        Handle<Value> args[] = { Number::New(isolate, dt) };
         Handle<Value> ret = func->Call(global, 1, args);
         if (ret.IsEmpty()) {
             ReportException(&try_catch);
@@ -359,11 +378,12 @@ static void DispatchDebugMessages() {
     // Locker should already be held here
 
     Locker l(m_isolate);
-    HandleScope handle_scope;
-    Context::Scope context_scope(m_context);
-    TryCatch try_catch;
+    Isolate *isolate = Isolate::GetCurrent();     HandleScope handle_scope(isolate);;
+    Context::Scope context_scope(getContext());
+    TryCatch try_catch(isolate);
 
-    v8::Debug::ProcessDebugMessages();
+     // Todo 31.09.18 add v8::Debug, uncomment below line
+    //v8::debug::ProcessDebugMessages();
 }
 #endif // REMOTE_DEBUG
 
@@ -390,22 +410,24 @@ bool js_init_isolate() {
 bool init_js(const char *uri, const char *native_hash) {
     DECL_BENCH(t);
     v8::Locker l(m_isolate);
-    HandleScope handleScope;
-    V8::AddGCPrologueCallback(gc_start);
-    V8::AddGCEpilogueCallback(gc_end);
+    Isolate *isolate = Isolate::GetCurrent();
+    HandleScope handleScope(isolate);
+    // verify m_isolate is correct than Isolate::GetCurrent();
+    m_isolate->AddGCPrologueCallback(gc_start, GCType::kGCTypeAll);
+    m_isolate->AddGCEpilogueCallback(gc_end, GCType::kGCTypeAll);
     MARK(t);
-    Handle<ObjectTemplate> global = ObjectTemplate::New();
+    Local<ObjectTemplate> global = ObjectTemplate::New(isolate);
 
-    js_string_cache_init();
+    js_string_cache_init(m_isolate);
 
     // set the global object's functions *before* Context::New creates an instance, otherwise we just don't get them
-    global->Set(STRING_CACHE_setTimeout, FunctionTemplate::New(defSetTimeout));
-    global->Set(STRING_CACHE_clearTimeout, FunctionTemplate::New(defClearTimeout));
-    global->Set(STRING_CACHE_setInterval, FunctionTemplate::New(defSetInterval));
-    global->Set(STRING_CACHE_clearInterval, FunctionTemplate::New(defClearInterval));
-    global->Set(STRING_CACHE_setLocation, FunctionTemplate::New(native_set_location));
+    global->Set(STRING_CACHE_setTimeout.Get(isolate), FunctionTemplate::New(isolate, defSetTimeout));
+    global->Set(STRING_CACHE_clearTimeout.Get(isolate), FunctionTemplate::New(isolate, defClearTimeout));
+    global->Set(STRING_CACHE_setInterval.Get(isolate), FunctionTemplate::New(isolate, defSetInterval));
+    global->Set(STRING_CACHE_clearInterval.Get(isolate), FunctionTemplate::New(isolate, defClearInterval));
+    global->Set(STRING_CACHE_setLocation.Get(isolate), FunctionTemplate::New(isolate, native_set_location));
 
-    m_context = Context::New(NULL, global);
+    m_context.Reset(isolate, Context::New(isolate, NULL, global));
 
     if (m_context.IsEmpty()) {
         LOG("{js} ERROR: Unable to create context");
@@ -413,22 +435,23 @@ bool init_js(const char *uri, const char *native_hash) {
     }
 
 #if defined(REMOTE_DEBUG)
-    v8::Debug::SetDebugMessageDispatchHandler(DispatchDebugMessages, true);
-
+    // Todo 31.09.18 add v8::Debug, uncomment below snippet
+    /*v8::debug::ProcessDebugMessagesSetDebugMessageDispatchHandler(DispatchDebugMessages, true);
     if (v8::Debug::EnableAgent("game-closure-jsds", 9222, false)) {
         LOG("{debugger} JavaScript Debug Server running on port 9222");
     } else {
         LOG("{debugger} ERROR: JavaScript Debug Server could not start. Is another app already running a debug server?");
-    }
+    }*/
 #else // REMOTE_DEBUG
     LOG("{debugger} JavaScript Debug Server is disabled");
 #endif // REMOTE_DEBUG
 
-    Context::Scope scope(m_context);
+    Local<Context> context = getContext();
+    Context::Scope scope(context);
 
     // config
-    Handle<ObjectTemplate> config = ObjectTemplate::New();
-    config->Set("baseURL", String::New(config_get_code_host()));
+    Handle<ObjectTemplate> config = v8::ObjectTemplate::New(getIsolate());
+    config->Set(isolate, "baseURL", String::NewFromUtf8(getIsolate(), config_get_code_host()));
 
     // window.location
     native_initialize_location(config_get_code_host());
@@ -437,32 +460,32 @@ bool init_js(const char *uri, const char *native_hash) {
     int width = config_get_screen_width();
     int height = config_get_screen_height();
 
-    Handle<ObjectTemplate> screen = ObjectTemplate::New();
-    screen->Set(STRING_CACHE_width, Number::New(width));
-    screen->Set(STRING_CACHE_height, Number::New(height));
+    Handle<ObjectTemplate> screen = ObjectTemplate::New(getIsolate());
+    screen->Set(STRING_CACHE_width.Get(getIsolate()), Number::New(getIsolate(),width));
+    screen->Set(STRING_CACHE_height.Get(getIsolate()), Number::New(getIsolate(),height));
 
     // timer
-    Handle<ObjectTemplate> timer = ObjectTemplate::New();
-    timer->Set(STRING_CACHE_start, FunctionTemplate::New(timer_start));
+    Handle<ObjectTemplate> timer = ObjectTemplate::New(getIsolate());
+    timer->Set(STRING_CACHE_start.Get(getIsolate()), FunctionTemplate::New(getIsolate(), timer_start));
 
     // navigator
     Handle<ObjectTemplate> navigator = js_navigator_get_template();
 
     // native
     Handle<ObjectTemplate> NATIVE = js_native_get_template(uri, native_hash);
-    NATIVE->Set(STRING_CACHE_timer, timer);
+    NATIVE->Set(STRING_CACHE_timer.Get(isolate), timer);
 
     // global_object
-    Local<Object> global_object = m_context->Global();
+    Local<Object> global_object = m_context.Get(m_isolate)->Global();
 
-    global_object->Set(STRING_CACHE_CONFIG, config->NewInstance());
-    global_object->Set(STRING_CACHE_screen, screen->NewInstance());
-    global_object->Set(STRING_CACHE_navigator, navigator->NewInstance());
-    global_object->Set(STRING_CACHE_window, global_object);
-    global_object->Set(STRING_CACHE_NATIVE, NATIVE->NewInstance());
-    global_object->Set(STRING_CACHE_GLOBAL, global_object);
+    global_object->Set(STRING_CACHE_CONFIG.Get(isolate), config->NewInstance());
+    global_object->Set(STRING_CACHE_screen.Get(isolate), screen->NewInstance());
+    global_object->Set(STRING_CACHE_navigator.Get(isolate), navigator->NewInstance());
+    global_object->Set(STRING_CACHE_window.Get(isolate), global_object);
+    global_object->Set(STRING_CACHE_NATIVE.Get(isolate), NATIVE->NewInstance());
+    global_object->Set(STRING_CACHE_GLOBAL.Get(isolate), global_object);
 
-    global_object->SetAccessor(STRING_CACHE_location, jsGetLocation, jsSetLocation);
+    global_object->SetAccessor(context, STRING_CACHE_location.Get(isolate), jsGetLocation, jsSetLocation);
 
 #if defined(ENABLE_PROFILER)
     Handle<ObjectTemplate> PROFILER = ObjectTemplate::New();
@@ -484,21 +507,19 @@ CEXPORT bool destroy_js() {
         js_ready = false;
         Locker l(m_isolate);
 
-        HandleScope scope;
+        HandleScope scope(m_isolate);
 
         // Cleanup timer
         core_timer_clear_all();
         if(tickFunction != NULL && !(*tickFunction).IsEmpty()) {
-            (*tickFunction).Dispose();
+            (*tickFunction).Reset();
         }
         tickFunction = NULL;
 
 
-        m_context->DetachGlobal();
-        m_context.Dispose();
-        m_context.Clear();
+        m_context.Get(getIsolate())->DetachGlobal();
+        m_context.Reset();
     }
 
     return true;
 }
-

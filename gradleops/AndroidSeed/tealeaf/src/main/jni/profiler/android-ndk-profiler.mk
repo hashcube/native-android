@@ -7,5 +7,6 @@ TARGET_CFLAGS := $(filter-out -ffunction-sections,$(TARGET_CFLAGS))
 # include libandprof.a in the build
 include $(CLEAR_VARS)
 LOCAL_MODULE := andprof
-LOCAL_SRC_FILES := profiler/$(TARGET_ARCH_ABI)/libandprof.a
+# was LOCAL_SRC_FILES := profiler/$(TARGET_ARCH_ABI)/libandprof.a
+LOCAL_SRC_FILES := profiler/libandprof.a
 include $(PREBUILT_STATIC_LIBRARY)

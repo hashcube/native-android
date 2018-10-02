@@ -16,6 +16,8 @@
  */
 #include "js_textbox.h"
 #include "platform/textbox.h"
+#include <stdlib.h> // pulls in declaration of malloc, free
+#include <string.h> // pulls in declaration for strlen.
 
 #include <string.h>
 
@@ -50,76 +52,79 @@ int types_int[] = {
     0x0002
 };
 
-Handle<Value> js_textbox_create(const Arguments& args) {
+void js_textbox_create(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     int id = -1;
     if(args.Length() >= 5) {
-        String::Utf8Value str(args[4]);
-        id = textbox_create_init(args[0]->Int32Value(), args[1]->Int32Value(), args[2]->Int32Value(), args[3]->Int32Value(), ToCString(str));
+        String::Utf8Value str(isolate, args[4]);
+        id = textbox_create_init(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[2]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[3]->Int32Value(isolate->GetCurrentContext()).ToChecked(), ToCString(str));
     } else {
         id = textbox_create_new();
     }
 
-    return Integer::New(id);
+    args.GetReturnValue().Set(Integer::New(isolate, id));
 }
 
-Handle<Value> js_textbox_destroy(const Arguments& args) {
-    textbox_destroy(args[0]->Int32Value());
-    return Undefined();
+void js_textbox_destroy(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    textbox_destroy(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
-Handle<Value> js_textbox_show(const Arguments& args) {
-    textbox_show(args[0]->Int32Value());
-    return Undefined();
+void js_textbox_show(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    textbox_show(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
-Handle<Value> js_textbox_hide(const Arguments& args) {
-    textbox_hide(args[0]->Int32Value());
-    return Undefined();
+void js_textbox_hide(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    textbox_hide(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
-Handle<Value> js_textbox_set_position(const Arguments& args) {
-    textbox_set_position(args[0]->Int32Value(), args[1]->Int32Value(), args[2]->Int32Value(), args[3]->Int32Value(), args[4]->Int32Value());
-    return Undefined();
+void js_textbox_set_position(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    textbox_set_position(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[2]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[3]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[4]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
-Handle<Value> js_textbox_set_dimensions(const Arguments& args) {
-    textbox_set_dimensions(args[0]->Int32Value(), args[1]->Int32Value(), args[2]->Int32Value());
-    return Undefined();
+void js_textbox_set_dimensions(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    textbox_set_dimensions(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[2]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
-Handle<Value> js_textbox_set_x(const Arguments& args) {
-    textbox_set_x(args[0]->Int32Value(), args[1]->Int32Value());
-    return Undefined();
+void js_textbox_set_x(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    textbox_set_x(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
-Handle<Value> js_textbox_set_y(const Arguments& args) {
-    textbox_set_y(args[0]->Int32Value(), args[1]->Int32Value());
-    return Undefined();
+void js_textbox_set_y(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    textbox_set_y(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
-Handle<Value> js_textbox_set_width(const Arguments& args) {
-    textbox_set_width(args[0]->Int32Value(), args[1]->Int32Value());
-    return Undefined();
+void js_textbox_set_width(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    textbox_set_width(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
-Handle<Value> js_textbox_set_height(const Arguments& args) {
-    textbox_set_height(args[0]->Int32Value(), args[1]->Int32Value());
-    return Undefined();
+void js_textbox_set_height(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    textbox_set_height(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
-Handle<Value> js_textbox_set_value(const Arguments& args) {
-    String::Utf8Value value(args[1]);
-    textbox_set_value(args[0]->Int32Value(), ToCString(value));
-    return Undefined();
+
+void s_textbox_set_value(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    String::Utf8Value value(isolate, args[1]);
+    textbox_set_value(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), ToCString(value));
 }
 
-Handle<Value> js_textbox_set_opacity(const Arguments& args) {
-    textbox_set_opacity(args[0]->Int32Value(), (float)(args[1]->NumberValue()));
-    return Undefined();
+void js_textbox_set_opacity(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    textbox_set_opacity(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), (float)(args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked()));
 }
 
-Handle<Value> js_textbox_set_type(const Arguments& args) {
-    String::Utf8Value value(args[1]);
+void js_textbox_set_type(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    String::Utf8Value value(isolate, args[1]);
     const char* val = ToCString(value);
     int type = 1;
     // XXX HACK: there are 11 entries in types and types_int
@@ -129,76 +134,90 @@ Handle<Value> js_textbox_set_type(const Arguments& args) {
             break;
         }
     }
-    textbox_set_type(args[0]->Int32Value(), type);
-    return Undefined();
+    textbox_set_type(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), type);
 }
 
-Handle<Value> js_textbox_set_visible(const Arguments& args) {
-    textbox_set_visible(args[0]->Int32Value(), args[1]->BooleanValue());
-    return Undefined();
+void js_textbox_set_visible(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    textbox_set_visible(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->BooleanValue(isolate));
 }
 
 
-Handle<Value> js_textbox_get_x(const Arguments& args) {
-    return Integer::New(textbox_get_x(args[0]->Int32Value()));
+void js_textbox_get_x(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    args.GetReturnValue().Set(Integer::New(isolate, textbox_get_x(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 
-Handle<Value> js_textbox_get_y(const Arguments& args) {
-    return Integer::New(textbox_get_y(args[0]->Int32Value()));
+void js_textbox_get_y(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    args.GetReturnValue().Set(Integer::New(isolate, textbox_get_y(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 
-Handle<Value> js_textbox_get_width(const Arguments& args) {
-    return Integer::New(textbox_get_width(args[0]->Int32Value()));
+void js_textbox_get_width(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    args.GetReturnValue().Set(Integer::New(isolate, textbox_get_width(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 
-Handle<Value> js_textbox_get_height(const Arguments& args) {
-    return Integer::New(textbox_get_height(args[0]->Int32Value()));
+void js_textbox_get_height(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    args.GetReturnValue().Set(Integer::New(isolate, textbox_get_height(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 
-Handle<Value> js_textbox_get_value(const Arguments& args) {
-    const char *value = textbox_get_value(args[0]->Int32Value());
-    Local<String> v8value = String::New(value);
+void js_textbox_set_value(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    String::Utf8Value value(isolate, args[1]);
+    textbox_set_value(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), ToCString(value));
+}
+
+void js_textbox_get_value(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    const char *value = textbox_get_value(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked());
+    Local<String> v8value = String::NewFromUtf8(isolate, value);
     free((void*)value);
-    return v8value;
+    args.GetReturnValue().Set(v8value);
 }
 
-Handle<Value> js_textbox_get_opacity(const Arguments& args) {
-    return Number::New(textbox_get_opacity(args[0]->Int32Value()));
+void js_textbox_get_opacity(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    args.GetReturnValue().Set(Number::New(isolate, textbox_get_opacity(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 
-Handle<Value> js_textbox_get_type(const Arguments& args) {
-    return Integer::New(textbox_get_type(args[0]->Int32Value()));
+void js_textbox_get_type(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    args.GetReturnValue().Set(Integer::New(isolate, textbox_get_type(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 
-Handle<Value> js_textbox_get_visible(const Arguments& args) {
-    return Boolean::New(textbox_get_visible(args[0]->Int32Value()));
+void js_textbox_get_visible(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    args.GetReturnValue().Set(Boolean::New(isolate, textbox_get_visible(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 
 
-Handle<ObjectTemplate> js_textbox_get_template() {
+Local<ObjectTemplate> js_textbox_get_template() {
+    Isolate *isolate = Isolate::GetCurrent();
     // TODO: some day, turn this into a real class instead
-    Handle<ObjectTemplate> tmpl = ObjectTemplate::New();
+    Handle<ObjectTemplate> tmpl = ObjectTemplate::New(isolate);
 
-    tmpl->Set(STRING_CACHE_create, FunctionTemplate::New(js_textbox_create));
-    tmpl->Set(STRING_CACHE_destroy, FunctionTemplate::New(js_textbox_destroy));
-    tmpl->Set(STRING_CACHE_show, FunctionTemplate::New(js_textbox_show));
-    tmpl->Set(STRING_CACHE_hide, FunctionTemplate::New(js_textbox_hide));
+    tmpl->Set(STRING_CACHE_create.Get(isolate), FunctionTemplate::New(isolate, js_textbox_create));
+    tmpl->Set(STRING_CACHE_destroy.Get(isolate), FunctionTemplate::New(isolate, js_textbox_destroy));
+    tmpl->Set(STRING_CACHE_show.Get(isolate), FunctionTemplate::New(isolate, js_textbox_show));
+    tmpl->Set(STRING_CACHE_hide.Get(isolate), FunctionTemplate::New(isolate, js_textbox_hide));
 
-    tmpl->Set(STRING_CACHE_setPosition, FunctionTemplate::New(js_textbox_set_position));
-    tmpl->Set(STRING_CACHE_setDimensions, FunctionTemplate::New(js_textbox_set_dimensions));
-    tmpl->Set(STRING_CACHE_setValue, FunctionTemplate::New(js_textbox_set_value));
-    tmpl->Set(STRING_CACHE_setOpacity, FunctionTemplate::New(js_textbox_set_opacity));
-    tmpl->Set(STRING_CACHE_setType, FunctionTemplate::New(js_textbox_set_type));
-    tmpl->Set(STRING_CACHE_setVisible, FunctionTemplate::New(js_textbox_set_visible));
+    tmpl->Set(STRING_CACHE_setPosition.Get(isolate), FunctionTemplate::New(isolate, js_textbox_set_position));
+    tmpl->Set(STRING_CACHE_setDimensions.Get(isolate), FunctionTemplate::New(isolate, js_textbox_set_dimensions));
+    tmpl->Set(STRING_CACHE_setValue.Get(isolate), FunctionTemplate::New(isolate, js_textbox_set_value));
+    tmpl->Set(STRING_CACHE_setOpacity.Get(isolate), FunctionTemplate::New(isolate, js_textbox_set_opacity));
+    tmpl->Set(STRING_CACHE_setType.Get(isolate), FunctionTemplate::New(isolate, js_textbox_set_type));
+    tmpl->Set(STRING_CACHE_setVisible.Get(isolate), FunctionTemplate::New(isolate, js_textbox_set_visible));
 
-    tmpl->Set(STRING_CACHE_getX, FunctionTemplate::New(js_textbox_get_x));
-    tmpl->Set(STRING_CACHE_getY, FunctionTemplate::New(js_textbox_get_y));
-    tmpl->Set(STRING_CACHE_getWidth, FunctionTemplate::New(js_textbox_get_width));
-    tmpl->Set(STRING_CACHE_getHeight, FunctionTemplate::New(js_textbox_get_height));
-    tmpl->Set(STRING_CACHE_getValue, FunctionTemplate::New(js_textbox_get_value));
-    tmpl->Set(STRING_CACHE_getOpacity, FunctionTemplate::New(js_textbox_get_opacity));
-    tmpl->Set(STRING_CACHE_getType, FunctionTemplate::New(js_textbox_get_type));
-    tmpl->Set(STRING_CACHE_getVisible, FunctionTemplate::New(js_textbox_get_visible));
+    tmpl->Set(STRING_CACHE_getX.Get(isolate), FunctionTemplate::New(isolate, js_textbox_get_x));
+    tmpl->Set(STRING_CACHE_getY.Get(isolate), FunctionTemplate::New(isolate, js_textbox_get_y));
+    tmpl->Set(STRING_CACHE_getWidth.Get(isolate), FunctionTemplate::New(isolate, js_textbox_get_width));
+    tmpl->Set(STRING_CACHE_getHeight.Get(isolate), FunctionTemplate::New(isolate, js_textbox_get_height));
+    tmpl->Set(STRING_CACHE_getValue.Get(isolate), FunctionTemplate::New(isolate, js_textbox_get_value));
+    tmpl->Set(STRING_CACHE_getOpacity.Get(isolate), FunctionTemplate::New(isolate, js_textbox_get_opacity));
+    tmpl->Set(STRING_CACHE_getType.Get(isolate), FunctionTemplate::New(isolate, js_textbox_get_type));
+    tmpl->Set(STRING_CACHE_getVisible.Get(isolate), FunctionTemplate::New(isolate, js_textbox_get_visible));
 
     return tmpl;
 }

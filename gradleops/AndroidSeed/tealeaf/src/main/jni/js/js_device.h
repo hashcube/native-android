@@ -13,13 +13,13 @@
  * along with the Game Closure SDK.  If not, see <http://mozilla.org/MPL/2.0/>.
  */
 #include "js/js.h"
+#include "include/v8.h"
 
 using v8::Handle;
 using v8::ObjectTemplate;
 using v8::String;
 using v8::Local;
-using v8::AccessorInfo;
 using v8::Value;
 
-Handle<Value> js_device_global_id(Local<String> name, const AccessorInfo &info);
-Handle<ObjectTemplate> js_device_get_template();
+void js_device_global_id(Local< String > property, const PropertyCallbackInfo< Value > &info);
+Local<ObjectTemplate> js_device_get_template();

@@ -63,7 +63,7 @@ Handle<Value> HeapProfiler::GetSnapshot(const Arguments& args) {
     } else if (!args[0]->IsInt32()) {
         return ThrowException(Exception::TypeError(String::New("Argument must be an integer")));
     }
-    int32_t index = args[0]->Int32Value();
+    int32_t index = args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     const v8::HeapSnapshot* snapshot = v8::HeapProfiler::GetSnapshot(index);
     if (snapshot) {
         Handle<Array> result = Array::New(0);
@@ -73,7 +73,7 @@ Handle<Value> HeapProfiler::GetSnapshot(const Arguments& args) {
 
         return scope.Close(result);
     } else {
-        return Undefined();
+        return Undefined(isolate);
     }
 }
 
@@ -84,7 +84,7 @@ Handle<Value> HeapProfiler::FindSnapshot(const Arguments& args) {
         return ThrowException(Exception::Error(String::New("No uid specified")));
     }
 
-    uint32_t uid = args[0]->Uint32Value();
+    uint32_t uid = args[0]->UInt32Value(isolate->GetCurrentContext()).ToChecked();
     const v8::HeapSnapshot* snapshot = v8::HeapProfiler::FindSnapshot(uid);
     if (snapshot) {
         Handle<Array> result = Array::New(0);
@@ -94,7 +94,7 @@ Handle<Value> HeapProfiler::FindSnapshot(const Arguments& args) {
 
         return scope.Close(result);
     } else {
-        return Undefined();
+        return Undefined(isolate);
     }
 }
 
@@ -118,7 +118,7 @@ Handle<Value> HeapProfiler::TakeSnapshot(const Arguments& args) {
 
         return scope.Close(result);
     } else {
-        return Undefined();
+        return Undefined(isolate);
     }
 }
 
@@ -126,6 +126,6 @@ Handle<Value> HeapProfiler::DeleteAllSnapshots(const Arguments& args) {
     ENTER_ISOLATE
 
     v8::HeapProfiler::DeleteAllSnapshots();
-    return Undefined();
+    return Undefined(isolate);
 }
 } //namespace nodex

@@ -68,7 +68,7 @@ class NODE_EXTERN Buffer: public ObjectWrap {
   // mirrors deps/v8/src/objects.h
   static const unsigned int kMaxLength = 0x3fffffff;
 
-  static v8::Persistent<v8::FunctionTemplate> constructor_template;
+  static v8::FunctionCallback constructor_template;
 
   static bool HasInstance(v8::Handle<v8::Value> val);
 
@@ -94,7 +94,7 @@ class NODE_EXTERN Buffer: public ObjectWrap {
   typedef void (*free_callback)(char *data, void *hint);
 
   // C++ API for constructing fast buffer
-  static v8::Handle<v8::Object> New(v8::Handle<v8::String> string);
+  static void New(const v8::FunctionCallbackInfo<v8::Value> &args);
 
   static void Initialize(v8::Handle<v8::Object> target);
   static Buffer* New(size_t length); // public constructor
@@ -103,21 +103,21 @@ class NODE_EXTERN Buffer: public ObjectWrap {
                      free_callback callback, void *hint); // public constructor
 
   private:
-  static v8::Handle<v8::Value> New(const v8::Arguments &args);
-  static v8::Handle<v8::Value> BinarySlice(const v8::Arguments &args);
-  static v8::Handle<v8::Value> AsciiSlice(const v8::Arguments &args);
-  static v8::Handle<v8::Value> Base64Slice(const v8::Arguments &args);
-  static v8::Handle<v8::Value> Utf8Slice(const v8::Arguments &args);
-  static v8::Handle<v8::Value> Ucs2Slice(const v8::Arguments &args);
-  static v8::Handle<v8::Value> BinaryWrite(const v8::Arguments &args);
-  static v8::Handle<v8::Value> Base64Write(const v8::Arguments &args);
-  static v8::Handle<v8::Value> AsciiWrite(const v8::Arguments &args);
-  static v8::Handle<v8::Value> Utf8Write(const v8::Arguments &args);
-  static v8::Handle<v8::Value> Ucs2Write(const v8::Arguments &args);
-  static v8::Handle<v8::Value> ByteLength(const v8::Arguments &args);
-  static v8::Handle<v8::Value> MakeFastBuffer(const v8::Arguments &args);
-  static v8::Handle<v8::Value> Fill(const v8::Arguments &args);
-  static v8::Handle<v8::Value> Copy(const v8::Arguments &args);
+  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> BinarySlice(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> AsciiSlice(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> Base64Slice(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> Utf8Slice(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> Ucs2Slice(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> BinaryWrite(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> Base64Write(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> AsciiWrite(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> Utf8Write(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> Ucs2Write(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> ByteLength(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> MakeFastBuffer(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> Fill(const v8::FunctionCallbackInfo<v8::Value> &args);
+  static v8::Handle<v8::Value> Copy(const v8::FunctionCallbackInfo<v8::Value> &args);
 
   Buffer(v8::Handle<v8::Object> wrapper, size_t length);
   void Replace(char *data, size_t length, free_callback callback, void *hint);

@@ -16,14 +16,16 @@
 #define JS_LOCATION_H
 
 #include "js/js.h"
+#include "include/v8.h"
+using namespace v8;
 
 void native_initialize_location(const char *uri);
 
 // setLocation() handler
-v8::Handle<v8::Value> native_set_location(const v8::Arguments &args);
+void native_set_location(const v8::FunctionCallbackInfo<v8::Value> &args);
 
 // window.location accessors
-v8::Handle<v8::Value> jsGetLocation(v8::Local<v8::String> name, const v8::AccessorInfo &info);
-void jsSetLocation(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+void jsGetLocation(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value> &info);
+void jsSetLocation(v8::Local<v8::Name> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info);
 
 #endif

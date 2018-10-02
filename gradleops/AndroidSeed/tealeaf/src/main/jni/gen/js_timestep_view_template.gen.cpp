@@ -22,381 +22,415 @@
 
 #include "core/rgba.h"
 
+#include "include/v8.h"
+using namespace v8;
 
 
 
-v8::Handle<v8::Value> timestep_view_get_x(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+
+void timestep_view_get_x(Local<String> property, const PropertyCallbackInfo< Value > &info) {
 	//LOG("in timestep_view get x");
+	Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
 double prop = obj->x;
 	//LOG("done in timestep_view get x");
-	return v8::Number::New(prop);
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
 	
 }
 
 
-void timestep_view_set_x(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_x(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
 	//LOG("in timestep_view set x");
+	Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->x = value->ToNumber()->Value();
-	
+
+obj->x = value->ToNumber(isolate)->Value();
+
 //LOG("done in timestep_view set x");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_y(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_y(Local<String> property, const PropertyCallbackInfo< Value > &info) {
 	//LOG("in timestep_view get y");
+	Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 double prop = obj->y;
 	//LOG("done in timestep_view get y");
-	return v8::Number::New(prop);
-	
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_y(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_y(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
 	//LOG("in timestep_view set y");
+	Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->y = value->ToNumber()->Value();
-	
+
+obj->y = value->ToNumber(isolate)->Value();
+
 //LOG("done in timestep_view set y");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_offsetX(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_offsetX(Local<String> property, const PropertyCallbackInfo< Value > &info) {
 	//LOG("in timestep_view get offsetX");
+	Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 double prop = obj->offset_x;
 	//LOG("done in timestep_view get offsetX");
-	return v8::Number::New(prop);
-	
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_offsetX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_offsetX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set offsetX");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->offset_x = value->ToNumber()->Value();
-	
+
+obj->offset_x = value->ToNumber(isolate)->Value();
+
 //LOG("done in timestep_view set offsetX");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_offsetY(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_offsetY(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get offsetY");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 double prop = obj->offset_y;
 	//LOG("done in timestep_view get offsetY");
-	return v8::Number::New(prop);
-	
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_offsetY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_offsetY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set offsetY");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->offset_y = value->ToNumber()->Value();
-	
+
+obj->offset_y = value->ToNumber(isolate)->Value();
+
 //LOG("done in timestep_view set offsetY");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_r(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_r(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get r");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 double prop = obj->r;
 	//LOG("done in timestep_view get r");
-	return v8::Number::New(prop);
-	
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_r(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_r(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set r");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->r = value->ToNumber()->Value();
-	
+
+obj->r = value->ToNumber(isolate)->Value();
+
 //LOG("done in timestep_view set r");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_flipX(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_flipX(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get flipX");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 bool prop = obj->flip_x;
 	//LOG("done in timestep_view get flipX");
-	return v8::Boolean::New(prop);
-	
+	info.GetReturnValue().Set(v8::Boolean::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_flipX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_flipX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set flipX");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->flip_x = value->ToBoolean()->Value();
-	
+
+obj->flip_x = value->ToBoolean(isolate)->Value();
+
 //LOG("done in timestep_view set flipX");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_flipY(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_flipY(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get flipY");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 bool prop = obj->flip_y;
 	//LOG("done in timestep_view get flipY");
-	return v8::Boolean::New(prop);
-	
+	info.GetReturnValue().Set(v8::Boolean::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_flipY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_flipY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo<void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set flipY");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->flip_y = value->ToBoolean()->Value();
-	
+
+obj->flip_y = value->ToBoolean(isolate)->Value();
+
 //LOG("done in timestep_view set flipY");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_anchorX(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_anchorX(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get anchorX");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 double prop = obj->anchor_x;
 	//LOG("done in timestep_view get anchorX");
-	return v8::Number::New(prop);
-	
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_anchorX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_anchorX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set anchorX");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->anchor_x = value->ToNumber()->Value();
-	
+
+obj->anchor_x = value->ToNumber(isolate)->Value();
+
 //LOG("done in timestep_view set anchorX");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_anchorY(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_anchorY(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get anchorY");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 double prop = obj->anchor_y;
 	//LOG("done in timestep_view get anchorY");
-	return v8::Number::New(prop);
-	
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_anchorY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_anchorY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set anchorY");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->anchor_y = value->ToNumber()->Value();
-	
+
+obj->anchor_y = value->ToNumber(isolate)->Value();
+
 //LOG("done in timestep_view set anchorY");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_opacity(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_opacity(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get opacity");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 double prop = obj->opacity;
 	//LOG("done in timestep_view get opacity");
-	return v8::Number::New(prop);
-	
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
+
 }
 
 
 
 
 
-v8::Handle<v8::Value> timestep_view_get_scale(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_scale(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get scale");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 double prop = obj->scale;
 	//LOG("done in timestep_view get scale");
-	return v8::Number::New(prop);
-	
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_scale(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_scale(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set scale");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->scale = value->ToNumber()->Value();
-	
+
+obj->scale = value->ToNumber(isolate)->Value();
+
 //LOG("done in timestep_view set scale");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_scaleX(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_scaleX(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get scaleX");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 double prop = obj->scale_x;
 	//LOG("done in timestep_view get scaleX");
-	return v8::Number::New(prop);
-	
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_scaleX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_scaleX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set scaleX");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->scale_x = value->ToNumber()->Value();
-	
+
+obj->scale_x = value->ToNumber(isolate)->Value();
+
 //LOG("done in timestep_view set scaleX");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_scaleY(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_scaleY(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get scaleY");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 double prop = obj->scale_y;
 	//LOG("done in timestep_view get scaleY");
-	return v8::Number::New(prop);
-	
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_scaleY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_scaleY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set scaleY");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->scale_y = value->ToNumber()->Value();
-	
+
+	obj->scale_y = value->ToNumber(isolate)->Value();
+
 //LOG("done in timestep_view set scaleY");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_absScale(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_absScale(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get absScale");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 double prop = obj->abs_scale;
 	//LOG("done in timestep_view get absScale");
-	return v8::Number::New(prop);
-	
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_absScale(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_absScale(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set absScale");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->abs_scale = value->ToNumber()->Value();
-	
+
+	obj->abs_scale = value->ToNumber(isolate)->Value();
+
 //LOG("done in timestep_view set absScale");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_clip(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_clip(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get clip");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-bool prop = obj->clip;
+
+	bool prop = obj->clip;
 	//LOG("done in timestep_view get clip");
-	return v8::Boolean::New(prop);
-	
+	info.GetReturnValue().Set(v8::Boolean::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_clip(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_clip(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set clip");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->clip = value->ToBoolean()->Value();
-	
+
+	obj->clip = value->ToBoolean(isolate)->Value();
+
 //LOG("done in timestep_view set clip");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_backgroundColor(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_backgroundColor(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get backgroundColor");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-rgba prop = obj->background_color;
-char buf[64];
-rgba_to_string(&prop, buf);
-return v8::String::New(buf);
+
+	rgba prop = obj->background_color;
+	char buf[64];
+	rgba_to_string(&prop, buf);
+	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, buf));
 
 
 }
 
 
-void timestep_view_set_backgroundColor(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_backgroundColor(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set backgroundColor");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 if (value->IsString()) {
-	String::Utf8Value s(value);
+	String::Utf8Value s(isolate, value);
 	const char *str = ToCString(s);
 	rgba color;
 	rgba_parse(&color, str);
@@ -409,114 +443,123 @@ if (value->IsString()) {
 
 
 
-v8::Handle<v8::Value> timestep_view_get_visible(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_visible(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get visible");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 bool prop = obj->visible;
 	//LOG("done in timestep_view get visible");
-	return v8::Boolean::New(prop);
-	
+	info.GetReturnValue().Set(v8::Boolean::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_visible(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_visible(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set visible");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->visible = value->ToBoolean()->Value();
-	
+
+	obj->visible = value->ToBoolean(isolate)->Value();
+
 //LOG("done in timestep_view set visible");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_hasJSRender(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_hasJSRender(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get hasJSRender");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 bool prop = obj->has_jsrender;
 	//LOG("done in timestep_view get hasJSRender");
-	return v8::Boolean::New(prop);
-	
+	info.GetReturnValue().Set(v8::Boolean::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_hasJSRender(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_hasJSRender(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set hasJSRender");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->has_jsrender = value->ToBoolean()->Value();
-	
+
+	obj->has_jsrender = value->ToBoolean(isolate)->Value();
+
 //LOG("done in timestep_view set hasJSRender");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_hasJSTick(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_hasJSTick(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get hasJSTick");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 bool prop = obj->has_jstick;
 	//LOG("done in timestep_view get hasJSTick");
-	return v8::Boolean::New(prop);
-	
+	info.GetReturnValue().Set(v8::Boolean::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_hasJSTick(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_hasJSTick(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set hasJSTick");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->has_jstick = value->ToBoolean()->Value();
-	
+
+	obj->has_jstick = value->ToBoolean(isolate)->Value();
+
 //LOG("done in timestep_view set hasJSTick");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_zIndex(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_zIndex(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get zIndex");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 int prop = obj->z_index;
 	//LOG("done in timestep_view get zIndex");
-	return v8::Integer::New(prop);
-	
+	info.GetReturnValue().Set(v8::Integer::New(isolate, prop));
+
 }
 
 
 
 
 
-v8::Handle<v8::Value> timestep_view_get_filterColor(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_filterColor(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get filterColor");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-rgba prop = obj->filter_color;
-char buf[64];
-rgba_to_string(&prop, buf);
-return v8::String::New(buf);
+
+	rgba prop = obj->filter_color;
+	char buf[64];
+	rgba_to_string(&prop, buf);
+	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, buf));
 
 
 }
 
 
-void timestep_view_set_filterColor(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_filterColor(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set filterColor");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 if (value->IsString()) {
-	String::Utf8Value s(value);
+	String::Utf8Value s(isolate, value);
 	const char *str = ToCString(s);
 	rgba color;
 	rgba_parse(&color, str);
@@ -529,49 +572,53 @@ if (value->IsString()) {
 
 
 
-v8::Handle<v8::Value> timestep_view_get_filterType(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_filterType(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get filterType");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 int prop = obj->filter_type;
 	//LOG("done in timestep_view get filterType");
-	return v8::Integer::New(prop);
-	
+	info.GetReturnValue().Set(v8::Integer::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_filterType(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_filterType(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set filterType");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->filter_type = value->ToInteger()->Value();
-	
+
+obj->filter_type = value->ToInteger(isolate)->Value();
+
 //LOG("done in timestep_view set filterType");
 }
 
 
 
-v8::Handle<v8::Value> timestep_view_get_width(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_width(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get width");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 double prop = obj->width;
 	//LOG("done in timestep_view get width");
-	return v8::Number::New(prop);
-	
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_width(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_width(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set width");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
-obj->width = value->ToNumber()->Value();
-	
+
+obj->width = value->ToNumber(isolate)->Value();
+
 //LOG("done in timestep_view set width");
 }
 
@@ -582,24 +629,26 @@ obj->width = value->ToNumber()->Value();
 
 
 
-v8::Handle<v8::Value> timestep_view_get_height(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_view_get_height(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view get height");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
-	
+
 double prop = obj->height;
 	//LOG("done in timestep_view get height");
-	return v8::Number::New(prop);
-	
+	info.GetReturnValue().Set(v8::Number::New(isolate, prop));
+
 }
 
 
-void timestep_view_set_height(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_view_set_height(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_view set height");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
-obj->height = value->ToNumber()->Value();
+obj->height = value->ToNumber(isolate)->Value();
 	
 //LOG("done in timestep_view set height");
 }
@@ -611,167 +660,169 @@ obj->height = value->ToNumber()->Value();
 
 
 
-v8::Handle<v8::FunctionTemplate> js_timestep_view_get_template() {
-	v8::Handle<v8::FunctionTemplate> templ = v8::FunctionTemplate::New();
-	v8::Handle<v8::ObjectTemplate> timestep_view = templ->InstanceTemplate();
+v8::Local<v8::FunctionTemplate> js_timestep_view_get_template() {
+	Isolate *isolate = Isolate::GetCurrent();
+	v8::Local<v8::FunctionTemplate> templ = v8::FunctionTemplate::New(isolate);
+	v8::Local<v8::ObjectTemplate> timestep_view = templ->InstanceTemplate();
 	timestep_view->SetInternalFieldCount(2);
 	
-v8::Handle<v8::Value> def_timestep_view_constructor(const v8::Arguments &args);
-	templ->SetCallHandler(def_timestep_view_constructor);	
-	
+void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &args);
+	templ->SetCallHandler(def_timestep_view_constructor);
 
 
-v8::Handle<v8::Value> def_timestep_view_addSubview(const v8::Arguments &args);
-timestep_view->Set(v8::String::New("addSubview"), v8::FunctionTemplate::New(def_timestep_view_addSubview));
-v8::Handle<v8::Value> def_timestep_view_removeSubview(const v8::Arguments &args);
-timestep_view->Set(v8::String::New("removeSubview"), v8::FunctionTemplate::New(def_timestep_view_removeSubview));
-v8::Handle<v8::Value> def_timestep_view_getSuperview(const v8::Arguments &args);
-timestep_view->Set(v8::String::New("getSuperview"), v8::FunctionTemplate::New(def_timestep_view_getSuperview));
-v8::Handle<v8::Value> def_timestep_view_getSubviews(const v8::Arguments &args);
-timestep_view->Set(v8::String::New("getSubviews"), v8::FunctionTemplate::New(def_timestep_view_getSubviews));
-v8::Handle<v8::Value> def_timestep_view_wrapRender(const v8::Arguments &args);
-timestep_view->Set(v8::String::New("wrapRender"), v8::FunctionTemplate::New(def_timestep_view_wrapRender));
-v8::Handle<v8::Value> def_timestep_view_wrapTick(const v8::Arguments &args);
-timestep_view->Set(v8::String::New("wrapTick"), v8::FunctionTemplate::New(def_timestep_view_wrapTick));
-v8::Handle<v8::Value> def_timestep_view_localizePoint(const v8::Arguments &args);
-timestep_view->Set(v8::String::New("localizePoint"), v8::FunctionTemplate::New(def_timestep_view_localizePoint));
+
+void def_timestep_view_addSubview(const v8::FunctionCallbackInfo<v8::Value> &args);
+timestep_view->Set(v8::String::NewFromUtf8(isolate, "addSubview"), v8::FunctionTemplate::New(isolate, def_timestep_view_addSubview));
+void def_timestep_view_removeSubview(const v8::FunctionCallbackInfo<v8::Value> &args);
+timestep_view->Set(v8::String::NewFromUtf8(isolate, "removeSubview"), v8::FunctionTemplate::New(isolate, def_timestep_view_removeSubview));
+void def_timestep_view_getSuperview(const v8::FunctionCallbackInfo<v8::Value> &args);
+timestep_view->Set(v8::String::NewFromUtf8(isolate, "getSuperview"), v8::FunctionTemplate::New(isolate, def_timestep_view_getSuperview));
+void def_timestep_view_getSubviews(const v8::FunctionCallbackInfo<v8::Value> &args);
+timestep_view->Set(v8::String::NewFromUtf8(isolate, "getSubviews"), v8::FunctionTemplate::New(isolate, def_timestep_view_getSubviews));
+void def_timestep_view_wrapRender(const v8::FunctionCallbackInfo<v8::Value> &args);
+timestep_view->Set(v8::String::NewFromUtf8(isolate, "wrapRender"), v8::FunctionTemplate::New(isolate, def_timestep_view_wrapRender));
+void def_timestep_view_wrapTick(const v8::FunctionCallbackInfo<v8::Value> &args);
+timestep_view->Set(v8::String::NewFromUtf8(isolate, "wrapTick"), v8::FunctionTemplate::New(isolate, def_timestep_view_wrapTick));
+void def_timestep_view_localizePoint(const v8::FunctionCallbackInfo<v8::Value> &args);
+timestep_view->Set(v8::String::NewFromUtf8(isolate, "localizePoint"), v8::FunctionTemplate::New(isolate, def_timestep_view_localizePoint));
 
 
-v8::Handle<v8::Value> timestep_view_get_compositeOperation(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_get_compositeOperation(Local<String> property, const PropertyCallbackInfo<Value> &info);
 
-void timestep_view_set_compositeOperation(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+void timestep_view_set_compositeOperation(Local<String> property, Local<Value> value, const PropertyCallbackInfo<void> &info);
 
-timestep_view->SetAccessor(v8::String::New("compositeOperation"), timestep_view_get_compositeOperation, timestep_view_set_compositeOperation);
-v8::Handle<v8::Value> timestep_view_get_x(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "compositeOperation"), timestep_view_get_compositeOperation, timestep_view_set_compositeOperation);
 
-void timestep_view_set_x(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+void timestep_view_get_x(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("x"), timestep_view_get_x, timestep_view_set_x);
-v8::Handle<v8::Value> timestep_view_get_y(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_x(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_y(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "x"), timestep_view_get_x, timestep_view_set_x);
+void timestep_view_get_y(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("y"), timestep_view_get_y, timestep_view_set_y);
-v8::Handle<v8::Value> timestep_view_get_offsetX(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_y(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_offsetX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "y"), timestep_view_get_y, timestep_view_set_y);
+void timestep_view_get_offsetX(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("offsetX"), timestep_view_get_offsetX, timestep_view_set_offsetX);
-v8::Handle<v8::Value> timestep_view_get_offsetY(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_offsetX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_offsetY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "offsetX"), timestep_view_get_offsetX, timestep_view_set_offsetX);
+void timestep_view_get_offsetY(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("offsetY"), timestep_view_get_offsetY, timestep_view_set_offsetY);
-v8::Handle<v8::Value> timestep_view_get_r(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_offsetY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_r(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "offsetY"), timestep_view_get_offsetY, timestep_view_set_offsetY);
+void timestep_view_get_r(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("r"), timestep_view_get_r, timestep_view_set_r);
-v8::Handle<v8::Value> timestep_view_get_flipX(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_r(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_flipX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "r"), timestep_view_get_r, timestep_view_set_r);
+void timestep_view_get_flipX(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("flipX"), timestep_view_get_flipX, timestep_view_set_flipX);
-v8::Handle<v8::Value> timestep_view_get_flipY(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_flipX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_flipY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "flipX"), timestep_view_get_flipX, timestep_view_set_flipX);
+void timestep_view_get_flipY(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("flipY"), timestep_view_get_flipY, timestep_view_set_flipY);
-v8::Handle<v8::Value> timestep_view_get_anchorX(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_flipY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_anchorX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "flipY"), timestep_view_get_flipY, timestep_view_set_flipY);
+void timestep_view_get_anchorX(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("anchorX"), timestep_view_get_anchorX, timestep_view_set_anchorX);
-v8::Handle<v8::Value> timestep_view_get_anchorY(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_anchorX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_anchorY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "anchorX"), timestep_view_get_anchorX, timestep_view_set_anchorX);
+void timestep_view_get_anchorY(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("anchorY"), timestep_view_get_anchorY, timestep_view_set_anchorY);
-v8::Handle<v8::Value> timestep_view_get_opacity(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_anchorY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_opacity(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "anchorY"), timestep_view_get_anchorY, timestep_view_set_anchorY);
+void timestep_view_get_opacity(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("opacity"), timestep_view_get_opacity, timestep_view_set_opacity);
-v8::Handle<v8::Value> timestep_view_get_scale(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_opacity(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_scale(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "opacity"), timestep_view_get_opacity, timestep_view_set_opacity);
+void timestep_view_get_scale(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("scale"), timestep_view_get_scale, timestep_view_set_scale);
-v8::Handle<v8::Value> timestep_view_get_scaleX(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_scale(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_scaleX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "scale"), timestep_view_get_scale, timestep_view_set_scale);
+void timestep_view_get_scaleX(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("scaleX"), timestep_view_get_scaleX, timestep_view_set_scaleX);
-v8::Handle<v8::Value> timestep_view_get_scaleY(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_scaleX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_scaleY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "scaleX"), timestep_view_get_scaleX, timestep_view_set_scaleX);
+void timestep_view_get_scaleY(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("scaleY"), timestep_view_get_scaleY, timestep_view_set_scaleY);
-v8::Handle<v8::Value> timestep_view_get_absScale(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_scaleY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_absScale(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "scaleY"), timestep_view_get_scaleY, timestep_view_set_scaleY);
+void timestep_view_get_absScale(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("absScale"), timestep_view_get_absScale, timestep_view_set_absScale);
-v8::Handle<v8::Value> timestep_view_get_clip(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_absScale(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_clip(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "absScale"), timestep_view_get_absScale, timestep_view_set_absScale);
+void timestep_view_get_clip(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("clip"), timestep_view_get_clip, timestep_view_set_clip);
-v8::Handle<v8::Value> timestep_view_get_backgroundColor(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_clip(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo<void > &info);
 
-void timestep_view_set_backgroundColor(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "clip"), timestep_view_get_clip, timestep_view_set_clip);
+void timestep_view_get_backgroundColor(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("backgroundColor"), timestep_view_get_backgroundColor, timestep_view_set_backgroundColor);
-v8::Handle<v8::Value> timestep_view_get_visible(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_backgroundColor(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_visible(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "backgroundColor"), timestep_view_get_backgroundColor, timestep_view_set_backgroundColor);
+void timestep_view_get_visible(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("visible"), timestep_view_get_visible, timestep_view_set_visible);
-v8::Handle<v8::Value> timestep_view_get_hasJSRender(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_visible(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_hasJSRender(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "visible"), timestep_view_get_visible, timestep_view_set_visible);
+void timestep_view_get_hasJSRender(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("hasJSRender"), timestep_view_get_hasJSRender, timestep_view_set_hasJSRender);
-v8::Handle<v8::Value> timestep_view_get_hasJSTick(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_hasJSRender(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_hasJSTick(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "hasJSRender"), timestep_view_get_hasJSRender, timestep_view_set_hasJSRender);
+void timestep_view_get_hasJSTick(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("hasJSTick"), timestep_view_get_hasJSTick, timestep_view_set_hasJSTick);
-v8::Handle<v8::Value> timestep_view_get_zIndex(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_hasJSTick(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_zIndex(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "hasJSTick"), timestep_view_get_hasJSTick, timestep_view_set_hasJSTick);
+void timestep_view_get_zIndex(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("zIndex"), timestep_view_get_zIndex, timestep_view_set_zIndex);
-v8::Handle<v8::Value> timestep_view_get_filterColor(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_zIndex(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_filterColor(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "zIndex"), timestep_view_get_zIndex, timestep_view_set_zIndex);
+void timestep_view_get_filterColor(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("filterColor"), timestep_view_get_filterColor, timestep_view_set_filterColor);
-v8::Handle<v8::Value> timestep_view_get_filterType(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_filterColor(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_filterType(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "filterColor"), timestep_view_get_filterColor, timestep_view_set_filterColor);
+void timestep_view_get_filterType(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("filterType"), timestep_view_get_filterType, timestep_view_set_filterType);
-v8::Handle<v8::Value> timestep_view_get_width(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_filterType(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_width(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "filterType"), timestep_view_get_filterType, timestep_view_set_filterType);
+void timestep_view_get_width(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("width"), timestep_view_get_width, timestep_view_set_width);
-v8::Handle<v8::Value> timestep_view_get__width(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_width(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set__width(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "width"), timestep_view_get_width, timestep_view_set_width);
+void timestep_view_get__width(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("_width"), timestep_view_get__width, timestep_view_set__width);
-v8::Handle<v8::Value> timestep_view_get_height(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set__width(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set_height(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "_width"), timestep_view_get__width, timestep_view_set__width);
+void timestep_view_get_height(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("height"), timestep_view_get_height, timestep_view_set_height);
-v8::Handle<v8::Value> timestep_view_get__height(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_view_set_height(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_view_set__height(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "height"), timestep_view_get_height, timestep_view_set_height);
+void timestep_view_get__height(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_view->SetAccessor(v8::String::New("_height"), timestep_view_get__height, timestep_view_set__height);
+void timestep_view_set__height(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
+
+timestep_view->SetAccessor(v8::String::NewFromUtf8(isolate, "_height"), timestep_view_get__height, timestep_view_set__height);
 
 
 

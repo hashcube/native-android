@@ -47,98 +47,100 @@ extern "C" {
 #include "js/js_status_bar.h"
 #include "js/js_location.h"
 #include "js/js_image_cache.h"
-
 #include "platform/textbox.h"
 #include "platform/native.h"
-
+#include "js.h"
+#include "include/v8.h"
 using namespace v8;
+using v8::internal::Arguments;
 
-
-Handle<Value> native_eval(const Arguments& args) {
+void native_eval(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOGFN("eval");
-    String::Utf8Value str(args[0]);
+    String::Utf8Value str(isolate, args[0]);
     const char *cstr = ToCString(str);
-    String::Utf8Value str2(args[1]);
+    String::Utf8Value str2(isolate, args[1]);
     const char *pstr = ToCString(str2);
 
-    Handle<Value> ret = ExecuteString(String::New(cstr), String::New(pstr), true);
+    Local<Value> ret = ExecuteString(String::NewFromUtf8(isolate,cstr), String::NewFromUtf8(isolate, pstr), true);
     LOGFN("endeval");
-    return ret;
+    args.GetReturnValue().Set(ret);
 }
 
-Handle<Value> native_fetch(const Arguments& args) {
+void native_fetch(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOGFN("fetch");
-    String::Utf8Value url(args[0]);
+    String::Utf8Value url(isolate, args[0]);
     const char *url_str = (char*) ToCString(url);
     char *contents = core_load_url(url_str);
     LOGFN("endfetch");
     if (contents) {
-        Handle<String> jscontents = String::New(contents);
+        Handle<String> jscontents = String::NewFromUtf8(isolate, contents);
         free(contents);
-        return jscontents;
+        args.GetReturnValue().Set(jscontents);
     } else {
-        return Boolean::New(false);
+        args.GetReturnValue().Set(Boolean::New(isolate, false));
     }
 }
 
-Handle<Value> native_start_game(const Arguments& args) {
+void native_start_game(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOGFN("startGame");
 
-    String::Utf8Value app(args[0]);
+    String::Utf8Value app(isolate, args[0]);
     const char* appid = ToCString(app);
     start_game(appid);
 
     LOGFN("end startGame");
-    return Undefined();
 }
 
-Handle<Value> native_apply_update(const Arguments& args) {
+void native_apply_update(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOGFN("applyUpdate");
     apply_update();
     LOGFN("end applyUpdate");
-    return Undefined();
 }
 
-Handle<Value> native_done_loading(const Arguments& args) {
+void native_done_loading(const v8::FunctionCallbackInfo<v8::Value> &args) {
     core_hide_preloader();
-
     LOG("{js} Game is done loading");
-    return Undefined();
 }
 
-Handle<Value> js_native_send_activity_to_back(const Arguments& args) {
+void js_native_send_activity_to_back(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOGFN("send_activity_to_back");
     bool result = native_send_activity_to_back();
     LOGFN("end send_activity_to_back");
-    return Boolean::New(result);
+    args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
-Handle<Value> js_native_stay_awake(const Arguments& args) {
+void js_native_stay_awake(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOGFN("stay_awake");
-    int enabled = args[0]->Int32Value();
+    int enabled = args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     native_stay_awake(enabled != 0);
     LOGFN("end stay_awake");
-    return Undefined();
 }
 
-Handle<Value> js_native_upload_device_info(const Arguments& args) {
+void js_native_upload_device_info(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOGFN("upload_device_info");
     upload_device_info();
     LOGFN("end upload_device_info");
-    return Undefined();
 }
 
-Handle<Value> js_native_reload(const Arguments& args) {
+void js_native_reload(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOGFN("reload");
     native_reload();
     LOGFN("reload");
-    return Undefined();
 }
 
-Handle<Value> js_native_get_microseconds(const Arguments& args) {
+void js_native_get_microseconds(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     struct timeval tm;
     gettimeofday(&tm, NULL);
-    return Number::New((unsigned)(tm.tv_sec * 1000000 + tm.tv_usec));
+    args.GetReturnValue().Set(Number::New(isolate, (unsigned)(tm.tv_sec * 1000000 + tm.tv_usec)));
 }
 
 // Cached install referrer
@@ -147,116 +149,119 @@ Handle<Value> js_native_get_microseconds(const Arguments& args) {
 // NOTE: Not thread-safe but it doesn't need to be afaik. -cat
 static const char *m_cached_install_referrer = 0;
 
-Handle<Value> js_install_referrer(Local<String> property,
-                                  const AccessorInfo& info) {
+void js_install_referrer(Local<String> property,
+                                        const PropertyCallbackInfo< Value > &info) {
+    Isolate *isolate = info.GetIsolate();
     LOGFN("install_referrer");
     Handle<Value> result;
     if (m_cached_install_referrer)
-        result = String::New(m_cached_install_referrer);
+        result = String::NewFromUtf8(isolate, m_cached_install_referrer);
     else
-        result = String::New(m_cached_install_referrer = get_install_referrer());
+        result = String::NewFromUtf8(isolate, m_cached_install_referrer = get_install_referrer());
     LOGFN("end install_referrer");
-    return result;
+    info.GetReturnValue().Set(result);
 }
 
-Handle<Value> js_used_heap(Local<String> property,
-                           const AccessorInfo& info) {
-    LOGFN("used_heap");
-
-    HandleScope handle_scope;
+void js_used_heap(Local<String> property,
+                                    const PropertyCallbackInfo< Value > &info) {
+    Isolate *isolate = info.GetIsolate();
+    EscapableHandleScope handle_scope(isolate);
     HeapStatistics stats;
-
-    V8::GetHeapStatistics(&stats);
+    LOGFN("used_heap");
+    isolate->GetHeapStatistics(&stats);
 
     int used_heap = (int)stats.used_heap_size();
 
     LOGFN("end used_heap");
-    return handle_scope.Close(Number::New(used_heap));
+    info.GetReturnValue().Set(handle_scope.Escape(Number::New(isolate, used_heap)));
 }
 
 //call
-Handle<Value> js_native_call(const Arguments& args) {
+void js_native_call(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOGFN("call");
-    String::Utf8Value method(args[0]);
+    String::Utf8Value method(isolate, args[0]);
     const char *methodStr = ToCString(method);
-    String::Utf8Value arguments(args[1]);
+    String::Utf8Value arguments(isolate, args[1]);
     const char *argumentsStr = ToCString(arguments);
     char *ret = native_call(methodStr, argumentsStr);
-    Handle<Value> retStr = String::New(ret);
+    Handle<Value> retStr = String::NewFromUtf8(isolate, ret);
     free(ret);
     LOGFN("call end");
-    return retStr;
+    args.GetReturnValue().Set(retStr);
 }
 
 CEXPORT bool device_is_simulator();
-Handle<Value> js_is_simulator(const Arguments& args) {
+void js_is_simulator(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     bool is_simulator = device_is_simulator();
-    return Boolean::New(is_simulator);
+    args.GetReturnValue().Set(Boolean::New(isolate, is_simulator));
 }
 
 
-Handle<ObjectTemplate> js_native_get_template(const char* uri, const char* native_hash) {
-    Handle<ObjectTemplate> NATIVE = ObjectTemplate::New();
+Local<ObjectTemplate> js_native_get_template(const char* uri, const char* native_hash) {
+    Isolate *isolate = Isolate::GetCurrent();
+    Local<ObjectTemplate> NATIVE = ObjectTemplate::New(isolate);
 
     // functions
-    NATIVE->Set(String::New("_call"), FunctionTemplate::New(js_native_call));
-    NATIVE->Set(STRING_CACHE_getFileSync, FunctionTemplate::New(native_fetch));
-    NATIVE->Set(STRING_CACHE_eval, FunctionTemplate::New(native_eval));
-    NATIVE->Set(STRING_CACHE_startGame, FunctionTemplate::New(native_start_game));
-    NATIVE->Set(STRING_CACHE_doneLoading, FunctionTemplate::New(native_done_loading));
-    NATIVE->Set(STRING_CACHE_applyUpdate, FunctionTemplate::New(native_apply_update));
-    NATIVE->Set(STRING_CACHE_Socket, FunctionTemplate::New(js_socket_ctor));
-    NATIVE->Set(STRING_CACHE_sendActivityToBack, FunctionTemplate::New(js_native_send_activity_to_back));
-    NATIVE->Set(STRING_CACHE_stayAwake, FunctionTemplate::New(js_native_stay_awake));
-    NATIVE->Set(STRING_CACHE_uploadDeviceInfo, FunctionTemplate::New(js_native_upload_device_info));
-    NATIVE->Set(STRING_CACHE_getCurrentTimeMicroseconds, FunctionTemplate::New(js_native_get_microseconds));
-    NATIVE->Set(STRING_CACHE_reload, FunctionTemplate::New(js_native_reload));
-    NATIVE->Set(STRING_CACHE_isSimulator, FunctionTemplate::New(js_is_simulator));
+    NATIVE->Set(String::NewFromUtf8(isolate, "_call"), FunctionTemplate::New(isolate, js_native_call));
+    NATIVE->Set(STRING_CACHE_getFileSync.Get(isolate), FunctionTemplate::New(isolate, native_fetch));
+    NATIVE->Set(STRING_CACHE_eval.Get(isolate), FunctionTemplate::New(isolate, native_eval));
+    NATIVE->Set(STRING_CACHE_startGame.Get(isolate), FunctionTemplate::New(isolate, native_start_game));
+    NATIVE->Set(STRING_CACHE_doneLoading.Get(isolate), FunctionTemplate::New(isolate, native_done_loading));
+    NATIVE->Set(STRING_CACHE_applyUpdate.Get(isolate), FunctionTemplate::New(isolate, native_apply_update));
+    NATIVE->Set(STRING_CACHE_Socket.Get(isolate), FunctionTemplate::New(isolate, js_socket_ctor));
+    NATIVE->Set(STRING_CACHE_sendActivityToBack.Get(isolate), FunctionTemplate::New(isolate, js_native_send_activity_to_back));
+    NATIVE->Set(STRING_CACHE_stayAwake.Get(isolate), FunctionTemplate::New(isolate, js_native_stay_awake));
+    NATIVE->Set(STRING_CACHE_uploadDeviceInfo.Get(isolate), FunctionTemplate::New(isolate, js_native_upload_device_info));
+    NATIVE->Set(STRING_CACHE_getCurrentTimeMicroseconds.Get(isolate), FunctionTemplate::New(isolate, js_native_get_microseconds));
+    NATIVE->Set(STRING_CACHE_reload.Get(isolate), FunctionTemplate::New(isolate, js_native_reload));
+    NATIVE->Set(STRING_CACHE_isSimulator.Get(isolate), FunctionTemplate::New(isolate, js_is_simulator));
 
     // templates
-    NATIVE->Set(STRING_CACHE_console, js_console_get_template());
-    NATIVE->Set(STRING_CACHE_gl, js_gl_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_localStorage, js_local_storage_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_sound, js_sound_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_overlay, js_overlay_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_device, js_device_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_textbox, js_textbox_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_dialogs, js_dialog_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_haptics, js_haptics_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_camera, js_camera_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_gallery, js_gallery_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_timestep, js_timestep_get_template());
-    NATIVE->Set(STRING_CACHE_xhr, js_xhr_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_plugins,js_plugins_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_gc, js_gc_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_build, js_build_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_locale, js_locale_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_profiler, js_profiler_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_input, js_input_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_statusBar, js_status_bar_get_template()->NewInstance());
-    NATIVE->Set(String::New("imageCache"), js_image_cache_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_console.Get(isolate), js_console_get_template());
+    NATIVE->Set(STRING_CACHE_gl.Get(isolate), js_gl_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_localStorage.Get(isolate), js_local_storage_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_sound.Get(isolate), js_sound_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_overlay.Get(isolate), js_overlay_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_device.Get(isolate), js_device_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_textbox.Get(isolate), js_textbox_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_dialogs.Get(isolate), js_dialog_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_haptics.Get(isolate), js_haptics_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_camera.Get(isolate), js_camera_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_gallery.Get(isolate), js_gallery_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_timestep.Get(isolate), js_timestep_get_template());
+    NATIVE->Set(STRING_CACHE_xhr.Get(isolate), js_xhr_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_plugins.Get(isolate), js_plugins_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_gc.Get(isolate), js_gc_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_build.Get(isolate), js_build_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_locale.Get(isolate), js_locale_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_profiler.Get(isolate), js_profiler_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_input.Get(isolate), js_input_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_statusBar.Get(isolate), js_status_bar_get_template()->NewInstance());
+    NATIVE->Set(String::NewFromUtf8(isolate, "imageCache"), js_image_cache_get_template()->NewInstance());
 
     // market
-    Handle<Object> market = Object::New();
+    Handle<ObjectTemplate> market = ObjectTemplate::New(isolate);
     const char *marketUrl = get_market_url();
-    market->Set(STRING_CACHE_url, String::New(marketUrl), ReadOnly);
+    market->Set(STRING_CACHE_url.Get(isolate), String::NewFromUtf8(isolate, marketUrl), ReadOnly);
     free((void*)marketUrl);
-    NATIVE->Set(STRING_CACHE_market, market);
+    NATIVE->Set(STRING_CACHE_market.Get(isolate), market->NewInstance());
 
     // Values
-    NATIVE->SetAccessor(STRING_CACHE_deviceUUID, js_device_global_id);
-    NATIVE->SetAccessor(STRING_CACHE_installReferrer, js_install_referrer);
-    NATIVE->SetAccessor(STRING_CACHE_usedHeap, js_used_heap);
-    NATIVE->Set(STRING_CACHE_simulateID, String::New(config_get_simulate_id()));
-    NATIVE->Set(STRING_CACHE_screen, Object::New());
-    NATIVE->Set(STRING_CACHE_uri, String::New(uri));
-    NATIVE->Set(STRING_CACHE_tcpHost, String::New(config_get_tcp_host()));
-    NATIVE->Set(STRING_CACHE_tcpPort, Number::New(config_get_tcp_port()));
+    NATIVE->SetAccessor(STRING_CACHE_deviceUUID.Get(isolate), js_device_global_id);
+    NATIVE->SetAccessor(STRING_CACHE_installReferrer.Get(isolate), js_install_referrer);
+    NATIVE->SetAccessor(STRING_CACHE_usedHeap.Get(isolate), js_used_heap);
+    NATIVE->Set(STRING_CACHE_simulateID.Get(isolate), String::NewFromUtf8(isolate, config_get_simulate_id()));
+    NATIVE->Set(STRING_CACHE_screen.Get(isolate), Object::New(isolate));
+    NATIVE->Set(STRING_CACHE_uri.Get(isolate), String::NewFromUtf8(isolate, uri));
+    NATIVE->Set(STRING_CACHE_tcpHost.Get(isolate), String::NewFromUtf8(isolate, config_get_tcp_host()));
+    NATIVE->Set(STRING_CACHE_tcpPort.Get(isolate), Number::New(isolate, config_get_tcp_port()));
     const char *versionCode = get_version_code(); // versionCode
-    NATIVE->Set(STRING_CACHE_versionCode, String::New(versionCode), ReadOnly);
+    NATIVE->Set(STRING_CACHE_versionCode.Get(isolate), String::NewFromUtf8(isolate, versionCode), ReadOnly);
     free((void*)versionCode);
-    NATIVE->Set(STRING_CACHE_nativeHash, String::New(native_hash));
-    NATIVE->SetAccessor(STRING_CACHE_location, jsGetLocation, jsSetLocation);
+    NATIVE->Set(STRING_CACHE_nativeHash.Get(isolate), String::NewFromUtf8(isolate, native_hash));
+    NATIVE->SetAccessor(STRING_CACHE_location.Get(isolate), jsGetLocation, jsSetLocation);
 
     return NATIVE;
 }

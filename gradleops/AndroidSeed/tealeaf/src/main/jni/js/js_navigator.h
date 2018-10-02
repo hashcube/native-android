@@ -17,11 +17,14 @@
 
 #include "js/js.h"
 
+#include "include/v8.h"
+using namespace v8;
+
 using v8::Value;
 using v8::ObjectTemplate;
 using v8::Handle;
-using v8::Arguments;
+using v8::internal::Arguments;
 
-Handle<ObjectTemplate> js_navigator_get_template();
+Local<ObjectTemplate> js_navigator_get_template();
 
 #endif

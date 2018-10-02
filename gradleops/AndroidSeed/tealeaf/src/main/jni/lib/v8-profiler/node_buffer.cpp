@@ -28,6 +28,7 @@
 #include <assert.h>
 #include <stdlib.h> // malloc, free
 #include <string.h> // memcpy
+#include <src/api-inl.h>
 
 #ifdef __POSIX__
 # include <arpa/inet.h> // htons, htonl
@@ -48,8 +49,8 @@ using namespace v8;
     return ThrowException(Exception::TypeError(                      \
           String::New("Bad argument.")));                            \
   }                                                                  \
-  int32_t start = start_arg->Int32Value();                           \
-  int32_t end = end_arg->Int32Value();                               \
+  int32_t start = start_arg->Int32Value(isolate->GetCurrentContext()).ToChecked();                           \
+  int32_t end = end_arg->Int32Value(isolate->GetCurrentContext()).ToChecked();                               \
   if (start < 0 || end < 0) {                                        \
     return ThrowException(Exception::TypeError(                      \
           String::New("Bad argument.")));                            \
@@ -96,7 +97,8 @@ static inline size_t base64_decoded_size(const char *src, size_t size) {
 
 
 static size_t ByteLength (Handle<String> string, enum encoding enc) {
-    HandleScope scope;
+    Isolate *isolate = Isolate::GetCurrent();
+    HandleScope scope(isolate);
 
     if (enc == UTF8) {
         return string->Utf8Length();
@@ -113,8 +115,9 @@ static size_t ByteLength (Handle<String> string, enum encoding enc) {
 }
 
 
-Handle<Object> Buffer::New(Handle<String> string) {
-    HandleScope scope;
+void Buffer::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    EscapableHandleScope scope(isolate);
 
     // get Buffer from global scope.
     Local<Object> global = v8::Context::GetCurrent()->Global();
@@ -122,17 +125,18 @@ Handle<Object> Buffer::New(Handle<String> string) {
     assert(bv->IsFunction());
     Local<Function> b = Local<Function>::Cast(bv);
 
-    Local<Value> argv[1] = { Local<Value>::New(string) };
-    Local<Object> instance = b->NewInstance(1, argv);
+    Local<Value> argv[1] = { Local<Value>::New(isolate, args[0]) };
+    Local<Object> instance = b->NewInstance(isolate->GetCurrentContext(),1, argv).ToLocalChecked();
 
-    return scope.Close(instance);
+    args.GetReturnValue().Set(scope.Escape(instance));
 }
 
 
 Buffer* Buffer::New(size_t length) {
-    HandleScope scope;
+    Isolate *isolate = Isolate::GetCurrent();
+    HandleScope scope(isolate);
 
-    Local<Value> arg = Integer::NewFromUnsigned(length);
+    Local<Value> arg = Integer::NewFromUnsigned(isolate, length);
     Local<Object> b = constructor_template->GetFunction()->NewInstance(1, &arg);
     if (b.IsEmpty()) return NULL;
 
@@ -141,9 +145,10 @@ Buffer* Buffer::New(size_t length) {
 
 
 Buffer* Buffer::New(char* data, size_t length) {
-    HandleScope scope;
+    Isolate *isolate = Isolate::GetCurrent();
+    HandleScope scope(isolate);
 
-    Local<Value> arg = Integer::NewFromUnsigned(0);
+    Local<Value> arg = Integer::NewFromUnsigned(isolate, 0);
     Local<Object> obj = constructor_template->GetFunction()->NewInstance(1, &arg);
 
     Buffer *buffer = ObjectWrap::Unwrap<Buffer>(obj);
@@ -155,9 +160,10 @@ Buffer* Buffer::New(char* data, size_t length) {
 
 Buffer* Buffer::New(char *data, size_t length,
                     free_callback callback, void *hint) {
-    HandleScope scope;
+    Isolate *isolate = Isolate::GetCurrent();
+    HandleScope scope(isolate);
 
-    Local<Value> arg = Integer::NewFromUnsigned(0);
+    Local<Value> arg = Integer::NewFromUnsigned(isolate, 0);
     Local<Object> obj = constructor_template->GetFunction()->NewInstance(1, &arg);
 
     Buffer *buffer = ObjectWrap::Unwrap<Buffer>(obj);
@@ -167,16 +173,17 @@ Buffer* Buffer::New(char *data, size_t length,
 }
 
 
-Handle<Value> Buffer::New(const Arguments &args) {
+Handle<Value> Buffer::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
     if (!args.IsConstructCall()) {
         return FromConstructorTemplate(constructor_template, args);
     }
 
-    HandleScope scope;
+    Isolate *isolate = Isolate::GetCurrent();
+    HandleScope scope(isolate);
 
     if (!args[0]->IsUint32()) return ThrowTypeError("Bad argument");
 
-    size_t length = args[0]->Uint32Value();
+    size_t length = args[0]->Uint32Value(isolate->GetCurrentContext()).ToChecked();
     if (length > Buffer::kMaxLength) {
         return ThrowRangeError("length > kMaxLength");
     }
@@ -203,7 +210,8 @@ Buffer::~Buffer() {
 
 void Buffer::Replace(char *data, size_t length,
                      free_callback callback, void *hint) {
-    HandleScope scope;
+    Isolate *isolate = Isolate::GetCurrent();
+    HandleScope scope(isolate);
 
     if (callback_) {
         callback_(data_, callback_hint_);
@@ -230,12 +238,13 @@ void Buffer::Replace(char *data, size_t length,
     handle_->SetIndexedPropertiesToExternalArrayData(data_,
             kExternalUnsignedByteArray,
             length_);
-    handle_->Set(length_symbol, Integer::NewFromUnsigned(length_));
+    handle_->Set(length_symbol, Integer::NewFromUnsigned(isolate, length_));
 }
 
 
-Handle<Value> Buffer::BinarySlice(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::BinarySlice(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    EscapableHandleScope scope(isolate);
     Buffer *parent = ObjectWrap::Unwrap<Buffer>(args.This());
     SLICE_ARGS(args[0], args[1])
 
@@ -244,38 +253,41 @@ Handle<Value> Buffer::BinarySlice(const Arguments &args) {
 
     Local<Value> b =  Encode(data, end - start, BINARY);
 
-    return scope.Close(b);
+    return scope.Escape(b);
 }
 
 
-Handle<Value> Buffer::AsciiSlice(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::AsciiSlice(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    EscapableHandleScope scope(isolate);
     Buffer *parent = ObjectWrap::Unwrap<Buffer>(args.This());
     SLICE_ARGS(args[0], args[1])
 
     char* data = parent->data_ + start;
-    Local<String> string = String::New(data, end - start);
+    Local<String> string = String::NewFromUtf8(isolate, data);
 
-    return scope.Close(string);
+    return scope.Escape(string);
 }
 
 
-Handle<Value> Buffer::Utf8Slice(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::Utf8Slice(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    EscapableHandleScope scope(isolate);
     Buffer *parent = ObjectWrap::Unwrap<Buffer>(args.This());
     SLICE_ARGS(args[0], args[1])
     char *data = parent->data_ + start;
-    Local<String> string = String::New(data, end - start);
-    return scope.Close(string);
+    Local<String> string = String::NewFromUtf8(isolate, data);
+    return scope.Escape(string);
 }
 
-Handle<Value> Buffer::Ucs2Slice(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::Ucs2Slice(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    EscapableHandleScope scope(isolate);
     Buffer *parent = ObjectWrap::Unwrap<Buffer>(args.This());
     SLICE_ARGS(args[0], args[1])
     uint16_t *data = (uint16_t*)(parent->data_ + start);
-    Local<String> string = String::New(data, (end - start) / 2);
-    return scope.Close(string);
+    Local<String> string = String::NewFromTwoByte(isolate, data);//(data, (end - start) / 2);
+    return scope.Escape(string);
 }
 
 static const char *base64_table = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -304,8 +316,9 @@ static const int unbase64_table[] = {
 #define unbase64(x) unbase64_table[(uint8_t)(x)]
 
 
-Handle<Value> Buffer::Base64Slice(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::Base64Slice(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    EscapableHandleScope scope(isolate);
     Buffer *parent = ObjectWrap::Unwrap<Buffer>(args.This());
     SLICE_ARGS(args[0], args[1])
 
@@ -370,21 +383,22 @@ Handle<Value> Buffer::Base64Slice(const Arguments &args) {
         assert(j <= out_len);
     }
 
-    Local<String> string = String::New(out, out_len);
+    Local<String> string = String::NewFromUtf8(isolate, out);
     delete [] out;
-    return scope.Close(string);
+    return scope.Escape(string);
 }
 
 
 // buffer.fill(value, start, end);
-Handle<Value> Buffer::Fill(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::Fill(const v8::FunctionCallbackInfo<v8::Value> &args) {
+        Isolate *isolate = args.GetIsolate();
+        HandleScope scope(isolate);
 
     if (!args[0]->IsInt32()) {
-        return ThrowException(Exception::Error(String::New(
+        return ThrowException(Exception::Error(String::NewFromUtf8(isolate,
                 "value is not a number")));
     }
-    int value = (char)args[0]->Int32Value();
+    int value = (char)args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked();
 
     Buffer *parent = ObjectWrap::Unwrap<Buffer>(args.This());
     SLICE_ARGS(args[1], args[2])
@@ -393,52 +407,53 @@ Handle<Value> Buffer::Fill(const Arguments &args) {
             value,
             end - start);
 
-    return Undefined();
+    return Undefined(isolate);
 }
 
 
 // var bytesCopied = buffer.copy(target, targetStart, sourceStart, sourceEnd);
-Handle<Value> Buffer::Copy(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::Copy(const v8::FunctionCallbackInfo<v8::Value> &args) {
+        Isolate *isolate = args.GetIsolate();
+        EscapableHandleScope scope(isolate);
 
     Buffer *source = ObjectWrap::Unwrap<Buffer>(args.This());
 
     if (!Buffer::HasInstance(args[0])) {
-        return ThrowException(Exception::TypeError(String::New(
+        return ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,
                                   "First arg should be a Buffer")));
     }
 
-    Local<Object> target = args[0]->ToObject();
+    Local<Object> target = args[0]->ToObject(isolate);
     char* target_data = Buffer::Data(target);
     size_t target_length = Buffer::Length(target);
-    size_t target_start = args[1]->Uint32Value();
-    size_t source_start = args[2]->Uint32Value();
-    size_t source_end = args[3]->IsUint32() ? args[3]->Uint32Value()
+    size_t target_start = args[1]->Uint32Value(isolate->GetCurrentContext()).ToChecked();
+    size_t source_start = args[2]->Uint32Value(isolate->GetCurrentContext()).ToChecked();
+    size_t source_end = args[3]->IsUint32() ? args[3]->Uint32Value(isolate->GetCurrentContext()).ToChecked()
                         : source->length_;
 
     if (source_end < source_start) {
-        return ThrowException(Exception::Error(String::New(
+        return ThrowException(Exception::Error(String::NewFromUtf8(isolate,
                 "sourceEnd < sourceStart")));
     }
 
     // Copy 0 bytes; we're done
     if (source_end == source_start) {
-        return scope.Close(Integer::New(0));
+        return scope.Escape(Integer::New(isolate, 0));
     }
 
     if (target_start >= target_length) {
-        return ThrowException(Exception::Error(String::New(
+        return ThrowException(Exception::Error(String::NewFromUtf8(isolate,
                 "targetStart out of bounds")));
     }
 
     if (source_start >= source->length_) {
-        return ThrowException(Exception::Error(String::New(
-                "sourceStart out of bounds")));
+        return ThrowException(Exception::Error(String::NewFromUtf8(isolate,
+                                                                   "sourceStart out of bounds")));
     }
 
     if (source_end > source->length_) {
-        return ThrowException(Exception::Error(String::New(
-                "sourceEnd out of bounds")));
+        return ThrowException(Exception::Error(String::NewFromUtf8(isolate,
+                                                                   "sourceEnd out of bounds")));
     }
 
     size_t to_copy = MIN(MIN(source_end - source_start,
@@ -450,39 +465,40 @@ Handle<Value> Buffer::Copy(const Arguments &args) {
             (const void*)(source->data_ + source_start),
             to_copy);
 
-    return scope.Close(Integer::New(to_copy));
+    return scope.Escape(Integer::New(isolate, to_copy));
 }
 
 
 // var charsWritten = buffer.utf8Write(string, offset, [maxLength]);
-Handle<Value> Buffer::Utf8Write(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::Utf8Write(const v8::FunctionCallbackInfo<v8::Value> &args) {
+        Isolate *isolate = args.GetIsolate();
+        EscapableHandleScope scope(isolate);
     Buffer *buffer = ObjectWrap::Unwrap<Buffer>(args.This());
 
     if (!args[0]->IsString()) {
-        return ThrowException(Exception::TypeError(String::New(
+        return ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,
                                   "Argument must be a string")));
     }
 
-    Local<String> s = args[0]->ToString();
+    Local<String> s = args[0]->ToString(isolate);
 
-    size_t offset = args[1]->Uint32Value();
+    size_t offset = args[1]->UInt32Value(isolate->GetCurrentContext()).ToChecked();
 
     int length = s->Length();
 
     if (length == 0) {
         constructor_template->GetFunction()->Set(chars_written_sym,
-                Integer::New(0));
-        return scope.Close(Integer::New(0));
+                Integer::New(isolate, 0));
+        return scope.Escape(Integer::New(isolate, 0));
     }
 
     if (length > 0 && offset >= buffer->length_) {
-        return ThrowException(Exception::TypeError(String::New(
+        return ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,
                                   "Offset is out of bounds")));
     }
 
     size_t max_length = args[2]->IsUndefined() ? buffer->length_ - offset
-                        : args[2]->Uint32Value();
+                        : args[2]->Uint32Value(isolate->GetCurrentContext()).ToChecked();
     max_length = MIN(buffer->length_ - offset, max_length);
 
     char* p = buffer->data_ + offset;
@@ -496,33 +512,34 @@ Handle<Value> Buffer::Utf8Write(const Arguments &args) {
                                 String::NO_NULL_TERMINATION));
 
     constructor_template->GetFunction()->Set(chars_written_sym,
-            Integer::New(char_written));
+            Integer::New(isolate, char_written));
 
-    return scope.Close(Integer::New(written));
+    return scope.Escape(Integer::New(isolate, written));
 }
 
 
 // var charsWritten = buffer.ucs2Write(string, offset, [maxLength]);
-Handle<Value> Buffer::Ucs2Write(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::Ucs2Write(const v8::FunctionCallbackInfo<v8::Value> &args) {
+        Isolate *isolate = args.GetIsolate();
+        EscapableHandleScope scope(isolate);
     Buffer *buffer = ObjectWrap::Unwrap<Buffer>(args.This());
 
     if (!args[0]->IsString()) {
-        return ThrowException(Exception::TypeError(String::New(
+        return ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,
                                   "Argument must be a string")));
     }
 
-    Local<String> s = args[0]->ToString();
+    Local<String> s = args[0]->ToString(isolate);
 
-    size_t offset = args[1]->Uint32Value();
+    size_t offset = args[1]->Uint32Value(isolate->GetCurrentContext()).ToChecked();
 
     if (s->Length() > 0 && offset >= buffer->length_) {
-        return ThrowException(Exception::TypeError(String::New(
+        return ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,
                                   "Offset is out of bounds")));
     }
 
     size_t max_length = args[2]->IsUndefined() ? buffer->length_ - offset
-                        : args[2]->Uint32Value();
+                        : args[2]->Uint32Value(isolate->GetCurrentContext()).ToChecked();
     max_length = MIN(buffer->length_ - offset, max_length) / 2;
 
     uint16_t* p = (uint16_t*)(buffer->data_ + offset);
@@ -534,34 +551,35 @@ Handle<Value> Buffer::Ucs2Write(const Arguments &args) {
                             String::NO_NULL_TERMINATION));
 
     constructor_template->GetFunction()->Set(chars_written_sym,
-            Integer::New(written));
+            Integer::New(isolate, written));
 
-    return scope.Close(Integer::New(written * 2));
+    return scope.Escape(Integer::New(isolate, written * 2));
 }
 
 
 // var charsWritten = buffer.asciiWrite(string, offset);
-Handle<Value> Buffer::AsciiWrite(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::AsciiWrite(const v8::FunctionCallbackInfo<v8::Value> &args) {
+        Isolate *isolate = args.GetIsolate();
+        EscapableHandleScope scope(isolate);
 
     Buffer *buffer = ObjectWrap::Unwrap<Buffer>(args.This());
 
     if (!args[0]->IsString()) {
-        return ThrowException(Exception::TypeError(String::New(
+        return ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,
                                   "Argument must be a string")));
     }
 
-    Local<String> s = args[0]->ToString();
+    Local<String> s = args[0]->ToString(isolate);
     size_t length = s->Length();
-    size_t offset = args[1]->Int32Value();
+    size_t offset = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
 
     if (length > 0 && offset >= buffer->length_) {
-        return ThrowException(Exception::TypeError(String::New(
+        return ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,
                                   "Offset is out of bounds")));
     }
 
     size_t max_length = args[2]->IsUndefined() ? buffer->length_ - offset
-                        : args[2]->Uint32Value();
+                        : args[2]->Uint32Value(isolate->GetCurrentContext()).ToChecked();
     max_length = MIN(length, MIN(buffer->length_ - offset, max_length));
 
     char *p = buffer->data_ + offset;
@@ -573,20 +591,21 @@ Handle<Value> Buffer::AsciiWrite(const Arguments &args) {
                                  String::NO_NULL_TERMINATION));
 
     constructor_template->GetFunction()->Set(chars_written_sym,
-            Integer::New(written));
+            Integer::New(isolate, written));
 
-    return scope.Close(Integer::New(written));
+    return scope.Escape(Integer::New(isolate, written));
 }
 
 
 // var bytesWritten = buffer.base64Write(string, offset, [maxLength]);
-Handle<Value> Buffer::Base64Write(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::Base64Write(const v8::FunctionCallbackInfo<v8::Value> &args) {
+        Isolate *isolate = args.GetIsolate();
+        EscapableHandleScope scope(isolate);
 
     Buffer *buffer = ObjectWrap::Unwrap<Buffer>(args.This());
 
     if (!args[0]->IsString()) {
-        return ThrowException(Exception::TypeError(String::New(
+        return ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,
                                   "Argument must be a string")));
     }
 
@@ -594,11 +613,11 @@ Handle<Value> Buffer::Base64Write(const Arguments &args) {
     size_t length = s.length();
     size_t offset = args[1]->Int32Value();
     size_t max_length = args[2]->IsUndefined() ? buffer->length_ - offset
-                        : args[2]->Uint32Value();
+                        : args[2]->Uint32Value(isolate->GetCurrentContext());
     max_length = MIN(length, MIN(buffer->length_ - offset, max_length));
 
     if (max_length && offset >= buffer->length_) {
-        return ThrowException(Exception::TypeError(String::New(
+        return ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,
                                   "Offset is out of bounds")));
     }
 
@@ -638,28 +657,29 @@ Handle<Value> Buffer::Base64Write(const Arguments &args) {
     }
 
     constructor_template->GetFunction()->Set(chars_written_sym,
-            Integer::New(dst - start));
+            Integer::New(isolate, dst - start));
 
-    return scope.Close(Integer::New(dst - start));
+    return scope.Escape(Integer::New(isolate, dst - start));
 }
 
 
-Handle<Value> Buffer::BinaryWrite(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::BinaryWrite(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    EscapableHandleScope scope(isolate);
 
     Buffer *buffer = ObjectWrap::Unwrap<Buffer>(args.This());
 
     if (!args[0]->IsString()) {
-        return ThrowException(Exception::TypeError(String::New(
+        return ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,
                                   "Argument must be a string")));
     }
 
-    Local<String> s = args[0]->ToString();
+    Local<String> s = args[0]->ToString(isolate);
     size_t length = s->Length();
-    size_t offset = args[1]->Int32Value();
+    size_t offset = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
 
     if (s->Length() > 0 && offset >= buffer->length_) {
-        return ThrowException(Exception::TypeError(String::New(
+        return ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,
                                   "Offset is out of bounds")));
     }
 
@@ -672,52 +692,55 @@ Handle<Value> Buffer::BinaryWrite(const Arguments &args) {
     int written = DecodeWrite(p, max_length, s, BINARY);
 
     constructor_template->GetFunction()->Set(chars_written_sym,
-            Integer::New(written));
+            Integer::New(isolate, written));
 
-    return scope.Close(Integer::New(written));
+    return scope.Escape(Integer::New(isolate, written));
 }
 
 
 // var nbytes = Buffer.byteLength("string", "utf8")
-Handle<Value> Buffer::ByteLength(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::ByteLength(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+        EscapableHandleScope scope(isolate);
 
     if (!args[0]->IsString()) {
-        return ThrowException(Exception::TypeError(String::New(
+        return ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,
                                   "Argument must be a string")));
     }
 
-    Local<String> s = args[0]->ToString();
+    Local<String> s = args[0]->ToString(isolate);
     enum encoding e = ParseEncoding(args[1], UTF8);
 
-    return scope.Close(Integer::New(node::ByteLength(s, e)));
+    return scope.Escape(Integer::New(node::ByteLength(s, e)));
 }
 
 
-Handle<Value> Buffer::MakeFastBuffer(const Arguments &args) {
-    HandleScope scope;
+Handle<Value> Buffer::MakeFastBuffer(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    HandleScope scope(isolate);
 
     if (!Buffer::HasInstance(args[0])) {
-        return ThrowException(Exception::TypeError(String::New(
+        return ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,
                                   "First argument must be a Buffer")));
     }
 
-    Buffer *buffer = ObjectWrap::Unwrap<Buffer>(args[0]->ToObject());
-    Local<Object> fast_buffer = args[1]->ToObject();;
-    uint32_t offset = args[2]->Uint32Value();
-    uint32_t length = args[3]->Uint32Value();
+    Buffer *buffer = ObjectWrap::Unwrap<Buffer>(args[0]->ToObject(isolate));
+    Local<Object> fast_buffer = args[1]->ToObject(isolate);
+    uint32_t offset = args[2]->Uint32Value(isolate->GetCurrentContext()).ToChecked();
+    uint32_t length = args[3]->Uint32Value(isolate->GetCurrentContext()).ToChecked();
 
     fast_buffer->SetIndexedPropertiesToExternalArrayData(buffer->data_ + offset,
             kExternalUnsignedByteArray,
             length);
 
-    return Undefined();
+    return Undefined(isolate);
 }
 
-
+// Todo find arg object type to probably avoid Isolate::GetCurrent();
 bool Buffer::HasInstance(v8::Handle<v8::Value> val) {
+    Isolate *isolate = Isolate::GetCurrent();
     if (!val->IsObject()) return false;
-    v8::Local<v8::Object> obj = val->ToObject();
+    v8::Local<v8::Object> obj = val->ToObject(isolate);
 
     if (obj->GetIndexedPropertiesExternalArrayDataType() == kExternalUnsignedByteArray)
         return true;
@@ -730,8 +753,10 @@ bool Buffer::HasInstance(v8::Handle<v8::Value> val) {
 }
 
 
+// Todo find arg object type to probably avoid Isolate::GetCurrent();
 void Buffer::Initialize(Handle<Object> target) {
-    HandleScope scope;
+    Isolate *isolate = Isolate::GetCurrent();
+    HandleScope scope(isolate);;
 
     // sanity checks
     assert(unbase64('/') == 63);
@@ -747,10 +772,11 @@ void Buffer::Initialize(Handle<Object> target) {
     length_symbol = NODE_PSYMBOL("length");
     chars_written_sym = NODE_PSYMBOL("_charsWritten");
 
-    Local<FunctionTemplate> t = FunctionTemplate::New(Buffer::New);
-    constructor_template = Persistent<FunctionTemplate>::New(t);
+
+    Local<FunctionTemplate> t = FunctionTemplate::New(isolate, Buffer::New);
+    Persistent<FunctionTemplate> constructor_template(isolate, t);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
-    constructor_template->SetClassName(String::NewSymbol("SlowBuffer"));
+    constructor_template->SetClassName(String::NewFromUtf8(isolate, "SlowBuffer"));
 
     // copy free
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "binarySlice", Buffer::BinarySlice);
@@ -776,7 +802,7 @@ void Buffer::Initialize(Handle<Object> target) {
                     "makeFastBuffer",
                     Buffer::MakeFastBuffer);
 
-    target->Set(String::NewSymbol("SlowBuffer"), constructor_template->GetFunction());
+    target->Set(String::NewFromUtf8(isolate, "SlowBuffer"), constructor_template->GetFunction());
 }
 
 

@@ -17,26 +17,30 @@
 #include "js/js_build.h"
 #include "platform/build.h"
 
+#include "include/v8.h"
 using namespace v8;
 
-Handle<Value> sdk_hash_getter(Local<String> property, const AccessorInfo &info) {
-    return String::New(build_get_sdk_hash());
+void sdk_hash_getter(Local< String > property, const PropertyCallbackInfo< Value > &info) {
+    Isolate *isolate = info.GetIsolate();
+    info.GetReturnValue().Set(String::NewFromUtf8(isolate, build_get_sdk_hash()));
 }
 
-Handle<Value> android_hash_getter(Local<String> property, const AccessorInfo &info) {
-    return String::New(build_get_android_hash());
+void android_hash_getter(Local< String > property, const PropertyCallbackInfo< Value > &info) {
+    Isolate *isolate = info.GetIsolate();
+    info.GetReturnValue().Set(String::NewFromUtf8(isolate, build_get_android_hash()));
 }
 
-Handle<Value> game_hash_getter(Local<String> property, const AccessorInfo &info) {
-    return String::New(build_get_game_hash());
+void game_hash_getter(Local< String > property, const PropertyCallbackInfo< Value > &info) {
+    Isolate *isolate = info.GetIsolate();
+    info.GetReturnValue().Set(String::NewFromUtf8(isolate, build_get_game_hash()));
 }
 
-Handle<ObjectTemplate> js_build_get_template() {
-    Handle<ObjectTemplate> build = ObjectTemplate::New();
-
-    build->SetAccessor(STRING_CACHE_sdkHash, sdk_hash_getter);
-    build->SetAccessor(STRING_CACHE_androidHash, android_hash_getter);
-    build->SetAccessor(STRING_CACHE_gameHash, game_hash_getter);
+Local<ObjectTemplate> js_build_get_template() {
+    Isolate *isolate = Isolate::GetCurrent();
+    Local<ObjectTemplate> build = ObjectTemplate::New(isolate);
+    build->SetAccessor(STRING_CACHE_sdkHash.Get(isolate), sdk_hash_getter);
+    build->SetAccessor(STRING_CACHE_androidHash.Get(isolate), android_hash_getter);
+    build->SetAccessor(STRING_CACHE_gameHash.Get(isolate), game_hash_getter);
 
     return build;
 }

@@ -16,27 +16,29 @@
  */
 #include "js/js_gc.h"
 #include <stdlib.h>
-
+#include "include/v8.h"
 using namespace v8;
 
 
-Handle<Value> native_run_gc(const Arguments &args) {
+void native_run_gc(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOG("{js} Full GC");
-    V8::LowMemoryNotification();
-    return Undefined();
+    isolate->LowMemoryNotification();
 }
 
 /* Returning true tells the caller that it need not
    continue to call IdleNotification.
 */
-Handle<Value> native_run_maybe_gc(const Arguments &args) {
+void native_run_maybe_gc(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOG("{js} Maybe GC");
-    return Boolean::New(V8::IdleNotification());
+    args.GetReturnValue().Set( Boolean::New(isolate, isolate->IdleNotificationDeadline(45)));
 }
 
-Handle<ObjectTemplate> js_gc_get_template() {
-    Handle<ObjectTemplate> gc = ObjectTemplate::New();
-    gc->Set(STRING_CACHE_runGC, FunctionTemplate::New(native_run_gc));
-    gc->Set(STRING_CACHE_runMaybeGC, FunctionTemplate::New(native_run_maybe_gc));
+Local<ObjectTemplate> js_gc_get_template() {
+    Isolate *isolate = Isolate::GetCurrent();
+    Local<ObjectTemplate> gc = ObjectTemplate::New(isolate);
+    gc->Set(STRING_CACHE_runGC.Get(isolate), FunctionTemplate::New(isolate, native_run_gc));
+    gc->Set(STRING_CACHE_runMaybeGC.Get(isolate), FunctionTemplate::New(isolate, native_run_maybe_gc));
     return gc;
 }

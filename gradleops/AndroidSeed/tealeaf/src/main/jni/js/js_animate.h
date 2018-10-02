@@ -16,14 +16,16 @@
 #define JS_TIMESTEP_H
 
 #include "js/js.h"
+#include "include/v8.h"
+using namespace v8;
 
-using v8::Handle;
+using v8::Local;
 using v8::FunctionTemplate;
 using v8::Object;
 
-Handle<FunctionTemplate> get_animate_class();
-void def_animate_cb(Handle<Object> js_view, Handle<Object> cb, double tt, double t);
-void def_animate_add_to_group(Handle<Object> js_anim);
-void def_animate_remove_from_group(Handle<Object> js_anim);
+Local<FunctionTemplate> get_animate_class();
+void def_animate_cb(Local<Object> js_view, Local<Object> cb, double tt, double t);
+void def_animate_add_to_group(Local<Object> js_anim);
+void def_animate_remove_from_group(Local<Object> js_anim);
 
 #endif // JS_TIMESTEP_H

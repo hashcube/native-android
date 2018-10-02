@@ -16,18 +16,19 @@
  */
 #include "js/js_input.h"
 #include "platform/input_prompt.h"
-
+#include "include/v8.h"
 using namespace v8;
 
-Handle<Value> js_input_open_prompt(const Arguments &args) {
-    String::Utf8Value title_str(args[0]);
-    String::Utf8Value message_str(args[1]);
-    String::Utf8Value ok_str(args[2]);
-    String::Utf8Value cancel_str(args[3]);
-    String::Utf8Value value_str(args[4]);
+void js_input_open_prompt(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    String::Utf8Value title_str(isolate, args[0]);
+    String::Utf8Value message_str(isolate, args[1]);
+    String::Utf8Value ok_str(isolate, args[2]);
+    String::Utf8Value cancel_str(isolate, args[3]);
+    String::Utf8Value value_str(isolate, args[4]);
 
-    bool auto_show_keyboard = args[5]->BooleanValue();
-    bool is_password = args[6]->BooleanValue();
+    bool auto_show_keyboard = args[5]->BooleanValue(isolate);
+    bool is_password = args[6]->BooleanValue(isolate);
 
     const char *title = ToCString(title_str);
     const char *message = ToCString(message_str);
@@ -36,18 +37,19 @@ Handle<Value> js_input_open_prompt(const Arguments &args) {
     const char *cancelText = ToCString(cancel_str);
 
     int id = input_open_prompt(title, message, okText, cancelText, value, auto_show_keyboard, is_password);
-    return Number::New(id);
+    args.GetReturnValue().Set(Number::New(isolate, id));
 }
 
-Handle<Value> js_input_show_keyboard(const Arguments &args) {
-    String::Utf8Value curr_val_str(args[0]);
-    String::Utf8Value hint_str(args[1]);
-    bool has_backward = args[2]->BooleanValue();
-    bool has_forward = args[3]->BooleanValue();
-    String::Utf8Value input_type_str(args[4]);
-    String::Utf8Value input_return_button_str(args[5]);
-    int max_length = args[6]->Int32Value();
-    int cursorPos = args[7]->Int32Value();
+void js_input_show_keyboard(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    String::Utf8Value curr_val_str(isolate, args[0]);
+    String::Utf8Value hint_str(isolate, args[1]);
+    bool has_backward = args[2]->BooleanValue(isolate);
+    bool has_forward = args[3]->BooleanValue(isolate);
+    String::Utf8Value input_type_str(isolate, args[4]);
+    String::Utf8Value input_return_button_str(isolate, args[5]);
+    int max_length = args[6]->Int32Value(isolate->GetCurrentContext()).ToChecked();
+    int cursorPos = args[7]->Int32Value(isolate->GetCurrentContext()).ToChecked();
 
     const char *curr_val = ToCString(curr_val_str);
     const char *hint = ToCString(hint_str);
@@ -55,19 +57,18 @@ Handle<Value> js_input_show_keyboard(const Arguments &args) {
     const char *input_return_button = ToCString(input_return_button_str);
 
     input_show_keyboard(curr_val, hint, has_backward, has_forward, input_type, input_return_button, max_length, cursorPos);
-    return Undefined();
 }
 
-Handle<Value> js_input_hide_keyboard(const Arguments &args) {
+void js_input_hide_keyboard(const v8::FunctionCallbackInfo<v8::Value> &args) {
     input_hide_keyboard();
-    return Undefined();
 }
 
-Handle<ObjectTemplate> js_input_get_template() {
-    Handle<ObjectTemplate> input = ObjectTemplate::New();
-    input->Set(STRING_CACHE_open_prompt, FunctionTemplate::New(js_input_open_prompt));
-    input->Set(STRING_CACHE_show_keyboard, FunctionTemplate::New(js_input_show_keyboard));
-    input->Set(STRING_CACHE_hide_keyboard, FunctionTemplate::New(js_input_hide_keyboard));
+Local<ObjectTemplate> js_input_get_template() {
+    Isolate *isolate = Isolate::GetCurrent();
+    Handle<ObjectTemplate> input = ObjectTemplate::New(isolate);
+    input->Set(STRING_CACHE_open_prompt.Get(isolate), FunctionTemplate::New(isolate, js_input_open_prompt));
+    input->Set(STRING_CACHE_show_keyboard.Get(isolate), FunctionTemplate::New(isolate, js_input_show_keyboard));
+    input->Set(STRING_CACHE_hide_keyboard.Get(isolate), FunctionTemplate::New(isolate, js_input_hide_keyboard));
     return input;
 }
 

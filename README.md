@@ -2,13 +2,16 @@ This is the native 'tealeaf' platform for android devices
 
 ## Installation
 
-1. Install android tools, then download and unpack android-ndk-r9b
+1. Install android tools, then download and unpack android-ndk-r16b
 2. Export path:
 export ANDROID_HOME=/home/USERNAME/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
-export PATH=$PATH:/path/to/ndk-r9b/android-ndk-r9b
+export PATH=$PATH:/path/to/ndk-r9b/android-ndk-r16b
 
 3. Install and configure NDK tools with installed SDK Manger (see 1)
+
+4. Go to ./gradleops/AndroidSeed/tealeaf/src/main/jni/lib/arm64-v8a
+and unzip libv8_base.zip to libv8_base.a and put it in 'libs' dir near other "libv8_xxx.a" files
 
 
 ## Debug, Release and sign

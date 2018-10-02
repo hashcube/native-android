@@ -48,7 +48,7 @@ native_shim *get_native_shim() {
     if(shim.instance == NULL) {
         LOG("{native} ERROR: Tried to get native shim when there wasn't one");
 #if DEBUG
-        *((int*)0) = -1;
+        *((volatile int*)0) = -1;
 #else
         exit(1);
 #endif
@@ -61,7 +61,7 @@ native_shim *get_native_thread_shim(JNIEnv **env) {
     if(shim.instance == NULL) {
         LOG("{native} ERROR: Tried to get native shim when there wasn't one (2)");
 #if DEBUG
-        *((int*)0) = -1;
+        *((volatile int*)0) = -1;
 #else
         exit(1);
 #endif

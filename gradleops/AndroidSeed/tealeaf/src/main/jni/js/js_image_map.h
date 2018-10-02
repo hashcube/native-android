@@ -18,8 +18,7 @@
 
 using v8::Handle;
 using v8::Value;
-using v8::Arguments;
 
-Handle<Value> image_map_constructor(const Arguments &args);
+Local<Value> image_map_constructor(const v8::FunctionCallbackInfo<v8::Value> &args);
 
 #endif // JS_IMAGE_MAP_H

@@ -16,8 +16,11 @@
 #define JS_LOCALE_H
 #include "js/js.h"
 
+#include "include/v8.h"
+using namespace v8;
+
 using v8::Handle;
 using v8::ObjectTemplate;
-Handle<ObjectTemplate> js_locale_get_template();
+Local<ObjectTemplate> js_locale_get_template();
 
 #endif //JS_LOCALE_H

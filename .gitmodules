@@ -4,4 +4,4 @@
 
 [submodule "native-core"]
 	path = native-core
-	url = https://github.com/hashcube/native-core.git
+	url = https://github.com/CodeCombiner/native-core.git

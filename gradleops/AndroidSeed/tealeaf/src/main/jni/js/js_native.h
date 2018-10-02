@@ -16,13 +16,15 @@
 #define JS_NATIVE_H
 
 #include "js/js.h"
+#include "include/v8.h"
+using namespace v8;
 
 using v8::Value;
 using v8::ObjectTemplate;
 using v8::Handle;
-using v8::Arguments;
+using v8::internal::Arguments;
 
-Handle<ObjectTemplate> js_native_get_template(const char* uri, const char* native_hash);
+Local<ObjectTemplate> js_native_get_template(const char* uri, const char* native_hash);
 
 #endif
 

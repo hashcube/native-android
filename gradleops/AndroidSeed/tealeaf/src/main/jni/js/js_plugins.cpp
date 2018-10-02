@@ -16,17 +16,20 @@
  */
 #include "js/js_plugins.h"
 #include "platform/plugins.h"
+#include <stdlib.h> // pulls in declaration of malloc, free
+#include <string.h> // pulls in declaration for strlen.
 
 using namespace v8;
 
 
-Handle<Value> js_plugins_send_event(const Arguments& args) {
+void js_plugins_send_event(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOGFN("plugins send event");
     char *ret_str = NULL;
     if (args[0]->IsString() && args[1]->IsString() && args[2]->IsString()) {
-        String::Utf8Value str_plugin_class(args[0]->ToString());
-        String::Utf8Value str_plugin_method(args[1]->ToString());
-        String::Utf8Value str_data(args[2]->ToString());
+        String::Utf8Value str_plugin_class(isolate, args[0]->ToString(isolate));
+        String::Utf8Value str_plugin_method(isolate, args[1]->ToString(isolate));
+        String::Utf8Value str_data(isolate, args[2]->ToString(isolate));
 
         const char* plugin_class = ToCString(str_plugin_class);
         const char* plugin_method = ToCString(str_plugin_method);
@@ -39,37 +42,38 @@ Handle<Value> js_plugins_send_event(const Arguments& args) {
     LOGFN("end plugins send event");
     Handle<Value> retVal;
     if (ret_str != NULL) {
-        retVal = String::New(ret_str);
+        retVal = String::NewFromUtf8(isolate, ret_str);
         free(ret_str);
     } else {
-        retVal = String::New("{}");
+        retVal = String::NewFromUtf8(isolate, "{}");
     }
-    return retVal;
+    args.GetReturnValue().Set(retVal);
 }
 
-Handle<Value> js_plugins_send_request(const Arguments& args) {
+void js_plugins_send_request(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
     LOGFN("plugins send request");
     if (args[0]->IsString() && args[1]->IsString() && args[2]->IsString()) {
-        String::Utf8Value str_plugin_class(args[0]->ToString());
-        String::Utf8Value str_plugin_method(args[1]->ToString());
-        String::Utf8Value str_data(args[2]->ToString());
+        String::Utf8Value str_plugin_class(isolate, args[0]->ToString(isolate));
+        String::Utf8Value str_plugin_method(isolate, args[1]->ToString(isolate));
+        String::Utf8Value str_data(isolate, args[2]->ToString(isolate));
 
         const char* plugin_class = ToCString(str_plugin_class);
         const char* plugin_method = ToCString(str_plugin_method);
         const char* data = ToCString(str_data);
-        int request_id = args[3]->Int32Value();
+        int request_id = args[3]->Int32Value(isolate->GetCurrentContext()).ToChecked();
         plugins_send_request(plugin_class, plugin_method, data, request_id);
     } else {
         LOG("{plugins} WARNING: send request should be called with 3 string arguments");
     }
-    return Undefined();
 }
 
 
 Handle<ObjectTemplate> js_plugins_get_template() {
-    Handle<ObjectTemplate> actions = ObjectTemplate::New();
-    actions->Set(STRING_CACHE_sendEvent, FunctionTemplate::New(js_plugins_send_event));
-    actions->Set(STRING_CACHE_sendRequest, FunctionTemplate::New(js_plugins_send_request));
+    Isolate *isolate = Isolate::GetCurrent();
+    Handle<ObjectTemplate> actions = ObjectTemplate::New(isolate);
+    actions->Set(STRING_CACHE_sendEvent.Get(isolate), FunctionTemplate::New(isolate, js_plugins_send_event));
+    actions->Set(STRING_CACHE_sendRequest.Get(isolate), FunctionTemplate::New(isolate, js_plugins_send_request));
     return actions;
 }
 

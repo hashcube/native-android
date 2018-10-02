@@ -2,10 +2,14 @@
 #ifndef JS_STRING_CACHE_H
 #define JS_STRING_CACHE_H
 
+#include "include/v8.h"
+using namespace v8;
+
 using v8::Persistent;
 using v8::String;
+using v8::Isolate;
 
-void js_string_cache_init();
+void js_string_cache_init(Isolate *isolate);
 
 extern Persistent<String> STRING_CACHE_restore;
 extern Persistent<String> STRING_CACHE_show;

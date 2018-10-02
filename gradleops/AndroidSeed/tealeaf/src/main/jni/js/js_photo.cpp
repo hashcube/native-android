@@ -17,67 +17,75 @@
 #include "js_photo.h"
 #include "platform/photo.h"
 #include "qr/adapter/QRCodeProcessor.h"
-
+#include "include/v8.h"
 using namespace v8;
 
-Handle<Value> js_camera_get_photo(const Arguments& args) {
-    String::Utf8Value str(args[0]);
-    int width = args[1]->Int32Value();
-    int height = args[2]->Int32Value();
-    int crop = args[3]->Int32Value();
+void js_camera_get_photo(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    String::Utf8Value str(isolate, args[0]);
+    int width = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
+    int height = args[2]->Int32Value(isolate->GetCurrentContext()).ToChecked();
+    int crop = args[3]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     const char *cstr = ToCString(str);
-    return Number::New(camera_get_photo(cstr, width, height, crop));
+    args.GetReturnValue().Set(Number::New(isolate, camera_get_photo(cstr, width, height, crop)));
 }
 
-Handle<Value> js_camera_process_qr(const Arguments& args) {
-    String::Utf8Value str(args[0]);
+void js_camera_process_qr(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    String::Utf8Value str(isolate, args[0]);
     const char *cstr = ToCString(str);
 
     char text[512];
     qr_process_base64_image(cstr, text);
 
-    return String::New(text);
+    args.GetReturnValue().Set(String::NewFromUtf8(isolate, text));
 }
 
-Handle<Value> js_camera_encode_qr(const Arguments& args) {
-    String::Utf8Value str(args[0]);
+void js_camera_encode_qr(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    String::Utf8Value str(isolate, args[0]);
     const char *cstr = ToCString(str);
 
     int width, height;
     char *b64image = qr_generate_base64_image(cstr, &width, &height);
 
-    return String::New(b64image);
+    args.GetReturnValue().Set(String::NewFromUtf8(isolate, b64image));
 }
 
-Handle<Value> js_camera_get_next_id(const Arguments& args) {
-    return Number::New(camera_get_next_id());
+void js_camera_get_next_id(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    args.GetReturnValue().Set(Number::New(isolate, camera_get_next_id()));
 }
 
-Handle<ObjectTemplate> js_camera_get_template() {
-    Handle<ObjectTemplate> camera = ObjectTemplate::New();
-    camera->Set(STRING_CACHE_getNextId, FunctionTemplate::New(js_camera_get_next_id));
-    camera->Set(STRING_CACHE_getPhoto, FunctionTemplate::New(js_camera_get_photo));
-    camera->Set(STRING_CACHE_processQR, FunctionTemplate::New(js_camera_process_qr));
-    camera->Set(STRING_CACHE_encodeQR, FunctionTemplate::New(js_camera_encode_qr));
+Local<ObjectTemplate> js_camera_get_template() {
+    Isolate *isolate = Isolate::GetCurrent();
+    Handle<ObjectTemplate> camera = ObjectTemplate::New(isolate);
+    camera->Set(STRING_CACHE_getNextId.Get(isolate), FunctionTemplate::New(isolate, js_camera_get_next_id));
+    camera->Set(STRING_CACHE_getPhoto.Get(isolate), FunctionTemplate::New(isolate, js_camera_get_photo));
+    camera->Set(STRING_CACHE_processQR.Get(isolate), FunctionTemplate::New(isolate, js_camera_process_qr));
+    camera->Set(STRING_CACHE_encodeQR.Get(isolate), FunctionTemplate::New(isolate, js_camera_encode_qr));
     return camera;
 }
 
-Handle<Value> js_gallery_get_photo(const Arguments& args) {
-    String::Utf8Value str(args[0]);
-    int width = args[1]->Int32Value();
-    int height = args[2]->Int32Value();
-    int crop = args[3]->Int32Value();
+void js_gallery_get_photo(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    String::Utf8Value str(isolate, args[0]);
+    int width = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
+    int height = args[2]->Int32Value(isolate->GetCurrentContext()).ToChecked();
+    int crop = args[3]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     const char *cstr = ToCString(str);
-    return Number::New(gallery_get_photo(cstr, width, height, crop));
+    args.GetReturnValue().Set(Number::New(isolate, gallery_get_photo(cstr, width, height, crop)));
 }
 
-Handle<Value> js_gallery_get_next_id(const Arguments& args) {
-    return Number::New(gallery_get_next_id());
+void js_gallery_get_next_id(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = args.GetIsolate();
+    args.GetReturnValue().Set(Number::New(isolate, gallery_get_next_id()));
 }
 
-Handle<ObjectTemplate> js_gallery_get_template() {
-    Handle<ObjectTemplate> gallery = ObjectTemplate::New();
-    gallery->Set(STRING_CACHE_getNextId, FunctionTemplate::New(js_gallery_get_next_id));
-    gallery->Set(STRING_CACHE_getPhoto, FunctionTemplate::New(js_gallery_get_photo));
+Local<ObjectTemplate> js_gallery_get_template() {
+    Isolate *isolate = Isolate::GetCurrent();
+    Handle<ObjectTemplate> gallery = ObjectTemplate::New(isolate);
+    gallery->Set(STRING_CACHE_getNextId.Get(isolate), FunctionTemplate::New(isolate, js_gallery_get_next_id));
+    gallery->Set(STRING_CACHE_getPhoto.Get(isolate), FunctionTemplate::New(isolate, js_gallery_get_photo));
     return gallery;
 }

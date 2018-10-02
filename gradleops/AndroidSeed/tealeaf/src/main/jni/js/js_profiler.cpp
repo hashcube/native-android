@@ -19,9 +19,10 @@
 #include "core/config.h"
 #include "js/js.h"
 
+#include "include/v8.h"
 using namespace v8;
 
-Handle<Value> js_profiler_start_profile(const Arguments &args) {
+void js_profiler_start_profile(const v8::FunctionCallbackInfo<v8::Value> &args) {
 #ifdef PROFILER_ENABLED
     String::Utf8Value tag_str(args[0]);
     const char *tag = ToCString(tag_str);
@@ -29,31 +30,30 @@ Handle<Value> js_profiler_start_profile(const Arguments &args) {
     profiler_start_profile(tag);
 #endif
 
-    return Undefined();
 }
 
-Handle<Value> js_profiler_stop_profile(const Arguments &args) {
+void js_profiler_stop_profile(const v8::FunctionCallbackInfo<v8::Value> &args) {
 #ifdef PROFILER_ENABLED
     LOG("{profiler} Stopped");
     profiler_stop_profile();
 #endif
-    return Undefined();
 }
 
 
 
 
-Handle<ObjectTemplate> js_profiler_get_template() {
-    Handle<ObjectTemplate> profiler = ObjectTemplate::New();
+Local<ObjectTemplate> js_profiler_get_template() {
+    Isolate *isolate = Isolate::GetCurrent();
+    Handle<ObjectTemplate> profiler = ObjectTemplate::New(isolate);
 
-    profiler->Set(STRING_CACHE_start, FunctionTemplate::New(js_profiler_start_profile));
-    profiler->Set(STRING_CACHE_stop, FunctionTemplate::New(js_profiler_stop_profile));
+    profiler->Set(STRING_CACHE_start.Get(isolate), FunctionTemplate::New(isolate, js_profiler_start_profile));
+    profiler->Set(STRING_CACHE_stop.Get(isolate), FunctionTemplate::New(isolate, js_profiler_stop_profile));
 #ifdef PROFILER_ENABLED
 #define __ENABLED true
 #else
 #define __ENABLED false
 #endif
-    profiler->Set(STRING_CACHE_enabled, Boolean::New(__ENABLED));
+    profiler->Set(STRING_CACHE_enabled.Get(isolate), Boolean::New(isolate, __ENABLED));
 
     return profiler;
 }

@@ -94,10 +94,10 @@ Handle<Value> CpuProfiler::GetProfile(const Arguments& args) {
     } else if (!args[0]->IsInt32()) {
         return ThrowException(Exception::TypeError(String::New("Argument must be an integer")));
     }
-    int32_t index = args[0]->Int32Value();
+    int32_t index = args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked();
 
     if (index >= v8::CpuProfiler::GetProfilesCount()) {
-        return Undefined();
+        return Undefined(isolate);
     }
 
     const CpuProfile* profile = v8::CpuProfiler::GetProfile(index);
@@ -111,7 +111,7 @@ Handle<Value> CpuProfiler::GetProfile(const Arguments& args) {
 
         return scope.Close(result);
     } else {
-        return Undefined();
+        return Undefined(isolate);
     }
 }
 
@@ -123,7 +123,7 @@ Handle<Value> CpuProfiler::FindProfile(const Arguments& args) {
     } else if (!args[0]->IsInt32()) {
         return ThrowException(Exception::TypeError(String::New("Argument must be an integer")));
     }
-    uint32_t uid = args[0]->Uint32Value();
+    uint32_t uid = args[0]->UInt32Value(isolate->GetCurrentContext()).ToChecked();
     const CpuProfile* profile = v8::CpuProfiler::FindProfile(uid);
     if (profile) {
         Local<String> snapshot = String::New("");
@@ -135,7 +135,7 @@ Handle<Value> CpuProfiler::FindProfile(const Arguments& args) {
 
         return scope.Close(result);
     } else {
-        return Undefined();
+        return Undefined(isolate);
     }
 }
 
@@ -144,7 +144,7 @@ Handle<Value> CpuProfiler::StartProfiling(const Arguments& args) {
 
     Local<String> title = args.Length() > 0 ? args[0]->ToString() : String::New("");
     v8::CpuProfiler::StartProfiling(title);
-    return Undefined();
+    return Undefined(isolate);
 }
 
 Handle<Value> CpuProfiler::StopProfiling(const Arguments& args) {
@@ -161,7 +161,7 @@ Handle<Value> CpuProfiler::StopProfiling(const Arguments& args) {
         result->Set(String::New("uid"), Number::New(profile->GetUid()));
         return scope.Close(result);
     } else {
-        return Undefined();
+        return Undefined(isolate);
     }
 }
 
@@ -193,6 +193,6 @@ Handle<Value> CpuProfiler::DeleteAllProfiles(const Arguments& args) {
     ENTER_ISOLATE
 
     v8::CpuProfiler::DeleteAllProfiles();
-    return Undefined();
+    return Undefined(isolate);
 }
 } //namespace nodex

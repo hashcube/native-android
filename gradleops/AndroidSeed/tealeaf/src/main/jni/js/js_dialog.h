@@ -16,10 +16,12 @@
 #define JS_DIALOG_H
 
 #include "js/js.h"
+#include "include/v8.h"
+using namespace v8;
 
 using v8::Handle;
 using v8::ObjectTemplate;
 
-Handle<ObjectTemplate> js_dialog_get_template();
+Local<ObjectTemplate> js_dialog_get_template();
 
 #endif

@@ -16,6 +16,8 @@
 #define JS_OVERLAY_H
 
 #include "js/js.h"
+#include "include/v8.h"
+using namespace v8;
 using v8::Handle;
 using v8::ObjectTemplate;
 
@@ -25,6 +27,6 @@ void js_overlay_hide();
 void js_overlay_send_event(const char *event);
 void js_overlay_on_event(const char *event);
 void js_overlay_dispatch_events();
-Handle<ObjectTemplate> js_overlay_get_template();
+Local<ObjectTemplate> js_overlay_get_template();
 
 #endif

@@ -14,11 +14,15 @@
  */
 #ifndef JS_BUILD_H
 #define JS_BUILD_H
+
+#include "include/v8.h"
 #include "js/js.h"
+
+using namespace v8;
 
 using v8::Handle;
 using v8::ObjectTemplate;
 
-Handle<ObjectTemplate> js_build_get_template();
+Local<ObjectTemplate> js_build_get_template();
 
 #endif //JS_BUILD_H

@@ -17,30 +17,32 @@
 #include "js/js_timestep_events.h"
 #include "timestep/timestep_events.h"
 
+#include "include/v8.h"
 using namespace v8;
 
-Handle<Value> js_timestep_events_get(const Arguments& args) {
+void js_timestep_events_get(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("js_timestep_events_get");
-
+    Isolate *isolate = args.GetIsolate();
+    Local<Context> context = getContext();
     Local<Object> thiz = args.This();
     //TODO cache this.
-    Handle<Function> input_event_ctor = Handle<Function>::Cast(thiz->Get(STRING_CACHE_InputEvent));
+    Handle<Function> input_event_ctor = Handle<Function>::Cast(thiz->Get(STRING_CACHE_InputEvent.Get(isolate)));
 
     input_event_list list = timestep_events_get();
-    Handle<v8::Array> arr = Array::New(list.count);
+    Handle<v8::Array> arr = Array::New(isolate, list.count);
     for (unsigned int i = 0; i < list.count; ++i) {
         Handle<Value> args[] = {
-            Number::New(list.events[i].id),
-            Number::New(list.events[i].type),
-            Number::New(list.events[i].x),
-            Number::New(list.events[i].y),
+            Number::New(isolate, list.events[i].id),
+            Number::New(isolate, list.events[i].type),
+            Number::New(isolate, list.events[i].x),
+            Number::New(isolate, list.events[i].y),
         };
-        Handle<Object> obj = input_event_ctor->NewInstance(4, args);
+        Local<Object> obj = input_event_ctor->NewInstance(context, 4, args).ToLocalChecked();
         //Handle<v8::Array> item = Array::New(4);
-        arr->Set(Number::New(i), obj);
+        arr->Set(Number::New(isolate, i), obj);
     }
 
     LOGFN("end js_timestep_events_get");
-    return arr;
+    args.GetReturnValue().Set(arr);
 }
 
