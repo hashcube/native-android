@@ -10,10 +10,6 @@ export PATH=$PATH:/path/to/ndk-r9b/android-ndk-r16b
 
 3. Install and configure NDK tools with installed SDK Manger (see 1)
 
-4. Go to ./gradleops/AndroidSeed/tealeaf/src/main/jni/lib/arm64-v8a
-and unzip libv8_base.zip to libv8_base.a and put it in 'libs' dir near other "libv8_xxx.a" files
-
-
 ## Debug, Release and sign
 Debugging with specific sgning keys might be required by some APIs and plugins or sign release build just:
 1) set up environment variables and use:
