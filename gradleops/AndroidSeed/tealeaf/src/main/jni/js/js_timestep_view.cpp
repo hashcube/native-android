@@ -107,8 +107,8 @@ static void weakCallbackForFrontend(const v8::WeakCallbackInfo<timestep_view> &d
 /* Moved to  weakCallbackForTimestepHolder
 // View backing finalizer
 static void js_view_finalize(Persistent<Value> ctx, void *param) {
-    Isolate *isolate = Isolate::GetCurrent();
-    HandleScope handle_scope(isolate);;
+    ??? isolate
+    HandleScope handle_scope(isolate);
 
     timestep_view *view = static_cast<timestep_view*>( param );
     if (view) {
@@ -126,7 +126,7 @@ static void js_view_finalize(Persistent<Value> ctx, void *param) {
 
 static void weakCallbackForTimestepHolder(const v8::WeakCallbackInfo<timestep_view> &data) {
     Isolate *isolate = data.GetIsolate();
-    HandleScope handle_scope(isolate);;
+    HandleScope handle_scope(isolate);
 
     timestep_view *view = static_cast<timestep_view*>( data.GetParameter() );
     if (view) {
@@ -164,12 +164,11 @@ static void js_timestep_image_view_render(const v8::FunctionCallbackInfo<v8::Val
     }
 }
 
-Local<ObjectTemplate> js_timestep_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_timestep_get_template(Isolate *isolate) {
     Handle<ObjectTemplate> timestep_template = ObjectTemplate::New(isolate);
-    timestep_template->Set(String::NewFromUtf8(isolate,"View"), js_timestep_view_get_template()->GetFunction());
-    timestep_template->Set(String::NewFromUtf8(isolate,"Animator"), get_animate_class()->GetFunction());
-    timestep_template->Set(String::NewFromUtf8(isolate,"ImageMap"), js_timestep_image_map_get_template()->GetFunction());
+    timestep_template->Set(String::NewFromUtf8(isolate,"View"), js_timestep_view_get_template(isolate));
+    timestep_template->Set(String::NewFromUtf8(isolate,"Animator"), get_animate_class(isolate));
+    timestep_template->Set(String::NewFromUtf8(isolate,"ImageMap"), js_timestep_image_map_get_template(isolate));
     timestep_template->Set(String::NewFromUtf8(isolate,"setImageOnImageView"), FunctionTemplate::New(isolate, js_image_view_set_image));
     timestep_template->Set(String::NewFromUtf8(isolate,"getEvents"), FunctionTemplate::New(isolate, js_timestep_events_get));
     timestep_template->Set(String::NewFromUtf8(isolate,"_imageViewRender"), FunctionTemplate::New(isolate, js_timestep_image_view_render));
@@ -212,7 +211,7 @@ void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &ar
     bool has_js_render = false;
     if (!render.IsEmpty() && render->IsFunction()) {
         Handle<Value> type = render->ToObject(isolate)->Get(context, STRING_CACHE_HAS_NATIVE_IMPL.Get(isolate)).ToLocalChecked();
-        has_js_render = !type->IsBoolean() || !type->BooleanValue(isolate);
+        has_js_render = !type->IsBoolean() || !type->BooleanValue();
     }
 
     view->has_jsrender = has_js_render;
@@ -377,8 +376,7 @@ void timestep_view_set__height(v8::Local<v8::String> property, v8::Local<v8::Val
 
 // -- end copy
 
-void def_timestep_view_render(Local<Object> js_view, Handle<Object> js_ctx, Handle<Object> js_opts) {
-    Isolate *isolate = Isolate::GetCurrent();
+void def_timestep_view_render(Local<Object> js_view, Handle<Object> js_ctx, Handle<Object> js_opts, Isolate *isolate) {
     Handle<Function> render = Handle<Function>::Cast(js_view->Get(STRING_CACHE_render.Get(isolate)));
     if (!render.IsEmpty() && render->IsFunction()) {
         Handle<Value> args[] = {js_ctx, js_opts};
@@ -386,18 +384,15 @@ void def_timestep_view_render(Local<Object> js_view, Handle<Object> js_ctx, Hand
     }
 }
 
-Local<Object> def_get_viewport(Handle<Object> js_opts) {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<Object> def_get_viewport(Handle<Object> js_opts, Isolate *isolate) {
     return Handle<Object>::Cast(js_opts->Get(STRING_CACHE_viewport.Get(isolate)));
 }
 
-void def_restore_viewport(Handle<Object> js_opts, Handle<Object> js_viewport) {
-    Isolate *isolate = Isolate::GetCurrent();
+void def_restore_viewport(Handle<Object> js_opts, Handle<Object> js_viewport, Isolate *isolate) {
     js_opts->Set(STRING_CACHE_viewport.Get(isolate), js_viewport);
 }
 
-void def_timestep_view_needs_reflow(Handle<Object> js_view, bool force) {
-    Isolate *isolate = Isolate::GetCurrent();
+void def_timestep_view_needs_reflow(Handle<Object> js_view, bool force, Isolate *isolate) {
     if (force && !js_view.IsEmpty()) {
         Handle<Function> needs_reflow = Handle<Function>::Cast(js_view->Get(STRING_CACHE_needsReflow.Get(isolate)));
         if (!needs_reflow.IsEmpty() && needs_reflow->IsFunction()) {
@@ -407,8 +402,7 @@ void def_timestep_view_needs_reflow(Handle<Object> js_view, bool force) {
     }
 }
 
-void def_timestep_view_tick(Handle<Object> js_view, double dt) {
-    Isolate *isolate = Isolate::GetCurrent();
+void def_timestep_view_tick(Handle<Object> js_view, double dt, Isolate *isolate) {
     Handle<Function> tick = Handle<Function>::Cast(js_view->Get(STRING_CACHE_tick.Get(isolate)));
     if (!tick.IsEmpty() && tick->IsFunction()) {
         Handle<Value> args[] = {Number::New(isolate, dt)};
@@ -454,13 +448,13 @@ void def_timestep_view_wrapRender(const v8::FunctionCallbackInfo<v8::Value> &arg
     Handle<Object> js_opts = Handle<Object>::Cast(args[1]);
     Handle<Object> _ctx = Handle<Object>::Cast(js_ctx->Get(STRING_CACHE__ctx.Get(isolate)));
     context_2d *ctx = GET_CONTEXT2D_FROM(_ctx);
-    timestep_view_wrap_render(GET_TIMESTEP_VIEW(args.This()), ctx, js_ctx, js_opts);
+    timestep_view_wrap_render(GET_TIMESTEP_VIEW(args.This()), ctx, js_ctx, js_opts, isolate);
 }
 
 void def_timestep_view_wrapTick(const v8::FunctionCallbackInfo<v8::Value> &args) {
     Isolate *isolate = args.GetIsolate();
     double dt = args[0]->NumberValue(isolate->GetCurrentContext()).ToChecked();
-    timestep_view_wrap_tick(GET_TIMESTEP_VIEW(args.This()), dt);
+    timestep_view_wrap_tick(GET_TIMESTEP_VIEW(args.This()), dt, isolate);
 }
 
 void def_timestep_view_getSubviews(const v8::FunctionCallbackInfo<v8::Value> &args) {

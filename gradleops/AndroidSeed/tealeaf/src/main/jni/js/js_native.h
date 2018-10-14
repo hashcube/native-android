@@ -24,7 +24,7 @@ using v8::ObjectTemplate;
 using v8::Handle;
 using v8::internal::Arguments;
 
-Local<ObjectTemplate> js_native_get_template(const char* uri, const char* native_hash);
+Local<ObjectTemplate> js_native_get_template(const char* uri, const char* native_hash, Isolate *isolate);
 
 #endif
 

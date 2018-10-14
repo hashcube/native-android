@@ -264,8 +264,7 @@ obj->url = strdup(str);
 
 
 
-v8::Handle<v8::FunctionTemplate> js_timestep_image_map_get_template() {
-	Isolate *isolate = Isolate::GetCurrent();
+v8::Handle<v8::FunctionTemplate> js_timestep_image_map_get_template(Isolate *isolate) {
 	v8::Handle<v8::FunctionTemplate> templ = v8::FunctionTemplate::New(isolate);
 	v8::Handle<v8::ObjectTemplate> timestep_image_map = templ->InstanceTemplate();
 	timestep_image_map->SetInternalFieldCount(2);

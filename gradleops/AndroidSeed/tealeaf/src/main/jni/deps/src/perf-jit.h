@@ -39,9 +39,9 @@ namespace internal {
 class PerfJitLogger : public CodeEventLogger {
  public:
   explicit PerfJitLogger(Isolate* isolate);
-  ~PerfJitLogger() override;
+  virtual ~PerfJitLogger();
 
-  void CodeMoveEvent(AbstractCode* from, AbstractCode* to) override;
+  void CodeMoveEvent(AbstractCode* from, Address to) override;
   void CodeDisableOptEvent(AbstractCode* code,
                            SharedFunctionInfo* shared) override {}
 
@@ -120,7 +120,7 @@ class PerfJitLogger : public CodeEventLogger {
  public:
   explicit PerfJitLogger(Isolate* isolate) : CodeEventLogger(isolate) {}
 
-  void CodeMoveEvent(AbstractCode* from, AbstractCode* to) override {
+  void CodeMoveEvent(AbstractCode* from, Address to) override {
     UNIMPLEMENTED();
   }
 

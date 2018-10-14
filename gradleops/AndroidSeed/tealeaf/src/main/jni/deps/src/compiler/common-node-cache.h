@@ -23,7 +23,7 @@ namespace compiler {
 class CommonNodeCache final {
  public:
   explicit CommonNodeCache(Zone* zone) : zone_(zone) {}
-  ~CommonNodeCache() = default;
+  ~CommonNodeCache() {}
 
   Node** FindInt32Constant(int32_t value) {
     return int32_constants_.Find(zone(), value);

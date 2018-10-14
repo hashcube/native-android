@@ -32,8 +32,7 @@ void js_image_cache_remove(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("end image cache delete");
 }
 
-Local<ObjectTemplate> js_image_cache_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_image_cache_get_template(Isolate *isolate) {
     Handle<ObjectTemplate> image_cache = ObjectTemplate::New(isolate);
     image_cache->Set(String::NewFromUtf8(isolate, "remove"), FunctionTemplate::New(isolate, js_image_cache_remove));
     return image_cache;

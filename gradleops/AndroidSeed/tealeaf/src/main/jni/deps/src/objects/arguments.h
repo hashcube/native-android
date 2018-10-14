@@ -5,8 +5,7 @@
 #ifndef V8_OBJECTS_ARGUMENTS_H_
 #define V8_OBJECTS_ARGUMENTS_H_
 
-#include "src/objects/fixed-array.h"
-#include "src/objects/js-objects.h"
+#include "src/objects.h"
 
 // Has to be the last include (doesn't have include guards):
 #include "src/objects/object-macros.h"

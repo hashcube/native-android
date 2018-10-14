@@ -5,17 +5,14 @@
 #ifndef V8_OBJECTS_MAYBE_OBJECT_H_
 #define V8_OBJECTS_MAYBE_OBJECT_H_
 
-#include "include/v8-internal.h"
 #include "include/v8.h"
 #include "src/globals.h"
-#include "src/objects.h"
 
 namespace v8 {
 namespace internal {
 
 class HeapObject;
 class Smi;
-class StringStream;
 
 // A MaybeObject is either a SMI, a strong reference to a HeapObject, a weak
 // reference to a HeapObject, or a cleared weak reference. It's used for
@@ -24,53 +21,30 @@ class MaybeObject {
  public:
   bool IsSmi() const { return HAS_SMI_TAG(this); }
   inline bool ToSmi(Smi** value);
+  inline Smi* ToSmi();
 
-  bool IsCleared() const {
+  bool IsClearedWeakHeapObject() {
     return ::v8::internal::IsClearedWeakHeapObject(this);
   }
 
-  inline bool IsStrongOrWeak() const;
-  inline bool IsStrong() const;
+  inline bool IsStrongOrWeakHeapObject();
+  inline bool ToStrongOrWeakHeapObject(HeapObject** result);
+  inline bool ToStrongOrWeakHeapObject(HeapObject** result,
+                                       HeapObjectReferenceType* reference_type);
+  inline bool IsStrongHeapObject();
+  inline bool ToStrongHeapObject(HeapObject** result);
+  inline HeapObject* ToStrongHeapObject();
+  inline bool IsWeakHeapObject();
+  inline bool IsWeakOrClearedHeapObject();
+  inline bool ToWeakHeapObject(HeapObject** result);
+  inline HeapObject* ToWeakHeapObject();
 
-  // If this MaybeObject is a strong pointer to a HeapObject, returns true and
-  // sets *result. Otherwise returns false.
-  inline bool GetHeapObjectIfStrong(HeapObject** result);
-
-  // DCHECKs that this MaybeObject is a strong pointer to a HeapObject and
-  // returns the HeapObject.
-  inline HeapObject* GetHeapObjectAssumeStrong();
-
-  inline bool IsWeak() const;
-  inline bool IsWeakOrCleared() const;
-
-  // If this MaybeObject is a weak pointer to a HeapObject, returns true and
-  // sets *result. Otherwise returns false.
-  inline bool GetHeapObjectIfWeak(HeapObject** result);
-
-  // DCHECKs that this MaybeObject is a weak pointer to a HeapObject and
-  // returns the HeapObject.
-  inline HeapObject* GetHeapObjectAssumeWeak();
-
-  // If this MaybeObject is a strong or weak pointer to a HeapObject, returns
-  // true and sets *result. Otherwise returns false.
-  inline bool GetHeapObject(HeapObject** result);
-  inline bool GetHeapObject(HeapObject** result,
-                            HeapObjectReferenceType* reference_type);
-
-  // DCHECKs that this MaybeObject is a strong or a weak pointer to a HeapObject
-  // and returns the HeapObject.
+  // Returns the HeapObject pointed to (either strongly or weakly).
   inline HeapObject* GetHeapObject();
-
-  // DCHECKs that this MaybeObject is a strong or a weak pointer to a HeapObject
-  // or a SMI and returns the HeapObject or SMI.
   inline Object* GetHeapObjectOrSmi();
 
-  inline bool IsObject() const;
-  template <typename T>
-  T* cast() {
-    DCHECK(!HasWeakHeapObjectTag(this));
-    return T::cast(reinterpret_cast<Object*>(this));
-  }
+  inline bool IsObject();
+  inline Object* ToObject();
 
   static MaybeObject* FromSmi(Smi* smi) {
     DCHECK(HAS_SMI_TAG(smi));

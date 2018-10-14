@@ -19,6 +19,8 @@
 #include <stdlib.h>
 
 #include "include/v8.h"
+#include "js_timer.h"
+
 using namespace v8;
 
 CEXPORT void js_timer_unlink(core_timer* timer) {
@@ -41,19 +43,23 @@ CEXPORT void js_timer_fire(core_timer *timer) {
     }
 }
 
-static js_timer *get_timer(Local<Object> callback) {
-    Isolate *isolate = Isolate::GetCurrent();
-    Persistent<Function> cb(isolate, Local<Function>::Cast(callback));
+static js_timer *get_timer(Local<Object> callback, Isolate *isolate) {
+    js_timer* timer = new js_timer();
 
-    js_timer *timer = (js_timer*)malloc(sizeof(js_timer));
-    timer->callback.Reset(isolate, cb);
+    if (!callback.IsEmpty() && callback->IsFunction()) {
+        Local<Function> lf = Local<Function>::Cast(callback);
+        timer->callback.Reset(isolate, lf);
+    }
+    else{
+        timer->callback.Reset();
+    }
     timer->arguments = NULL;//FIXME make passing arguments to settimeout work
     return timer;
 }
 
 
-static int schedule_timer(Handle<Object> cb, int time, bool repeat) {
-    js_timer *js_timer = get_timer(cb);
+static int schedule_timer(Local<Object> cb, int time, bool repeat, Isolate *isolate) {
+    js_timer *js_timer = get_timer(cb, isolate);
     core_timer *timer = core_get_timer((void*)js_timer, time, repeat);
     core_timer_schedule(timer);
     return timer->id;
@@ -67,10 +73,11 @@ void defSetTimeout(const v8::FunctionCallbackInfo<v8::Value> &args) {
         args.GetReturnValue().Set(Undefined(isolate));
         return;
     }
-    Handle<Object> cb = args[0]->ToObject(isolate);
+
+    Local<Object> cb = Local<Object>::Cast(args[0]);
 
     int time = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
-    int id = schedule_timer(cb, time, false);
+    int id = schedule_timer(cb, time, false, isolate);
     LOGFN("end settimeout");
     args.GetReturnValue().Set(Number::New(isolate, id));
 }
@@ -85,7 +92,7 @@ void defSetInterval(const v8::FunctionCallbackInfo<v8::Value> &args) {
     Handle<Object> cb = args[0]->ToObject(isolate);
 
     int time = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
-    int id = schedule_timer(cb, time, true);
+    int id = schedule_timer(cb, time, true, isolate);
     LOGFN("end setInterval");
     args.GetReturnValue().Set(Number::New(isolate, id));
 }

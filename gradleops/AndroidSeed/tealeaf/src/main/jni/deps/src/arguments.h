@@ -27,7 +27,7 @@ namespace internal {
 // Note that length_ (whose value is in the integer range) is defined
 // as intptr_t to provide endian-neutrality on 64-bit archs.
 
-class Arguments {
+class Arguments BASE_EMBEDDED {
  public:
   Arguments(int length, Object** arguments)
       : length_(length), arguments_(arguments) {
@@ -42,11 +42,19 @@ class Arguments {
   }
 
   template <class S = Object>
-  inline Handle<S> at(int index);
+  Handle<S> at(int index) {
+    Object** value = &((*this)[index]);
+    // This cast checks that the object we're accessing does indeed have the
+    // expected type.
+    S::cast(*value);
+    return Handle<S>(reinterpret_cast<S**>(value));
+  }
 
-  inline int smi_at(int index);
+  int smi_at(int index) { return Smi::ToInt((*this)[index]); }
 
-  inline double number_at(int index);
+  double number_at(int index) {
+    return (*this)[index]->Number();
+  }
 
   // Get the total number of arguments including the receiver.
   int length() const { return static_cast<int>(length_); }
@@ -61,12 +69,6 @@ class Arguments {
   intptr_t length_;
   Object** arguments_;
 };
-
-template <>
-inline Handle<Object> Arguments::at(int index) {
-  Object** value = &((*this)[index]);
-  return Handle<Object>(value);
-}
 
 double ClobberDoubleRegisters(double x1, double x2, double x3, double x4);
 

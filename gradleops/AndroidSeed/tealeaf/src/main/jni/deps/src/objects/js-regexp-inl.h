@@ -7,7 +7,6 @@
 
 #include "src/objects/js-regexp.h"
 
-#include "src/objects-inl.h"  // Needed for write barriers
 #include "src/objects/string.h"
 
 // Has to be the last include (doesn't have include guards):

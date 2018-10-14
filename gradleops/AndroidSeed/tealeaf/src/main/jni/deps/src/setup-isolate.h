@@ -34,9 +34,11 @@ class SetupIsolateDelegate {
  public:
   explicit SetupIsolateDelegate(bool create_heap_objects)
       : create_heap_objects_(create_heap_objects) {}
-  virtual ~SetupIsolateDelegate() = default;
+  virtual ~SetupIsolateDelegate() {}
 
   virtual void SetupBuiltins(Isolate* isolate);
+
+  virtual void SetupInterpreter(interpreter::Interpreter* interpreter);
 
   virtual bool SetupHeap(Heap* heap);
 

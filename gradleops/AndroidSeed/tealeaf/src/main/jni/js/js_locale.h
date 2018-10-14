@@ -21,6 +21,6 @@ using namespace v8;
 
 using v8::Handle;
 using v8::ObjectTemplate;
-Local<ObjectTemplate> js_locale_get_template();
+Local<ObjectTemplate> js_locale_get_template(Isolate *isolate);
 
 #endif //JS_LOCALE_H

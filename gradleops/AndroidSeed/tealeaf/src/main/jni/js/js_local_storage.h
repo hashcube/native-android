@@ -23,6 +23,6 @@ using v8::Value;
 using v8::Handle;
 using v8::ObjectTemplate;
 
-Local<ObjectTemplate> js_local_storage_get_template();
+Local<ObjectTemplate> js_local_storage_get_template(Isolate *isolate);
 
 #endif

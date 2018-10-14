@@ -12,7 +12,6 @@ namespace v8 {
 namespace internal {
 
 // Forward declarations.
-class CodeStubDescriptor;
 class Isolate;
 namespace compiler {
 class CodeAssemblerState;
@@ -115,7 +114,7 @@ class CodeStub : public ZoneObject {
   static const char* MajorName(Major major_key);
 
   explicit CodeStub(Isolate* isolate) : minor_key_(0), isolate_(isolate) {}
-  virtual ~CodeStub() = default;
+  virtual ~CodeStub() {}
 
   static void GenerateStubsAheadOfTime(Isolate* isolate);
 
@@ -300,9 +299,7 @@ class CodeStubDescriptor {
     DCHECK(!stack_parameter_count_.is_valid());
   }
 
-  void set_call_descriptor(CallInterfaceDescriptor d) {
-    call_descriptor_ = std::move(d);
-  }
+  void set_call_descriptor(CallInterfaceDescriptor d) { call_descriptor_ = d; }
   CallInterfaceDescriptor call_descriptor() const { return call_descriptor_; }
 
   int GetRegisterParameterCount() const {

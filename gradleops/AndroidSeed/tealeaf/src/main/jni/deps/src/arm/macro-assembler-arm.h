@@ -36,7 +36,6 @@ constexpr Register kJavaScriptCallExtraArg1Register = r2;
 constexpr Register kOffHeapTrampolineRegister = ip;
 constexpr Register kRuntimeCallFunctionRegister = r1;
 constexpr Register kRuntimeCallArgCountRegister = r0;
-constexpr Register kRuntimeCallArgvRegister = r2;
 constexpr Register kWasmInstanceRegister = r3;
 
 // ----------------------------------------------------------------------------
@@ -52,6 +51,15 @@ inline MemOperand FieldMemOperand(Register object, int offset) {
 constexpr Register cp = r7;              // JavaScript context pointer.
 constexpr Register kRootRegister = r10;  // Roots array pointer.
 
+// Flags used for AllocateHeapNumber
+enum TaggingMode {
+  // Tag the result.
+  TAG_RESULT,
+  // Don't tag
+  DONT_TAG_RESULT
+};
+
+
 enum RememberedSetAction { EMIT_REMEMBERED_SET, OMIT_REMEMBERED_SET };
 enum SmiCheck { INLINE_SMI_CHECK, OMIT_SMI_CHECK };
 enum LinkRegisterStatus { kLRHasNotBeenSaved, kLRHasBeenSaved };
@@ -64,16 +72,26 @@ Register GetRegisterThatIsNotOneOf(Register reg1,
                                    Register reg5 = no_reg,
                                    Register reg6 = no_reg);
 
+
+#ifdef DEBUG
+bool AreAliased(Register reg1,
+                Register reg2,
+                Register reg3 = no_reg,
+                Register reg4 = no_reg,
+                Register reg5 = no_reg,
+                Register reg6 = no_reg,
+                Register reg7 = no_reg,
+                Register reg8 = no_reg);
+#endif
+
+
 enum TargetAddressStorageMode {
   CAN_INLINE_TARGET_ADDRESS,
   NEVER_INLINE_TARGET_ADDRESS
 };
 
-class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
+class TurboAssembler : public TurboAssemblerBase {
  public:
-  TurboAssembler(const AssemblerOptions& options, void* buffer, int buffer_size)
-      : TurboAssemblerBase(options, buffer, buffer_size) {}
-
   TurboAssembler(Isolate* isolate, const AssemblerOptions& options,
                  void* buffer, int buffer_size,
                  CodeObjectRequired create_code_object)
@@ -241,8 +259,8 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
   // C++ code.
   // Needs a scratch register to do some arithmetic. This register will be
   // trashed.
-  void PrepareCallCFunction(int num_reg_arguments, int num_double_registers = 0,
-                            Register scratch = no_reg);
+  void PrepareCallCFunction(int num_reg_arguments,
+                            int num_double_registers = 0);
 
   // Removes current frame and its arguments from the stack preserving
   // the arguments and a return address pushed to the stack for the next call.
@@ -306,7 +324,16 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
   void LoadRootRegisterOffset(Register destination, intptr_t offset) override;
   void LoadRootRelative(Register destination, int32_t offset) override;
 
-  static constexpr int kCallStubSize = 2 * kInstrSize;
+  // Returns the size of a call in instructions. Note, the value returned is
+  // only valid as long as no entries are added to the constant pool between
+  // checking the call size and emitting the actual call.
+  static int CallSize(Register target, Condition cond = al);
+  int CallSize(Address target, RelocInfo::Mode rmode, Condition cond = al);
+  int CallSize(Handle<Code> code,
+               RelocInfo::Mode rmode = RelocInfo::CODE_TARGET,
+               Condition cond = al);
+  int CallStubSize();
+
   void CallStubDelayed(CodeStub* stub);
 
   // Call a runtime routine. This expects {centry} to contain a fitting CEntry
@@ -484,10 +511,11 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
   }
 
   // Load an object from the root table.
-  void LoadRoot(Register destination, RootIndex index) override {
+  void LoadRoot(Register destination, Heap::RootListIndex index) override {
     LoadRoot(destination, index, al);
   }
-  void LoadRoot(Register destination, RootIndex index, Condition cond);
+  void LoadRoot(Register destination, Heap::RootListIndex index,
+                Condition cond);
 
   // Jump if the register contains a smi.
   void JumpIfSmi(Register value, Label* smi_label);
@@ -568,14 +596,10 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
 // MacroAssembler implements a collection of frequently used macros.
 class MacroAssembler : public TurboAssembler {
  public:
-  MacroAssembler(const AssemblerOptions& options, void* buffer, int size)
-      : TurboAssembler(options, buffer, size) {}
-
   MacroAssembler(Isolate* isolate, void* buffer, int size,
                  CodeObjectRequired create_code_object)
       : MacroAssembler(isolate, AssemblerOptions::Default(isolate), buffer,
                        size, create_code_object) {}
-
   MacroAssembler(Isolate* isolate, const AssemblerOptions& options,
                  void* buffer, int size, CodeObjectRequired create_code_object);
 
@@ -593,6 +617,13 @@ class MacroAssembler : public TurboAssembler {
 
   // ---------------------------------------------------------------------------
   // GC Support
+
+  // Record in the remembered set the fact that we have a pointer to new space
+  // at the address pointed to by the addr register.  Only works if addr is not
+  // in new space.
+  void RememberedSetHelper(Register object,  // Used for debug code.
+                           Register addr, Register scratch,
+                           SaveFPRegsMode save_fp);
 
   // Check if object is in new space.  Jumps if the object is not in new space.
   // The register scratch can be object itself, but scratch will be clobbered.
@@ -719,8 +750,8 @@ class MacroAssembler : public TurboAssembler {
 
   // Compare the object in a register to a value from the root list.
   // Acquires a scratch register.
-  void CompareRoot(Register obj, RootIndex index);
-  void PushRoot(RootIndex index) {
+  void CompareRoot(Register obj, Heap::RootListIndex index);
+  void PushRoot(Heap::RootListIndex index) {
     UseScratchRegisterScope temps(this);
     Register scratch = temps.Acquire();
     LoadRoot(scratch, index);
@@ -728,13 +759,14 @@ class MacroAssembler : public TurboAssembler {
   }
 
   // Compare the object in a register to a value and jump if they are equal.
-  void JumpIfRoot(Register with, RootIndex index, Label* if_equal) {
+  void JumpIfRoot(Register with, Heap::RootListIndex index, Label* if_equal) {
     CompareRoot(with, index);
     b(eq, if_equal);
   }
 
   // Compare the object in a register to a value and jump if they are not equal.
-  void JumpIfNotRoot(Register with, RootIndex index, Label* if_not_equal) {
+  void JumpIfNotRoot(Register with, Heap::RootListIndex index,
+                     Label* if_not_equal) {
     CompareRoot(with, index);
     b(ne, if_not_equal);
   }

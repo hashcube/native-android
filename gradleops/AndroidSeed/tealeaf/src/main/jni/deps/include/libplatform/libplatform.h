@@ -17,8 +17,8 @@ enum class IdleTaskSupport { kDisabled, kEnabled };
 enum class InProcessStackDumping { kDisabled, kEnabled };
 
 enum class MessageLoopBehavior : bool {
-  kDoNotWait = false,
-  kWaitForWork = true
+    kDoNotWait = false,
+    kWaitForWork = true
 };
 
 /**
@@ -61,6 +61,11 @@ V8_PLATFORM_EXPORT V8_DEPRECATE_SOON(
 V8_PLATFORM_EXPORT bool PumpMessageLoop(
     v8::Platform* platform, v8::Isolate* isolate,
     MessageLoopBehavior behavior = MessageLoopBehavior::kDoNotWait);
+
+V8_PLATFORM_EXPORT V8_DEPRECATED(
+    "This function has become obsolete and is essentially a nop",
+    void EnsureEventLoopInitialized(v8::Platform* platform,
+                                    v8::Isolate* isolate));
 
 /**
  * Runs pending idle tasks for at most |idle_time_in_seconds| seconds.

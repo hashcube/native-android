@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "src/base/macros.h"
-#include "src/base/platform/mutex.h"
 #include "src/globals.h"
 
 namespace v8 {
@@ -25,10 +24,10 @@ class BasicBlockProfiler {
     const uint32_t* counts() const { return &counts_[0]; }
 
     void SetCode(std::ostringstream* os);
-    void SetFunctionName(std::unique_ptr<char[]> name);
+    void SetFunctionName(std::ostringstream* os);
     void SetSchedule(std::ostringstream* os);
-    void SetBlockRpoNumber(size_t offset, int32_t block_rpo);
-    intptr_t GetCounterAddress(size_t offset);
+    void SetBlockId(size_t offset, size_t block_id);
+    uint32_t* GetCounterAddress(size_t offset);
 
    private:
     friend class BasicBlockProfiler;
@@ -36,12 +35,12 @@ class BasicBlockProfiler {
                                     const BasicBlockProfiler::Data& s);
 
     explicit Data(size_t n_blocks);
-    ~Data() = default;
+    ~Data();
 
     void ResetCounts();
 
     const size_t n_blocks_;
-    std::vector<int32_t> block_rpo_numbers_;
+    std::vector<size_t> block_ids_;
     std::vector<uint32_t> counts_;
     std::string function_name_;
     std::string schedule_;
@@ -51,10 +50,9 @@ class BasicBlockProfiler {
 
   typedef std::list<Data*> DataList;
 
-  BasicBlockProfiler() = default;
+  BasicBlockProfiler();
   ~BasicBlockProfiler();
 
-  V8_EXPORT_PRIVATE static BasicBlockProfiler* Get();
   Data* NewData(size_t n_blocks);
   void ResetCounts();
 
@@ -65,7 +63,6 @@ class BasicBlockProfiler {
       std::ostream& os, const BasicBlockProfiler& s);
 
   DataList data_list_;
-  base::Mutex data_list_mutex_;
 
   DISALLOW_COPY_AND_ASSIGN(BasicBlockProfiler);
 };

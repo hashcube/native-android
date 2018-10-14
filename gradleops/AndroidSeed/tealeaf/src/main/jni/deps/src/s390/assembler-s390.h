@@ -272,6 +272,7 @@ GENERAL_REGISTERS(DEFINE_REGISTER)
 constexpr Register no_reg = Register::no_reg();
 
 // Register aliases
+constexpr Register kLithiumScratch = r1;  // lithium scratch.
 constexpr Register kRootRegister = r10;   // Roots array pointer.
 constexpr Register cp = r13;              // JavaScript context pointer.
 
@@ -346,7 +347,7 @@ C_REGISTERS(DECLARE_C_REGISTER)
 
 // Class Operand represents a shifter operand in data processing instructions
 // defining immediate numbers and masks
-class Operand {
+class Operand BASE_EMBEDDED {
  public:
   // immediate
   V8_INLINE explicit Operand(intptr_t immediate,
@@ -368,7 +369,6 @@ class Operand {
   V8_INLINE explicit Operand(Register rm);
 
   static Operand EmbeddedNumber(double value);  // Smi or HeapNumber
-  static Operand EmbeddedStringConstant(const StringConstantBase* str);
 
   // Return true if this is a register operand.
   V8_INLINE bool is_reg() const { return rm_.is_valid(); }
@@ -425,7 +425,7 @@ typedef int32_t Disp;
 //   1) a base register + 16 bit unsigned displacement
 //   2) a base register + index register + 16 bit unsigned displacement
 //   3) a base register + index register + 20 bit signed displacement
-class MemOperand {
+class MemOperand BASE_EMBEDDED {
  public:
   explicit MemOperand(Register rx, Disp offset = 0);
   explicit MemOperand(Register rx, Register rb, Disp offset = 0);
@@ -472,7 +472,7 @@ class DeferredRelocInfo {
   intptr_t data_;
 };
 
-class V8_EXPORT_PRIVATE Assembler : public AssemblerBase {
+class Assembler : public AssemblerBase {
  public:
   // Create an assembler. Instructions and relocation information are emitted
   // into a buffer, with the instructions starting from the beginning and the
@@ -1664,7 +1664,7 @@ inline void ss_a_format(Opcode op, int f1, int f2, int f3, int f4, int f5) {
   friend class EnsureSpace;
 };
 
-class EnsureSpace {
+class EnsureSpace BASE_EMBEDDED {
  public:
   explicit EnsureSpace(Assembler* assembler) { assembler->CheckBuffer(); }
 };

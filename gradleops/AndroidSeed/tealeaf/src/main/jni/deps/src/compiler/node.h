@@ -429,7 +429,8 @@ class Node::InputEdges::iterator final {
   typedef Edge& reference;
 
   iterator() : use_(nullptr), input_ptr_(nullptr) {}
-  iterator(const iterator& other) = default;
+  iterator(const iterator& other)
+      : use_(other.use_), input_ptr_(other.input_ptr_) {}
 
   Edge operator*() const { return Edge(use_, input_ptr_); }
   bool operator==(const iterator& other) const {
@@ -487,7 +488,7 @@ class Node::Inputs::const_iterator final {
   typedef const value_type* pointer;
   typedef value_type& reference;
 
-  const_iterator(const const_iterator& other) = default;
+  const_iterator(const const_iterator& other) : input_ptr_(other.input_ptr_) {}
 
   Node* operator*() const { return *input_ptr_; }
   bool operator==(const const_iterator& other) const {
@@ -535,7 +536,8 @@ Node* Node::Inputs::operator[](int index) const { return input_root_[index]; }
 // A forward iterator to visit the uses edges of a node.
 class Node::UseEdges::iterator final {
  public:
-  iterator(const iterator& other) = default;
+  iterator(const iterator& other)
+      : current_(other.current_), next_(other.next_) {}
 
   Edge operator*() const { return Edge(current_, current_->input_ptr()); }
   bool operator==(const iterator& other) const {
@@ -581,6 +583,15 @@ class Node::Uses::const_iterator final {
   typedef Node* value_type;
   typedef Node** pointer;
   typedef Node*& reference;
+
+  const_iterator(const const_iterator& other)
+      : current_(other.current_)
+#ifdef DEBUG
+        ,
+        next_(other.next_)
+#endif
+  {
+  }
 
   Node* operator*() const { return current_->from(); }
   bool operator==(const const_iterator& other) const {

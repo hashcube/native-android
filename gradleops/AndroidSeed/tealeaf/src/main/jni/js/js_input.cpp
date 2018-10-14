@@ -27,8 +27,8 @@ void js_input_open_prompt(const v8::FunctionCallbackInfo<v8::Value> &args) {
     String::Utf8Value cancel_str(isolate, args[3]);
     String::Utf8Value value_str(isolate, args[4]);
 
-    bool auto_show_keyboard = args[5]->BooleanValue(isolate);
-    bool is_password = args[6]->BooleanValue(isolate);
+    bool auto_show_keyboard = args[5]->BooleanValue();
+    bool is_password = args[6]->BooleanValue();
 
     const char *title = ToCString(title_str);
     const char *message = ToCString(message_str);
@@ -44,8 +44,8 @@ void js_input_show_keyboard(const v8::FunctionCallbackInfo<v8::Value> &args) {
     Isolate *isolate = args.GetIsolate();
     String::Utf8Value curr_val_str(isolate, args[0]);
     String::Utf8Value hint_str(isolate, args[1]);
-    bool has_backward = args[2]->BooleanValue(isolate);
-    bool has_forward = args[3]->BooleanValue(isolate);
+    bool has_backward = args[2]->BooleanValue();
+    bool has_forward = args[3]->BooleanValue();
     String::Utf8Value input_type_str(isolate, args[4]);
     String::Utf8Value input_return_button_str(isolate, args[5]);
     int max_length = args[6]->Int32Value(isolate->GetCurrentContext()).ToChecked();
@@ -63,8 +63,7 @@ void js_input_hide_keyboard(const v8::FunctionCallbackInfo<v8::Value> &args) {
     input_hide_keyboard();
 }
 
-Local<ObjectTemplate> js_input_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_input_get_template(Isolate *isolate) {
     Handle<ObjectTemplate> input = ObjectTemplate::New(isolate);
     input->Set(STRING_CACHE_open_prompt.Get(isolate), FunctionTemplate::New(isolate, js_input_open_prompt));
     input->Set(STRING_CACHE_show_keyboard.Get(isolate), FunctionTemplate::New(isolate, js_input_show_keyboard));

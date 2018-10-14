@@ -24,7 +24,7 @@ void native_log(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("log");
 #ifndef RELEASE
     Isolate *isolate = args.GetIsolate();
-    HandleScope handle_scope(isolate);;
+    HandleScope handle_scope(isolate);
 
     String::Utf8Value str(isolate, args[0]);
 
@@ -36,8 +36,7 @@ void native_log(const v8::FunctionCallbackInfo<v8::Value> &args) {
     //return Undefined(isolate);
 }
 
-Local<ObjectTemplate> js_console_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_console_get_template(Isolate *isolate) {
     Local<ObjectTemplate> console = ObjectTemplate::New(isolate);
 
     console->Set(STRING_CACHE_log.Get(isolate), FunctionTemplate::New(isolate, native_log));

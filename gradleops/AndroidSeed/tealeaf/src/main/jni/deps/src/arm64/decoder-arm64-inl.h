@@ -106,7 +106,10 @@ void Decoder<V>::DecodePCRelAddressing(Instruction* instr) {
 
 template<typename V>
 void Decoder<V>::DecodeBranchSystemException(Instruction* instr) {
-  DCHECK_EQ(0x4, instr->Bits(27, 24) & 0xC);  // 0x4, 0x5, 0x6, 0x7
+  DCHECK((instr->Bits(27, 24) == 0x4) ||
+         (instr->Bits(27, 24) == 0x5) ||
+         (instr->Bits(27, 24) == 0x6) ||
+         (instr->Bits(27, 24) == 0x7) );
 
   switch (instr->Bits(31, 29)) {
     case 0:
@@ -200,7 +203,10 @@ void Decoder<V>::DecodeBranchSystemException(Instruction* instr) {
 
 template<typename V>
 void Decoder<V>::DecodeLoadStore(Instruction* instr) {
-  DCHECK_EQ(0x8, instr->Bits(27, 24) & 0xA);  // 0x8, 0x9, 0xC, 0xD
+  DCHECK((instr->Bits(27, 24) == 0x8) ||
+         (instr->Bits(27, 24) == 0x9) ||
+         (instr->Bits(27, 24) == 0xC) ||
+         (instr->Bits(27, 24) == 0xD) );
 
   if ((instr->Bit(28) == 0) && (instr->Bit(29) == 0) && (instr->Bit(26) == 1)) {
     DecodeNEONLoadStore(instr);

@@ -660,8 +660,7 @@ obj->height = value->ToNumber(isolate)->Value();
 
 
 
-v8::Local<v8::FunctionTemplate> js_timestep_view_get_template() {
-	Isolate *isolate = Isolate::GetCurrent();
+v8::Local<v8::FunctionTemplate> js_timestep_view_get_template(Isolate *isolate) {
 	v8::Local<v8::FunctionTemplate> templ = v8::FunctionTemplate::New(isolate);
 	v8::Local<v8::ObjectTemplate> timestep_view = templ->InstanceTemplate();
 	timestep_view->SetInternalFieldCount(2);

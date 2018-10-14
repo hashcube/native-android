@@ -65,8 +65,7 @@ void js_dialog_show_dialog(const v8::FunctionCallbackInfo<v8::Value> &args) {
     free(title_str);
 }
 
-Local<ObjectTemplate> js_dialog_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_dialog_get_template(Isolate *isolate) {
     Local<ObjectTemplate> dialog = ObjectTemplate::New(isolate);
     dialog->Set(STRING_CACHE__showDialog.Get(isolate), FunctionTemplate::New(isolate, js_dialog_show_dialog));
     return dialog;

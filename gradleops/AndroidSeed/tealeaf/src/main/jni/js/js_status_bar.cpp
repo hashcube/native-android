@@ -29,8 +29,7 @@ void js_status_bar_hide(const v8::FunctionCallbackInfo<v8::Value> &args) {
     status_bar_hide();
 }
 
-Handle<ObjectTemplate> js_status_bar_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Handle<ObjectTemplate> js_status_bar_get_template(Isolate *isolate) {
     Handle<ObjectTemplate> status_bar = ObjectTemplate::New(isolate);
     status_bar->Set(STRING_CACHE_show_status_bar.Get(isolate), FunctionTemplate::New(isolate, js_status_bar_show));
     status_bar->Set(STRING_CACHE_hide_status_bar.Get(isolate), FunctionTemplate::New(isolate, js_status_bar_hide));

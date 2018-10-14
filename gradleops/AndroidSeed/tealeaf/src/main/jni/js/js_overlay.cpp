@@ -51,8 +51,7 @@ void defSendOverlayEvent(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 
-Local<ObjectTemplate> js_overlay_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_overlay_get_template(Isolate *isolate) {
     Local<ObjectTemplate> overlay = ObjectTemplate::New(isolate);
     overlay->Set(STRING_CACHE_load.Get(isolate), FunctionTemplate::New(isolate, defLoadOverlay));
     overlay->Set(STRING_CACHE_show.Get(isolate), FunctionTemplate::New(isolate, defShowOverlay));

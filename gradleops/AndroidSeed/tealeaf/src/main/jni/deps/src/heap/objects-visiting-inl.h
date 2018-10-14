@@ -12,7 +12,6 @@
 #include "src/heap/mark-compact.h"
 #include "src/macro-assembler.h"
 #include "src/objects-body-descriptors-inl.h"
-#include "src/objects-inl.h"
 
 namespace v8 {
 namespace internal {
@@ -167,6 +166,15 @@ ResultType HeapVisitor<ResultType, ConcreteVisitor>::VisitFreeSpace(
   if (visitor->ShouldVisitMapPointer())
     visitor->VisitMapPointer(object, object->map_slot());
   return static_cast<ResultType>(FreeSpace::cast(object)->size());
+}
+
+template <typename ConcreteVisitor>
+int NewSpaceVisitor<ConcreteVisitor>::VisitJSFunction(Map* map,
+                                                      JSFunction* object) {
+  ConcreteVisitor* visitor = static_cast<ConcreteVisitor*>(this);
+  int size = JSFunction::BodyDescriptorWeak::SizeOf(map, object);
+  JSFunction::BodyDescriptorWeak::IterateBody(map, object, size, visitor);
+  return size;
 }
 
 template <typename ConcreteVisitor>

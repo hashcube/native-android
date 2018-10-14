@@ -5,28 +5,26 @@
 #ifndef V8_OBJECTS_ORDERED_HASH_TABLE_INL_H_
 #define V8_OBJECTS_ORDERED_HASH_TABLE_INL_H_
 
-#include "src/objects/ordered-hash-table.h"
-
 #include "src/heap/heap.h"
-#include "src/objects/fixed-array-inl.h"
+#include "src/objects/ordered-hash-table.h"
 
 namespace v8 {
 namespace internal {
 
-RootIndex OrderedHashSet::GetMapRootIndex() {
-  return RootIndex::kOrderedHashSetMap;
+int OrderedHashSet::GetMapRootIndex() {
+  return Heap::kOrderedHashSetMapRootIndex;
 }
 
-RootIndex OrderedHashMap::GetMapRootIndex() {
-  return RootIndex::kOrderedHashMapMap;
+int OrderedHashMap::GetMapRootIndex() {
+  return Heap::kOrderedHashMapMapRootIndex;
 }
 
-RootIndex SmallOrderedHashMap::GetMapRootIndex() {
-  return RootIndex::kSmallOrderedHashMapMap;
+int SmallOrderedHashMap::GetMapRootIndex() {
+  return Heap::kSmallOrderedHashMapMapRootIndex;
 }
 
-RootIndex SmallOrderedHashSet::GetMapRootIndex() {
-  return RootIndex::kSmallOrderedHashSetMap;
+int SmallOrderedHashSet::GetMapRootIndex() {
+  return Heap::kSmallOrderedHashSetMapRootIndex;
 }
 
 inline Object* OrderedHashMap::ValueAt(int entry) {

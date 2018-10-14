@@ -101,11 +101,14 @@ Address RelocInfo::target_address_address() {
     // On R6 we don't move to the end of the instructions to be patched, but one
     // instruction before, because if these instructions are at the end of the
     // code object it can cause errors in the deserializer.
-    return pc_ + (Assembler::kInstructionsFor32BitConstant - 1) * kInstrSize;
+    return pc_ + (Assembler::kInstructionsFor32BitConstant - 1) *
+                     Assembler::kInstrSize;
   } else {
-    return pc_ + Assembler::kInstructionsFor32BitConstant * kInstrSize;
+    return pc_ +
+           Assembler::kInstructionsFor32BitConstant * Assembler::kInstrSize;
   }
 }
+
 
 Address RelocInfo::constant_pool_entry_address() {
   UNREACHABLE();
@@ -141,8 +144,8 @@ int Assembler::deserialization_special_target_size(
 
 void Assembler::set_target_internal_reference_encoded_at(Address pc,
                                                          Address target) {
-  Instr instr1 = Assembler::instr_at(pc + 0 * kInstrSize);
-  Instr instr2 = Assembler::instr_at(pc + 1 * kInstrSize);
+  Instr instr1 = Assembler::instr_at(pc + 0 * Assembler::kInstrSize);
+  Instr instr2 = Assembler::instr_at(pc + 1 * Assembler::kInstrSize);
   DCHECK(Assembler::IsLui(instr1));
   DCHECK(Assembler::IsOri(instr2) || Assembler::IsJicOrJialc(instr2));
   instr1 &= ~kImm16Mask;
@@ -154,13 +157,16 @@ void Assembler::set_target_internal_reference_encoded_at(Address pc,
     uint32_t lui_offset_u, jic_offset_u;
     Assembler::UnpackTargetAddressUnsigned(imm, lui_offset_u, jic_offset_u);
 
-    Assembler::instr_at_put(pc + 0 * kInstrSize, instr1 | lui_offset_u);
-    Assembler::instr_at_put(pc + 1 * kInstrSize, instr2 | jic_offset_u);
+    Assembler::instr_at_put(pc + 0 * Assembler::kInstrSize,
+                            instr1 | lui_offset_u);
+    Assembler::instr_at_put(pc + 1 * Assembler::kInstrSize,
+                            instr2 | jic_offset_u);
   } else {
     // Encoded internal references are lui/ori load of 32-bit absolute address.
-    Assembler::instr_at_put(pc + 0 * kInstrSize,
+    Assembler::instr_at_put(pc + 0 * Assembler::kInstrSize,
                             instr1 | ((imm >> kLuiShift) & kImm16Mask));
-    Assembler::instr_at_put(pc + 1 * kInstrSize, instr2 | (imm & kImm16Mask));
+    Assembler::instr_at_put(pc + 1 * Assembler::kInstrSize,
+                            instr2 | (imm & kImm16Mask));
   }
 
   // Currently used only by deserializer, and all code will be flushed
@@ -174,7 +180,7 @@ void Assembler::deserialization_set_target_internal_reference_at(
     set_target_internal_reference_encoded_at(pc, target);
   } else {
     DCHECK(mode == RelocInfo::INTERNAL_REFERENCE);
-    Memory<Address>(pc) = target;
+    Memory::Address_at(pc) = target;
   }
 }
 
@@ -198,7 +204,9 @@ void RelocInfo::set_target_object(Heap* heap, HeapObject* target,
                                    reinterpret_cast<Address>(target),
                                    icache_flush_mode);
   if (write_barrier_mode == UPDATE_WRITE_BARRIER && host() != nullptr) {
-    WriteBarrierForCode(host(), this, target);
+    heap->incremental_marking()->RecordWriteIntoCode(host(), this,
+                                                     HeapObject::cast(target));
+    heap->RecordWriteIntoCode(host(), this, target);
   }
 }
 
@@ -217,13 +225,13 @@ void RelocInfo::set_target_external_reference(
 
 Address RelocInfo::target_internal_reference() {
   if (rmode_ == INTERNAL_REFERENCE) {
-    return Memory<Address>(pc_);
+    return Memory::Address_at(pc_);
   } else {
     // Encoded internal references are lui/ori or lui/jic load of 32-bit
     // absolute address.
     DCHECK(rmode_ == INTERNAL_REFERENCE_ENCODED);
-    Instr instr1 = Assembler::instr_at(pc_ + 0 * kInstrSize);
-    Instr instr2 = Assembler::instr_at(pc_ + 1 * kInstrSize);
+    Instr instr1 = Assembler::instr_at(pc_ + 0 * Assembler::kInstrSize);
+    Instr instr2 = Assembler::instr_at(pc_ + 1 * Assembler::kInstrSize);
     DCHECK(Assembler::IsLui(instr1));
     DCHECK(Assembler::IsOri(instr2) || Assembler::IsJicOrJialc(instr2));
     if (Assembler::IsJicOrJialc(instr2)) {
@@ -263,10 +271,9 @@ Address RelocInfo::target_off_heap_target() {
 void RelocInfo::WipeOut() {
   DCHECK(IsEmbeddedObject(rmode_) || IsCodeTarget(rmode_) ||
          IsRuntimeEntry(rmode_) || IsExternalReference(rmode_) ||
-         IsInternalReference(rmode_) || IsInternalReferenceEncoded(rmode_) ||
-         IsOffHeapTarget(rmode_));
+         IsInternalReference(rmode_) || IsInternalReferenceEncoded(rmode_));
   if (IsInternalReference(rmode_)) {
-    Memory<Address>(pc_) = kNullAddress;
+    Memory::Address_at(pc_) = kNullAddress;
   } else if (IsInternalReferenceEncoded(rmode_)) {
     Assembler::set_target_internal_reference_encoded_at(pc_, kNullAddress);
   } else {

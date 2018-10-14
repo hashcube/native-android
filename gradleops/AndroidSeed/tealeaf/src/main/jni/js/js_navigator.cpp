@@ -34,8 +34,7 @@ void js_navigator_get_online_status (Local< String > property, const PropertyCal
 }
 
 
-Local<ObjectTemplate> js_navigator_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_navigator_get_template(Isolate *isolate) {
     Local<ObjectTemplate> navigator = ObjectTemplate::New(isolate);
 
     navigator->Set(STRING_CACHE_width.Get(isolate), Integer::New(isolate, config_get_screen_width()), ReadOnly);

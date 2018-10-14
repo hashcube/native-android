@@ -5,19 +5,21 @@
 #ifndef V8_CODEGEN_H_
 #define V8_CODEGEN_H_
 
+#include "src/globals.h"
+
 namespace v8 {
 namespace internal {
 
 // Results of the library implementation of transcendental functions may differ
 // from the one we use in our generated code.  Therefore we use the same
 // generated code both in runtime and compiled code.
-typedef double (*UnaryMathFunction)(double x);
+typedef double (*UnaryMathFunctionWithIsolate)(double x, Isolate* isolate);
 
-UnaryMathFunction CreateSqrtFunction();
+UnaryMathFunctionWithIsolate CreateSqrtFunction(Isolate* isolate);
 
 // Custom implementation of math functions.
-double fast_sqrt(double input);
-void lazily_initialize_fast_sqrt();
+double fast_sqrt(double input, Isolate* isolate);
+void lazily_initialize_fast_sqrt(Isolate* isolate);
 
 }  // namespace internal
 }  // namespace v8

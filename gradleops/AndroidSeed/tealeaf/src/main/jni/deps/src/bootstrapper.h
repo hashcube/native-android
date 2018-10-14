@@ -18,7 +18,7 @@ namespace internal {
 // (array.js, etc.) to precompiled functions. Instead of mapping
 // names to functions it might make sense to let the JS2C tool
 // generate an index for each native JS file.
-class SourceCodeCache final {
+class SourceCodeCache final BASE_EMBEDDED {
  public:
   explicit SourceCodeCache(Script::Type type) : type_(type), cache_(nullptr) {}
 
@@ -122,7 +122,8 @@ class Bootstrapper final {
   DISALLOW_COPY_AND_ASSIGN(Bootstrapper);
 };
 
-class BootstrapperActive final {
+
+class BootstrapperActive final BASE_EMBEDDED {
  public:
   explicit BootstrapperActive(Bootstrapper* bootstrapper)
       : bootstrapper_(bootstrapper) {

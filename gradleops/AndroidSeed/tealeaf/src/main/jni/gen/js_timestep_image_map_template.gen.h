@@ -18,7 +18,10 @@
 #ifndef JS_TIMESTEP_IMAGE_MAP_TEMPLATE_H
 #define JS_TIMESTEP_IMAGE_MAP_TEMPLATE_H
 
+#include "include/v8.h"
+using namespace v8;
+
 #include "js/js.h"
-v8::Handle<v8::FunctionTemplate> js_timestep_image_map_get_template();
+v8::Handle<v8::FunctionTemplate> js_timestep_image_map_get_template(Isolate *isolate);
 
 #endif //JS_TIMESTEP_IMAGE_MAP_TEMPLATE_H

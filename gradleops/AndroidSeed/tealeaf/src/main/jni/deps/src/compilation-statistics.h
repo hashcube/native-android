@@ -24,7 +24,7 @@ struct AsPrintableStatistics {
 
 class CompilationStatistics final : public Malloced {
  public:
-  CompilationStatistics() = default;
+  CompilationStatistics() {}
 
   class BasicStats {
    public:

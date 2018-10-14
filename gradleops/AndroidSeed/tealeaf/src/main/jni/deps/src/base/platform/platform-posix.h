@@ -15,7 +15,7 @@ class PosixTimezoneCache : public TimezoneCache {
  public:
   double DaylightSavingsOffset(double time_ms) override;
   void Clear() override {}
-  ~PosixTimezoneCache() override = default;
+  ~PosixTimezoneCache() override {}
 
  protected:
   static const int msPerSecond = 1000;

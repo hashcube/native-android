@@ -68,9 +68,14 @@ class ArrayBuiltinsAssembler : public BaseBuiltinsFromDSLAssembler {
 
   void NullPostLoopAction();
 
-  // Uses memset to effectively initialize the given FixedArray with Smi zeroes.
-  void FillFixedArrayWithSmiZero(TNode<FixedArray> array,
-                                 TNode<Smi> smi_length);
+  // TODO(szuend): Remove once overload resolution is fixed in Torque.
+  TNode<Object> LoadFixedArrayElementInt(TNode<FixedArray> array, int index) {
+    return LoadFixedArrayElement(array, index);
+  }
+  Node* StoreFixedArrayElementInt(TNode<FixedArray> array, int index,
+                                  TNode<Object> value) {
+    return StoreFixedArrayElement(array, index, value);
+  }
 
  protected:
   TNode<Context> context() { return context_; }

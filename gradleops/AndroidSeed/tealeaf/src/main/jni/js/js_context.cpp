@@ -283,9 +283,8 @@ void defMeasureText(const v8::FunctionCallbackInfo<v8::Value> &args) {
     args.GetReturnValue().Set(handle_scope.Escape(metrics));
 }
 
-double measureText(Handle<Object> font_info, char **text) {
+double measureText(Handle<Object> font_info, char **text, Isolate *isolate) {
     double width = 0;
-    Isolate *isolate =Isolate::GetCurrent();
     Handle<Object> custom_font = Handle<Object>::Cast(font_info->Get(STRING_CACHE_customFont.Get(isolate)));
     if (custom_font.IsEmpty()) {
         return 0;
@@ -332,7 +331,7 @@ void defMeasureTextBitmap(const v8::FunctionCallbackInfo<v8::Value> &args) {
     String::Utf8Value text_str(isolate, args[0]);
     const char *text = ToCString(text_str);
     Local<Object> font_info(args[1]->ToObject(isolate));
-    double width = measureText(font_info, (char**)&text);
+    double width = measureText(font_info, (char**)&text, isolate);
 
     Handle<Object> metrics = Object::New(isolate);
     metrics->Set(STRING_CACHE_width.Get(isolate), Number::New(isolate, width));
@@ -341,8 +340,7 @@ void defMeasureTextBitmap(const v8::FunctionCallbackInfo<v8::Value> &args) {
     args.GetReturnValue().Set(handle_scope.Escape(metrics));
 }
 
-double textBaselineValue(Handle<Object> ctx, Handle<Object> custom_font, double scale) {
-    Isolate *isolate = Isolate::GetCurrent();
+double textBaselineValue(Handle<Object> ctx, Handle<Object> custom_font, double scale, Isolate *isolate) {
             Handle<String> text_baseline = ctx->Get(STRING_CACHE_textBaseline.Get(isolate))->ToString(isolate);
     if (!text_baseline.IsEmpty()) {
         String::Utf8Value text_baseline_str(isolate, text_baseline);
@@ -368,16 +366,15 @@ double textBaselineValue(Handle<Object> ctx, Handle<Object> custom_font, double 
     return 0;
 }
 
-double textAlignValue(Handle<Object> ctx, Handle<Object> font_info, char **text) {
-    Isolate *isolate = Isolate::GetCurrent();
+double textAlignValue(Handle<Object> ctx, Handle<Object> font_info, char **text, Isolate *isolate) {
     Handle<String> text_align = ctx->Get(STRING_CACHE_textAlign.Get(isolate))->ToString(isolate);
     if (!text_align.IsEmpty()) {
         String::Utf8Value text_align_str(isolate, text_align);
         const char *align = ToCString(text_align_str);
         if (!strcmp(align, "center")) {
-            return -measureText(font_info, text) / 2;
+            return -measureText(font_info, text, isolate) / 2;
         } else if (!strcmp(align, "right")) {
-            return -measureText(font_info, text);
+            return -measureText(font_info, text, isolate);
         }
     }
 
@@ -406,7 +403,7 @@ void defFillTextBitmap(const v8::FunctionCallbackInfo<v8::Value> &args) {
     Handle<Object> dimensions = Handle<Object>::Cast(custom_font->Get(STRING_CACHE_dimensions.Get(isolate)));
     Handle<Object> horizontal = Handle<Object>::Cast(custom_font->Get(STRING_CACHE_horizontal.Get(isolate)));
 
-    double width = measureText(font_info, (char**)&text);
+    double width = measureText(font_info, (char**)&text, isolate);
 
     float scale = 1;
     Handle<Value> scale_value = font_info->Get(STRING_CACHE_scale.Get(isolate));
@@ -432,8 +429,8 @@ void defFillTextBitmap(const v8::FunctionCallbackInfo<v8::Value> &args) {
         spacing = spacing_value->NumberValue(isolate->GetCurrentContext()).ToChecked() * scale;
     }
 
-    y += textBaselineValue(ctx, custom_font, scale);
-    x += textAlignValue(ctx, font_info, (char**)&text);
+    y += textBaselineValue(ctx, custom_font, scale, isolate);
+    x += textAlignValue(ctx, font_info, (char**)&text, isolate);
 
     int current_sheet_index = -1;
     Handle<Object> image;
@@ -656,11 +653,11 @@ void defClearFilters(const v8::FunctionCallbackInfo<v8::Value> &args) {
     context_2d_clear_filters(GET_CONTEXT2D());
 }
 
-Local<ObjectTemplate> get_context_2d_class_template();
+Local<ObjectTemplate> get_context_2d_class_template(Isolate *isolate);
 
 // Old, now using weakCallbackForObjectHolder below
 static void context_2d_class_finalize(const v8::WeakCallbackInfo<context_2d> &data) {
-    Isolate *isolate = Isolate::GetCurrent();
+    Isolate *isolate = data.GetIsolate();
     LOGFN("ctx2d dtor");
     context_2d *_ctx = static_cast<context_2d*>( data.GetParameter());
     context_2d_delete(_ctx);
@@ -679,7 +676,7 @@ static void weakCallbackForObjectHolder(const v8::WeakCallbackInfo<view_animatio
     Isolate *isolate = data.GetIsolate();
     HandleScope scope(isolate);
 
-    view_animation_release(static_cast<view_animation*>( data.GetParameter()));
+    view_animation_release(static_cast<view_animation*>( data.GetParameter()), isolate);
     delete data.GetParameter();
 }
 
@@ -691,7 +688,7 @@ void context_2d_class_ctor(const v8::FunctionCallbackInfo<v8::Value> &args) {
     const char *url = ToCString(str);
     int destTex = args[2]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     //Todo verify should Persistent SetWeak be used or simply Local instead Persistent below on line 709
-    Local<Object> ctx = get_context_2d_class_template()->NewInstance();
+    Local<Object> ctx = get_context_2d_class_template(isolate)->NewInstance();
     ctx->Set(STRING_CACHE_canvas.Get(isolate), canvas);
     context_2d *_ctx = context_2d_new(tealeaf_canvas_get(), url, destTex);
     ctx->SetInternalField(0, External::New(isolate, _ctx));
@@ -855,8 +852,7 @@ void defSetTransform(const v8::FunctionCallbackInfo<v8::Value> &args) {
 void js_gl_init() {
 }
 
-Local<ObjectTemplate> get_context_2d_class_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> get_context_2d_class_template(Isolate *isolate) {
     Handle<ObjectTemplate> context_2d_class_template;
     context_2d_class_template = ObjectTemplate::New(isolate);
     context_2d_class_template->SetInternalFieldCount(1);
@@ -901,8 +897,7 @@ Local<ObjectTemplate> get_context_2d_class_template() {
     return context_2d_class_template;
 }
 
-Local<ObjectTemplate> js_gl_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_gl_get_template(Isolate *isolate) {
     Local<ObjectTemplate> gl = ObjectTemplate::New(isolate);
     gl->Set(String::NewFromUtf8(isolate, "toDataURL"), FunctionTemplate::New(isolate, defToDataURL));
     gl->Set(STRING_CACHE_Context2D.Get(isolate), FunctionTemplate::New(isolate, context_2d_class_ctor));

@@ -37,7 +37,7 @@ void defNewTexture(const v8::FunctionCallbackInfo<v8::Value> &args);
 void defDestroyImage(const v8::FunctionCallbackInfo<v8::Value> &args);
 void defFillTextBitmap(const v8::FunctionCallbackInfo<v8::Value> &args);
 
-Local<ObjectTemplate> js_gl_get_template();
+Local<ObjectTemplate> js_gl_get_template(Isolate *isolate);
 void js_gl_delete_textures(const v8::FunctionCallbackInfo<v8::Value> &args);
 
 #endif

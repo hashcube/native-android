@@ -5,12 +5,8 @@
 #ifndef V8_OBJECTS_HASH_TABLE_INL_H_
 #define V8_OBJECTS_HASH_TABLE_INL_H_
 
-#include "src/objects/hash-table.h"
-
 #include "src/heap/heap.h"
-#include "src/objects-inl.h"
-#include "src/objects/fixed-array-inl.h"
-#include "src/roots-inl.h"
+#include "src/objects/hash-table.h"
 
 namespace v8 {
 namespace internal {
@@ -58,12 +54,12 @@ void HashTableBase::SetNumberOfDeletedElements(int nod) {
 }
 
 template <typename Key>
-RootIndex BaseShape<Key>::GetMapRootIndex() {
-  return RootIndex::kHashTableMap;
+int BaseShape<Key>::GetMapRootIndex() {
+  return Heap::kHashTableMapRootIndex;
 }
 
-RootIndex EphemeronHashTableShape::GetMapRootIndex() {
-  return RootIndex::kEphemeronHashTableMap;
+int EphemeronHashTableShape::GetMapRootIndex() {
+  return Heap::kEphemeronHashTableMapRootIndex;
 }
 
 template <typename Derived, typename Shape>

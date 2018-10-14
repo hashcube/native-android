@@ -11,33 +11,28 @@
 #include "src/base/platform/mutex.h"
 #include "src/flags.h"
 #include "src/handles.h"
-#include "src/objects/js-array-buffer.h"
+#include "src/objects/js-array.h"
 
 namespace v8 {
 namespace internal {
+
+class Histogram;  // defined in counters.h
+
 namespace wasm {
 
-// The {WasmMemoryTracker} tracks reservations and allocations for wasm memory
-// and wasm code. There is an upper limit on the total reserved memory which is
-// checked by this class. Allocations are stored so we can look them up when an
-// array buffer dies and figure out the reservation and allocation bounds for
-// that buffer.
 class WasmMemoryTracker {
  public:
-  WasmMemoryTracker() = default;
-  V8_EXPORT_PRIVATE ~WasmMemoryTracker();
+  WasmMemoryTracker() {}
+  ~WasmMemoryTracker();
 
   // ReserveAddressSpace attempts to increase the reserved address space counter
-  // by {num_bytes}. Returns true if successful (meaning it is okay to go ahead
-  // and reserve {num_bytes} bytes), false otherwise.
-  // Use {kSoftLimit} if you can implement a fallback which needs less reserved
-  // memory.
-  enum ReservationLimit { kSoftLimit, kHardLimit };
-  bool ReserveAddressSpace(size_t num_bytes, ReservationLimit limit);
+  // to determine whether there is enough headroom to allocate another guarded
+  // Wasm memory. Returns true if successful (meaning it is okay to go ahead and
+  // allocate the buffer), false otherwise.
+  bool ReserveAddressSpace(size_t num_bytes);
 
-  void RegisterAllocation(Isolate* isolate, void* allocation_base,
-                          size_t allocation_length, void* buffer_start,
-                          size_t buffer_length);
+  void RegisterAllocation(void* allocation_base, size_t allocation_length,
+                          void* buffer_start, size_t buffer_length);
 
   struct AllocationData {
     void* allocation_base = nullptr;
@@ -66,11 +61,11 @@ class WasmMemoryTracker {
     friend WasmMemoryTracker;
   };
 
-  // Decreases the amount of reserved address space.
+  // Decreases the amount of reserved address space
   void ReleaseReservation(size_t num_bytes);
 
-  // Removes an allocation from the tracker.
-  AllocationData ReleaseAllocation(Isolate* isolate, const void* buffer_start);
+  // Removes an allocation from the tracker
+  AllocationData ReleaseAllocation(const void* buffer_start);
 
   bool IsWasmMemory(const void* buffer_start);
 
@@ -85,7 +80,14 @@ class WasmMemoryTracker {
   // Checks if a buffer points to a Wasm memory and if so does any necessary
   // work to reclaim the buffer. If this function returns false, the caller must
   // free the buffer manually.
-  bool FreeMemoryIfIsWasmMemory(Isolate* isolate, const void* buffer_start);
+  bool FreeMemoryIfIsWasmMemory(const void* buffer_start);
+
+  void SetAllocationResultHistogram(Histogram* allocation_result) {
+    allocation_result_ = allocation_result;
+  }
+  void SetAddressSpaceUsageHistogram(Histogram* address_space_usage) {
+    address_space_usage_mb_ = address_space_usage;
+  }
 
   // Allocation results are reported to UMA
   //
@@ -101,8 +103,11 @@ class WasmMemoryTracker {
     kOtherFailure  // Failed for an unknown reason
   };
 
+  void AddAllocationStatusSample(AllocationStatus status);
+
  private:
-  void AddAddressSpaceSample(Isolate* isolate);
+  AllocationData InternalReleaseAllocation(const void* buffer_start);
+  void AddAddressSpaceSample();
 
   // Clients use a two-part process. First they "reserve" the address space,
   // which signifies an intent to actually allocate it. This determines whether
@@ -111,18 +116,22 @@ class WasmMemoryTracker {
   //
   // We should always have:
   // allocated_address_space_ <= reserved_address_space_ <= kAddressSpaceLimit
-  std::atomic<size_t> reserved_address_space_{0};
+  std::atomic_size_t reserved_address_space_{0};
 
   // Used to protect access to the allocated address space counter and
   // allocation map. This is needed because Wasm memories can be freed on
   // another thread by the ArrayBufferTracker.
   base::Mutex mutex_;
 
-  size_t allocated_address_space_ = 0;
+  size_t allocated_address_space_{0};
 
   // Track Wasm memory allocation information. This is keyed by the start of the
   // buffer, rather than by the start of the allocation.
   std::unordered_map<const void*, AllocationData> allocations_;
+
+  // Keep pointers to
+  Histogram* allocation_result_ = nullptr;
+  Histogram* address_space_usage_mb_ = nullptr;  // in MiB
 
   DISALLOW_COPY_AND_ASSIGN(WasmMemoryTracker);
 };

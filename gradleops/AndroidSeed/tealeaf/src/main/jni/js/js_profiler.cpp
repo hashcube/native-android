@@ -42,8 +42,7 @@ void js_profiler_stop_profile(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 
 
-Local<ObjectTemplate> js_profiler_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_profiler_get_template(Isolate *isolate) {
     Handle<ObjectTemplate> profiler = ObjectTemplate::New(isolate);
 
     profiler->Set(STRING_CACHE_start.Get(isolate), FunctionTemplate::New(isolate, js_profiler_start_profile));

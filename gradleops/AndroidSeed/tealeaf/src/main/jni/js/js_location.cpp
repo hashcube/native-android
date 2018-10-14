@@ -29,8 +29,7 @@ void jsGetLocation(v8::Local<Name> name, const v8::PropertyCallbackInfo<v8::Valu
 }
 
 //Todo Check should the isolate be passed to the function parameters
-static void set_location(Local<String> location) {
-    Isolate *isolate = Isolate::GetCurrent();
+static void set_location(Local<String> location, Isolate *isolate) {
     m_location.Reset(isolate, location);
     String::Utf8Value str(isolate, location);
     const char *utf8_location = *str;
@@ -42,21 +41,21 @@ static void set_location(Local<String> location) {
 
 void jsSetLocation(Local<Name> name, Local<Value> value, const v8::PropertyCallbackInfo<void> &info) {
     Isolate *isolate = info.GetIsolate();
-    set_location(value->ToString(isolate));
+    set_location(value->ToString(isolate), isolate);
 }
 
 void native_set_location(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("in native set location");
     Isolate *isolate = args.GetIsolate();
     if (args.Length() >= 1 && args[0]->IsString()) {
-        set_location(args[0]->ToString(isolate));
+        set_location(args[0]->ToString(isolate), isolate);
     }
 
     LOGFN("end native set location");
 }
 
-void native_initialize_location(const char *uri) {
-    m_location.Reset(Isolate::GetCurrent(), (String::NewFromUtf8(Isolate::GetCurrent(), uri)));
+void native_initialize_location(const char *uri, Isolate *isolate) {
+    m_location.Reset(isolate, (String::NewFromUtf8(isolate, uri)));
 }
 
 //FUNCTIONS' Handle<Value> changed to void (subtype FunctionCallback - need to add logics which changes variables

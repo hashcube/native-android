@@ -14,7 +14,7 @@ namespace internal {
 class Code;
 
 // Associates a body of code with an interface descriptor.
-class Callable final {
+class Callable final BASE_EMBEDDED {
  public:
   Callable(Handle<Code> code, CallInterfaceDescriptor descriptor)
       : code_(code), descriptor_(descriptor) {}

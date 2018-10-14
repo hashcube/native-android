@@ -36,8 +36,7 @@ void js_locale_get_language(Local< String > property, const PropertyCallbackInfo
 }
 
 
-Local<ObjectTemplate> js_locale_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_locale_get_template(Isolate *isolate) {
     Handle<ObjectTemplate> locale = ObjectTemplate::New(isolate);
     locale->SetAccessor(STRING_CACHE_language.Get(isolate), js_locale_get_language);
     locale->SetAccessor(STRING_CACHE_country.Get(isolate), js_locale_get_country);

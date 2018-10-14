@@ -27,22 +27,11 @@
 namespace v8 {
 namespace internal {
 
-class CallInterfaceDescriptor;
 class Callable;
-class Factory;
-class InterpreterData;
+class CallInterfaceDescriptor;
 class Isolate;
-class JSAsyncGeneratorObject;
-class JSCollator;
 class JSCollection;
-class JSDateTimeFormat;
-class JSListFormat;
-class JSLocale;
-class JSNumberFormat;
-class JSPluralRules;
 class JSRegExpStringIterator;
-class JSRelativeTimeFormat;
-class JSV8BreakIterator;
 class JSWeakCollection;
 class JSWeakMap;
 class JSWeakSet;
@@ -52,6 +41,8 @@ class PromiseFulfillReactionJobTask;
 class PromiseReaction;
 class PromiseReactionJobTask;
 class PromiseRejectReactionJobTask;
+class InterpreterData;
+class Factory;
 class Zone;
 
 template <typename T>
@@ -254,7 +245,6 @@ class StringWrapper;
 class SymbolWrapper;
 class Undetectable;
 class UniqueName;
-class WasmExceptionObject;
 class WasmExportedFunctionData;
 class WasmGlobalObject;
 class WasmMemoryObject;
@@ -288,7 +278,8 @@ HEAP_OBJECT_TEMPLATE_TYPE_LIST(OBJECT_TYPE_TEMPLATE_CASE)
 #undef OBJECT_TYPE_STRUCT_CASE
 #undef OBJECT_TYPE_TEMPLATE_CASE
 
-Smi* CheckObjectType(Object* value, Smi* type, String* location);
+Smi* CheckObjectType(Isolate* isolate, Object* value, Smi* type,
+                     String* location);
 
 namespace compiler {
 
@@ -449,22 +440,18 @@ class SloppyTNode : public TNode<T> {
   V(Float64LessThanOrEqual, BoolT, Float64T, Float64T)    \
   V(Float64GreaterThan, BoolT, Float64T, Float64T)        \
   V(Float64GreaterThanOrEqual, BoolT, Float64T, Float64T) \
-  /* Use Word32Equal if you need Int32Equal */            \
   V(Int32GreaterThan, BoolT, Word32T, Word32T)            \
   V(Int32GreaterThanOrEqual, BoolT, Word32T, Word32T)     \
   V(Int32LessThan, BoolT, Word32T, Word32T)               \
   V(Int32LessThanOrEqual, BoolT, Word32T, Word32T)        \
-  /* Use WordEqual if you need IntPtrEqual */             \
   V(IntPtrLessThan, BoolT, WordT, WordT)                  \
   V(IntPtrLessThanOrEqual, BoolT, WordT, WordT)           \
   V(IntPtrGreaterThan, BoolT, WordT, WordT)               \
   V(IntPtrGreaterThanOrEqual, BoolT, WordT, WordT)        \
-  /* Use Word32Equal if you need Uint32Equal */           \
   V(Uint32LessThan, BoolT, Word32T, Word32T)              \
   V(Uint32LessThanOrEqual, BoolT, Word32T, Word32T)       \
   V(Uint32GreaterThan, BoolT, Word32T, Word32T)           \
   V(Uint32GreaterThanOrEqual, BoolT, Word32T, Word32T)    \
-  /* Use WordEqual if you need UintPtrEqual */            \
   V(UintPtrLessThan, BoolT, WordT, WordT)                 \
   V(UintPtrLessThanOrEqual, BoolT, WordT, WordT)          \
   V(UintPtrGreaterThan, BoolT, WordT, WordT)              \
@@ -548,12 +535,12 @@ TNode<Float64T> Float64Add(TNode<Float64T> a, TNode<Float64T> b);
   V(Float64RoundTiesEven, Float64T, Float64T)                  \
   V(Float64RoundTruncate, Float64T, Float64T)                  \
   V(Word32Clz, Int32T, Word32T)                                \
-  V(Word32BitwiseNot, Word32T, Word32T)                        \
+  V(Word32Not, Word32T, Word32T)                               \
   V(WordNot, WordT, WordT)                                     \
   V(Int32AbsWithOverflow, PAIR_TYPE(Int32T, BoolT), Int32T)    \
   V(Int64AbsWithOverflow, PAIR_TYPE(Int64T, BoolT), Int64T)    \
   V(IntPtrAbsWithOverflow, PAIR_TYPE(IntPtrT, BoolT), IntPtrT) \
-  V(Word32BinaryNot, BoolT, Word32T)
+  V(Word32BinaryNot, Word32T, Word32T)
 
 // A "public" interface used by components outside of compiler directory to
 // create code objects with TurboFan's backend. This class is mostly a thin
@@ -636,10 +623,12 @@ class V8_EXPORT_PRIVATE CodeAssembler {
         }
         Node* function = code_assembler_->ExternalConstant(
             ExternalReference::check_object_type());
-        code_assembler_->CallCFunction3(
-            MachineType::AnyTagged(), MachineType::AnyTagged(),
-            MachineType::TaggedSigned(), MachineType::AnyTagged(), function,
-            node_,
+        Node* const isolate_ptr = code_assembler_->ExternalConstant(
+            ExternalReference::isolate_address(code_assembler_->isolate()));
+        code_assembler_->CallCFunction4(
+            MachineType::AnyTagged(), MachineType::Pointer(),
+            MachineType::AnyTagged(), MachineType::TaggedSigned(),
+            MachineType::AnyTagged(), function, isolate_ptr, node_,
             code_assembler_->SmiConstant(
                 static_cast<int>(ObjectTypeOf<A>::value)),
             code_assembler_->StringConstant(location_));
@@ -681,12 +670,12 @@ class V8_EXPORT_PRIVATE CodeAssembler {
     return TNode<T>::UncheckedCast(value);
   }
 
-  CheckedNode<Object, false> Cast(Node* value, const char* location = "") {
+  CheckedNode<Object, false> Cast(Node* value, const char* location) {
     return {value, this, location};
   }
 
   template <class T>
-  CheckedNode<T, true> Cast(TNode<T> value, const char* location = "") {
+  CheckedNode<T, true> Cast(TNode<T> value, const char* location) {
     return {value, this, location};
   }
 
@@ -696,7 +685,7 @@ class V8_EXPORT_PRIVATE CodeAssembler {
 #define CAST(x) \
   Cast(x, "CAST(" #x ") at " __FILE__ ":" TO_STRING_LITERAL(__LINE__))
 #else
-#define CAST(x) Cast(x)
+#define CAST(x) Cast(x, "")
 #endif
 
 #ifdef DEBUG
@@ -707,12 +696,6 @@ class V8_EXPORT_PRIVATE CodeAssembler {
   TNode<Int32T> Int32Constant(int32_t value);
   TNode<Int64T> Int64Constant(int64_t value);
   TNode<IntPtrT> IntPtrConstant(intptr_t value);
-  TNode<Uint32T> Uint32Constant(uint32_t value) {
-    return Unsigned(Int32Constant(bit_cast<int32_t>(value)));
-  }
-  TNode<UintPtrT> UintPtrConstant(uintptr_t value) {
-    return Unsigned(IntPtrConstant(bit_cast<intptr_t>(value)));
-  }
   TNode<Number> NumberConstant(double value);
   TNode<Smi> SmiConstant(Smi* value);
   TNode<Smi> SmiConstant(int value);
@@ -789,13 +772,6 @@ class V8_EXPORT_PRIVATE CodeAssembler {
   void Branch(SloppyTNode<IntegralT> condition, Label* true_label,
               Label* false_label);
 
-  void Branch(TNode<BoolT> condition, const std::function<void()>& true_body,
-              const std::function<void()>& false_body);
-  void Branch(TNode<BoolT> condition, Label* true_label,
-              const std::function<void()>& false_body);
-  void Branch(TNode<BoolT> condition, const std::function<void()>& true_body,
-              Label* false_label);
-
   void Switch(Node* index, Label* default_label, const int32_t* case_values,
               Label** case_labels, size_t case_count);
 
@@ -824,7 +800,7 @@ class V8_EXPORT_PRIVATE CodeAssembler {
   Node* AtomicLoad(MachineType rep, Node* base, Node* offset);
 
   // Load a value from the root array.
-  TNode<Object> LoadRoot(RootIndex root_index);
+  TNode<Object> LoadRoot(Heap::RootListIndex root_index);
 
   // Store value to raw memory location.
   Node* Store(Node* base, Node* value);
@@ -833,38 +809,28 @@ class V8_EXPORT_PRIVATE CodeAssembler {
   Node* StoreNoWriteBarrier(MachineRepresentation rep, Node* base, Node* value);
   Node* StoreNoWriteBarrier(MachineRepresentation rep, Node* base, Node* offset,
                             Node* value);
-  // {value_high} is used for 64-bit stores on 32-bit platforms, must be
-  // nullptr in other cases.
   Node* AtomicStore(MachineRepresentation rep, Node* base, Node* offset,
-                    Node* value, Node* value_high = nullptr);
+                    Node* value);
 
   // Exchange value at raw memory location
-  Node* AtomicExchange(MachineType type, Node* base, Node* offset, Node* value,
-                       Node* value_high = nullptr);
+  Node* AtomicExchange(MachineType type, Node* base, Node* offset, Node* value);
 
   // Compare and Exchange value at raw memory location
   Node* AtomicCompareExchange(MachineType type, Node* base, Node* offset,
-                              Node* old_value, Node* new_value,
-                              Node* old_value_high = nullptr,
-                              Node* new_value_high = nullptr);
+                              Node* old_value, Node* new_value);
 
-  Node* AtomicAdd(MachineType type, Node* base, Node* offset, Node* value,
-                  Node* value_high = nullptr);
+  Node* AtomicAdd(MachineType type, Node* base, Node* offset, Node* value);
 
-  Node* AtomicSub(MachineType type, Node* base, Node* offset, Node* value,
-                  Node* value_high = nullptr);
+  Node* AtomicSub(MachineType type, Node* base, Node* offset, Node* value);
 
-  Node* AtomicAnd(MachineType type, Node* base, Node* offset, Node* value,
-                  Node* value_high = nullptr);
+  Node* AtomicAnd(MachineType type, Node* base, Node* offset, Node* value);
 
-  Node* AtomicOr(MachineType type, Node* base, Node* offset, Node* value,
-                 Node* value_high = nullptr);
+  Node* AtomicOr(MachineType type, Node* base, Node* offset, Node* value);
 
-  Node* AtomicXor(MachineType type, Node* base, Node* offset, Node* value,
-                  Node* value_high = nullptr);
+  Node* AtomicXor(MachineType type, Node* base, Node* offset, Node* value);
 
   // Store a value to the root array.
-  Node* StoreRoot(RootIndex root_index, Node* value);
+  Node* StoreRoot(Heap::RootListIndex root_index, Node* value);
 
 // Basic arithmetic operations.
 #define DECLARE_CODE_ASSEMBLER_BINARY_OP(name, ResType, Arg1Type, Arg2Type) \
@@ -932,11 +898,6 @@ class V8_EXPORT_PRIVATE CodeAssembler {
         Int32Add(static_cast<Node*>(left), static_cast<Node*>(right)));
   }
 
-  TNode<Uint32T> Uint32Add(TNode<Uint32T> left, TNode<Uint32T> right) {
-    return Unsigned(
-        Int32Add(static_cast<Node*>(left), static_cast<Node*>(right)));
-  }
-
   TNode<WordT> IntPtrAdd(SloppyTNode<WordT> left, SloppyTNode<WordT> right);
   TNode<WordT> IntPtrSub(SloppyTNode<WordT> left, SloppyTNode<WordT> right);
   TNode<WordT> IntPtrMul(SloppyTNode<WordT> left, SloppyTNode<WordT> right);
@@ -951,14 +912,6 @@ class V8_EXPORT_PRIVATE CodeAssembler {
   TNode<IntPtrT> IntPtrMul(TNode<IntPtrT> left, TNode<IntPtrT> right) {
     return Signed(
         IntPtrMul(static_cast<Node*>(left), static_cast<Node*>(right)));
-  }
-  TNode<UintPtrT> UintPtrAdd(TNode<UintPtrT> left, TNode<UintPtrT> right) {
-    return Unsigned(
-        IntPtrAdd(static_cast<Node*>(left), static_cast<Node*>(right)));
-  }
-  TNode<UintPtrT> UintPtrSub(TNode<UintPtrT> left, TNode<UintPtrT> right) {
-    return Unsigned(
-        IntPtrSub(static_cast<Node*>(left), static_cast<Node*>(right)));
   }
 
   TNode<WordT> WordShl(SloppyTNode<WordT> value, int shift);
@@ -1009,8 +962,6 @@ class V8_EXPORT_PRIVATE CodeAssembler {
   // Changes a double to an inptr_t for pointer arithmetic outside of Smi range.
   // Assumes that the double can be exactly represented as an int.
   TNode<UintPtrT> ChangeFloat64ToUintPtr(SloppyTNode<Float64T> value);
-  // Same in the opposite direction.
-  TNode<Float64T> ChangeUintPtrToFloat64(TNode<UintPtrT> value);
 
   // Changes an intptr_t to a double, e.g. for storing an element index
   // outside Smi range in a HeapNumber. Lossless on 32-bit,
@@ -1158,7 +1109,7 @@ class V8_EXPORT_PRIVATE CodeAssembler {
                     TArgs... args) {
     int argc = static_cast<int>(sizeof...(args));
     Node* arity = Int32Constant(argc);
-    Node* receiver = LoadRoot(RootIndex::kUndefinedValue);
+    Node* receiver = LoadRoot(Heap::kUndefinedValueRootIndex);
 
     // Construct(target, new_target, arity, receiver, arguments...)
     return CallStub(callable, context, new_target, new_target, arity, receiver,

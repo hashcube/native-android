@@ -16,19 +16,13 @@ typedef unsigned char byte;
 // specific.
 class NameConverter {
  public:
-  virtual ~NameConverter() = default;
+  virtual ~NameConverter() {}
   virtual const char* NameOfCPURegister(int reg) const;
   virtual const char* NameOfByteCPURegister(int reg) const;
   virtual const char* NameOfXMMRegister(int reg) const;
   virtual const char* NameOfAddress(byte* addr) const;
   virtual const char* NameOfConstant(byte* addr) const;
   virtual const char* NameInCode(byte* addr) const;
-
-  // Given a root-relative offset, returns either a name or nullptr if none is
-  // found.
-  // TODO(jgruber,v8:7989): This is a temporary solution until we can preserve
-  // code comments through snapshotting.
-  virtual const char* RootRelativeName(int offset) const { UNREACHABLE(); }
 
  protected:
   v8::internal::EmbeddedVector<char, 128> tmp_buffer_;
@@ -38,25 +32,21 @@ class NameConverter {
 // A generic Disassembler interface
 class Disassembler {
  public:
-  enum UnimplementedOpcodeAction : int8_t {
-    kContinueOnUnimplementedOpcode,
-    kAbortOnUnimplementedOpcode
-  };
-
   // Caller deallocates converter.
-  explicit Disassembler(const NameConverter& converter,
-                        UnimplementedOpcodeAction unimplemented_opcode_action =
-                            kAbortOnUnimplementedOpcode)
-      : converter_(converter),
-        unimplemented_opcode_action_(unimplemented_opcode_action) {}
+  explicit Disassembler(const NameConverter& converter);
 
-  UnimplementedOpcodeAction unimplemented_opcode_action() const {
-    return unimplemented_opcode_action_;
-  }
+  virtual ~Disassembler();
 
   // Writes one disassembled instruction into 'buffer' (0-terminated).
   // Returns the length of the disassembled machine instruction in bytes.
   int InstructionDecode(v8::internal::Vector<char> buffer, byte* instruction);
+
+  // Disassemblers on ia32/x64 need a separate method for testing, as
+  // instruction decode method above continues on unimplemented opcodes, and
+  // does not test the disassemblers. Basic functionality of the method remains
+  // the same.
+  int InstructionDecodeForTesting(v8::internal::Vector<char> buffer,
+                                  byte* instruction);
 
   // Returns -1 if instruction does not mark the beginning of a constant pool,
   // or the number of entries in the constant pool beginning here.
@@ -64,13 +54,10 @@ class Disassembler {
 
   // Write disassembly into specified file 'f' using specified NameConverter
   // (see constructor).
-  static void Disassemble(FILE* f, byte* begin, byte* end,
-                          UnimplementedOpcodeAction unimplemented_action =
-                              kAbortOnUnimplementedOpcode);
+  static void Disassemble(FILE* f, byte* begin, byte* end);
 
  private:
   const NameConverter& converter_;
-  const UnimplementedOpcodeAction unimplemented_opcode_action_;
 
   DISALLOW_IMPLICIT_CONSTRUCTORS(Disassembler);
 };

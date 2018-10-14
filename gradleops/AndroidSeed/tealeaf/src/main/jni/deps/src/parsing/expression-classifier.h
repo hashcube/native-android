@@ -61,15 +61,18 @@ class ExpressionClassifier {
         : location(Scanner::Location::invalid()),
           message(MessageTemplate::kNone),
           kind(kUnusedError),
+          type(kSyntaxError),
           arg(nullptr) {}
     V8_INLINE explicit Error(Scanner::Location loc,
                              MessageTemplate::Template msg, ErrorKind k,
-                             const char* a = nullptr)
-        : location(loc), message(msg), kind(k), arg(a) {}
+                             const char* a = nullptr,
+                             ParseErrorType t = kSyntaxError)
+        : location(loc), message(msg), kind(k), type(t), arg(a) {}
 
     Scanner::Location location;
-    MessageTemplate::Template message : 28;
+    MessageTemplate::Template message : 26;
     unsigned kind : 4;
+    ParseErrorType type : 2;
     const char* arg;
   };
 
@@ -85,6 +88,10 @@ class ExpressionClassifier {
   };
   // clang-format on
 
+  enum FunctionProperties : unsigned {
+    NonSimpleParameter = 1 << 0
+  };
+
   explicit ExpressionClassifier(typename Types::Base* base,
                                 DuplicateFinder* duplicate_finder = nullptr)
       : base_(base),
@@ -93,7 +100,7 @@ class ExpressionClassifier {
         reported_errors_(base->impl()->GetReportedErrorList()),
         duplicate_finder_(duplicate_finder),
         invalid_productions_(0),
-        is_non_simple_parameter_list_(0) {
+        function_properties_(0) {
     base->classifier_ = this;
     reported_errors_begin_ = reported_errors_end_ = reported_errors_->length();
   }
@@ -186,11 +193,11 @@ class ExpressionClassifier {
   }
 
   V8_INLINE bool is_simple_parameter_list() const {
-    return !is_non_simple_parameter_list_;
+    return !(function_properties_ & NonSimpleParameter);
   }
 
   V8_INLINE void RecordNonSimpleParameter() {
-    is_non_simple_parameter_list_ = 1;
+    function_properties_ |= NonSimpleParameter;
   }
 
   void RecordExpressionError(const Scanner::Location& loc,
@@ -199,6 +206,14 @@ class ExpressionClassifier {
     if (!is_valid_expression()) return;
     invalid_productions_ |= ExpressionProduction;
     Add(Error(loc, message, kExpressionProduction, arg));
+  }
+
+  void RecordExpressionError(const Scanner::Location& loc,
+                             MessageTemplate::Template message,
+                             ParseErrorType type, const char* arg = nullptr) {
+    if (!is_valid_expression()) return;
+    invalid_productions_ |= ExpressionProduction;
+    Add(Error(loc, message, kExpressionProduction, arg, type));
   }
 
   void RecordFormalParameterInitializerError(const Scanner::Location& loc,
@@ -290,9 +305,9 @@ class ExpressionClassifier {
       bool copy_BP_to_AFP = false;
       if (productions & ArrowFormalParametersProduction &&
           is_valid_arrow_formal_parameters()) {
-        // Also whether we've seen any non-simple parameters
-        // if expecting an arrow function parameter.
-        is_non_simple_parameter_list_ |= inner->is_non_simple_parameter_list_;
+        // Also copy function properties if expecting an arrow function
+        // parameter.
+        function_properties_ |= inner->function_properties_;
         if (!inner->is_valid_binding_pattern()) {
           copy_BP_to_AFP = true;
           invalid_productions_ |= ArrowFormalParametersProduction;
@@ -396,8 +411,8 @@ class ExpressionClassifier {
   Zone* zone_;
   ZoneList<Error>* reported_errors_;
   DuplicateFinder* duplicate_finder_;
-  unsigned invalid_productions_ : 15;
-  unsigned is_non_simple_parameter_list_ : 1;
+  unsigned invalid_productions_ : 14;
+  unsigned function_properties_ : 2;
   // The uint16_t for reported_errors_begin_ and reported_errors_end_ will
   // not be enough in the case of a long series of expressions using nested
   // classifiers, e.g., a long sequence of assignments, as in:

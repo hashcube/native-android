@@ -65,8 +65,7 @@ class PropertyAccessInfo final {
     kDataField,
     kDataConstantField,
     kAccessorConstant,
-    kModuleExport,
-    kStringLength
+    kModuleExport
   };
 
   static PropertyAccessInfo NotFound(MapHandles const& receiver_maps,
@@ -85,7 +84,6 @@ class PropertyAccessInfo final {
                                              MaybeHandle<JSObject> holder);
   static PropertyAccessInfo ModuleExport(MapHandles const& receiver_maps,
                                          Handle<Cell> cell);
-  static PropertyAccessInfo StringLength(MapHandles const& receiver_maps);
 
   PropertyAccessInfo();
 
@@ -100,7 +98,6 @@ class PropertyAccessInfo final {
   bool IsDataConstantField() const { return kind() == kDataConstantField; }
   bool IsAccessorConstant() const { return kind() == kAccessorConstant; }
   bool IsModuleExport() const { return kind() == kModuleExport; }
-  bool IsStringLength() const { return kind() == kStringLength; }
 
   bool HasTransitionMap() const { return !transition_map().is_null(); }
 
@@ -118,7 +115,7 @@ class PropertyAccessInfo final {
   Handle<Cell> export_cell() const;
 
  private:
-  PropertyAccessInfo(Kind kind, MaybeHandle<JSObject> holder,
+  PropertyAccessInfo(MaybeHandle<JSObject> holder,
                      MapHandles const& receiver_maps);
   PropertyAccessInfo(Kind kind, MaybeHandle<JSObject> holder,
                      Handle<Object> constant, MapHandles const& receiver_maps);
@@ -143,7 +140,7 @@ class PropertyAccessInfo final {
 // Factory class for {ElementAccessInfo}s and {PropertyAccessInfo}s.
 class AccessInfoFactory final {
  public:
-  AccessInfoFactory(JSHeapBroker* js_heap_broker,
+  AccessInfoFactory(const JSHeapBroker* js_heap_broker,
                     CompilationDependencies* dependencies,
 
                     Handle<Context> native_context, Zone* zone);
@@ -172,13 +169,13 @@ class AccessInfoFactory final {
                         PropertyAccessInfo* access_info);
 
   CompilationDependencies* dependencies() const { return dependencies_; }
-  JSHeapBroker* js_heap_broker() const { return js_heap_broker_; }
+  const JSHeapBroker* js_heap_broker() const { return js_heap_broker_; }
   Factory* factory() const;
   Isolate* isolate() const { return isolate_; }
   Handle<Context> native_context() const { return native_context_; }
   Zone* zone() const { return zone_; }
 
-  JSHeapBroker* const js_heap_broker_;
+  const JSHeapBroker* const js_heap_broker_;
   CompilationDependencies* const dependencies_;
   Handle<Context> const native_context_;
   Isolate* const isolate_;

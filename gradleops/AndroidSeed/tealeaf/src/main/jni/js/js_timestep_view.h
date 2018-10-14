@@ -32,15 +32,15 @@ void timestep_view_set_z_index(Local< String > property, Local< Value > value, c
 void timestep_view_set_opacity (Local< String > property, Local< Value > value, const PropertyCallbackInfo< void > &info);
 
 void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &args);
-Local<ObjectTemplate> js_timestep_get_template();
+Local<ObjectTemplate> js_timestep_get_template(Isolate *isolate);
 void def_timestep_view_needs_reflow(Local<Object> js_view, bool force);
-void def_timestep_view_render(Local<Object> js_view, Local<Object> js_ctx, Local<Object> js_opts);
+void def_timestep_view_render(Local<Object> js_view, Local<Object> js_ctx, Local<Object> js_opts, Isolate *isolate);
 
-Local<Object> def_get_viewport(Local<Object> js_opts);
-void def_restore_viewport(Local<Object> js_opts, Local<Object> js_viewport);
+Local<Object> def_get_viewport(Local<Object> js_opts, Isolate *isolate);
+void def_restore_viewport(Local<Object> js_opts, Local<Object> js_viewport, Isolate *isolate);
 
 
-void def_timestep_view_tick(Local<Object> js_view, double dt);
+void def_timestep_view_tick(Local<Object> js_view, double dt, Isolate *isolate);
 void def_timestep_view_localize_pt(const v8::FunctionCallbackInfo<v8::Value> &args);
 Local<ObjectTemplate> get_view_class_template();
 //static void js_view_finalize(Persistent<Value> ctx, void *param);

@@ -27,11 +27,11 @@ class Node;
 // nodes such as constants, parameters, etc.
 template <typename Key, typename Hash = base::hash<Key>,
           typename Pred = std::equal_to<Key> >
-class V8_EXPORT_PRIVATE NodeCache final {
+class NodeCache final {
  public:
   explicit NodeCache(unsigned max = 256)
       : entries_(nullptr), size_(0), max_(max) {}
-  ~NodeCache() = default;
+  ~NodeCache() {}
 
   // Search for node associated with {key} and return a pointer to a memory
   // location in this cache that stores an entry for the key. If the location

@@ -4,7 +4,7 @@
 #include "src/builtins/builtins-test-gen.h"
 
 
- namespace v8 {
+namespace v8 {
 namespace internal {
 
 class TestBuiltinsFromDSLAssembler: public TestBuiltinsAssembler {
@@ -20,9 +20,9 @@ class TestBuiltinsFromDSLAssembler: public TestBuiltinsAssembler {
   TNode<BoolT> ElementsKindTestHelper1(ElementsKind p_kind);
   TNode<BoolT> ElementsKindTestHelper2(ElementsKind p_kind);
   bool ElementsKindTestHelper3(ElementsKind p_kind);
-  void LabelTestHelper1(Label* label_Label1_534);
-  void LabelTestHelper2(Label* label_Label2_535, TVariable<Smi>* Label20_316);
-  void LabelTestHelper3(Label* label_Label3_536, TVariable<String>* Label30_317, TVariable<Smi>* Label31_318);
+  void LabelTestHelper1(Label* label_Label1_393);
+  void LabelTestHelper2(Label* label_Label2_394, TVariable<Smi>* Label20_359);
+  void LabelTestHelper3(Label* label_Label3_395, TVariable<String>* Label30_360, TVariable<Smi>* Label31_361);
   void TestConstexpr1();
   void TestConstexprIf();
   void TestConstexprReturn();
@@ -30,11 +30,11 @@ class TestBuiltinsFromDSLAssembler: public TestBuiltinsAssembler {
   TNode<Oddball> TestGotoLabelWithOneParameter();
   TNode<Oddball> TestGotoLabelWithTwoParameters();
   void TestBuiltinSpecialization(TNode<Context> p_c);
-  void LabelTestHelper4(bool p_flag, Label* label_Label4_570, Label* label_Label5_571);
+  void LabelTestHelper4(bool p_flag, Label* label_Label4_429, Label* label_Label5_430);
   TNode<BoolT> CallLabelTestHelper4(bool p_flag);
   TNode<Oddball> TestPartiallyUnusedLabel();
   TNode<Object> GenericMacroTest22UT12ATHeapObject5ATSmi(TNode<Object> p_param2);
-  TNode<Object> GenericMacroTestWithLabels22UT12ATHeapObject5ATSmi(TNode<Object> p_param2, Label* label_Y_579);
+  TNode<Object> GenericMacroTestWithLabels22UT12ATHeapObject5ATSmi(TNode<Object> p_param2, Label* label_Y_438);
   void TestMacroSpecialization();
   TNode<Oddball> TestFunctionPointers(TNode<Context> p_context);
   TNode<Oddball> TestVariableRedeclaration(TNode<Context> p_context);
@@ -68,27 +68,11 @@ class TestBuiltinsFromDSLAssembler: public TestBuiltinsAssembler {
     TestStructA y;
   } ;
   TestBuiltinsFromDSLAssembler::TestStructC TestStruct4();
-  void TestForLoop();
-  void TestSubtyping(TNode<Smi> p_x);
-  TNode<Int32T> TypeswitchExample(TNode<Object> p_x);
-  void TestTypeswitch();
-  void TestGenericOverload();
-  void BoolToBranch(TNode<BoolT> p_x, Label* label_Taken_717, Label* label_NotTaken_718);
-  TNode<BoolT> TestOrAnd1(TNode<BoolT> p_x, TNode<BoolT> p_y, TNode<BoolT> p_z);
-  TNode<BoolT> TestOrAnd2(TNode<BoolT> p_x, TNode<BoolT> p_y, TNode<BoolT> p_z);
-  TNode<BoolT> TestOrAnd3(TNode<BoolT> p_x, TNode<BoolT> p_y, TNode<BoolT> p_z);
-  TNode<BoolT> TestAndOr1(TNode<BoolT> p_x, TNode<BoolT> p_y, TNode<BoolT> p_z);
-  TNode<BoolT> TestAndOr2(TNode<BoolT> p_x, TNode<BoolT> p_y, TNode<BoolT> p_z);
-  TNode<BoolT> TestAndOr3(TNode<BoolT> p_x, TNode<BoolT> p_y, TNode<BoolT> p_z);
-  void TestLogicalOperators();
   TNode<Object> GenericMacroTest5ATSmi(TNode<Smi> p_param);
-  TNode<Object> GenericMacroTestWithLabels5ATSmi(TNode<Smi> p_param, Label* label_X_1362);
-  TNode<Object> IncrementIfSmi36UT12ATFixedArray12ATHeapNumber5ATSmi(TNode<Object> p_x);
-  TNode<Smi> ExampleGenericOverload5ATSmi(TNode<Smi> p_o);
-  TNode<Object> ExampleGenericOverload22UT12ATHeapObject5ATSmi(TNode<Object> p_o);
+  TNode<Object> GenericMacroTestWithLabels5ATSmi(TNode<Smi> p_param, Label* label_X_519);
 };
 
-}  // namespace internal
+}  // namepsace internal
 }  // namespace v8
 
 #endif  // V8_TORQUE_TEST_FROM_DSL_BASE_H__

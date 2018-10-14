@@ -100,7 +100,23 @@ class V8_EXPORT_PRIVATE IncrementalMarking {
 
   void NotifyLeftTrimming(HeapObject* from, HeapObject* to);
 
-  V8_INLINE void TransferColor(HeapObject* from, HeapObject* to);
+  V8_INLINE void TransferColor(HeapObject* from, HeapObject* to) {
+    if (atomic_marking_state()->IsBlack(to)) {
+      DCHECK(black_allocation());
+      return;
+    }
+
+    DCHECK(atomic_marking_state()->IsWhite(to));
+    if (atomic_marking_state()->IsGrey(from)) {
+      bool success = atomic_marking_state()->WhiteToGrey(to);
+      DCHECK(success);
+      USE(success);
+    } else if (atomic_marking_state()->IsBlack(from)) {
+      bool success = atomic_marking_state()->WhiteToBlack(to);
+      DCHECK(success);
+      USE(success);
+    }
+  }
 
   State state() const {
     DCHECK(state_ == STOPPED || FLAG_incremental_marking);
@@ -177,7 +193,6 @@ class V8_EXPORT_PRIVATE IncrementalMarking {
   size_t Step(size_t bytes_to_process, CompletionAction action,
               StepOrigin step_origin,
               WorklistToProcess worklist_to_process = WorklistToProcess::kAll);
-  void EmbedderStep(double duration);
 
   inline void RestartIfNotMarking();
 
@@ -194,11 +209,13 @@ class V8_EXPORT_PRIVATE IncrementalMarking {
   V8_INLINE void RecordWrite(HeapObject* obj, Object** slot, Object* value);
   V8_INLINE void RecordMaybeWeakWrite(HeapObject* obj, MaybeObject** slot,
                                       MaybeObject* value);
-  void RevisitObject(HeapObject* obj);
+  V8_INLINE void RecordWriteIntoCode(Code* host, RelocInfo* rinfo,
+                                     Object* value);
+  V8_INLINE void RecordWrites(HeapObject* obj);
 
   void RecordWriteSlow(HeapObject* obj, HeapObjectReference** slot,
                        Object* value);
-  void RecordWriteIntoCode(Code* host, RelocInfo* rinfo, HeapObject* value);
+  void RecordWriteIntoCodeSlow(Code* host, RelocInfo* rinfo, Object* value);
 
   // Returns true if the function succeeds in transitioning the object
   // from white to grey.
@@ -232,6 +249,8 @@ class V8_EXPORT_PRIVATE IncrementalMarking {
       StartBlackAllocation();
     }
   }
+
+  void AbortBlackAllocation();
 
   MarkCompactCollector::MarkingWorklist* marking_worklist() const {
     return marking_worklist_;
@@ -281,6 +300,8 @@ class V8_EXPORT_PRIVATE IncrementalMarking {
 
   // Visits the object and returns its size.
   V8_INLINE int VisitObject(Map* map, HeapObject* obj);
+
+  void RevisitObject(HeapObject* obj);
 
   void IncrementIdleMarkingDelayCounter();
 

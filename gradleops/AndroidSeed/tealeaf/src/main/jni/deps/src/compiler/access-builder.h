@@ -9,7 +9,6 @@
 #include "src/compiler/simplified-operator.h"
 #include "src/elements-kind.h"
 #include "src/globals.h"
-#include "src/objects/js-objects.h"
 
 namespace v8 {
 namespace internal {
@@ -37,7 +36,7 @@ class V8_EXPORT_PRIVATE AccessBuilder final
   static FieldAccess ForMap();
 
   // Provides access to HeapNumber::value() field.
-  static FieldAccess ForHeapNumberValue(isolate->GetCurrentContext()).ToChecked();
+  static FieldAccess ForHeapNumberValue();
 
   // Provides access to BigInt's bit field.
   static FieldAccess ForBigIntBitfield();

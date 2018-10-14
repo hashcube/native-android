@@ -6,6 +6,7 @@
 #define V8_CODE_FACTORY_H_
 
 #include "src/allocation.h"
+#include "src/assembler.h"
 #include "src/callable.h"
 #include "src/code-stubs.h"
 #include "src/globals.h"
@@ -59,7 +60,8 @@ class V8_EXPORT_PRIVATE CodeFactory final {
                                       OrdinaryToPrimitiveHint hint);
 
   static Callable StringAdd(Isolate* isolate,
-                            StringAddFlags flags = STRING_ADD_CHECK_NONE);
+                            StringAddFlags flags = STRING_ADD_CHECK_NONE,
+                            PretenureFlag pretenure_flag = NOT_TENURED);
 
   static Callable FastNewFunctionContext(Isolate* isolate,
                                          ScopeType scope_type);

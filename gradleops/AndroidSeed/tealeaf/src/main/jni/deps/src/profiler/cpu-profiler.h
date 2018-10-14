@@ -53,9 +53,9 @@ class CodeEventRecord {
 
 class CodeCreateEventRecord : public CodeEventRecord {
  public:
-  Address instruction_start;
+  Address start;
   CodeEntry* entry;
-  unsigned instruction_size;
+  unsigned size;
 
   V8_INLINE void UpdateCodeMap(CodeMap* code_map);
 };
@@ -63,8 +63,8 @@ class CodeCreateEventRecord : public CodeEventRecord {
 
 class CodeMoveEventRecord : public CodeEventRecord {
  public:
-  Address from_instruction_start;
-  Address to_instruction_start;
+  Address from;
+  Address to;
 
   V8_INLINE void UpdateCodeMap(CodeMap* code_map);
 };
@@ -72,7 +72,7 @@ class CodeMoveEventRecord : public CodeEventRecord {
 
 class CodeDisableOptEventRecord : public CodeEventRecord {
  public:
-  Address instruction_start;
+  Address start;
   const char* bailout_reason;
 
   V8_INLINE void UpdateCodeMap(CodeMap* code_map);
@@ -81,7 +81,7 @@ class CodeDisableOptEventRecord : public CodeEventRecord {
 
 class CodeDeoptEventRecord : public CodeEventRecord {
  public:
-  Address instruction_start;
+  Address start;
   const char* deopt_reason;
   int deopt_id;
   Address pc;
@@ -95,7 +95,7 @@ class CodeDeoptEventRecord : public CodeEventRecord {
 
 class ReportBuiltinEventRecord : public CodeEventRecord {
  public:
-  Address instruction_start;
+  Address start;
   Builtins::Name builtin_id;
 
   V8_INLINE void UpdateCodeMap(CodeMap* code_map);
@@ -106,7 +106,7 @@ class TickSampleEventRecord {
  public:
   // The parameterless constructor is used when we dequeue data from
   // the ticks buffer.
-  TickSampleEventRecord() = default;
+  TickSampleEventRecord() { }
   explicit TickSampleEventRecord(unsigned order) : order(order) { }
 
   unsigned order;
@@ -135,10 +135,10 @@ class ProfilerEventsProcessor : public base::Thread {
  public:
   ProfilerEventsProcessor(Isolate* isolate, ProfileGenerator* generator,
                           base::TimeDelta period);
-  ~ProfilerEventsProcessor() override;
+  virtual ~ProfilerEventsProcessor();
 
   // Thread control.
-  void Run() override;
+  virtual void Run();
   void StopSynchronously();
   V8_INLINE bool running() { return !!base::Relaxed_Load(&running_); }
   void Enqueue(const CodeEventsContainer& event);

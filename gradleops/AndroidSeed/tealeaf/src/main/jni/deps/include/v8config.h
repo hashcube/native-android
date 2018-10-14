@@ -214,8 +214,6 @@
 # define V8_HAS_ATTRIBUTE_ALIGNED (__has_attribute(aligned))
 # define V8_HAS_ATTRIBUTE_ALWAYS_INLINE (__has_attribute(always_inline))
 # define V8_HAS_ATTRIBUTE_DEPRECATED (__has_attribute(deprecated))
-# define V8_HAS_ATTRIBUTE_DEPRECATED_MESSAGE \
-    (__has_extension(attribute_deprecated_with_message))
 # define V8_HAS_ATTRIBUTE_NOINLINE (__has_attribute(noinline))
 # define V8_HAS_ATTRIBUTE_UNUSED (__has_attribute(unused))
 # define V8_HAS_ATTRIBUTE_VISIBILITY (__has_attribute(visibility))
@@ -407,7 +405,12 @@
 // Note that alignment of a type within a struct can be less than the
 // alignment of the type stand-alone (because of ancient ABIs), so this
 // should only be used as a last resort.
-namespace v8 { template <typename T> class AlignOfHelper { char c; T t; }; }
+namespace v8 {
+template <typename T> class AlignOfHelper {
+        char c;
+        T t;
+};
+}
 # define V8_ALIGNOF(type) (sizeof(::v8::AlignOfHelper<type>) - sizeof(type))
 #endif
 
@@ -419,36 +422,6 @@ namespace v8 { template <typename T> class AlignOfHelper { char c; T t; }; }
 #else
 #define V8_WARN_UNUSED_RESULT /* NOT SUPPORTED */
 #endif
-
-#ifdef V8_OS_WIN
-
-// Setup for Windows DLL export/import. When building the V8 DLL the
-// BUILDING_V8_SHARED needs to be defined. When building a program which uses
-// the V8 DLL USING_V8_SHARED needs to be defined. When either building the V8
-// static library or building a program which uses the V8 static library neither
-// BUILDING_V8_SHARED nor USING_V8_SHARED should be defined.
-#ifdef BUILDING_V8_SHARED
-# define V8_EXPORT __declspec(dllexport)
-#elif USING_V8_SHARED
-# define V8_EXPORT __declspec(dllimport)
-#else
-# define V8_EXPORT
-#endif  // BUILDING_V8_SHARED
-
-#else  // V8_OS_WIN
-
-// Setup for Linux shared library export.
-#if V8_HAS_ATTRIBUTE_VISIBILITY
-# ifdef BUILDING_V8_SHARED
-#  define V8_EXPORT __attribute__ ((visibility("default")))
-# else
-#  define V8_EXPORT
-# endif
-#else
-# define V8_EXPORT
-#endif
-
-#endif  // V8_OS_WIN
 
 // clang-format on
 

@@ -20,11 +20,10 @@ namespace torque {
 
 class Scope;
 class ScopeChain;
-class Generic;
 
 class Declarable {
  public:
-  virtual ~Declarable() = default;
+  virtual ~Declarable() {}
   enum Kind {
     kVariable,
     kParameter,
@@ -172,23 +171,20 @@ class Label : public Declarable {
   DECLARE_DECLARABLE_BOILERPLATE(Label, label);
   void MarkUsed() { used_ = true; }
   bool IsUsed() const { return used_; }
-  bool IsDeferred() const { return deferred_; }
 
  private:
   friend class Declarations;
-  explicit Label(const std::string& name, bool deferred = false)
+  explicit Label(const std::string& name)
       : Declarable(Declarable::kLabel),
         name_(name),
         generated_("label_" + name + "_" + std::to_string(next_id_++)),
-        used_(false),
-        deferred_(deferred) {}
+        used_(false) {}
 
   std::string name_;
   std::string generated_;
   std::vector<Variable*> parameters_;
   static size_t next_id_;
   bool used_;
-  bool deferred_;
 };
 
 class ExternConstant : public Value {
@@ -227,37 +223,35 @@ class Callable : public Declarable {
   }
   void IncrementReturns() { ++returns_; }
   bool HasReturns() const { return returns_; }
-  base::Optional<Generic*> generic() const { return generic_; }
 
  protected:
   Callable(Declarable::Kind kind, const std::string& name,
-           const Signature& signature, base::Optional<Generic*> generic)
-      : Declarable(kind),
-        name_(name),
-        signature_(signature),
-        returns_(0),
-        generic_(generic) {}
+           const Signature& signature)
+      : Declarable(kind), name_(name), signature_(signature), returns_(0) {}
 
  private:
   std::string name_;
   Signature signature_;
   size_t returns_;
-  base::Optional<Generic*> generic_;
 };
 
 class Macro : public Callable {
  public:
   DECLARE_DECLARABLE_BOILERPLATE(Macro, macro);
 
- private:
-  friend class Declarations;
-  Macro(const std::string& name, const Signature& signature,
-        base::Optional<Generic*> generic)
-      : Callable(Declarable::kMacro, name, signature, generic) {
+ protected:
+  Macro(Declarable::Kind type, const std::string& name,
+        const Signature& signature)
+      : Callable(type, name, signature) {
     if (signature.parameter_types.var_args) {
       ReportError("Varargs are not supported for macros.");
     }
   }
+
+ private:
+  friend class Declarations;
+  Macro(const std::string& name, const Signature& signature)
+      : Macro(Declarable::kMacro, name, signature) {}
 };
 
 class MacroList : public Declarable {
@@ -289,8 +283,8 @@ class Builtin : public Callable {
  private:
   friend class Declarations;
   Builtin(const std::string& name, Builtin::Kind kind, bool external,
-          const Signature& signature, base::Optional<Generic*> generic)
-      : Callable(Declarable::kBuiltin, name, signature, generic),
+          const Signature& signature)
+      : Callable(Declarable::kBuiltin, name, signature),
         kind_(kind),
         external_(external) {}
 
@@ -304,9 +298,8 @@ class RuntimeFunction : public Callable {
 
  private:
   friend class Declarations;
-  RuntimeFunction(const std::string& name, const Signature& signature,
-                  base::Optional<Generic*> generic)
-      : Callable(Declarable::kRuntimeFunction, name, signature, generic) {}
+  RuntimeFunction(const std::string& name, const Signature& signature)
+      : Callable(Declarable::kRuntimeFunction, name, signature) {}
 };
 
 class Generic : public Declarable {

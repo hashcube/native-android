@@ -167,6 +167,7 @@ static_assert(sizeof(Register) == sizeof(int),
               "Register can efficiently be passed by value");
 
 // r7: context register
+// r9: lithium scratch
 #define DECLARE_REGISTER(R) \
   constexpr Register R = Register::from_code<kRegCode_##R>();
 GENERAL_REGISTERS(DECLARE_REGISTER)
@@ -393,7 +394,7 @@ enum Coprocessor {
 // Machine instruction Operands
 
 // Class Operand represents a shifter operand in data processing instructions
-class Operand {
+class Operand BASE_EMBEDDED {
  public:
   // immediate
   V8_INLINE explicit Operand(int32_t immediate,
@@ -425,7 +426,6 @@ class Operand {
 
   static Operand EmbeddedNumber(double number);  // Smi or HeapNumber.
   static Operand EmbeddedCode(CodeStub* stub);
-  static Operand EmbeddedStringConstant(const StringConstantBase* str);
 
   // Return true if this is a register operand.
   bool IsRegister() const {
@@ -499,7 +499,7 @@ class Operand {
 
 
 // Class MemOperand represents a memory operand in load and store instructions
-class MemOperand {
+class MemOperand BASE_EMBEDDED {
  public:
   // [rn +/- offset]      Offset/NegOffset
   // [rn +/- offset]!     PreIndex/NegPreIndex
@@ -558,7 +558,7 @@ class MemOperand {
 
 // Class NeonMemOperand represents a memory operand in load and
 // store NEON instructions
-class NeonMemOperand {
+class NeonMemOperand BASE_EMBEDDED {
  public:
   // [rn {:align}]       Offset
   // [rn {:align}]!      PostIndex
@@ -581,7 +581,7 @@ class NeonMemOperand {
 
 
 // Class NeonListOperand represents a list of NEON registers
-class NeonListOperand {
+class NeonListOperand BASE_EMBEDDED {
  public:
   explicit NeonListOperand(DoubleRegister base, int register_count = 1)
     : base_(base), register_count_(register_count) {}
@@ -605,7 +605,14 @@ class NeonListOperand {
   int register_count_;
 };
 
-class V8_EXPORT_PRIVATE Assembler : public AssemblerBase {
+
+struct VmovIndex {
+  unsigned char index;
+};
+constexpr VmovIndex VmovIndexLo = { 0 };
+constexpr VmovIndex VmovIndexHi = { 1 };
+
+class Assembler : public AssemblerBase {
  public:
   // Create an assembler. Instructions and relocation information are emitted
   // into a buffer, with the instructions starting from the beginning and the
@@ -692,6 +699,9 @@ class V8_EXPORT_PRIVATE Assembler : public AssemblerBase {
   // instruction.  The address in the constant pool is the same size as a
   // pointer.
   static constexpr int kSpecialTargetSize = kPointerSize;
+
+  // Size of an instruction.
+  static constexpr int kInstrSize = sizeof(Instr);
 
   RegList* GetScratchRegisterList() { return &scratch_register_list_; }
   VfpRegList* GetScratchVfpRegisterList() {
@@ -898,7 +908,6 @@ class V8_EXPORT_PRIVATE Assembler : public AssemblerBase {
 
   // Reverse the bits in a register.
   void rbit(Register dst, Register src, Condition cond = al);
-  void rev(Register dst, Register src, Condition cond = al);
 
   // Status register access instructions
 
@@ -931,9 +940,6 @@ class V8_EXPORT_PRIVATE Assembler : public AssemblerBase {
   void strexb(Register src1, Register src2, Register dst, Condition cond = al);
   void ldrexh(Register dst, Register src, Condition cond = al);
   void strexh(Register src1, Register src2, Register dst, Condition cond = al);
-  void ldrexd(Register dst1, Register dst2, Register src, Condition cond = al);
-  void strexd(Register res, Register src1, Register src2, Register dst,
-              Condition cond = al);
 
   // Preload instructions
   void pld(const MemOperand& address);
@@ -1062,6 +1068,16 @@ class V8_EXPORT_PRIVATE Assembler : public AssemblerBase {
             const SwVfpRegister src,
             const Condition cond = al);
   void vmov(const DwVfpRegister dst,
+            const DwVfpRegister src,
+            const Condition cond = al);
+  // TODO(bbudge) Replace uses of these with the more general core register to
+  // scalar register vmov's.
+  void vmov(const DwVfpRegister dst,
+            const VmovIndex index,
+            const Register src,
+            const Condition cond = al);
+  void vmov(const Register dst,
+            const VmovIndex index,
             const DwVfpRegister src,
             const Condition cond = al);
   void vmov(const DwVfpRegister dst,
@@ -1621,6 +1637,9 @@ class V8_EXPORT_PRIVATE Assembler : public AssemblerBase {
   std::vector<ConstantPoolEntry> pending_32_bit_constants_;
   std::vector<ConstantPoolEntry> pending_64_bit_constants_;
 
+  // Map of address of handle to index in pending_32_bit_constants_.
+  std::map<Address, int> handle_to_index_map_;
+
   // Scratch registers available for use by the Assembler.
   RegList scratch_register_list_;
   VfpRegList scratch_vfp_register_list_;
@@ -1686,6 +1705,7 @@ class V8_EXPORT_PRIVATE Assembler : public AssemblerBase {
   void RecordRelocInfo(RelocInfo::Mode rmode, intptr_t data = 0);
   void ConstantPoolAddEntry(int position, RelocInfo::Mode rmode,
                             intptr_t value);
+  void ConstantPoolAddEntry(int position, Double value);
   void AllocateAndInstallRequestedHeapObjects(Isolate* isolate);
 
   friend class RelocInfo;
@@ -1694,7 +1714,7 @@ class V8_EXPORT_PRIVATE Assembler : public AssemblerBase {
   friend class UseScratchRegisterScope;
 };
 
-class EnsureSpace {
+class EnsureSpace BASE_EMBEDDED {
  public:
   V8_INLINE explicit EnsureSpace(Assembler* assembler);
 };

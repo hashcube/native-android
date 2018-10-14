@@ -16,8 +16,11 @@ SamplingCircularQueue<T, L>::SamplingCircularQueue()
       dequeue_pos_(buffer_) {
 }
 
-template <typename T, unsigned L>
-SamplingCircularQueue<T, L>::~SamplingCircularQueue() = default;
+
+template<typename T, unsigned L>
+SamplingCircularQueue<T, L>::~SamplingCircularQueue() {
+}
+
 
 template<typename T, unsigned L>
 T* SamplingCircularQueue<T, L>::Peek() {

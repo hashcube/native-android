@@ -35,11 +35,11 @@ constexpr Register kJavaScriptCallExtraArg1Register = a2;
 constexpr Register kOffHeapTrampolineRegister = at;
 constexpr Register kRuntimeCallFunctionRegister = a1;
 constexpr Register kRuntimeCallArgCountRegister = a0;
-constexpr Register kRuntimeCallArgvRegister = a2;
 constexpr Register kWasmInstanceRegister = a0;
 
 // Forward declarations.
-enum class AbortReason : uint8_t;
+enum class AbortReason;
+class JumpTarget;
 
 // Reserved Register Usage Summary.
 //
@@ -58,6 +58,14 @@ enum class AbortReason : uint8_t;
 enum LeaveExitFrameMode {
   EMIT_RETURN = true,
   NO_EMIT_RETURN = false
+};
+
+// Flags used for AllocateHeapNumber
+enum TaggingMode {
+  // Tag the result.
+  TAG_RESULT,
+  // Don't tag
+  DONT_TAG_RESULT
 };
 
 // Allow programmer to use Branch Delay Slot of Branches, Jumps, Calls.
@@ -94,6 +102,13 @@ Register GetRegisterThatIsNotOneOf(Register reg1,
                                    Register reg4 = no_reg,
                                    Register reg5 = no_reg,
                                    Register reg6 = no_reg);
+
+bool AreAliased(Register reg1, Register reg2, Register reg3 = no_reg,
+                Register reg4 = no_reg, Register reg5 = no_reg,
+                Register reg6 = no_reg, Register reg7 = no_reg,
+                Register reg8 = no_reg, Register reg9 = no_reg,
+                Register reg10 = no_reg);
+
 
 // -----------------------------------------------------------------------------
 // Static helper functions.
@@ -133,11 +148,8 @@ inline MemOperand CFunctionArgumentOperand(int index) {
   return MemOperand(sp, offset);
 }
 
-class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
+class TurboAssembler : public TurboAssemblerBase {
  public:
-  TurboAssembler(const AssemblerOptions& options, void* buffer, int buffer_size)
-      : TurboAssemblerBase(options, buffer, buffer_size) {}
-
   TurboAssembler(Isolate* isolate, const AssemblerOptions& options,
                  void* buffer, int buffer_size,
                  CodeObjectRequired create_code_object)
@@ -243,7 +255,7 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
   void BranchMSA(Label* target, MSABranchDF df, MSABranchCondition cond,
                  MSARegister wt, BranchDelaySlot bd = PROTECT);
 
-  void Branch(Label* L, Condition cond, Register rs, RootIndex index,
+  void Branch(Label* L, Condition cond, Register rs, Heap::RootListIndex index,
               BranchDelaySlot bdslot = PROTECT);
 
   static int InstrCountForLi64Bit(int64_t value);
@@ -254,13 +266,8 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
   inline void li(Register rd, int64_t j, LiFlags mode = OPTIMIZE_SIZE) {
     li(rd, Operand(j), mode);
   }
-  // inline void li(Register rd, int32_t j, LiFlags mode = OPTIMIZE_SIZE) {
-  //   li(rd, Operand(static_cast<int64_t>(j)), mode);
-  // }
   void li(Register dst, Handle<HeapObject> value, LiFlags mode = OPTIMIZE_SIZE);
   void li(Register dst, ExternalReference value, LiFlags mode = OPTIMIZE_SIZE);
-  void li(Register dst, const StringConstantBase* string,
-          LiFlags mode = OPTIMIZE_SIZE);
 
   void LoadFromConstantsTable(Register destination,
                               int constant_index) override;
@@ -275,8 +282,13 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
   void Jump(intptr_t target, RelocInfo::Mode rmode, COND_ARGS);
   void Jump(Address target, RelocInfo::Mode rmode, COND_ARGS);
   void Jump(Handle<Code> code, RelocInfo::Mode rmode, COND_ARGS);
+  static int CallSize(Register target, COND_ARGS);
   void Call(Register target, COND_ARGS);
+  static int CallSize(Address target, RelocInfo::Mode rmode, COND_ARGS);
   void Call(Address target, RelocInfo::Mode rmode, COND_ARGS);
+  int CallSize(Handle<Code> code,
+               RelocInfo::Mode rmode = RelocInfo::CODE_TARGET,
+               COND_ARGS);
   void Call(Handle<Code> code,
             RelocInfo::Mode rmode = RelocInfo::CODE_TARGET,
             COND_ARGS);
@@ -771,8 +783,8 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
                            Func GetLabelFunction);
 
   // Load an object from the root table.
-  void LoadRoot(Register destination, RootIndex index) override;
-  void LoadRoot(Register destination, RootIndex index, Condition cond,
+  void LoadRoot(Register destination, Heap::RootListIndex index) override;
+  void LoadRoot(Register destination, Heap::RootListIndex index, Condition cond,
                 Register src1, const Operand& src2);
 
   // If the value is a NaN, canonicalize the value else, do nothing.
@@ -922,14 +934,10 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
 // MacroAssembler implements a collection of frequently used macros.
 class MacroAssembler : public TurboAssembler {
  public:
-  MacroAssembler(const AssemblerOptions& options, void* buffer, int size)
-      : TurboAssembler(options, buffer, size) {}
-
   MacroAssembler(Isolate* isolate, void* buffer, int size,
                  CodeObjectRequired create_code_object)
       : MacroAssembler(isolate, AssemblerOptions::Default(isolate), buffer,
                        size, create_code_object) {}
-
   MacroAssembler(Isolate* isolate, const AssemblerOptions& options,
                  void* buffer, int size, CodeObjectRequired create_code_object);
 
@@ -939,7 +947,7 @@ class MacroAssembler : public TurboAssembler {
   // less efficient form using xor instead of mov is emitted.
   void Swap(Register reg1, Register reg2, Register scratch = no_reg);
 
-  void PushRoot(RootIndex index) {
+  void PushRoot(Heap::RootListIndex index) {
     UseScratchRegisterScope temps(this);
     Register scratch = temps.Acquire();
     LoadRoot(scratch, index);
@@ -947,7 +955,7 @@ class MacroAssembler : public TurboAssembler {
   }
 
   // Compare the object in a register to a value and jump if they are equal.
-  void JumpIfRoot(Register with, RootIndex index, Label* if_equal) {
+  void JumpIfRoot(Register with, Heap::RootListIndex index, Label* if_equal) {
     UseScratchRegisterScope temps(this);
     Register scratch = temps.Acquire();
     LoadRoot(scratch, index);
@@ -955,7 +963,8 @@ class MacroAssembler : public TurboAssembler {
   }
 
   // Compare the object in a register to a value and jump if they are not equal.
-  void JumpIfNotRoot(Register with, RootIndex index, Label* if_not_equal) {
+  void JumpIfNotRoot(Register with, Heap::RootListIndex index,
+                     Label* if_not_equal) {
     UseScratchRegisterScope temps(this);
     Register scratch = temps.Acquire();
     LoadRoot(scratch, index);
@@ -1277,7 +1286,7 @@ void TurboAssembler::GenerateSwitchTable(Register index, size_t case_count,
     bind(&here);
     daddu(scratch, scratch, ra);
     pop(ra);
-    Ld(scratch, MemOperand(scratch, 6 * v8::internal::kInstrSize));
+    Ld(scratch, MemOperand(scratch, 6 * v8::internal::Assembler::kInstrSize));
   }
   jr(scratch);
   nop();  // Branch delay slot nop.

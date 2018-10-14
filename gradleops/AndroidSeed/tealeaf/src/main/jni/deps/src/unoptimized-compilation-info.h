@@ -55,6 +55,8 @@ class V8_EXPORT_PRIVATE UnoptimizedCompilationInfo final {
 
   DeclarationScope* scope() const;
 
+  bool has_simple_parameters();
+
   int num_parameters() const;
   int num_parameters_including_this() const;
 

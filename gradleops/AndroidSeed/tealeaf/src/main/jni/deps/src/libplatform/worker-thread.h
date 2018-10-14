@@ -21,7 +21,7 @@ class TaskQueue;
 class V8_PLATFORM_EXPORT WorkerThread : public NON_EXPORTED_BASE(base::Thread) {
  public:
   explicit WorkerThread(TaskQueue* queue);
-  ~WorkerThread() override;
+  virtual ~WorkerThread();
 
   // Thread implementation.
   void Run() override;

@@ -89,8 +89,9 @@ class PromiseBuiltinsAssembler : public CodeStubAssembler {
   Node* AllocatePromiseReaction(Node* next, Node* promise_or_capability,
                                 Node* fulfill_handler, Node* reject_handler);
 
-  Node* AllocatePromiseReactionJobTask(RootIndex map_root_index, Node* context,
-                                       Node* argument, Node* handler,
+  Node* AllocatePromiseReactionJobTask(Heap::RootListIndex map_root_index,
+                                       Node* context, Node* argument,
+                                       Node* handler,
                                        Node* promise_or_capability);
   Node* AllocatePromiseReactionJobTask(Node* map, Node* context, Node* argument,
                                        Node* handler,

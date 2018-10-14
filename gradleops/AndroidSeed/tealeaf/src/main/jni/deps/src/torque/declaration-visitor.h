@@ -114,9 +114,7 @@ class DeclarationVisitor : public FileVisitor {
 
   void Visit(LogicalOrExpression* expr);
   void Visit(LogicalAndExpression* expr);
-  void DeclareExpressionForBranch(
-      Expression* node, base::Optional<Statement*> true_statement = {},
-      base::Optional<Statement*> false_statement = {});
+  void DeclareExpressionForBranch(Expression* node);
 
   void Visit(ConditionalExpression* expr);
   void Visit(IfStatement* stmt);
@@ -138,8 +136,6 @@ class DeclarationVisitor : public FileVisitor {
     MarkLocationModified(expr->location);
     Visit(expr->location);
   }
-
-  void Visit(AssumeTypeImpossibleExpression* expr) { Visit(expr->expression); }
 
   void Visit(TryLabelStatement* stmt);
   void GenerateHeader(std::string& file_name);

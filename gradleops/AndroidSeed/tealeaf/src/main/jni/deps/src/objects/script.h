@@ -17,6 +17,9 @@ namespace internal {
 // Script describes a script which has been added to the VM.
 class Script : public Struct, public NeverReadOnlySpaceObject {
  public:
+  using NeverReadOnlySpaceObject::GetHeap;
+  using NeverReadOnlySpaceObject::GetIsolate;
+
   // Script types.
   enum Type {
     TYPE_NATIVE = 0,
@@ -179,7 +182,7 @@ class Script : public Struct, public NeverReadOnlySpaceObject {
     Script* Next();
 
    private:
-    WeakArrayList::Iterator iterator_;
+    FixedArrayOfWeakCells::Iterator iterator_;
     DISALLOW_COPY_AND_ASSIGN(Iterator);
   };
 

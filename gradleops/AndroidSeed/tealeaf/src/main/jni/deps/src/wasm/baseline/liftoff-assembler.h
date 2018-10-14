@@ -248,7 +248,7 @@ class LiftoffAssembler : public TurboAssembler {
   };
 
   LiftoffAssembler();
-  ~LiftoffAssembler() override;
+  ~LiftoffAssembler();
 
   LiftoffRegister PopToRegister(LiftoffRegList pinned = {});
 
@@ -314,11 +314,11 @@ class LiftoffAssembler : public TurboAssembler {
   // Load parameters into the right registers / stack slots for the call.
   // Move {*target} into another register if needed and update {*target} to that
   // register, or {no_reg} if target was spilled to the stack.
-  void PrepareCall(FunctionSig*, compiler::CallDescriptor*,
+  void PrepareCall(wasm::FunctionSig*, compiler::CallDescriptor*,
                    Register* target = nullptr,
                    LiftoffRegister* target_instance = nullptr);
   // Process return values of the call.
-  void FinishCall(FunctionSig*, compiler::CallDescriptor*);
+  void FinishCall(wasm::FunctionSig*, compiler::CallDescriptor*);
 
   // Move {src} into {dst}. {src} and {dst} must be different.
   void Move(LiftoffRegister dst, LiftoffRegister src, ValueType);
@@ -362,6 +362,10 @@ class LiftoffAssembler : public TurboAssembler {
                     LiftoffRegister src, StoreType type, LiftoffRegList pinned,
                     uint32_t* protected_store_pc = nullptr,
                     bool is_store_mem = false);
+  inline void ChangeEndiannessLoad(LiftoffRegister dst, LoadType type,
+                                   LiftoffRegList pinned);
+  inline void ChangeEndiannessStore(LiftoffRegister src, StoreType type,
+                                    LiftoffRegList pinned);
   inline void LoadCallerFrameSlot(LiftoffRegister, uint32_t caller_slot_idx,
                                   ValueType);
   inline void MoveStackValue(uint32_t dst_index, uint32_t src_index, ValueType);
@@ -399,7 +403,6 @@ class LiftoffAssembler : public TurboAssembler {
                            LiftoffRegList pinned = {});
   inline void emit_i32_shr(Register dst, Register src, Register amount,
                            LiftoffRegList pinned = {});
-  inline void emit_i32_shr(Register dst, Register src, int amount);
 
   // i32 unops.
   inline bool emit_i32_clz(Register dst, Register src);
@@ -434,8 +437,6 @@ class LiftoffAssembler : public TurboAssembler {
                            Register amount, LiftoffRegList pinned = {});
   inline void emit_i64_shr(LiftoffRegister dst, LiftoffRegister src,
                            Register amount, LiftoffRegList pinned = {});
-  inline void emit_i64_shr(LiftoffRegister dst, LiftoffRegister src,
-                           int amount);
 
   inline void emit_i32_to_intptr(Register dst, Register src);
 
@@ -445,29 +446,6 @@ class LiftoffAssembler : public TurboAssembler {
                    LiftoffRegister(rhs));
     } else {
       emit_i32_add(dst, lhs, rhs);
-    }
-  }
-  inline void emit_ptrsize_sub(Register dst, Register lhs, Register rhs) {
-    if (kPointerSize == 8) {
-      emit_i64_sub(LiftoffRegister(dst), LiftoffRegister(lhs),
-                   LiftoffRegister(rhs));
-    } else {
-      emit_i32_sub(dst, lhs, rhs);
-    }
-  }
-  inline void emit_ptrsize_and(Register dst, Register lhs, Register rhs) {
-    if (kPointerSize == 8) {
-      emit_i64_and(LiftoffRegister(dst), LiftoffRegister(lhs),
-                   LiftoffRegister(rhs));
-    } else {
-      emit_i32_and(dst, lhs, rhs);
-    }
-  }
-  inline void emit_ptrsize_shr(Register dst, Register src, int amount) {
-    if (kPointerSize == 8) {
-      emit_i64_shr(LiftoffRegister(dst), LiftoffRegister(src), amount);
-    } else {
-      emit_i32_shr(dst, src, amount);
     }
   }
 
@@ -484,8 +462,6 @@ class LiftoffAssembler : public TurboAssembler {
                            DoubleRegister rhs);
   inline void emit_f32_max(DoubleRegister dst, DoubleRegister lhs,
                            DoubleRegister rhs);
-  inline void emit_f32_copysign(DoubleRegister dst, DoubleRegister lhs,
-                                DoubleRegister rhs);
 
   // f32 unops.
   inline void emit_f32_abs(DoubleRegister dst, DoubleRegister src);
@@ -509,8 +485,6 @@ class LiftoffAssembler : public TurboAssembler {
                            DoubleRegister rhs);
   inline void emit_f64_max(DoubleRegister dst, DoubleRegister lhs,
                            DoubleRegister rhs);
-  inline void emit_f64_copysign(DoubleRegister dst, DoubleRegister lhs,
-                                DoubleRegister rhs);
 
   // f64 unops.
   inline void emit_f64_abs(DoubleRegister dst, DoubleRegister src);
@@ -521,14 +495,9 @@ class LiftoffAssembler : public TurboAssembler {
   inline bool emit_f64_nearest_int(DoubleRegister dst, DoubleRegister src);
   inline void emit_f64_sqrt(DoubleRegister dst, DoubleRegister src);
 
+  // type conversions.
   inline bool emit_type_conversion(WasmOpcode opcode, LiftoffRegister dst,
                                    LiftoffRegister src, Label* trap = nullptr);
-
-  inline void emit_i32_signextend_i8(Register dst, Register src);
-  inline void emit_i32_signextend_i16(Register dst, Register src);
-  inline void emit_i64_signextend_i8(LiftoffRegister dst, LiftoffRegister src);
-  inline void emit_i64_signextend_i16(LiftoffRegister dst, LiftoffRegister src);
-  inline void emit_i64_signextend_i32(LiftoffRegister dst, LiftoffRegister src);
 
   inline void emit_jump(Label*);
   inline void emit_jump(Register);
@@ -563,13 +532,13 @@ class LiftoffAssembler : public TurboAssembler {
   // this is the return value of the C function, stored in {rets[0]}. Further
   // outputs (specified in {sig->returns()}) are read from the buffer and stored
   // in the remaining {rets} registers.
-  inline void CallC(FunctionSig* sig, const LiftoffRegister* args,
+  inline void CallC(wasm::FunctionSig* sig, const LiftoffRegister* args,
                     const LiftoffRegister* rets, ValueType out_argument_type,
                     int stack_bytes, ExternalReference ext_ref);
 
   inline void CallNativeWasmCode(Address addr);
   // Indirect call: If {target == no_reg}, then pop the target from the stack.
-  inline void CallIndirect(FunctionSig* sig,
+  inline void CallIndirect(wasm::FunctionSig* sig,
                            compiler::CallDescriptor* call_descriptor,
                            Register target);
   inline void CallRuntimeStub(WasmCode::RuntimeStubId sid);

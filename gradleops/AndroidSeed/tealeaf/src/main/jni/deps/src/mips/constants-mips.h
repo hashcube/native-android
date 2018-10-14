@@ -1120,6 +1120,30 @@ enum MSABranchDF {
   MSA_BRANCH_V
 };
 
+// Commute a condition such that {a cond b == b cond' a}.
+inline Condition CommuteCondition(Condition cc) {
+  switch (cc) {
+    case Uless:
+      return Ugreater;
+    case Ugreater:
+      return Uless;
+    case Ugreater_equal:
+      return Uless_equal;
+    case Uless_equal:
+      return Ugreater_equal;
+    case less:
+      return greater;
+    case greater:
+      return less;
+    case greater_equal:
+      return less_equal;
+    case less_equal:
+      return greater_equal;
+    default:
+      return cc;
+  }
+}
+
 
 // ----- Coprocessor conditions.
 enum FPUCondition {
@@ -1220,12 +1244,11 @@ static constexpr uint64_t OpcodeToBitNumber(Opcode opcode) {
   return 1ULL << (static_cast<uint32_t>(opcode) >> kOpcodeShift);
 }
 
-constexpr uint8_t kInstrSize = 4;
-constexpr uint8_t kInstrSizeLog2 = 2;
-
 class InstructionBase {
  public:
   enum {
+    kInstrSize = 4,
+    kInstrSizeLog2 = 2,
     // On MIPS PC cannot actually be directly accessed. We behave as if PC was
     // always the value of the current instruction being executed.
     kPCReadOffset = 0
@@ -1684,14 +1707,14 @@ class Instruction : public InstructionGetters<InstructionBase> {
 
 // C/C++ argument slots size.
 const int kCArgSlotCount = 4;
-const int kCArgsSlotsSize = kCArgSlotCount * kInstrSize;
+const int kCArgsSlotsSize = kCArgSlotCount * Instruction::kInstrSize;
 const int kInvalidStackOffset = -1;
 // JS argument slots size.
-const int kJSArgsSlotsSize = 0 * kInstrSize;
+const int kJSArgsSlotsSize = 0 * Instruction::kInstrSize;
 // Assembly builtins argument slots size.
-const int kBArgsSlotsSize = 0 * kInstrSize;
+const int kBArgsSlotsSize = 0 * Instruction::kInstrSize;
 
-const int kBranchReturnOffset = 2 * kInstrSize;
+const int kBranchReturnOffset = 2 * Instruction::kInstrSize;
 
 InstructionBase::Type InstructionBase::InstructionType() const {
   switch (OpcodeFieldRaw()) {

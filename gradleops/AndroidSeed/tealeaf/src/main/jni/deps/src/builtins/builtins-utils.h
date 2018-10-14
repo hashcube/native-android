@@ -34,18 +34,30 @@ class BuiltinArguments : public Arguments {
     return Arguments::at<S>(index);
   }
 
-  static constexpr int kNewTargetOffset = 0;
-  static constexpr int kTargetOffset = 1;
-  static constexpr int kArgcOffset = 2;
-  static constexpr int kPaddingOffset = 3;
+  Handle<Object> atOrUndefined(Isolate* isolate, int index) {
+    if (index >= length()) {
+      return isolate->factory()->undefined_value();
+    }
+    return at<Object>(index);
+  }
 
-  static constexpr int kNumExtraArgs = 4;
-  static constexpr int kNumExtraArgsWithReceiver = 5;
+  Handle<Object> receiver() { return Arguments::at<Object>(0); }
 
-  inline Handle<Object> atOrUndefined(Isolate* isolate, int index);
-  inline Handle<Object> receiver();
-  inline Handle<JSFunction> target();
-  inline Handle<HeapObject> new_target();
+  static const int kNewTargetOffset = 0;
+  static const int kTargetOffset = 1;
+  static const int kArgcOffset = 2;
+  static const int kPaddingOffset = 3;
+
+  static const int kNumExtraArgs = 4;
+  static const int kNumExtraArgsWithReceiver = 5;
+
+  Handle<JSFunction> target() {
+    return Arguments::at<JSFunction>(Arguments::length() - 1 - kTargetOffset);
+  }
+  Handle<HeapObject> new_target() {
+    return Arguments::at<HeapObject>(Arguments::length() - 1 -
+                                     kNewTargetOffset);
+  }
 
   // Gets the total number of arguments including the receiver (but
   // excluding extra arguments).

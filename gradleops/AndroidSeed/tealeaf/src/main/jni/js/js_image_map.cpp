@@ -23,12 +23,10 @@
 #include "include/v8.h"
 using namespace v8;
 
-static void image_map_finalize(Persistent<Value> ctx, void *param) {
-    Isolate *isolate = Isolate::GetCurrent();
-    HandleScope handle_scope(isolate);;
+static void image_map_finalize(Persistent<Value> ctx, void *param, Isolate *isolate) {
+    HandleScope handle_scope(isolate);
     timestep_image_map *map = static_cast<timestep_image_map*>( param );
     timestep_image_delete(map);
-
     ctx.Reset();
 }
 

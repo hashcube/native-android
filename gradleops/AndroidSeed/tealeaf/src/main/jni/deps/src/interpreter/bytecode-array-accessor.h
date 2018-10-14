@@ -70,8 +70,6 @@ class V8_EXPORT_PRIVATE BytecodeArrayAccessor {
 
   void SetOffset(int offset);
 
-  void ApplyDebugBreak();
-
   Bytecode current_bytecode() const;
   int current_bytecode_size() const;
   int current_offset() const { return bytecode_offset_; }

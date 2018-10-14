@@ -124,9 +124,7 @@ namespace compiler {
   V(PPC_StoreWord32)               \
   V(PPC_StoreWord64)               \
   V(PPC_StoreFloat32)              \
-  V(PPC_StoreDouble)               \
-  V(PPC_ByteRev32)                 \
-  V(PPC_ByteRev64)
+  V(PPC_StoreDouble)
 
 // Addressing modes represent the "shape" of inputs to an instruction.
 // Many instructions support multiple addressing modes. Addressing modes

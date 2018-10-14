@@ -7,7 +7,6 @@
 
 #include "src/globals.h"
 #include "src/objects/fixed-array.h"
-#include "src/objects/js-objects.h"
 
 // Has to be the last include (doesn't have include guards):
 #include "src/objects/object-macros.h"
@@ -145,7 +144,7 @@ class OrderedHashTable : public OrderedHashTableBase {
     // This special cases for Smi, so that we avoid the HandleScope
     // creation below.
     if (key->IsSmi()) {
-      uint32_t hash = ComputeUnseededHash(Smi::ToInt(key));
+      uint32_t hash = ComputeIntegerHash(Smi::ToInt(key));
       return HashToEntry(hash & Smi::kMaxValue);
     }
     HandleScope scope(isolate);
@@ -232,7 +231,7 @@ class OrderedHashSet : public OrderedHashTable<OrderedHashSet, 1> {
                                                Handle<OrderedHashSet> table,
                                                GetKeysConversion convert);
   static HeapObject* GetEmpty(ReadOnlyRoots ro_roots);
-  static inline RootIndex GetMapRootIndex();
+  static inline int GetMapRootIndex();
   static inline bool Is(Handle<HeapObject> table);
 };
 
@@ -250,7 +249,7 @@ class OrderedHashMap : public OrderedHashTable<OrderedHashMap, 2> {
   static Object* GetHash(Isolate* isolate, Object* key);
 
   static HeapObject* GetEmpty(ReadOnlyRoots ro_roots);
-  static inline RootIndex GetMapRootIndex();
+  static inline int GetMapRootIndex();
   static inline bool Is(Handle<HeapObject> table);
 
   static const int kValueOffset = 1;
@@ -326,6 +325,9 @@ class SmallOrderedHashTable : public HeapObject {
 
   // Iterates only fields in the DataTable.
   class BodyDescriptor;
+
+  // No weak fields.
+  typedef BodyDescriptor BodyDescriptorWeak;
 
   // Returns total size in bytes required for a table of given
   // capacity.
@@ -552,7 +554,7 @@ class SmallOrderedHashSet : public SmallOrderedHashTable<SmallOrderedHashSet> {
                                               Handle<SmallOrderedHashSet> table,
                                               Handle<Object> key);
   static inline bool Is(Handle<HeapObject> table);
-  static inline RootIndex GetMapRootIndex();
+  static inline int GetMapRootIndex();
 };
 
 class SmallOrderedHashMap : public SmallOrderedHashTable<SmallOrderedHashMap> {
@@ -573,7 +575,7 @@ class SmallOrderedHashMap : public SmallOrderedHashTable<SmallOrderedHashMap> {
                                               Handle<Object> key,
                                               Handle<Object> value);
   static inline bool Is(Handle<HeapObject> table);
-  static inline RootIndex GetMapRootIndex();
+  static inline int GetMapRootIndex();
 };
 
 // TODO(gsathya): Rename this to OrderedHashTable, after we rename

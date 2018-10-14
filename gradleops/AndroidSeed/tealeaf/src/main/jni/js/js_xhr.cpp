@@ -30,7 +30,7 @@ void xhr_send(const FunctionCallbackInfo<Value> &args) {
     const char *method = ToCString(arg0);
     const char *url = ToCString(arg1);
 
-    bool async = args[2]->BooleanValue(isolate);
+    bool async = args[2]->BooleanValue();
     const char *data = NULL;
     String::Utf8Value arg3(isolate, args[3]);
     data = ToCString(arg3);
@@ -84,8 +84,7 @@ void xhr_send(const FunctionCallbackInfo<Value> &args) {
     LOGFN("end xhr send");
 }
 
-Local<ObjectTemplate> js_xhr_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_xhr_get_template(Isolate *isolate) {
     Local<ObjectTemplate> xhr = ObjectTemplate::New(isolate);
     xhr->Set(STRING_CACHE_send.Get(isolate), FunctionTemplate::New(isolate, xhr_send));
     return xhr;

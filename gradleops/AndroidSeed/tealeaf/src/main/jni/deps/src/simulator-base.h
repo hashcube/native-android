@@ -7,6 +7,7 @@
 
 #include <type_traits>
 
+#include "src/assembler.h"
 #include "src/globals.h"
 #include "src/isolate.h"
 

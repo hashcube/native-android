@@ -19,6 +19,10 @@
 #define JS_ANIMATE_TEMPLATE_H
 
 #include "js/js.h"
-v8::Local<v8::FunctionTemplate> js_animate_get_template();
+
+#include "include/v8.h"
+using namespace v8;
+
+v8::Local<v8::FunctionTemplate> js_animate_get_template(Isolate *isolate);
 
 #endif //JS_ANIMATE_TEMPLATE_H

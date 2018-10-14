@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "src/base/platform/mutex.h"
-#include "src/objects/js-array-buffer.h"
+#include "src/objects/js-array.h"
 
 namespace v8 {
 namespace internal {
@@ -23,27 +23,24 @@ class ArrayBufferCollector {
  public:
   explicit ArrayBufferCollector(Heap* heap) : heap_(heap) {}
 
-  ~ArrayBufferCollector() { PerformFreeAllocations(); }
+  ~ArrayBufferCollector() { FreeAllocations(); }
 
-  // These allocations will be either
-  // - freed immediately when under memory pressure, or
-  // - queued for freeing in FreeAllocations() or during tear down.
-  //
-  // FreeAllocations() potentially triggers a background task for processing.
-  void QueueOrFreeGarbageAllocations(
+  // These allocations will begin to be freed once FreeAllocations() is called,
+  // or on TearDown.
+  void AddGarbageAllocations(
       std::vector<JSArrayBuffer::Allocation> allocations);
 
   // Calls FreeAllocations() on a background thread.
-  void FreeAllocations();
+  void FreeAllocationsOnBackgroundThread();
 
  private:
   class FreeingTask;
 
-  // Begin freeing the allocations added through QueueOrFreeGarbageAllocations.
-  // Also called by TearDown.
-  void PerformFreeAllocations();
+  // Begin freeing the allocations added through AddGarbageAllocations. Also
+  // called by TearDown.
+  void FreeAllocations();
 
-  Heap* const heap_;
+  Heap* heap_;
   base::Mutex allocations_mutex_;
   std::vector<std::vector<JSArrayBuffer::Allocation>> allocations_;
 };

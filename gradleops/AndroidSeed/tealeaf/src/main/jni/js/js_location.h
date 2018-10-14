@@ -19,7 +19,7 @@
 #include "include/v8.h"
 using namespace v8;
 
-void native_initialize_location(const char *uri);
+void native_initialize_location(const char *uri, Isolate *isolate);
 
 // setLocation() handler
 void native_set_location(const v8::FunctionCallbackInfo<v8::Value> &args);

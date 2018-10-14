@@ -19,11 +19,8 @@ class PrototypeInfo : public Struct {
  public:
   static const int UNREGISTERED = -1;
 
-  // [module_namespace]: A backpointer to JSModuleNamespace from its
-  // PrototypeInfo (or undefined). This field is only used for JSModuleNamespace
-  // maps.  TODO(jkummerow): Figure out if there's a way to store the namespace
-  // pointer elsewhere to save memory.
-  DECL_ACCESSORS(module_namespace, Object)
+  // [weak_cell]: A WeakCell containing this prototype. ICs cache the cell here.
+  DECL_ACCESSORS(weak_cell, Object)
 
   // [prototype_users]: WeakArrayList containing weak references to maps using
   // this prototype, or Smi(0) if uninitialized.
@@ -52,9 +49,8 @@ class PrototypeInfo : public Struct {
   DECL_PRINTER(PrototypeInfo)
   DECL_VERIFIER(PrototypeInfo)
 
-  static const int kJSModuleNamespaceOffset = HeapObject::kHeaderSize;
-  static const int kPrototypeUsersOffset =
-      kJSModuleNamespaceOffset + kPointerSize;
+  static const int kWeakCellOffset = HeapObject::kHeaderSize;
+  static const int kPrototypeUsersOffset = kWeakCellOffset + kPointerSize;
   static const int kRegistrySlotOffset = kPrototypeUsersOffset + kPointerSize;
   static const int kValidityCellOffset = kRegistrySlotOffset + kPointerSize;
   static const int kObjectCreateMapOffset = kValidityCellOffset + kPointerSize;
@@ -88,8 +84,7 @@ class PrototypeUsers : public WeakArrayList {
   typedef void (*CompactionCallback)(HeapObject* object, int from_index,
                                      int to_index);
   static WeakArrayList* Compact(Handle<WeakArrayList> array, Heap* heap,
-                                CompactionCallback callback,
-                                PretenureFlag pretenure = NOT_TENURED);
+                                CompactionCallback callback);
 
 #ifdef VERIFY_HEAP
   static void Verify(WeakArrayList* array);

@@ -27,6 +27,6 @@ void js_overlay_hide();
 void js_overlay_send_event(const char *event);
 void js_overlay_on_event(const char *event);
 void js_overlay_dispatch_events();
-Local<ObjectTemplate> js_overlay_get_template();
+Local<ObjectTemplate> js_overlay_get_template(Isolate *isolate);
 
 #endif

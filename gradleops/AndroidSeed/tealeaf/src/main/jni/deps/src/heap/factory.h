@@ -5,18 +5,14 @@
 #ifndef V8_HEAP_FACTORY_H_
 #define V8_HEAP_FACTORY_H_
 
-// Clients of this interface shouldn't depend on lots of heap internals.
-// Do not include anything from src/heap here!
 #include "src/builtins/builtins.h"
 #include "src/globals.h"
 #include "src/handles.h"
 #include "src/heap/heap.h"
-#include "src/maybe-handles.h"
 #include "src/messages.h"
 #include "src/objects/code.h"
 #include "src/objects/dictionary.h"
 #include "src/objects/hash-table.h"
-#include "src/objects/js-array-buffer.h"
 #include "src/objects/js-array.h"
 #include "src/objects/js-regexp.h"
 #include "src/objects/ordered-hash-table.h"
@@ -40,18 +36,14 @@ class DebugInfo;
 class EnumCache;
 class FreshlyAllocatedBigInt;
 class Isolate;
-class JSGeneratorObject;
 class JSMap;
 class JSMapIterator;
 class JSModuleNamespace;
-class JSPromise;
-class JSProxy;
 class JSSet;
 class JSSetIterator;
 class JSWeakMap;
 class LoadHandler;
 class ModuleInfo;
-class NativeContext;
 class NewFunctionArgs;
 class PreParsedScopeData;
 class PromiseResolveThenableJobTask;
@@ -108,13 +100,14 @@ class V8_EXPORT_PRIVATE Factory {
   // Allocates a fixed array-like object with given map and initialized with
   // undefined values.
   template <typename T = FixedArray>
-  Handle<T> NewFixedArrayWithMap(RootIndex map_root_index, int length,
+  Handle<T> NewFixedArrayWithMap(Heap::RootListIndex map_root_index, int length,
                                  PretenureFlag pretenure = NOT_TENURED);
 
   // Allocates a weak fixed array-like object with given map and initialized
   // with undefined values.
   template <typename T = WeakFixedArray>
-  Handle<T> NewWeakFixedArrayWithMap(RootIndex map_root_index, int length,
+  Handle<T> NewWeakFixedArrayWithMap(Heap::RootListIndex map_root_index,
+                                     int length,
                                      PretenureFlag pretenure = NOT_TENURED);
 
   // Allocates a fixed array initialized with undefined values.
@@ -362,18 +355,17 @@ class V8_EXPORT_PRIVATE Factory {
   Handle<Symbol> NewPrivateFieldSymbol();
 
   // Create a global (but otherwise uninitialized) context.
-  Handle<NativeContext> NewNativeContext();
+  Handle<Context> NewNativeContext();
 
   // Create a script context.
-  Handle<Context> NewScriptContext(Handle<NativeContext> outer,
+  Handle<Context> NewScriptContext(Handle<Context> outer,
                                    Handle<ScopeInfo> scope_info);
 
   // Create an empty script context table.
   Handle<ScriptContextTable> NewScriptContextTable();
 
   // Create a module context.
-  Handle<Context> NewModuleContext(Handle<Module> module,
-                                   Handle<NativeContext> outer,
+  Handle<Context> NewModuleContext(Handle<Module> module, Handle<Context> outer,
                                    Handle<ScopeInfo> scope_info);
 
   // Create a function or eval context.
@@ -405,8 +397,7 @@ class V8_EXPORT_PRIVATE Factory {
   // These are similar to function context but don't have a previous
   // context or any scope info. These are used to store spec defined
   // context values.
-  Handle<Context> NewBuiltinContext(Handle<NativeContext> native_context,
-                                    int length);
+  Handle<Context> NewBuiltinContext(Handle<Context> native_context, int length);
 
   Handle<Struct> NewStruct(InstanceType type,
                            PretenureFlag pretenure = NOT_TENURED);
@@ -439,8 +430,6 @@ class V8_EXPORT_PRIVATE Factory {
       Handle<JSPromise> promise_to_resolve, Handle<JSReceiver> then,
       Handle<JSReceiver> thenable, Handle<Context> context);
 
-  Handle<MicrotaskQueue> NewMicrotaskQueue();
-
   // Foreign objects are pretenured when allocated by the bootstrapper.
   Handle<Foreign> NewForeign(Address addr,
                              PretenureFlag pretenure = NOT_TENURED);
@@ -464,6 +453,9 @@ class V8_EXPORT_PRIVATE Factory {
 
   Handle<PropertyCell> NewPropertyCell(Handle<Name> name,
                                        PretenureFlag pretenure = TENURED);
+
+  Handle<WeakCell> NewWeakCell(Handle<HeapObject> value,
+                               PretenureFlag pretenure = TENURED);
 
   Handle<FeedbackCell> NewNoClosuresCell(Handle<HeapObject> value);
   Handle<FeedbackCell> NewOneClosureCell(Handle<HeapObject> value);
@@ -669,6 +661,13 @@ class V8_EXPORT_PRIVATE Factory {
   Handle<JSMap> NewJSMap();
   Handle<JSSet> NewJSSet();
 
+  Handle<JSMapIterator> NewJSMapIterator(Handle<Map> map,
+                                         Handle<OrderedHashMap> table,
+                                         int index);
+  Handle<JSSetIterator> NewJSSetIterator(Handle<Map> map,
+                                         Handle<OrderedHashSet> table,
+                                         int index);
+
   // Allocates a bound function.
   MaybeHandle<JSBoundFunction> NewJSBoundFunction(
       Handle<JSReceiver> target_function, Handle<Object> bound_this,
@@ -728,14 +727,12 @@ class V8_EXPORT_PRIVATE Factory {
   Handle<PreParsedScopeData> NewPreParsedScopeData(int length);
 
   Handle<UncompiledDataWithoutPreParsedScope>
-  NewUncompiledDataWithoutPreParsedScope(Handle<String> inferred_name,
-                                         int32_t start_position,
+  NewUncompiledDataWithoutPreParsedScope(int32_t start_position,
                                          int32_t end_position,
                                          int32_t function_literal_id);
 
   Handle<UncompiledDataWithPreParsedScope> NewUncompiledDataWithPreParsedScope(
-      Handle<String> inferred_name, int32_t start_position,
-      int32_t end_position, int32_t function_literal_id,
+      int32_t start_position, int32_t end_position, int32_t function_literal_id,
       Handle<PreParsedScopeData>);
 
   // Create an External object for V8's external API.
@@ -820,14 +817,46 @@ class V8_EXPORT_PRIVATE Factory {
   DECLARE_ERROR(WasmRuntimeError)
 #undef DECLARE_ERROR
 
-  Handle<String> NumberToString(Handle<Object> number, bool check_cache = true);
-  Handle<String> NumberToString(Smi* number, bool check_cache = true);
+  Handle<String> NumberToString(Handle<Object> number,
+                                bool check_number_string_cache = true);
 
-  inline Handle<String> Uint32ToString(uint32_t value, bool check_cache = true);
+  inline Handle<String> Uint32ToString(uint32_t value);
 
-#define ROOT_ACCESSOR(type, name, CamelName) inline Handle<type> name();
+#define ROOT_ACCESSOR(type, name, camel_name) inline Handle<type> name();
   ROOT_LIST(ROOT_ACCESSOR)
 #undef ROOT_ACCESSOR
+
+#define STRUCT_MAP_ACCESSOR(NAME, Name, name) inline Handle<Map> name##_map();
+  STRUCT_LIST(STRUCT_MAP_ACCESSOR)
+#undef STRUCT_MAP_ACCESSOR
+
+#define ALLOCATION_SITE_MAP_ACCESSOR(NAME, Name, Size, name) \
+  inline Handle<Map> name##_map();
+  ALLOCATION_SITE_LIST(ALLOCATION_SITE_MAP_ACCESSOR)
+#undef ALLOCATION_SITE_MAP_ACCESSOR
+
+#define DATA_HANDLER_MAP_ACCESSOR(NAME, Name, Size, name) \
+  inline Handle<Map> name##_map();
+  DATA_HANDLER_LIST(DATA_HANDLER_MAP_ACCESSOR)
+#undef DATA_HANDLER_MAP_ACCESSOR
+
+#define STRING_ACCESSOR(name, str) inline Handle<String> name();
+  INTERNALIZED_STRING_LIST(STRING_ACCESSOR)
+#undef STRING_ACCESSOR
+
+#define SYMBOL_ACCESSOR(name) inline Handle<Symbol> name();
+  PRIVATE_SYMBOL_LIST(SYMBOL_ACCESSOR)
+#undef SYMBOL_ACCESSOR
+
+#define SYMBOL_ACCESSOR(name, description) inline Handle<Symbol> name();
+  PUBLIC_SYMBOL_LIST(SYMBOL_ACCESSOR)
+  WELL_KNOWN_SYMBOL_LIST(SYMBOL_ACCESSOR)
+#undef SYMBOL_ACCESSOR
+
+#define ACCESSOR_INFO_ACCESSOR(accessor_name, AccessorName) \
+  inline Handle<AccessorInfo> accessor_name##_accessor();
+  ACCESSOR_INFO_LIST(ACCESSOR_INFO_ACCESSOR)
+#undef ACCESSOR_INFO_ACCESSOR
 
   // Allocates a new SharedFunctionInfo object.
   Handle<SharedFunctionInfo> NewSharedFunctionInfoForApiFunction(
@@ -879,7 +908,7 @@ class V8_EXPORT_PRIVATE Factory {
 
   // Return a map for given number of properties using the map cache in the
   // native context.
-  Handle<Map> ObjectLiteralMapFromCache(Handle<NativeContext> native_context,
+  Handle<Map> ObjectLiteralMapFromCache(Handle<Context> native_context,
                                         int number_of_properties);
 
   Handle<LoadHandler> NewLoadHandler(int data_count);
@@ -923,7 +952,6 @@ class V8_EXPORT_PRIVATE Factory {
     // Downcast to the privately inherited sub-class using c-style casts to
     // avoid undefined behavior (as static_cast cannot cast across private
     // bases).
-    // NOLINTNEXTLINE (google-readability-casting)
     return (Isolate*)this;  // NOLINT(readability/casting)
   }
 
@@ -938,7 +966,7 @@ class V8_EXPORT_PRIVATE Factory {
   HeapObject* AllocateRawArray(int size, PretenureFlag pretenure);
   HeapObject* AllocateRawFixedArray(int length, PretenureFlag pretenure);
   HeapObject* AllocateRawWeakArrayList(int length, PretenureFlag pretenure);
-  Handle<FixedArray> NewFixedArrayWithFiller(RootIndex map_root_index,
+  Handle<FixedArray> NewFixedArrayWithFiller(Heap::RootListIndex map_root_index,
                                              int length, Object* filler,
                                              PretenureFlag pretenure);
 
@@ -967,11 +995,10 @@ class V8_EXPORT_PRIVATE Factory {
 
   // Attempt to find the number in a small cache.  If we finds it, return
   // the string representation of the number.  Otherwise return undefined.
-  Handle<Object> NumberToStringCacheGet(Object* number, int hash);
+  Handle<Object> GetNumberStringCache(Handle<Object> number);
 
   // Update the cache with a new number-string pair.
-  Handle<String> NumberToStringCacheSet(Handle<Object> number, int hash,
-                                        const char* string, bool check_cache);
+  void SetNumberStringCache(Handle<Object> number, Handle<String> string);
 
   // Create a JSArray with no elements and no length.
   Handle<JSArray> NewJSArray(ElementsKind elements_kind,
@@ -1017,7 +1044,7 @@ class NewFunctionArgs final {
   Handle<Map> GetMap(Isolate* isolate) const;
 
  private:
-  NewFunctionArgs() = default;  // Use the static factory constructors.
+  NewFunctionArgs() {}  // Use the static factory constructors.
 
   void SetShouldCreateAndSetInitialMap();
   void SetShouldSetPrototype();

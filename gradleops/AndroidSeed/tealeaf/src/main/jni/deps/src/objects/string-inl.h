@@ -8,7 +8,6 @@
 #include "src/objects/string.h"
 
 #include "src/conversions-inl.h"
-#include "src/handles-inl.h"
 #include "src/heap/factory.h"
 #include "src/objects/name-inl.h"
 #include "src/string-hasher-inl.h"
@@ -19,23 +18,13 @@
 namespace v8 {
 namespace internal {
 
-INT32_ACCESSORS(String, length, kLengthOffset)
-
-int String::synchronized_length() const {
-  return base::AsAtomic32::Acquire_Load(
-      reinterpret_cast<const int32_t*>(FIELD_ADDR(this, kLengthOffset)));
-}
-
-void String::synchronized_set_length(int value) {
-  base::AsAtomic32::Release_Store(
-      reinterpret_cast<int32_t*>(FIELD_ADDR(this, kLengthOffset)), value);
-}
+SMI_ACCESSORS(String, length, kLengthOffset)
+SYNCHRONIZED_SMI_ACCESSORS(String, length, kLengthOffset)
 
 CAST_ACCESSOR(ConsString)
 CAST_ACCESSOR(ExternalOneByteString)
 CAST_ACCESSOR(ExternalString)
 CAST_ACCESSOR(ExternalTwoByteString)
-CAST_ACCESSOR(InternalizedString)
 CAST_ACCESSOR(SeqOneByteString)
 CAST_ACCESSOR(SeqString)
 CAST_ACCESSOR(SeqTwoByteString)
@@ -508,7 +497,7 @@ void SlicedString::set_parent(Isolate* isolate, String* parent,
                               WriteBarrierMode mode) {
   DCHECK(parent->IsSeqString() || parent->IsExternalString());
   WRITE_FIELD(this, kParentOffset, parent);
-  CONDITIONAL_WRITE_BARRIER(this, kParentOffset, parent, mode);
+  CONDITIONAL_WRITE_BARRIER(isolate->heap(), this, kParentOffset, parent, mode);
 }
 
 SMI_ACCESSORS(SlicedString, offset, kOffsetOffset)
@@ -522,7 +511,7 @@ Object* ConsString::unchecked_first() { return READ_FIELD(this, kFirstOffset); }
 void ConsString::set_first(Isolate* isolate, String* value,
                            WriteBarrierMode mode) {
   WRITE_FIELD(this, kFirstOffset, value);
-  CONDITIONAL_WRITE_BARRIER(this, kFirstOffset, value, mode);
+  CONDITIONAL_WRITE_BARRIER(isolate->heap(), this, kFirstOffset, value, mode);
 }
 
 String* ConsString::second() {
@@ -536,7 +525,7 @@ Object* ConsString::unchecked_second() {
 void ConsString::set_second(Isolate* isolate, String* value,
                             WriteBarrierMode mode) {
   WRITE_FIELD(this, kSecondOffset, value);
-  CONDITIONAL_WRITE_BARRIER(this, kSecondOffset, value, mode);
+  CONDITIONAL_WRITE_BARRIER(isolate->heap(), this, kSecondOffset, value, mode);
 }
 
 ACCESSORS(ThinString, actual, String, kActualOffset);
@@ -545,9 +534,9 @@ HeapObject* ThinString::unchecked_actual() const {
   return reinterpret_cast<HeapObject*>(READ_FIELD(this, kActualOffset));
 }
 
-bool ExternalString::is_uncached() const {
+bool ExternalString::is_short() const {
   InstanceType type = map()->instance_type();
-  return (type & kUncachedExternalStringMask) == kUncachedExternalStringTag;
+  return (type & kShortExternalStringMask) == kShortExternalStringTag;
 }
 
 Address ExternalString::resource_as_address() {
@@ -571,7 +560,7 @@ uint32_t ExternalString::resource_as_uint32() {
 
 void ExternalString::set_uint32_as_resource(uint32_t value) {
   *reinterpret_cast<uintptr_t*>(FIELD_ADDR(this, kResourceOffset)) = value;
-  if (is_uncached()) return;
+  if (is_short()) return;
   const char** data_field =
       reinterpret_cast<const char**>(FIELD_ADDR(this, kResourceDataOffset));
   *data_field = nullptr;
@@ -582,18 +571,10 @@ const ExternalOneByteString::Resource* ExternalOneByteString::resource() {
 }
 
 void ExternalOneByteString::update_data_cache() {
-  if (is_uncached()) return;
+  if (is_short()) return;
   const char** data_field =
       reinterpret_cast<const char**>(FIELD_ADDR(this, kResourceDataOffset));
   *data_field = resource()->data();
-}
-
-void ExternalOneByteString::SetResource(
-    Isolate* isolate, const ExternalOneByteString::Resource* resource) {
-  set_resource(resource);
-  size_t new_payload = resource == nullptr ? 0 : resource->length();
-  if (new_payload > 0)
-    isolate->heap()->UpdateExternalString(this, 0, new_payload);
 }
 
 void ExternalOneByteString::set_resource(
@@ -618,18 +599,10 @@ const ExternalTwoByteString::Resource* ExternalTwoByteString::resource() {
 }
 
 void ExternalTwoByteString::update_data_cache() {
-  if (is_uncached()) return;
+  if (is_short()) return;
   const uint16_t** data_field =
       reinterpret_cast<const uint16_t**>(FIELD_ADDR(this, kResourceDataOffset));
   *data_field = resource()->data();
-}
-
-void ExternalTwoByteString::SetResource(
-    Isolate* isolate, const ExternalTwoByteString::Resource* resource) {
-  set_resource(resource);
-  size_t new_payload = resource == nullptr ? 0 : resource->length() * 2;
-  if (new_payload > 0)
-    isolate->heap()->UpdateExternalString(this, 0, new_payload);
 }
 
 void ExternalTwoByteString::set_resource(
@@ -742,7 +715,8 @@ class String::SubStringRange::iterator final {
   typedef uc16* pointer;
   typedef uc16& reference;
 
-  iterator(const iterator& other) = default;
+  iterator(const iterator& other)
+      : content_(other.content_), offset_(other.offset_) {}
 
   uc16 operator*() { return content_.Get(offset_); }
   bool operator==(const iterator& other) const {

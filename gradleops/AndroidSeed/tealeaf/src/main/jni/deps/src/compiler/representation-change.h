@@ -12,9 +12,6 @@ namespace v8 {
 namespace internal {
 namespace compiler {
 
-// Foward declarations.
-class TypeCache;
-
 enum IdentifyZeros { kIdentifyZeros, kDistinguishZeros };
 
 class Truncation final {
@@ -28,6 +25,9 @@ class Truncation final {
   }
   static Truncation Word32() {
     return Truncation(TruncationKind::kWord32, kIdentifyZeros);
+  }
+  static Truncation Word64() {
+    return Truncation(TruncationKind::kWord64, kIdentifyZeros);
   }
   static Truncation Float64(IdentifyZeros identify_zeros = kDistinguishZeros) {
     return Truncation(TruncationKind::kFloat64, identify_zeros);
@@ -57,6 +57,10 @@ class Truncation final {
     return LessGeneral(kind_, TruncationKind::kWord32) ||
            LessGeneral(kind_, TruncationKind::kBool);
   }
+  bool IdentifiesUndefinedAndNaN() {
+    return LessGeneral(kind_, TruncationKind::kFloat64) ||
+           LessGeneral(kind_, TruncationKind::kWord64);
+  }
   bool IdentifiesZeroAndMinusZero() const {
     return identify_zeros() == kIdentifyZeros;
   }
@@ -81,6 +85,7 @@ class Truncation final {
     kNone,
     kBool,
     kWord32,
+    kWord64,
     kFloat64,
     kAny
   };
@@ -157,11 +162,8 @@ class UseInfo {
   static UseInfo TruncatingWord32() {
     return UseInfo(MachineRepresentation::kWord32, Truncation::Word32());
   }
-  static UseInfo Word64() {
-    return UseInfo(MachineRepresentation::kWord64, Truncation::Any());
-  }
-  static UseInfo Word() {
-    return UseInfo(MachineType::PointerRepresentation(), Truncation::Any());
+  static UseInfo TruncatingWord64() {
+    return UseInfo(MachineRepresentation::kWord64, Truncation::Word64());
   }
   static UseInfo Bool() {
     return UseInfo(MachineRepresentation::kBit, Truncation::Bool());
@@ -171,6 +173,9 @@ class UseInfo {
   }
   static UseInfo TruncatingFloat64() {
     return UseInfo(MachineRepresentation::kFloat64, Truncation::Float64());
+  }
+  static UseInfo PointerInt() {
+    return kPointerSize == 4 ? TruncatingWord32() : TruncatingWord64();
   }
   static UseInfo AnyTagged() {
     return UseInfo(MachineRepresentation::kTagged, Truncation::Any());
@@ -258,7 +263,11 @@ class UseInfo {
 // Eagerly folds any representation changes for constants.
 class RepresentationChanger final {
  public:
-  RepresentationChanger(JSGraph* jsgraph, Isolate* isolate);
+  RepresentationChanger(JSGraph* jsgraph, Isolate* isolate)
+      : jsgraph_(jsgraph),
+        isolate_(isolate),
+        testing_type_errors_(false),
+        type_error_(false) {}
 
   // Changes representation from {output_type} to {use_rep}. The {truncation}
   // parameter is only used for sanity checking - if the changer cannot figure
@@ -269,7 +278,6 @@ class RepresentationChanger final {
                              UseInfo use_info);
   const Operator* Int32OperatorFor(IrOpcode::Value opcode);
   const Operator* Int32OverflowOperatorFor(IrOpcode::Value opcode);
-  const Operator* Int64OperatorFor(IrOpcode::Value opcode);
   const Operator* TaggedSignedOperatorFor(IrOpcode::Value opcode);
   const Operator* Uint32OperatorFor(IrOpcode::Value opcode);
   const Operator* Uint32OverflowOperatorFor(IrOpcode::Value opcode);
@@ -286,7 +294,6 @@ class RepresentationChanger final {
   }
 
  private:
-  TypeCache const& cache_;
   JSGraph* jsgraph_;
   Isolate* isolate_;
 
@@ -331,8 +338,7 @@ class RepresentationChanger final {
   Node* InsertChangeTaggedToFloat64(Node* node);
   Node* InsertChangeUint32ToFloat64(Node* node);
   Node* InsertConversion(Node* node, const Operator* op, Node* use_node);
-  Node* InsertTruncateInt64ToInt32(Node* node);
-  Node* InsertUnconditionalDeopt(Node* node, DeoptimizeReason reason);
+  void InsertUnconditionalDeopt(Node* node, DeoptimizeReason reason);
 
   JSGraph* jsgraph() const { return jsgraph_; }
   Isolate* isolate() const { return isolate_; }

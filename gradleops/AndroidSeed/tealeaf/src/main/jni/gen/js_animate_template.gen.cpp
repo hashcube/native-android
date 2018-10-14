@@ -22,8 +22,7 @@
 using namespace v8;
 
 
-v8::Local<v8::FunctionTemplate> js_animate_get_template() {
-	Isolate *isolate = Isolate::GetCurrent();
+v8::Local<v8::FunctionTemplate> js_animate_get_template(Isolate *isolate) {
 	v8::Local<v8::FunctionTemplate> templ = v8::FunctionTemplate::New(isolate);
 	v8::Local<v8::ObjectTemplate> animate = templ->InstanceTemplate();
 	animate->SetInternalFieldCount(2);

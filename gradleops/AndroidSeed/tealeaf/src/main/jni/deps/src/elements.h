@@ -19,7 +19,7 @@ class JSTypedArray;
 class ElementsAccessor {
  public:
   explicit ElementsAccessor(const char* name) : name_(name) { }
-  virtual ~ElementsAccessor() = default;
+  virtual ~ElementsAccessor() { }
 
   const char* name() const { return name_; }
 
@@ -48,7 +48,9 @@ class ElementsAccessor {
                           PropertyFilter filter = ALL_PROPERTIES) = 0;
 
   inline bool HasElement(JSObject* holder, uint32_t index,
-                         PropertyFilter filter = ALL_PROPERTIES);
+                         PropertyFilter filter = ALL_PROPERTIES) {
+    return HasElement(holder, index, holder->elements(), filter);
+  }
 
   // Note: this is currently not implemented for string wrapper and
   // typed array elements.
@@ -86,7 +88,10 @@ class ElementsAccessor {
                                      KeyAccumulator* keys) = 0;
 
   inline void CollectElementIndices(Handle<JSObject> object,
-                                    KeyAccumulator* keys);
+                                    KeyAccumulator* keys) {
+    CollectElementIndices(object, handle(object->elements(), keys->isolate()),
+                          keys);
+  }
 
   virtual Maybe<bool> CollectValuesOrEntries(
       Isolate* isolate, Handle<JSObject> object,
@@ -100,7 +105,11 @@ class ElementsAccessor {
 
   inline MaybeHandle<FixedArray> PrependElementIndices(
       Handle<JSObject> object, Handle<FixedArray> keys,
-      GetKeysConversion convert, PropertyFilter filter = ALL_PROPERTIES);
+      GetKeysConversion convert, PropertyFilter filter = ALL_PROPERTIES) {
+    return PrependElementIndices(
+        object, handle(object->elements(), object->GetIsolate()), keys, convert,
+        filter);
+  }
 
   virtual void AddElementsToKeyAccumulator(Handle<JSObject> receiver,
                                            KeyAccumulator* accumulator,
@@ -135,6 +144,10 @@ class ElementsAccessor {
   virtual Handle<JSObject> Slice(Handle<JSObject> receiver, uint32_t start,
                                  uint32_t end) = 0;
 
+  virtual Handle<JSArray> Splice(Handle<JSArray> receiver,
+                                 uint32_t start, uint32_t delete_count,
+                                 Arguments* args, uint32_t add_count) = 0;
+
   virtual Handle<Object> Pop(Handle<JSArray> receiver) = 0;
 
   virtual Handle<Object> Shift(Handle<JSArray> receiver) = 0;
@@ -144,8 +157,9 @@ class ElementsAccessor {
   virtual uint32_t GetCapacity(JSObject* holder,
                                FixedArrayBase* backing_store) = 0;
 
-  virtual Object* Fill(Handle<JSObject> receiver, Handle<Object> obj_value,
-                       uint32_t start, uint32_t end) = 0;
+  virtual Object* Fill(Isolate* isolate, Handle<JSObject> receiver,
+                       Handle<Object> obj_value, uint32_t start,
+                       uint32_t end) = 0;
 
   // Check an Object's own elements for an element (using SameValueZero
   // semantics)
@@ -160,7 +174,8 @@ class ElementsAccessor {
                                       Handle<Object> value, uint32_t start,
                                       uint32_t length) = 0;
 
-  virtual Maybe<int64_t> LastIndexOfValue(Handle<JSObject> receiver,
+  virtual Maybe<int64_t> LastIndexOfValue(Isolate* isolate,
+                                          Handle<JSObject> receiver,
                                           Handle<Object> value,
                                           uint32_t start) = 0;
 

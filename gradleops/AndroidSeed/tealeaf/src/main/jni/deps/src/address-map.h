@@ -56,14 +56,11 @@ class RootIndexMap {
  public:
   explicit RootIndexMap(Isolate* isolate);
 
-  // Returns true on successful lookup and sets *|out_root_list|.
-  bool Lookup(HeapObject* obj, RootIndex* out_root_list) {
+  static const int kInvalidRootIndex = -1;
+
+  int Lookup(HeapObject* obj) {
     Maybe<uint32_t> maybe_index = map_->Get(obj);
-    if (maybe_index.IsJust()) {
-      *out_root_list = static_cast<RootIndex>(maybe_index.FromJust());
-      return true;
-    }
-    return false;
+    return maybe_index.IsJust() ? maybe_index.FromJust() : kInvalidRootIndex;
   }
 
  private:

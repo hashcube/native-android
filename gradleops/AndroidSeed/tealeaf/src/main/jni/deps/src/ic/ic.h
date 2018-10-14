@@ -36,7 +36,7 @@ class IC {
   // Construct the IC structure with the given number of extra
   // JavaScript frames on the stack.
   IC(Isolate* isolate, Handle<FeedbackVector> vector, FeedbackSlot slot);
-  virtual ~IC() = default;
+  virtual ~IC() {}
 
   State state() const { return state_; }
   inline Address address() const;
@@ -88,13 +88,11 @@ class IC {
   bool vector_needs_update() {
     return (!vector_set_ &&
             (state() != MEGAMORPHIC ||
-             Smi::ToInt(nexus()->GetFeedbackExtra()->cast<Smi>()) != ELEMENT));
+             Smi::ToInt(nexus()->GetFeedbackExtra()->ToSmi()) != ELEMENT));
   }
 
   // Configure for most states.
   bool ConfigureVectorState(IC::State new_state, Handle<Object> key);
-  // Configure the vector for PREMONOMORPHIC.
-  void ConfigureVectorState(Handle<Map> map);
   // Configure the vector for MONOMORPHIC.
   void ConfigureVectorState(Handle<Name> name, Handle<Map> map,
                             Handle<Object> handler);
@@ -142,7 +140,13 @@ class IC {
   bool ShouldRecomputeHandler(Handle<String> name);
 
   Handle<Map> receiver_map() { return receiver_map_; }
-  inline void update_receiver_map(Handle<Object> receiver);
+  void update_receiver_map(Handle<Object> receiver) {
+    if (receiver->IsSmi()) {
+      receiver_map_ = isolate_->factory()->heap_number_map();
+    } else {
+      receiver_map_ = handle(HeapObject::cast(*receiver)->map(), isolate_);
+    }
+  }
 
   void TargetMaps(MapHandles* list) {
     FindTargetMaps();
@@ -296,10 +300,11 @@ class StoreIC : public IC {
 
   V8_WARN_UNUSED_RESULT MaybeHandle<Object> Store(
       Handle<Object> object, Handle<Name> name, Handle<Object> value,
-      StoreOrigin store_origin = StoreOrigin::kNamed);
+      JSReceiver::StoreFromKeyed store_mode =
+          JSReceiver::CERTAINLY_NOT_STORE_FROM_KEYED);
 
   bool LookupForWrite(LookupIterator* it, Handle<Object> value,
-                      StoreOrigin store_origin);
+                      JSReceiver::StoreFromKeyed store_mode);
 
  protected:
   // Stub accessors.
@@ -311,7 +316,7 @@ class StoreIC : public IC {
   // Update the inline cache and the global stub cache based on the
   // lookup result.
   void UpdateCaches(LookupIterator* lookup, Handle<Object> value,
-                    StoreOrigin store_origin);
+                    JSReceiver::StoreFromKeyed store_mode);
 
  private:
   MaybeObjectHandle ComputeHandler(LookupIterator* lookup);

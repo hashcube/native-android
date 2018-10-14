@@ -7,11 +7,6 @@
 
 #include "src/objects/compilation-cache.h"
 
-#include "src/objects/name-inl.h"
-#include "src/objects/script-inl.h"
-#include "src/objects/shared-function-info.h"
-#include "src/objects/string.h"
-
 // Has to be the last include (doesn't have include guards):
 #include "src/objects/object-macros.h"
 

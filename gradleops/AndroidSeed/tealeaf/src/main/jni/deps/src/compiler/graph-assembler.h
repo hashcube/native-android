@@ -21,11 +21,9 @@ namespace compiler {
 #define PURE_ASSEMBLER_MACH_UNOP_LIST(V) \
   V(ChangeInt32ToInt64)                  \
   V(ChangeInt32ToFloat64)                \
-  V(ChangeInt64ToFloat64)                \
   V(ChangeUint32ToFloat64)               \
   V(ChangeUint32ToUint64)                \
   V(ChangeFloat64ToInt32)                \
-  V(ChangeFloat64ToInt64)                \
   V(ChangeFloat64ToUint32)               \
   V(TruncateInt64ToInt32)                \
   V(RoundFloat64ToInt32)                 \
@@ -33,12 +31,8 @@ namespace compiler {
   V(Float64ExtractLowWord32)             \
   V(Float64ExtractHighWord32)            \
   V(BitcastInt32ToFloat32)               \
-  V(BitcastInt64ToFloat64)               \
   V(BitcastFloat32ToInt32)               \
-  V(BitcastFloat64ToInt64)               \
-  V(Float64Abs)                          \
-  V(Word32ReverseBytes)                  \
-  V(Word64ReverseBytes)
+  V(Float64Abs)
 
 #define PURE_ASSEMBLER_MACH_BINOP_LIST(V) \
   V(WordShl)                              \
@@ -59,10 +53,8 @@ namespace compiler {
   V(Int32Sub)                             \
   V(Int32Mul)                             \
   V(Int32LessThanOrEqual)                 \
-  V(Uint32LessThan)                       \
   V(Uint32LessThanOrEqual)                \
-  V(Uint64LessThan)                       \
-  V(Uint64LessThanOrEqual)                \
+  V(Uint32LessThan)                       \
   V(Int32LessThan)                        \
   V(Float64Add)                           \
   V(Float64Sub)                           \
@@ -74,7 +66,6 @@ namespace compiler {
   V(Float64InsertLowWord32)               \
   V(Float64InsertHighWord32)              \
   V(Word32Equal)                          \
-  V(Word64Equal)                          \
   V(WordEqual)
 
 #define CHECKED_ASSEMBLER_MACH_BINOP_LIST(V) \
@@ -181,8 +172,7 @@ class GraphAssembler {
   Node* IntPtrConstant(intptr_t value);
   Node* Uint32Constant(int32_t value);
   Node* Int32Constant(int32_t value);
-  Node* Int64Constant(int64_t value);
-  Node* UniqueIntPtrConstant(intptr_t value);
+  Node* UniqueInt32Constant(int32_t value);
   Node* SmiConstant(int32_t value);
   Node* Float64Constant(double value);
   Node* Projection(int index, Node* value);
@@ -224,10 +214,6 @@ class GraphAssembler {
 
   Node* Store(StoreRepresentation rep, Node* object, Node* offset, Node* value);
   Node* Load(MachineType rep, Node* object, Node* offset);
-
-  Node* StoreUnaligned(MachineRepresentation rep, Node* object, Node* offset,
-                       Node* value);
-  Node* LoadUnaligned(MachineType rep, Node* object, Node* offset);
 
   Node* Retain(Node* buffer);
   Node* UnsafePointerAdd(Node* base, Node* external);

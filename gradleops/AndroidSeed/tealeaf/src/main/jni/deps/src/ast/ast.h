@@ -249,23 +249,7 @@ class Expression : public AstNode {
   static const uint8_t kNextBitFieldIndex = AstNode::kNextBitFieldIndex;
 };
 
-// V8's notion of BreakableStatement does not correspond to the notion of
-// BreakableStatement in ECMAScript. In V8, the idea is that a
-// BreakableStatement is a statement that can be the target of a break
-// statement.  The BreakableStatement AST node carries a list of labels, any of
-// which can be used as an argument to the break statement in order to target
-// it.
-//
-// Since we don't want to attach a list of labels to all kinds of statements, we
-// only declare switchs, loops, and blocks as BreakableStatements.  This means
-// that we implement breaks targeting other statement forms as breaks targeting
-// a substatement thereof. For instance, in "foo: if (b) { f(); break foo; }" we
-// pretend that foo is the label of the inner block. That's okay because one
-// can't observe the difference.
-//
-// This optimization makes it harder to detect invalid continue labels, see the
-// need for own_labels in IterationStatement.
-//
+
 class BreakableStatement : public Statement {
  public:
   enum BreakableType {
@@ -273,13 +257,6 @@ class BreakableStatement : public Statement {
     TARGET_FOR_NAMED_ONLY
   };
 
-  // A list of all labels declared on the path up to the previous
-  // BreakableStatement (if any).
-  //
-  // Example: "l1: for (;;) l2: l3: { l4: if (b) l5: { s } }"
-  // labels() of the ForStatement will be l1.
-  // labels() of the Block { l4: ... } will be l2, l3.
-  // labels() of the Block { s } will be l4, l5.
   ZonePtrList<const AstRawString>* labels() const;
 
   // Testers.
@@ -383,7 +360,7 @@ class DoExpression final : public Expression {
 
 class Declaration : public AstNode {
  public:
-  typedef base::ThreadedList<Declaration> List;
+  typedef ThreadedList<Declaration> List;
 
   VariableProxy* proxy() const { return proxy_; }
 
@@ -397,7 +374,6 @@ class Declaration : public AstNode {
   Declaration** next() { return &next_; }
   Declaration* next_;
   friend List;
-  friend base::ThreadedListTraits<Declaration>;
 };
 
 class VariableDeclaration : public Declaration {
@@ -465,23 +441,11 @@ class IterationStatement : public BreakableStatement {
 
   ZonePtrList<const AstRawString>* labels() const { return labels_; }
 
-  // A list of all labels that the iteration statement is directly prefixed
-  // with, i.e.  all the labels that a continue statement in the body can use to
-  // continue this iteration statement. This is always a subset of {labels}.
-  //
-  // Example: "l1: { l2: if (b) l3: l4: for (;;) s }"
-  // labels() of the Block will be l1.
-  // labels() of the ForStatement will be l2, l3, l4.
-  // own_labels() of the ForStatement will be l3, l4.
-  ZonePtrList<const AstRawString>* own_labels() const { return own_labels_; }
-
  protected:
-  IterationStatement(ZonePtrList<const AstRawString>* labels,
-                     ZonePtrList<const AstRawString>* own_labels, int pos,
+  IterationStatement(ZonePtrList<const AstRawString>* labels, int pos,
                      NodeType type)
       : BreakableStatement(TARGET_FOR_ANONYMOUS, pos, type),
         labels_(labels),
-        own_labels_(own_labels),
         body_(nullptr) {}
   void Initialize(Statement* body) { body_ = body; }
 
@@ -490,7 +454,6 @@ class IterationStatement : public BreakableStatement {
 
  private:
   ZonePtrList<const AstRawString>* labels_;
-  ZonePtrList<const AstRawString>* own_labels_;
   Statement* body_;
 };
 
@@ -507,10 +470,8 @@ class DoWhileStatement final : public IterationStatement {
  private:
   friend class AstNodeFactory;
 
-  DoWhileStatement(ZonePtrList<const AstRawString>* labels,
-                   ZonePtrList<const AstRawString>* own_labels, int pos)
-      : IterationStatement(labels, own_labels, pos, kDoWhileStatement),
-        cond_(nullptr) {}
+  DoWhileStatement(ZonePtrList<const AstRawString>* labels, int pos)
+      : IterationStatement(labels, pos, kDoWhileStatement), cond_(nullptr) {}
 
   Expression* cond_;
 };
@@ -528,10 +489,8 @@ class WhileStatement final : public IterationStatement {
  private:
   friend class AstNodeFactory;
 
-  WhileStatement(ZonePtrList<const AstRawString>* labels,
-                 ZonePtrList<const AstRawString>* own_labels, int pos)
-      : IterationStatement(labels, own_labels, pos, kWhileStatement),
-        cond_(nullptr) {}
+  WhileStatement(ZonePtrList<const AstRawString>* labels, int pos)
+      : IterationStatement(labels, pos, kWhileStatement), cond_(nullptr) {}
 
   Expression* cond_;
 };
@@ -554,9 +513,8 @@ class ForStatement final : public IterationStatement {
  private:
   friend class AstNodeFactory;
 
-  ForStatement(ZonePtrList<const AstRawString>* labels,
-               ZonePtrList<const AstRawString>* own_labels, int pos)
-      : IterationStatement(labels, own_labels, pos, kForStatement),
+  ForStatement(ZonePtrList<const AstRawString>* labels, int pos)
+      : IterationStatement(labels, pos, kForStatement),
         init_(nullptr),
         cond_(nullptr),
         next_(nullptr) {}
@@ -581,10 +539,9 @@ class ForEachStatement : public IterationStatement {
   }
 
  protected:
-  ForEachStatement(ZonePtrList<const AstRawString>* labels,
-                   ZonePtrList<const AstRawString>* own_labels, int pos,
+  ForEachStatement(ZonePtrList<const AstRawString>* labels, int pos,
                    NodeType type)
-      : IterationStatement(labels, own_labels, pos, type) {}
+      : IterationStatement(labels, pos, type) {}
 };
 
 
@@ -609,9 +566,8 @@ class ForInStatement final : public ForEachStatement {
  private:
   friend class AstNodeFactory;
 
-  ForInStatement(ZonePtrList<const AstRawString>* labels,
-                 ZonePtrList<const AstRawString>* own_labels, int pos)
-      : ForEachStatement(labels, own_labels, pos, kForInStatement),
+  ForInStatement(ZonePtrList<const AstRawString>* labels, int pos)
+      : ForEachStatement(labels, pos, kForInStatement),
         each_(nullptr),
         subject_(nullptr) {
     bit_field_ = ForInTypeField::update(bit_field_, SLOW_FOR_IN);
@@ -676,9 +632,8 @@ class ForOfStatement final : public ForEachStatement {
  private:
   friend class AstNodeFactory;
 
-  ForOfStatement(ZonePtrList<const AstRawString>* labels,
-                 ZonePtrList<const AstRawString>* own_labels, int pos)
-      : ForEachStatement(labels, own_labels, pos, kForOfStatement),
+  ForOfStatement(ZonePtrList<const AstRawString>* labels, int pos)
+      : ForEachStatement(labels, pos, kForOfStatement),
         iterator_(nullptr),
         assign_iterator_(nullptr),
         next_result_(nullptr),
@@ -1478,6 +1433,8 @@ class ArrayLiteral final : public AggregateLiteral {
 
   int first_spread_index() const { return first_spread_index_; }
 
+  bool is_empty() const;
+
   // Populate the depth field and flags, returns the depth.
   int InitDepthAndFlags();
 
@@ -1577,15 +1534,8 @@ class VariableProxy final : public Expression {
   // Bind this proxy to the variable var.
   void BindTo(Variable* var);
 
-  V8_INLINE VariableProxy* next_unresolved() { return next_unresolved_; }
-
-  // Provides an access type for the ThreadedList used by the PreParsers
-  // expressions, lists, and formal parameters.
-  struct PreParserNext {
-    static VariableProxy** next(VariableProxy* t) {
-      return t->pre_parser_expr_next();
-    }
-  };
+  void set_next_unresolved(VariableProxy* next) { next_unresolved_ = next; }
+  VariableProxy* next_unresolved() { return next_unresolved_; }
 
  private:
   friend class AstNodeFactory;
@@ -1596,8 +1546,7 @@ class VariableProxy final : public Expression {
                 int start_position)
       : Expression(start_position, kVariableProxy),
         raw_name_(name),
-        next_unresolved_(nullptr),
-        pre_parser_expr_next_(nullptr) {
+        next_unresolved_(nullptr) {
     bit_field_ |= IsThisField::encode(variable_kind == THIS_VARIABLE) |
                   IsAssignedField::encode(false) |
                   IsResolvedField::encode(false) |
@@ -1620,15 +1569,9 @@ class VariableProxy final : public Expression {
     const AstRawString* raw_name_;  // if !is_resolved_
     Variable* var_;                 // if is_resolved_
   };
-
-  V8_INLINE VariableProxy** next() { return &next_unresolved_; }
   VariableProxy* next_unresolved_;
-
-  VariableProxy** pre_parser_expr_next() { return &pre_parser_expr_next_; }
-  VariableProxy* pre_parser_expr_next_;
-
-  friend base::ThreadedListTraits<VariableProxy>;
 };
+
 
 // Left-hand side can only be a property, a global or a (parameter or local)
 // slot.
@@ -2258,12 +2201,6 @@ class FunctionLiteral final : public Expression {
   bool is_anonymous_expression() const {
     return function_type() == kAnonymousExpression;
   }
-
-  void mark_as_iife() { bit_field_ = IIFEBit::update(bit_field_, true); }
-  bool is_iife() const { return IIFEBit::decode(bit_field_); }
-  bool is_toplevel() const {
-    return function_literal_id() == FunctionLiteral::kIdTypeTopLevel;
-  }
   bool is_wrapped() const { return function_type() == kWrapped; }
   LanguageMode language_mode() const;
 
@@ -2321,7 +2258,7 @@ class FunctionLiteral final : public Expression {
   // - (function() { ... })();
   // - var x = function() { ... }();
   bool ShouldEagerCompile() const;
-  V8_EXPORT_PRIVATE void SetShouldEagerCompile();
+  void SetShouldEagerCompile();
 
   FunctionType function_type() const {
     return FunctionTypeBits::decode(bit_field_);
@@ -2396,7 +2333,7 @@ class FunctionLiteral final : public Expression {
                                                  kHasDuplicateParameters) |
                   DontOptimizeReasonField::encode(BailoutReason::kNoReason) |
                   RequiresInstanceFieldsInitializer::encode(false) |
-                  HasBracesField::encode(has_braces) | IIFEBit::encode(false);
+                  HasBracesField::encode(has_braces);
     if (eager_compile_hint == kShouldEagerCompile) SetShouldEagerCompile();
     DCHECK_EQ(body == nullptr, expected_property_count < 0);
   }
@@ -2411,7 +2348,6 @@ class FunctionLiteral final : public Expression {
       : public BitField<bool, DontOptimizeReasonField::kNext, 1> {};
   class HasBracesField
       : public BitField<bool, RequiresInstanceFieldsInitializer::kNext, 1> {};
-  class IIFEBit : public BitField<bool, HasBracesField::kNext, 1> {};
 
   int expected_property_count_;
   int parameter_count_;
@@ -2749,7 +2685,7 @@ class TemplateLiteral final : public Expression {
 //   class SpecificVisitor : public AstVisitor<SpecificVisitor> { ... }
 
 template <class Subclass>
-class AstVisitor {
+class AstVisitor BASE_EMBEDDED {
  public:
   void Visit(AstNode* node) { impl()->Visit(node); }
 
@@ -2836,7 +2772,7 @@ class AstVisitor {
 // ----------------------------------------------------------------------------
 // AstNode factory
 
-class AstNodeFactory final {
+class AstNodeFactory final BASE_EMBEDDED {
  public:
   AstNodeFactory(AstValueFactory* ast_value_factory, Zone* zone)
       : zone_(zone), ast_value_factory_(ast_value_factory) {}
@@ -2867,11 +2803,9 @@ class AstNodeFactory final {
                      Block(zone_, labels, capacity, ignore_completion_value);
   }
 
-#define STATEMENT_WITH_LABELS(NodeType)                                \
-  NodeType* New##NodeType(ZonePtrList<const AstRawString>* labels,     \
-                          ZonePtrList<const AstRawString>* own_labels, \
-                          int pos) {                                   \
-    return new (zone_) NodeType(labels, own_labels, pos);              \
+#define STATEMENT_WITH_LABELS(NodeType)                                       \
+  NodeType* New##NodeType(ZonePtrList<const AstRawString>* labels, int pos) { \
+    return new (zone_) NodeType(labels, pos);                                 \
   }
   STATEMENT_WITH_LABELS(DoWhileStatement)
   STATEMENT_WITH_LABELS(WhileStatement)
@@ -2883,25 +2817,23 @@ class AstNodeFactory final {
     return new (zone_) SwitchStatement(zone_, labels, tag, pos);
   }
 
-  ForEachStatement* NewForEachStatement(
-      ForEachStatement::VisitMode visit_mode,
-      ZonePtrList<const AstRawString>* labels,
-      ZonePtrList<const AstRawString>* own_labels, int pos) {
+  ForEachStatement* NewForEachStatement(ForEachStatement::VisitMode visit_mode,
+                                        ZonePtrList<const AstRawString>* labels,
+                                        int pos) {
     switch (visit_mode) {
       case ForEachStatement::ENUMERATE: {
-        return new (zone_) ForInStatement(labels, own_labels, pos);
+        return new (zone_) ForInStatement(labels, pos);
       }
       case ForEachStatement::ITERATE: {
-        return new (zone_) ForOfStatement(labels, own_labels, pos);
+        return new (zone_) ForOfStatement(labels, pos);
       }
     }
     UNREACHABLE();
   }
 
   ForOfStatement* NewForOfStatement(ZonePtrList<const AstRawString>* labels,
-                                    ZonePtrList<const AstRawString>* own_labels,
                                     int pos) {
-    return new (zone_) ForOfStatement(labels, own_labels, pos);
+    return new (zone_) ForOfStatement(labels, pos);
   }
 
   ExpressionStatement* NewExpressionStatement(Expression* expression, int pos) {
@@ -3343,6 +3275,7 @@ class AstNodeFactory final {
   }
 
   Zone* zone() const { return zone_; }
+  void set_zone(Zone* zone) { zone_ = zone; }
 
  private:
   // This zone may be deallocated upon returning from parsing a function body

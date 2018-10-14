@@ -31,23 +31,12 @@ constexpr Register kJavaScriptCallArgCountRegister = eax;
 constexpr Register kJavaScriptCallCodeStartRegister = ecx;
 constexpr Register kJavaScriptCallTargetRegister = kJSFunctionRegister;
 constexpr Register kJavaScriptCallNewTargetRegister = edx;
+constexpr Register kJavaScriptCallExtraArg1Register = ebx;
 
-// The ExtraArg1Register not part of the real JS calling convention and is
-// mostly there to simplify consistent interface descriptor definitions across
-// platforms. Note that on ia32 it aliases kJavaScriptCallCodeStartRegister.
-constexpr Register kJavaScriptCallExtraArg1Register = ecx;
-
-// The off-heap trampoline does not need a register on ia32 (it uses a
-// pc-relative call instead).
-constexpr Register kOffHeapTrampolineRegister = no_reg;
-
-constexpr Register kRuntimeCallFunctionRegister = edx;
+constexpr Register kOffHeapTrampolineRegister = ecx;
+constexpr Register kRuntimeCallFunctionRegister = ebx;
 constexpr Register kRuntimeCallArgCountRegister = eax;
-constexpr Register kRuntimeCallArgvRegister = ecx;
 constexpr Register kWasmInstanceRegister = esi;
-
-// TODO(v8:6666): Implement full support.
-constexpr Register kRootRegister = ebx;
 
 // Convenience for platform-independent signatures.  We do not normally
 // distinguish memory operands from other operands on ia32.
@@ -56,11 +45,17 @@ typedef Operand MemOperand;
 enum RememberedSetAction { EMIT_REMEMBERED_SET, OMIT_REMEMBERED_SET };
 enum SmiCheck { INLINE_SMI_CHECK, OMIT_SMI_CHECK };
 
-class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
- public:
-  TurboAssembler(const AssemblerOptions& options, void* buffer, int buffer_size)
-      : TurboAssemblerBase(options, buffer, buffer_size) {}
+enum RegisterValueType { REGISTER_VALUE_IS_SMI, REGISTER_VALUE_IS_INT32 };
 
+#ifdef DEBUG
+bool AreAliased(Register reg1, Register reg2, Register reg3 = no_reg,
+                Register reg4 = no_reg, Register reg5 = no_reg,
+                Register reg6 = no_reg, Register reg7 = no_reg,
+                Register reg8 = no_reg);
+#endif
+
+class TurboAssembler : public TurboAssemblerBase {
+ public:
   TurboAssembler(Isolate* isolate, const AssemblerOptions& options,
                  void* buffer, int buffer_size,
                  CodeObjectRequired create_code_object)
@@ -109,31 +104,18 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
   // Check that the stack is aligned.
   void CheckStackAlignment();
 
-  void InitializeRootRegister() {
-    // For now, only check sentinel value for root register.
-    // TODO(jgruber,v8:6666): Implement root register.
-    if (FLAG_ia32_verify_root_register && FLAG_embedded_builtins) {
-      mov(kRootRegister, kRootRegisterSentinel);
-    }
-  }
-
-  void VerifyRootRegister() {
-    if (FLAG_ia32_verify_root_register && FLAG_embedded_builtins) {
-      Assembler::AllowExplicitEbxAccessScope read_only_access(this);
-      Label root_register_ok;
-      cmp(kRootRegister, kRootRegisterSentinel);
-      j(equal, &root_register_ok);
-      int3();
-      bind(&root_register_ok);
-    }
-  }
+  // Nop, because ia32 does not have a root register.
+  void InitializeRootRegister() {}
 
   // Move a constant into a destination using the most efficient encoding.
-  void Move(Register dst, const Immediate& src);
-  void Move(Register dst, Smi* src) { Move(dst, Immediate(src)); }
-  void Move(Register dst, Handle<HeapObject> src);
-  void Move(Register dst, Register src);
-  void Move(Operand dst, const Immediate& src);
+  void Move(Register dst, const Immediate& x);
+
+  void Move(Register dst, Smi* source) { Move(dst, Immediate(source)); }
+
+  // Move if the registers are not identical.
+  void Move(Register target, Register source);
+
+  void Move(Operand dst, const Immediate& x);
 
   // Move an immediate into an XMM register.
   void Move(XMMRegister dst, uint32_t src);
@@ -141,11 +123,11 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
   void Move(XMMRegister dst, float src) { Move(dst, bit_cast<uint32_t>(src)); }
   void Move(XMMRegister dst, double src) { Move(dst, bit_cast<uint64_t>(src)); }
 
-  void Call(Register reg) { call(reg); }
-  void Call(Label* target) { call(target); }
-  void Call(Handle<Code> code_object, RelocInfo::Mode rmode);
+  void Move(Register dst, Handle<HeapObject> handle);
 
-  void Jump(Handle<Code> code_object, RelocInfo::Mode rmode);
+  void Call(Register reg) { call(reg); }
+  void Call(Handle<Code> target, RelocInfo::Mode rmode) { call(target, rmode); }
+  void Call(Label* target) { call(target); }
 
   void RetpolineCall(Register reg);
   void RetpolineCall(Address destination, RelocInfo::Mode rmode);
@@ -242,39 +224,19 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
 
   void Ret();
 
-  void LoadRoot(Register destination, RootIndex index) override;
+  void LoadRoot(Register destination, Heap::RootListIndex index) override;
 
-  void MoveForRootRegisterRefactoring(Register dst, Register src) {
-    // TODO(v8:6666): When rewriting ia32 ASM builtins to not clobber the
-    // kRootRegister ebx, most call sites of this wrapper function can probably
-    // be removed.
-    Move(dst, src);
-  }
-
-  // Indirect root-relative loads.
+  // TODO(jgruber,v8:6666): Implement embedded builtins.
   void LoadFromConstantsTable(Register destination,
-                              int constant_index) override;
-  void LoadRootRegisterOffset(Register destination, intptr_t offset) override;
-  void LoadRootRelative(Register destination, int32_t offset) override;
-
-  void LoadAddress(Register destination, ExternalReference source);
-
-  void PushRootRegister() {
-    // Check that a NoRootArrayScope exists.
-    CHECK(!root_array_available());
-    push(kRootRegister);
+                              int constant_index) override {
+    UNREACHABLE();
   }
-  void PopRootRegister() {
-    // Check that a NoRootArrayScope exists.
-    CHECK(!root_array_available());
-    pop(kRootRegister);
+  void LoadRootRegisterOffset(Register destination, intptr_t offset) override {
+    UNREACHABLE();
   }
-
-  // Wrapper functions to ensure external reference operands produce
-  // isolate-independent code if needed.
-  Operand StaticVariable(const ExternalReference& ext);
-  Operand StaticArray(Register index, ScaleFactor scale,
-                      const ExternalReference& ext);
+  void LoadRootRelative(Register destination, int32_t offset) override {
+    UNREACHABLE();
+  }
 
   // Return and drop arguments from stack, where the number of arguments
   // may be bigger than 2^16 - 1.  Requires a scratch register.
@@ -292,8 +254,8 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
     Pshufd(dst, Operand(src), shuffle);
   }
   void Pshufd(XMMRegister dst, Operand src, uint8_t shuffle);
-  void Psraw(XMMRegister dst, uint8_t shift);
-  void Psrlw(XMMRegister dst, uint8_t shift);
+  void Psraw(XMMRegister dst, int8_t shift);
+  void Psrlw(XMMRegister dst, int8_t shift);
 
 // SSE/SSE2 instructions with AVX version.
 #define AVX_OP2_WITH_TYPE(macro_name, name, dst_type, src_type) \
@@ -402,13 +364,15 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
   }
   void Palignr(XMMRegister dst, Operand src, uint8_t imm8);
 
-  void Pextrb(Register dst, XMMRegister src, uint8_t imm8);
-  void Pextrw(Register dst, XMMRegister src, uint8_t imm8);
-  void Pextrd(Register dst, XMMRegister src, uint8_t imm8);
-  void Pinsrd(XMMRegister dst, Register src, uint8_t imm8) {
-    Pinsrd(dst, Operand(src), imm8);
+  void Pextrb(Register dst, XMMRegister src, int8_t imm8);
+  void Pextrw(Register dst, XMMRegister src, int8_t imm8);
+  void Pextrd(Register dst, XMMRegister src, int8_t imm8);
+  void Pinsrd(XMMRegister dst, Register src, int8_t imm8,
+              bool is_64_bits = false) {
+    Pinsrd(dst, Operand(src), imm8, is_64_bits);
   }
-  void Pinsrd(XMMRegister dst, Operand src, uint8_t imm8);
+  void Pinsrd(XMMRegister dst, Operand src, int8_t imm8,
+              bool is_64_bits = false);
 
   // Expression support
   // cvtsi2sd instruction only writes to the low 64-bit of dst register, which
@@ -480,14 +444,10 @@ class V8_EXPORT_PRIVATE TurboAssembler : public TurboAssemblerBase {
 // MacroAssembler implements a collection of frequently used macros.
 class MacroAssembler : public TurboAssembler {
  public:
-  MacroAssembler(const AssemblerOptions& options, void* buffer, int size)
-      : TurboAssembler(options, buffer, size) {}
-
   MacroAssembler(Isolate* isolate, void* buffer, int size,
                  CodeObjectRequired create_code_object)
       : MacroAssembler(isolate, AssemblerOptions::Default(isolate), buffer,
                        size, create_code_object) {}
-
   MacroAssembler(Isolate* isolate, const AssemblerOptions& options,
                  void* buffer, int size, CodeObjectRequired create_code_object);
 
@@ -502,32 +462,34 @@ class MacroAssembler : public TurboAssembler {
   void Set(Operand dst, int32_t x) { mov(dst, Immediate(x)); }
 
   // Operations on roots in the root-array.
-  void CompareRoot(Register with, Register scratch, RootIndex index);
+  void CompareRoot(Register with, Register scratch, Heap::RootListIndex index);
   // These methods can only be used with constant roots (i.e. non-writable
   // and not in new space).
-  void CompareRoot(Register with, RootIndex index);
-  void CompareRoot(Operand with, RootIndex index);
-  void PushRoot(RootIndex index);
+  void CompareRoot(Register with, Heap::RootListIndex index);
+  void CompareRoot(Operand with, Heap::RootListIndex index);
+  void PushRoot(Heap::RootListIndex index);
 
   // Compare the object in a register to a value and jump if they are equal.
-  void JumpIfRoot(Register with, RootIndex index, Label* if_equal,
+  void JumpIfRoot(Register with, Heap::RootListIndex index, Label* if_equal,
                   Label::Distance if_equal_distance = Label::kFar) {
     CompareRoot(with, index);
     j(equal, if_equal, if_equal_distance);
   }
-  void JumpIfRoot(Operand with, RootIndex index, Label* if_equal,
+  void JumpIfRoot(Operand with, Heap::RootListIndex index, Label* if_equal,
                   Label::Distance if_equal_distance = Label::kFar) {
     CompareRoot(with, index);
     j(equal, if_equal, if_equal_distance);
   }
 
   // Compare the object in a register to a value and jump if they are not equal.
-  void JumpIfNotRoot(Register with, RootIndex index, Label* if_not_equal,
+  void JumpIfNotRoot(Register with, Heap::RootListIndex index,
+                     Label* if_not_equal,
                      Label::Distance if_not_equal_distance = Label::kFar) {
     CompareRoot(with, index);
     j(not_equal, if_not_equal, if_not_equal_distance);
   }
-  void JumpIfNotRoot(Operand with, RootIndex index, Label* if_not_equal,
+  void JumpIfNotRoot(Operand with, Heap::RootListIndex index,
+                     Label* if_not_equal,
                      Label::Distance if_not_equal_distance = Label::kFar) {
     CompareRoot(with, index);
     j(not_equal, if_not_equal, if_not_equal_distance);
@@ -605,6 +567,9 @@ class MacroAssembler : public TurboAssembler {
   // Invoke the JavaScript function in the given register. Changes the
   // current context to the context in the function before invoking.
   void InvokeFunction(Register function, Register new_target,
+                      const ParameterCount& actual, InvokeFlag flag);
+
+  void InvokeFunction(Register function, const ParameterCount& expected,
                       const ParameterCount& actual, InvokeFlag flag);
 
   // Compare object type for heap object.
@@ -732,6 +697,7 @@ class MacroAssembler : public TurboAssembler {
   // from the stack, clobbering only the esp register.
   void Drop(int element_count);
 
+  void Jump(Handle<Code> target, RelocInfo::Mode rmode) { jmp(target, rmode); }
   void Pop(Register dst) { pop(dst); }
   void Pop(Operand dst) { pop(dst); }
   void PushReturnAddressFrom(Register src) { push(src); }

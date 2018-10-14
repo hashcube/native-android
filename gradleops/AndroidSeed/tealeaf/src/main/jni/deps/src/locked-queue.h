@@ -17,7 +17,7 @@ namespace internal {
 // See:
 // https://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 template <typename Record>
-class LockedQueue final {
+class LockedQueue final BASE_EMBEDDED {
  public:
   inline LockedQueue();
   inline ~LockedQueue();

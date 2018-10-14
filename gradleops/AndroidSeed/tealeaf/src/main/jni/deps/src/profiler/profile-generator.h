@@ -108,9 +108,7 @@ class CodeEntry {
   const std::vector<std::unique_ptr<CodeEntry>>* GetInlineStack(
       int pc_offset) const;
 
-  void set_instruction_start(Address start) { instruction_start_ = start; }
   Address instruction_start() const { return instruction_start_; }
-
   CodeEventListener::LogEventsAndTags tag() const {
     return TagField::decode(bit_field_);
   }
@@ -243,7 +241,7 @@ class ProfileNode {
   };
   struct Hasher {
     std::size_t operator()(CodeEntryAndLineNumber pair) const {
-      return pair.code_entry->GetHash() ^ ComputeUnseededHash(pair.line_number);
+      return pair.code_entry->GetHash() ^ ComputeIntegerHash(pair.line_number);
     }
   };
 

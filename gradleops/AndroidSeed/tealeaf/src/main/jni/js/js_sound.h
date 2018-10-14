@@ -19,6 +19,6 @@
 using v8::Local;
 using v8::ObjectTemplate;
 
-Local<ObjectTemplate> js_sound_get_template();
+Local<ObjectTemplate> js_sound_get_template(Isolate *isolate);
 
 #endif

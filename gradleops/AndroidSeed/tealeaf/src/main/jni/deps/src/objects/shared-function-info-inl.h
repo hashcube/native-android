@@ -5,13 +5,12 @@
 #ifndef V8_OBJECTS_SHARED_FUNCTION_INFO_INL_H_
 #define V8_OBJECTS_SHARED_FUNCTION_INFO_INL_H_
 
-#include "src/objects/shared-function-info.h"
-
-#include "src/handles-inl.h"
 #include "src/heap/heap-inl.h"
 #include "src/objects/debug-objects-inl.h"
 #include "src/objects/scope-info.h"
+#include "src/objects/shared-function-info.h"
 #include "src/objects/templates.h"
+#include "src/wasm/wasm-objects-inl.h"
 
 // Has to be the last include (doesn't have include guards):
 #include "src/objects/object-macros.h"
@@ -36,7 +35,8 @@ void PreParsedScopeData::set_child_data(int index, Object* value,
   DCHECK_LT(index, this->length());
   int offset = kChildDataStartOffset + index * kPointerSize;
   RELAXED_WRITE_FIELD(this, offset, value);
-  CONDITIONAL_WRITE_BARRIER(this, offset, value, mode);
+  CONDITIONAL_WRITE_BARRIER(Heap::FromWritableHeapObject(this), this, offset,
+                            value, mode);
 }
 
 Object** PreParsedScopeData::child_data_start() const {
@@ -53,7 +53,6 @@ void PreParsedScopeData::clear_padding() {
 }
 
 CAST_ACCESSOR(UncompiledData)
-ACCESSORS(UncompiledData, inferred_name, String, kInferredNameOffset)
 INT32_ACCESSORS(UncompiledData, start_position, kStartPositionOffset)
 INT32_ACCESSORS(UncompiledData, end_position, kEndPositionOffset)
 INT32_ACCESSORS(UncompiledData, function_literal_id, kFunctionLiteralIdOffset)
@@ -84,8 +83,9 @@ DEFINE_DEOPT_ELEMENT_ACCESSORS(SharedFunctionInfo, Object)
 ACCESSORS(SharedFunctionInfo, name_or_scope_info, Object,
           kNameOrScopeInfoOffset)
 ACCESSORS(SharedFunctionInfo, function_data, Object, kFunctionDataOffset)
-ACCESSORS(SharedFunctionInfo, script_or_debug_info, Object,
-          kScriptOrDebugInfoOffset)
+ACCESSORS(SharedFunctionInfo, script, Object, kScriptOffset)
+ACCESSORS(SharedFunctionInfo, function_identifier_or_debug_info, Object,
+          kFunctionIdentifierOrDebugInfoOffset)
 
 #if V8_SFI_HAS_UNIQUE_ID
 INT_ACCESSORS(SharedFunctionInfo, unique_id, kUniqueIdOffset)
@@ -93,9 +93,8 @@ INT_ACCESSORS(SharedFunctionInfo, unique_id, kUniqueIdOffset)
 UINT16_ACCESSORS(SharedFunctionInfo, length, kLengthOffset)
 UINT16_ACCESSORS(SharedFunctionInfo, internal_formal_parameter_count,
                  kFormalParameterCountOffset)
-UINT8_ACCESSORS(SharedFunctionInfo, expected_nof_properties,
-                kExpectedNofPropertiesOffset)
-UINT8_ACCESSORS(SharedFunctionInfo, raw_builtin_function_id, kBuiltinFunctionId)
+UINT16_ACCESSORS(SharedFunctionInfo, expected_nof_properties,
+                 kExpectedNofPropertiesOffset)
 UINT16_ACCESSORS(SharedFunctionInfo, raw_function_token_offset,
                  kFunctionTokenOffsetOffset)
 INT_ACCESSORS(SharedFunctionInfo, flags, kFlagsOffset)
@@ -188,7 +187,7 @@ BailoutReason SharedFunctionInfo::disable_optimization_reason() const {
   return DisabledOptimizationReasonBits::decode(flags());
 }
 
-LanguageMode SharedFunctionInfo::language_mode() const {
+LanguageMode SharedFunctionInfo::language_mode() {
   STATIC_ASSERT(LanguageModeSize == 2);
   return construct_language_mode(IsStrictBit::decode(flags()));
 }
@@ -282,6 +281,101 @@ void SharedFunctionInfo::DontAdaptArguments() {
   set_internal_formal_parameter_count(kDontAdaptArgumentsSentinel);
 }
 
+int SharedFunctionInfo::StartPosition() const {
+  Object* maybe_scope_info = name_or_scope_info();
+  if (maybe_scope_info->IsScopeInfo()) {
+    ScopeInfo* info = ScopeInfo::cast(maybe_scope_info);
+    if (info->HasPositionInfo()) {
+      return info->StartPosition();
+    }
+  } else if (HasUncompiledData()) {
+    // Works with or without scope.
+    return uncompiled_data()->start_position();
+  } else if (IsApiFunction() || HasBuiltinId()) {
+    DCHECK_IMPLIES(HasBuiltinId(), builtin_id() != Builtins::kCompileLazy);
+    return 0;
+  }
+  return kNoSourcePosition;
+}
+
+int SharedFunctionInfo::EndPosition() const {
+  Object* maybe_scope_info = name_or_scope_info();
+  if (maybe_scope_info->IsScopeInfo()) {
+    ScopeInfo* info = ScopeInfo::cast(maybe_scope_info);
+    if (info->HasPositionInfo()) {
+      return info->EndPosition();
+    }
+  } else if (HasUncompiledData()) {
+    // Works with or without scope.
+    return uncompiled_data()->end_position();
+  } else if (IsApiFunction() || HasBuiltinId()) {
+    DCHECK_IMPLIES(HasBuiltinId(), builtin_id() != Builtins::kCompileLazy);
+    return 0;
+  }
+  return kNoSourcePosition;
+}
+
+void SharedFunctionInfo::SetPosition(int start_position, int end_position) {
+  Object* maybe_scope_info = name_or_scope_info();
+  if (maybe_scope_info->IsScopeInfo()) {
+    ScopeInfo* info = ScopeInfo::cast(maybe_scope_info);
+    if (info->HasPositionInfo()) {
+      info->SetPositionInfo(start_position, end_position);
+    }
+  } else if (HasUncompiledData()) {
+    if (HasUncompiledDataWithPreParsedScope()) {
+      // Clear out preparsed scope data, since the position setter invalidates
+      // any scope data.
+      ClearPreParsedScopeData();
+    }
+    uncompiled_data()->set_start_position(start_position);
+    uncompiled_data()->set_end_position(end_position);
+  } else {
+    UNREACHABLE();
+  }
+}
+
+Code* SharedFunctionInfo::GetCode() const {
+  // ======
+  // NOTE: This chain of checks MUST be kept in sync with the equivalent CSA
+  // GetSharedFunctionInfoCode method in code-stub-assembler.cc.
+  // ======
+
+  Isolate* isolate = GetIsolate();
+  Object* data = function_data();
+  if (data->IsSmi()) {
+    // Holding a Smi means we are a builtin.
+    DCHECK(HasBuiltinId());
+    return isolate->builtins()->builtin(builtin_id());
+  } else if (data->IsBytecodeArray()) {
+    // Having a bytecode array means we are a compiled, interpreted function.
+    DCHECK(HasBytecodeArray());
+    return isolate->builtins()->builtin(Builtins::kInterpreterEntryTrampoline);
+  } else if (data->IsFixedArray()) {
+    // Having a fixed array means we are an asm.js/wasm function.
+    DCHECK(HasAsmWasmData());
+    return isolate->builtins()->builtin(Builtins::kInstantiateAsmJs);
+  } else if (data->IsUncompiledData()) {
+    // Having uncompiled data (with or without scope) means we need to compile.
+    DCHECK(HasUncompiledData());
+    return isolate->builtins()->builtin(Builtins::kCompileLazy);
+  } else if (data->IsFunctionTemplateInfo()) {
+    // Having a function template info means we are an API function.
+    DCHECK(IsApiFunction());
+    return isolate->builtins()->builtin(Builtins::kHandleApiCall);
+  } else if (data->IsWasmExportedFunctionData()) {
+    // Having a WasmExportedFunctionData means the code is in there.
+    DCHECK(HasWasmExportedFunctionData());
+    return wasm_exported_function_data()->wrapper_code();
+  } else if (data->IsInterpreterData()) {
+    Code* code = InterpreterTrampoline();
+    DCHECK(code->IsCode());
+    DCHECK(code->is_interpreter_trampoline_builtin());
+    return code;
+  }
+  UNREACHABLE();
+}
+
 bool SharedFunctionInfo::IsInterpreted() const { return HasBytecodeArray(); }
 
 ScopeInfo* SharedFunctionInfo::scope_info() const {
@@ -307,7 +401,7 @@ void SharedFunctionInfo::set_scope_info(ScopeInfo* scope_info,
   }
   WRITE_FIELD(this, kNameOrScopeInfoOffset,
               reinterpret_cast<Object*>(scope_info));
-  CONDITIONAL_WRITE_BARRIER(this, kNameOrScopeInfoOffset,
+  CONDITIONAL_WRITE_BARRIER(GetHeap(), this, kNameOrScopeInfoOffset,
                             reinterpret_cast<Object*>(scope_info), mode);
 }
 
@@ -559,70 +653,88 @@ bool SharedFunctionInfo::HasWasmExportedFunctionData() const {
   return function_data()->IsWasmExportedFunctionData();
 }
 
-Object* SharedFunctionInfo::script() const {
-  Object* maybe_script = script_or_debug_info();
-  if (maybe_script->IsDebugInfo()) {
-    return DebugInfo::cast(maybe_script)->script();
-  }
-  return maybe_script;
+WasmExportedFunctionData* SharedFunctionInfo::wasm_exported_function_data()
+    const {
+  DCHECK(HasWasmExportedFunctionData());
+  return WasmExportedFunctionData::cast(function_data());
 }
 
-void SharedFunctionInfo::set_script(Object* script) {
-  Object* maybe_debug_info = script_or_debug_info();
-  if (maybe_debug_info->IsDebugInfo()) {
-    DebugInfo::cast(maybe_debug_info)->set_script(script);
-  } else {
-    set_script_or_debug_info(script);
+int SharedFunctionInfo::FunctionLiteralId(Isolate* isolate) const {
+  // Fast path for the common case when the SFI is uncompiled and so the
+  // function literal id is already in the uncompiled data.
+  if (HasUncompiledData()) {
+    int id = uncompiled_data()->function_literal_id();
+    // Make sure the id is what we should have found with the slow path.
+    DCHECK_EQ(id, FindIndexInScript(isolate));
+    return id;
   }
+
+  // Otherwise, search for the function in the SFI's script's function list,
+  // and return its index in that list.
+  return FindIndexInScript(isolate);
 }
 
 bool SharedFunctionInfo::HasDebugInfo() const {
-  return script_or_debug_info()->IsDebugInfo();
+  return function_identifier_or_debug_info()->IsDebugInfo();
 }
 
 DebugInfo* SharedFunctionInfo::GetDebugInfo() const {
   DCHECK(HasDebugInfo());
-  return DebugInfo::cast(script_or_debug_info());
+  return DebugInfo::cast(function_identifier_or_debug_info());
+}
+
+Object* SharedFunctionInfo::function_identifier() const {
+  Object* result;
+  if (HasDebugInfo()) {
+    result = GetDebugInfo()->function_identifier();
+  } else {
+    result = function_identifier_or_debug_info();
+  }
+  DCHECK(result->IsSmi() || result->IsString() || result->IsUndefined());
+  return result;
 }
 
 void SharedFunctionInfo::SetDebugInfo(DebugInfo* debug_info) {
   DCHECK(!HasDebugInfo());
-  DCHECK_EQ(debug_info->script(), script_or_debug_info());
-  set_script_or_debug_info(debug_info);
+  DCHECK_EQ(debug_info->function_identifier(),
+            function_identifier_or_debug_info());
+  set_function_identifier_or_debug_info(debug_info);
 }
 
 bool SharedFunctionInfo::HasBuiltinFunctionId() {
-  return builtin_function_id() != BuiltinFunctionId::kInvalidBuiltinFunctionId;
+  return function_identifier()->IsSmi();
 }
 
 BuiltinFunctionId SharedFunctionInfo::builtin_function_id() {
-  return static_cast<BuiltinFunctionId>(raw_builtin_function_id());
+  DCHECK(HasBuiltinFunctionId());
+  return static_cast<BuiltinFunctionId>(Smi::ToInt(function_identifier()));
 }
 
 void SharedFunctionInfo::set_builtin_function_id(BuiltinFunctionId id) {
-  set_raw_builtin_function_id(static_cast<uint8_t>(id));
+  DCHECK(!HasDebugInfo());
+  set_function_identifier_or_debug_info(Smi::FromInt(id));
 }
 
 bool SharedFunctionInfo::HasInferredName() {
-  Object* scope_info = name_or_scope_info();
-  if (scope_info->IsScopeInfo()) {
-    return ScopeInfo::cast(scope_info)->HasInferredFunctionName();
-  }
-  return HasUncompiledData();
+  return function_identifier()->IsString();
 }
 
 String* SharedFunctionInfo::inferred_name() {
-  Object* maybe_scope_info = name_or_scope_info();
-  if (maybe_scope_info->IsScopeInfo()) {
-    ScopeInfo* scope_info = ScopeInfo::cast(maybe_scope_info);
-    if (scope_info->HasInferredFunctionName()) {
-      Object* name = ScopeInfo::cast(maybe_scope_info)->InferredFunctionName();
-      if (name->IsString()) return String::cast(name);
-    }
-  } else if (HasUncompiledData()) {
-    return uncompiled_data()->inferred_name();
+  if (HasInferredName()) {
+    return String::cast(function_identifier());
   }
+  DCHECK(function_identifier()->IsUndefined() || HasBuiltinFunctionId());
   return GetReadOnlyRoots().empty_string();
+}
+
+void SharedFunctionInfo::set_inferred_name(String* inferred_name) {
+  DCHECK(function_identifier_or_debug_info()->IsUndefined() ||
+         HasInferredName() || HasDebugInfo());
+  if (HasDebugInfo()) {
+    GetDebugInfo()->set_function_identifier(inferred_name);
+  } else {
+    set_function_identifier_or_debug_info(inferred_name);
+  }
 }
 
 bool SharedFunctionInfo::IsUserJavaScript() {
@@ -679,8 +791,7 @@ void SharedFunctionInfo::DiscardCompiled(
     // validity checks, since we're performing the unusual task of decompiling.
     Handle<UncompiledData> data =
         isolate->factory()->NewUncompiledDataWithoutPreParsedScope(
-            handle(shared_info->inferred_name(), isolate), start_position,
-            end_position, function_literal_id);
+            start_position, end_position, function_literal_id);
     shared_info->set_function_data(*data);
   }
 }

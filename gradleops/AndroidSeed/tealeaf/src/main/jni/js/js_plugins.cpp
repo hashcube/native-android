@@ -69,8 +69,7 @@ void js_plugins_send_request(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 
-Handle<ObjectTemplate> js_plugins_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Handle<ObjectTemplate> js_plugins_get_template(Isolate *isolate) {
     Handle<ObjectTemplate> actions = ObjectTemplate::New(isolate);
     actions->Set(STRING_CACHE_sendEvent.Get(isolate), FunctionTemplate::New(isolate, js_plugins_send_event));
     actions->Set(STRING_CACHE_sendRequest.Get(isolate), FunctionTemplate::New(isolate, js_plugins_send_request));

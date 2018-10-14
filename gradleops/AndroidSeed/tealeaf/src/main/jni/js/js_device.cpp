@@ -57,9 +57,7 @@ void js_get_text_scale(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 
 
-Local<ObjectTemplate> js_device_get_template() {
-
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_device_get_template(Isolate *isolate) {
     Local<ObjectTemplate> device = ObjectTemplate::New(isolate);
     device->SetAccessor(STRING_CACHE_globalID.Get(isolate), js_device_global_id);
     device->SetAccessor(STRING_CACHE_native_info.Get(isolate), js_device_info);

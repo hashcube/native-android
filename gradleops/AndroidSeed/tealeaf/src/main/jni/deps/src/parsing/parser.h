@@ -11,12 +11,12 @@
 #include "src/ast/ast.h"
 #include "src/ast/scopes.h"
 #include "src/base/compiler-specific.h"
-#include "src/base/threaded-list.h"
 #include "src/globals.h"
 #include "src/parsing/parser-base.h"
 #include "src/parsing/parsing.h"
+#include "src/parsing/preparse-data.h"
 #include "src/parsing/preparser.h"
-#include "src/zone/zone-chunk-list.h"
+#include "src/utils.h"
 
 namespace v8 {
 
@@ -31,7 +31,7 @@ class ParserTargetScope;
 class PendingCompilationErrorHandler;
 class PreParsedScopeData;
 
-class FunctionEntry {
+class FunctionEntry BASE_EMBEDDED {
  public:
   enum {
     kStartPositionIndex,
@@ -109,7 +109,7 @@ struct ParserFormalParameters : FormalParametersBase {
 
   explicit ParserFormalParameters(DeclarationScope* scope)
       : FormalParametersBase(scope) {}
-  base::ThreadedList<Parameter> params;
+  ThreadedList<Parameter> params;
 };
 
 template <>
@@ -135,9 +135,6 @@ struct ParserTypes<Parser> {
   typedef v8::internal::BreakableStatement* BreakableStatement;
   typedef v8::internal::ForStatement* ForStatement;
   typedef v8::internal::IterationStatement* IterationStatement;
-  typedef v8::internal::FuncNameInferrer FuncNameInferrer;
-  typedef v8::internal::SourceRange SourceRange;
-  typedef v8::internal::SourceRangeScope SourceRangeScope;
 
   // For constructing objects returned by the traversing functions.
   typedef AstNodeFactory Factory;
@@ -157,10 +154,6 @@ class V8_EXPORT_PRIVATE Parser : public NON_EXPORTED_BASE(ParserBase<Parser>) {
   static bool IsPreParser() { return false; }
 
   void ParseOnBackground(ParseInfo* info);
-
-  // Initializes an empty scope chain for top-level scripts, or scopes which
-  // consist of only the native context.
-  void InitializeEmptyScopeChain(ParseInfo* info);
 
   // Deserialize the scope chain prior to parsing in which the script is going
   // to be executed. If the script is a top-level script, or the scope chain
@@ -192,7 +185,7 @@ class V8_EXPORT_PRIVATE Parser : public NON_EXPORTED_BASE(ParserBase<Parser>) {
   bool parse_lazily() const { return mode_ == PARSE_LAZILY; }
   enum Mode { PARSE_LAZILY, PARSE_EAGERLY };
 
-  class ParsingModeScope {
+  class ParsingModeScope BASE_EMBEDDED {
    public:
     ParsingModeScope(Parser* parser, Mode mode)
         : parser_(parser), old_mode_(parser->mode_) {
@@ -240,12 +233,14 @@ class V8_EXPORT_PRIVATE Parser : public NON_EXPORTED_BASE(ParserBase<Parser>) {
                                                            ParseInfo* info,
                                                            Zone* zone);
 
+  void StitchAst(ParseInfo* top_level_parse_info, Isolate* isolate);
+
   PreParser* reusable_preparser() {
     if (reusable_preparser_ == nullptr) {
-      reusable_preparser_ = new PreParser(
-          &preparser_zone_, &scanner_, stack_limit_, ast_value_factory(),
-          pending_error_handler(), runtime_call_stats_, logger_, -1,
-          parsing_module_, parsing_on_main_thread_);
+      reusable_preparser_ =
+          new PreParser(zone(), &scanner_, stack_limit_, ast_value_factory(),
+                        pending_error_handler(), runtime_call_stats_, logger_,
+                        -1, parsing_module_, parsing_on_main_thread_);
 #define SET_ALLOW(name) reusable_preparser_->set_allow_##name(allow_##name());
       SET_ALLOW(natives);
       SET_ALLOW(harmony_do_expressions);
@@ -267,13 +262,10 @@ class V8_EXPORT_PRIVATE Parser : public NON_EXPORTED_BASE(ParserBase<Parser>) {
   void ParseImportDeclaration(bool* ok);
   Statement* ParseExportDeclaration(bool* ok);
   Statement* ParseExportDefault(bool* ok);
-  struct ExportClauseData {
-    const AstRawString* export_name;
-    const AstRawString* local_name;
-    Scanner::Location location;
-  };
-  ZoneChunkList<ExportClauseData>* ParseExportClause(
-      Scanner::Location* reserved_loc, bool* ok);
+  void ParseExportClause(ZonePtrList<const AstRawString>* export_names,
+                         ZoneList<Scanner::Location>* export_locations,
+                         ZonePtrList<const AstRawString>* local_names,
+                         Scanner::Location* reserved_loc, bool* ok);
   struct NamedImport : public ZoneObject {
     const AstRawString* import_name;
     const AstRawString* local_name;
@@ -288,9 +280,8 @@ class V8_EXPORT_PRIVATE Parser : public NON_EXPORTED_BASE(ParserBase<Parser>) {
   Block* BuildInitializationBlock(DeclarationParsingResult* parsing_result,
                                   ZonePtrList<const AstRawString>* names,
                                   bool* ok);
-  void DeclareLabel(ZonePtrList<const AstRawString>** labels,
-                    ZonePtrList<const AstRawString>** own_labels,
-                    VariableProxy* expr, bool* ok);
+  ZonePtrList<const AstRawString>* DeclareLabel(
+      ZonePtrList<const AstRawString>* labels, VariableProxy* expr, bool* ok);
   bool ContainsLabel(ZonePtrList<const AstRawString>* labels,
                      const AstRawString* label);
   Expression* RewriteReturn(Expression* return_value, int pos);
@@ -320,8 +311,7 @@ class V8_EXPORT_PRIVATE Parser : public NON_EXPORTED_BASE(ParserBase<Parser>) {
   Variable* CreateSyntheticContextVariable(const AstRawString* synthetic_name,
                                            bool* ok);
   FunctionLiteral* CreateInitializerFunction(
-      const char* name, DeclarationScope* scope,
-      ZonePtrList<ClassLiteral::Property>* fields);
+      DeclarationScope* scope, ZonePtrList<ClassLiteral::Property>* fields);
   V8_INLINE Statement* DeclareClass(const AstRawString* variable_name,
                                     Expression* value,
                                     ZonePtrList<const AstRawString>* names,
@@ -448,12 +438,12 @@ class V8_EXPORT_PRIVATE Parser : public NON_EXPORTED_BASE(ParserBase<Parser>) {
   // by parsing the function with PreParser. Consumes the ending }.
   // If may_abort == true, the (pre-)parser may decide to abort skipping
   // in order to force the function to be eagerly parsed, after all.
-  bool SkipFunction(const AstRawString* function_name, FunctionKind kind,
-                    FunctionLiteral::FunctionType function_type,
-                    DeclarationScope* function_scope, int* num_parameters,
-                    ProducedPreParsedScopeData** produced_preparsed_scope_data,
-                    bool is_inner_function, bool may_abort,
-                    FunctionLiteral::EagerCompileHint* hint, bool* ok);
+  LazyParsingResult SkipFunction(
+      const AstRawString* function_name, FunctionKind kind,
+      FunctionLiteral::FunctionType function_type,
+      DeclarationScope* function_scope, int* num_parameters,
+      ProducedPreParsedScopeData** produced_preparsed_scope_data,
+      bool is_inner_function, bool may_abort, bool* ok);
 
   Block* BuildParameterInitializationBlock(
       const ParserFormalParameters& parameters, bool* ok);
@@ -668,30 +658,38 @@ class V8_EXPORT_PRIVATE Parser : public NON_EXPORTED_BASE(ParserBase<Parser>) {
   // Functions for encapsulating the differences between parsing and preparsing;
   // operations interleaved with the recursive descent.
   V8_INLINE void PushLiteralName(const AstRawString* id) {
-    fni_.PushLiteralName(id);
+    DCHECK_NOT_NULL(fni_);
+    fni_->PushLiteralName(id);
   }
 
   V8_INLINE void PushVariableName(const AstRawString* id) {
-    fni_.PushVariableName(id);
+    DCHECK_NOT_NULL(fni_);
+    fni_->PushVariableName(id);
   }
 
   V8_INLINE void PushPropertyName(Expression* expression) {
+    DCHECK_NOT_NULL(fni_);
     if (expression->IsPropertyName()) {
-      fni_.PushLiteralName(expression->AsLiteral()->AsRawPropertyName());
+      fni_->PushLiteralName(expression->AsLiteral()->AsRawPropertyName());
     } else {
-      fni_.PushLiteralName(ast_value_factory()->anonymous_function_string());
+      fni_->PushLiteralName(ast_value_factory()->anonymous_function_string());
     }
   }
 
   V8_INLINE void PushEnclosingName(const AstRawString* name) {
-    fni_.PushEnclosingName(name);
+    DCHECK_NOT_NULL(fni_);
+    fni_->PushEnclosingName(name);
   }
 
   V8_INLINE void AddFunctionForNameInference(FunctionLiteral* func_to_infer) {
-    fni_.AddFunction(func_to_infer);
+    DCHECK_NOT_NULL(fni_);
+    fni_->AddFunction(func_to_infer);
   }
 
-  V8_INLINE void InferFunctionName() { fni_.Infer(); }
+  V8_INLINE void InferFunctionName() {
+    DCHECK_NOT_NULL(fni_);
+    fni_->Infer();
+  }
 
   // If we assign a function literal to a property we pretenure the
   // literal so it can be added as a constant function property.
@@ -854,14 +852,14 @@ class V8_EXPORT_PRIVATE Parser : public NON_EXPORTED_BASE(ParserBase<Parser>) {
       const AstRawString* name, int start_position,
       InferName infer = InferName::kYes) {
     if (infer == InferName::kYes) {
-      fni_.PushVariableName(name);
+      fni_->PushVariableName(name);
     }
     return NewUnresolved(name, start_position);
   }
 
   V8_INLINE Expression* ExpressionFromString(int pos) {
     const AstRawString* symbol = GetSymbol();
-    fni_.PushLiteralName(symbol);
+    fni_->PushLiteralName(symbol);
     return factory()->NewStringLiteral(symbol, pos);
   }
 
@@ -921,7 +919,7 @@ class V8_EXPORT_PRIVATE Parser : public NON_EXPORTED_BASE(ParserBase<Parser>) {
 
   V8_INLINE void DeclareFormalParameters(
       DeclarationScope* scope,
-      const base::ThreadedList<ParserFormalParameters::Parameter>& parameters,
+      const ThreadedList<ParserFormalParameters::Parameter>& parameters,
       bool is_simple, bool* has_duplicate = nullptr) {
     if (!is_simple) scope->SetHasNonSimpleParameters();
     for (auto parameter : parameters) {
@@ -1092,10 +1090,11 @@ class V8_EXPORT_PRIVATE Parser : public NON_EXPORTED_BASE(ParserBase<Parser>) {
   }
 
   // Parser's private field members.
-  friend class PreParserZoneScope;  // Uses reusable_preparser().
+  friend class DiscardableZoneScope;  // Uses reusable_preparser_.
+  // FIXME(marja): Make reusable_preparser_ always use its own temp Zone (call
+  // DeleteAll after each function), so this won't be needed.
 
   Scanner scanner_;
-  Zone preparser_zone_;
   PreParser* reusable_preparser_;
   Mode mode_;
 
@@ -1128,7 +1127,7 @@ class V8_EXPORT_PRIVATE Parser : public NON_EXPORTED_BASE(ParserBase<Parser>) {
 // 'continue' statement targets). Upon construction, a new target is
 // added; it is removed upon destruction.
 
-class ParserTarget {
+class ParserTarget BASE_EMBEDDED {
  public:
   ParserTarget(ParserBase<Parser>* parser, BreakableStatement* statement)
       : variable_(&parser->impl()->target_stack_),
@@ -1148,7 +1147,7 @@ class ParserTarget {
   ParserTarget* previous_;
 };
 
-class ParserTargetScope {
+class ParserTargetScope BASE_EMBEDDED {
  public:
   explicit ParserTargetScope(ParserBase<Parser>* parser)
       : variable_(&parser->impl()->target_stack_),

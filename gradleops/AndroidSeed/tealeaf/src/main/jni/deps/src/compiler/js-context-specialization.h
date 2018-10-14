@@ -6,7 +6,6 @@
 #define V8_COMPILER_JS_CONTEXT_SPECIALIZATION_H_
 
 #include "src/compiler/graph-reducer.h"
-#include "src/maybe-handles.h"
 
 namespace v8 {
 namespace internal {
@@ -63,12 +62,12 @@ class JSContextSpecialization final : public AdvancedReducer {
   JSGraph* jsgraph() const { return jsgraph_; }
   Maybe<OuterContext> outer() const { return outer_; }
   MaybeHandle<JSFunction> closure() const { return closure_; }
-  JSHeapBroker* js_heap_broker() const { return js_heap_broker_; }
+  const JSHeapBroker* js_heap_broker() const { return js_heap_broker_; }
 
   JSGraph* const jsgraph_;
   Maybe<OuterContext> outer_;
   MaybeHandle<JSFunction> closure_;
-  JSHeapBroker* const js_heap_broker_;
+  const JSHeapBroker* const js_heap_broker_;
 
   DISALLOW_COPY_AND_ASSIGN(JSContextSpecialization);
 };

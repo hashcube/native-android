@@ -27,7 +27,6 @@ class DeferredHandles;
 class FunctionLiteral;
 class Isolate;
 class JavaScriptFrame;
-class JSGlobalObject;
 class ParseInfo;
 class SourceRangeMap;
 class Zone;
@@ -57,7 +56,6 @@ class V8_EXPORT_PRIVATE OptimizedCompilationInfo final {
     kTraceTurboJson = 1 << 14,
     kTraceTurboGraph = 1 << 15,
     kTraceTurboScheduled = 1 << 16,
-    kWasmRuntimeExceptionSupport = 1 << 17
   };
 
   // Construct a compilation info for optimized compilation.
@@ -80,7 +78,11 @@ class V8_EXPORT_PRIVATE OptimizedCompilationInfo final {
   wasm::WasmCode* wasm_code() const {
     return const_cast<wasm::WasmCode*>(code_.as_wasm_code());
   }
-  Code::Kind code_kind() const { return code_kind_; }
+  AbstractCode::Kind abstract_code_kind() const { return code_kind_; }
+  Code::Kind code_kind() const {
+    DCHECK(code_kind_ < static_cast<AbstractCode::Kind>(Code::NUMBER_OF_KINDS));
+    return static_cast<Code::Kind>(code_kind_);
+  }
   uint32_t stub_key() const { return stub_key_; }
   void set_stub_key(uint32_t stub_key) { stub_key_ = stub_key; }
   int32_t builtin_index() const { return builtin_index_; }
@@ -164,14 +166,6 @@ class V8_EXPORT_PRIVATE OptimizedCompilationInfo final {
     return GetFlag(kAnalyzeEnvironmentLiveness);
   }
 
-  void SetWasmRuntimeExceptionSupport() {
-    SetFlag(kWasmRuntimeExceptionSupport);
-  }
-
-  bool wasm_runtime_exception_support() {
-    return GetFlag(kWasmRuntimeExceptionSupport);
-  }
-
   bool trace_turbo_json_enabled() const { return GetFlag(kTraceTurboJson); }
 
   bool trace_turbo_graph_enabled() const { return GetFlag(kTraceTurboGraph); }
@@ -197,11 +191,15 @@ class V8_EXPORT_PRIVATE OptimizedCompilationInfo final {
   JSGlobalObject* global_object() const;
 
   // Accessors for the different compilation modes.
-  bool IsOptimizing() const { return code_kind() == Code::OPTIMIZED_FUNCTION; }
-  bool IsWasm() const { return code_kind() == Code::WASM_FUNCTION; }
+  bool IsOptimizing() const {
+    return abstract_code_kind() == AbstractCode::OPTIMIZED_FUNCTION;
+  }
+  bool IsWasm() const {
+    return abstract_code_kind() == AbstractCode::WASM_FUNCTION;
+  }
   bool IsStub() const {
-    return code_kind() != Code::OPTIMIZED_FUNCTION &&
-           code_kind() != Code::WASM_FUNCTION;
+    return abstract_code_kind() != AbstractCode::OPTIMIZED_FUNCTION &&
+           abstract_code_kind() != AbstractCode::WASM_FUNCTION;
   }
   void SetOptimizingForOsr(BailoutId osr_offset, JavaScriptFrame* osr_frame) {
     DCHECK(IsOptimizing());
@@ -274,8 +272,8 @@ class V8_EXPORT_PRIVATE OptimizedCompilationInfo final {
   }
 
  private:
-  OptimizedCompilationInfo(Code::Kind code_kind, Zone* zone);
-  void ConfigureFlags();
+  OptimizedCompilationInfo(Vector<const char> debug_name,
+                           AbstractCode::Kind code_kind, Zone* zone);
 
   void SetFlag(Flag flag) { flags_ |= flag; }
   bool GetFlag(Flag flag) const { return (flags_ & flag) != 0; }
@@ -283,13 +281,13 @@ class V8_EXPORT_PRIVATE OptimizedCompilationInfo final {
   void SetTracingFlags(bool passes_filter);
 
   // Compilation flags.
-  unsigned flags_ = 0;
+  unsigned flags_;
   PoisoningMitigationLevel poisoning_level_ =
       PoisoningMitigationLevel::kDontPoison;
 
-  Code::Kind code_kind_;
-  uint32_t stub_key_ = 0;
-  int32_t builtin_index_ = -1;
+  AbstractCode::Kind code_kind_;
+  uint32_t stub_key_;
+  int32_t builtin_index_;
 
   Handle<SharedFunctionInfo> shared_info_;
 
@@ -299,7 +297,7 @@ class V8_EXPORT_PRIVATE OptimizedCompilationInfo final {
   CodeReference code_;
 
   // Entry point when compiling for OSR, {BailoutId::None} otherwise.
-  BailoutId osr_offset_ = BailoutId::None();
+  BailoutId osr_offset_;
 
   // The zone from which the compilation pipeline working on this
   // OptimizedCompilationInfo allocates.
@@ -307,11 +305,11 @@ class V8_EXPORT_PRIVATE OptimizedCompilationInfo final {
 
   std::shared_ptr<DeferredHandles> deferred_handles_;
 
-  BailoutReason bailout_reason_ = BailoutReason::kNoReason;
+  BailoutReason bailout_reason_;
 
   InlinedFunctionList inlined_functions_;
 
-  int optimization_id_ = -1;
+  int optimization_id_;
 
   // The current OSR frame for specialization or {nullptr}.
   JavaScriptFrame* osr_frame_ = nullptr;

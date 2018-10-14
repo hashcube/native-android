@@ -39,21 +39,14 @@ Address IC::raw_constant_pool() const {
   }
 }
 
-void IC::update_receiver_map(Handle<Object> receiver) {
-  if (receiver->IsSmi()) {
-    receiver_map_ = isolate_->factory()->heap_number_map();
-  } else {
-    receiver_map_ = handle(HeapObject::cast(*receiver)->map(), isolate_);
-  }
-}
-
 bool IC::IsHandler(MaybeObject* object) {
   HeapObject* heap_object;
   return (object->IsSmi() && (object != nullptr)) ||
-         (object->GetHeapObjectIfWeak(&heap_object) &&
+         (object->ToWeakHeapObject(&heap_object) &&
           (heap_object->IsMap() || heap_object->IsPropertyCell())) ||
-         (object->GetHeapObjectIfStrong(&heap_object) &&
-          (heap_object->IsDataHandler() || heap_object->IsCode()));
+         (object->ToStrongHeapObject(&heap_object) &&
+          (heap_object->IsDataHandler() ||
+           heap_object->IsCode()));
 }
 
 bool IC::AddressIsDeoptimizedCode() const {

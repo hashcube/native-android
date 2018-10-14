@@ -25,6 +25,6 @@ using v8::ObjectTemplate;
 using v8::Handle;
 using v8::internal::Arguments;
 
-Local<ObjectTemplate> js_navigator_get_template();
+Local<ObjectTemplate> js_navigator_get_template(Isolate *isolate);
 
 #endif

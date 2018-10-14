@@ -5,7 +5,6 @@
 #include "src/elements-kind.h"
 #include "src/heap/factory-inl.h"
 #include "src/objects.h"
-#include "src/objects/bigint.h"
 #include "builtins-typed-array-from-dsl-gen.h"
 
 namespace v8 {
@@ -14,1070 +13,1070 @@ namespace internal {
 using Node = compiler::Node;
 
 ElementsKind TypedArrayBuiltinsFromDSLAssembler::KindForArrayType17ATFixedUint8Array() {
-  ElementsKind _return_124_impl;
-  auto _return_124 = &_return_124_impl;
-  USE(_return_124);
-  Label label_macro_end_1568_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1568 = &label_macro_end_1568_impl;
-  USE(label_macro_end_1568);
-  // ../../src/builtins/typed-array.tq:20:63
+  ElementsKind _return_139_impl;
+  auto _return_139 = &_return_139_impl;
+  USE(_return_139);
+  Label label_macro_end_635_impl(this, {});
+  Label* label_macro_end_635 = &label_macro_end_635_impl;
+  USE(label_macro_end_635);
+  // ../../src/builtins/typed-array.tq:20:62
   {
-    // ../../src/builtins/typed-array.tq:21:5
-    *_return_124 = implicit_cast<ElementsKind>(UINT8_ELEMENTS);
-    Goto(label_macro_end_1568);
+    // ../../src/builtins/typed-array.tq:21:4
+    *_return_139 = UINT8_ELEMENTS;
+    Goto(label_macro_end_635);
   }
-  BIND(label_macro_end_1568);
-  return implicit_cast<ElementsKind>((*_return_124));
+  BIND(label_macro_end_635);
+  return (*_return_139);
 }
 
 ElementsKind TypedArrayBuiltinsFromDSLAssembler::KindForArrayType16ATFixedInt8Array() {
-  ElementsKind _return_125_impl;
-  auto _return_125 = &_return_125_impl;
-  USE(_return_125);
-  Label label_macro_end_1569_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1569 = &label_macro_end_1569_impl;
-  USE(label_macro_end_1569);
-  // ../../src/builtins/typed-array.tq:23:62
+  ElementsKind _return_140_impl;
+  auto _return_140 = &_return_140_impl;
+  USE(_return_140);
+  Label label_macro_end_636_impl(this, {});
+  Label* label_macro_end_636 = &label_macro_end_636_impl;
+  USE(label_macro_end_636);
+  // ../../src/builtins/typed-array.tq:23:61
   {
-    // ../../src/builtins/typed-array.tq:24:5
-    *_return_125 = implicit_cast<ElementsKind>(INT8_ELEMENTS);
-    Goto(label_macro_end_1569);
+    // ../../src/builtins/typed-array.tq:24:4
+    *_return_140 = INT8_ELEMENTS;
+    Goto(label_macro_end_636);
   }
-  BIND(label_macro_end_1569);
-  return implicit_cast<ElementsKind>((*_return_125));
+  BIND(label_macro_end_636);
+  return (*_return_140);
 }
 
 ElementsKind TypedArrayBuiltinsFromDSLAssembler::KindForArrayType18ATFixedUint16Array() {
-  ElementsKind _return_126_impl;
-  auto _return_126 = &_return_126_impl;
-  USE(_return_126);
-  Label label_macro_end_1570_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1570 = &label_macro_end_1570_impl;
-  USE(label_macro_end_1570);
-  // ../../src/builtins/typed-array.tq:26:64
+  ElementsKind _return_141_impl;
+  auto _return_141 = &_return_141_impl;
+  USE(_return_141);
+  Label label_macro_end_637_impl(this, {});
+  Label* label_macro_end_637 = &label_macro_end_637_impl;
+  USE(label_macro_end_637);
+  // ../../src/builtins/typed-array.tq:26:63
   {
-    // ../../src/builtins/typed-array.tq:27:5
-    *_return_126 = implicit_cast<ElementsKind>(UINT16_ELEMENTS);
-    Goto(label_macro_end_1570);
+    // ../../src/builtins/typed-array.tq:27:4
+    *_return_141 = UINT16_ELEMENTS;
+    Goto(label_macro_end_637);
   }
-  BIND(label_macro_end_1570);
-  return implicit_cast<ElementsKind>((*_return_126));
+  BIND(label_macro_end_637);
+  return (*_return_141);
 }
 
 ElementsKind TypedArrayBuiltinsFromDSLAssembler::KindForArrayType17ATFixedInt16Array() {
-  ElementsKind _return_127_impl;
-  auto _return_127 = &_return_127_impl;
-  USE(_return_127);
-  Label label_macro_end_1571_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1571 = &label_macro_end_1571_impl;
-  USE(label_macro_end_1571);
-  // ../../src/builtins/typed-array.tq:29:63
+  ElementsKind _return_142_impl;
+  auto _return_142 = &_return_142_impl;
+  USE(_return_142);
+  Label label_macro_end_638_impl(this, {});
+  Label* label_macro_end_638 = &label_macro_end_638_impl;
+  USE(label_macro_end_638);
+  // ../../src/builtins/typed-array.tq:29:62
   {
-    // ../../src/builtins/typed-array.tq:30:5
-    *_return_127 = implicit_cast<ElementsKind>(INT16_ELEMENTS);
-    Goto(label_macro_end_1571);
+    // ../../src/builtins/typed-array.tq:30:4
+    *_return_142 = INT16_ELEMENTS;
+    Goto(label_macro_end_638);
   }
-  BIND(label_macro_end_1571);
-  return implicit_cast<ElementsKind>((*_return_127));
+  BIND(label_macro_end_638);
+  return (*_return_142);
 }
 
 ElementsKind TypedArrayBuiltinsFromDSLAssembler::KindForArrayType18ATFixedUint32Array() {
-  ElementsKind _return_128_impl;
-  auto _return_128 = &_return_128_impl;
-  USE(_return_128);
-  Label label_macro_end_1572_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1572 = &label_macro_end_1572_impl;
-  USE(label_macro_end_1572);
-  // ../../src/builtins/typed-array.tq:32:64
+  ElementsKind _return_143_impl;
+  auto _return_143 = &_return_143_impl;
+  USE(_return_143);
+  Label label_macro_end_639_impl(this, {});
+  Label* label_macro_end_639 = &label_macro_end_639_impl;
+  USE(label_macro_end_639);
+  // ../../src/builtins/typed-array.tq:32:63
   {
-    // ../../src/builtins/typed-array.tq:33:5
-    *_return_128 = implicit_cast<ElementsKind>(UINT32_ELEMENTS);
-    Goto(label_macro_end_1572);
+    // ../../src/builtins/typed-array.tq:33:4
+    *_return_143 = UINT32_ELEMENTS;
+    Goto(label_macro_end_639);
   }
-  BIND(label_macro_end_1572);
-  return implicit_cast<ElementsKind>((*_return_128));
+  BIND(label_macro_end_639);
+  return (*_return_143);
 }
 
 ElementsKind TypedArrayBuiltinsFromDSLAssembler::KindForArrayType17ATFixedInt32Array() {
-  ElementsKind _return_129_impl;
-  auto _return_129 = &_return_129_impl;
-  USE(_return_129);
-  Label label_macro_end_1573_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1573 = &label_macro_end_1573_impl;
-  USE(label_macro_end_1573);
-  // ../../src/builtins/typed-array.tq:35:63
+  ElementsKind _return_144_impl;
+  auto _return_144 = &_return_144_impl;
+  USE(_return_144);
+  Label label_macro_end_640_impl(this, {});
+  Label* label_macro_end_640 = &label_macro_end_640_impl;
+  USE(label_macro_end_640);
+  // ../../src/builtins/typed-array.tq:35:62
   {
-    // ../../src/builtins/typed-array.tq:36:5
-    *_return_129 = implicit_cast<ElementsKind>(INT32_ELEMENTS);
-    Goto(label_macro_end_1573);
+    // ../../src/builtins/typed-array.tq:36:4
+    *_return_144 = INT32_ELEMENTS;
+    Goto(label_macro_end_640);
   }
-  BIND(label_macro_end_1573);
-  return implicit_cast<ElementsKind>((*_return_129));
+  BIND(label_macro_end_640);
+  return (*_return_144);
 }
 
 ElementsKind TypedArrayBuiltinsFromDSLAssembler::KindForArrayType19ATFixedFloat32Array() {
-  ElementsKind _return_130_impl;
-  auto _return_130 = &_return_130_impl;
-  USE(_return_130);
-  Label label_macro_end_1574_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1574 = &label_macro_end_1574_impl;
-  USE(label_macro_end_1574);
-  // ../../src/builtins/typed-array.tq:38:65
+  ElementsKind _return_145_impl;
+  auto _return_145 = &_return_145_impl;
+  USE(_return_145);
+  Label label_macro_end_641_impl(this, {});
+  Label* label_macro_end_641 = &label_macro_end_641_impl;
+  USE(label_macro_end_641);
+  // ../../src/builtins/typed-array.tq:38:64
   {
-    // ../../src/builtins/typed-array.tq:39:5
-    *_return_130 = implicit_cast<ElementsKind>(FLOAT32_ELEMENTS);
-    Goto(label_macro_end_1574);
+    // ../../src/builtins/typed-array.tq:39:4
+    *_return_145 = FLOAT32_ELEMENTS;
+    Goto(label_macro_end_641);
   }
-  BIND(label_macro_end_1574);
-  return implicit_cast<ElementsKind>((*_return_130));
+  BIND(label_macro_end_641);
+  return (*_return_145);
 }
 
 ElementsKind TypedArrayBuiltinsFromDSLAssembler::KindForArrayType19ATFixedFloat64Array() {
-  ElementsKind _return_131_impl;
-  auto _return_131 = &_return_131_impl;
-  USE(_return_131);
-  Label label_macro_end_1575_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1575 = &label_macro_end_1575_impl;
-  USE(label_macro_end_1575);
-  // ../../src/builtins/typed-array.tq:41:65
+  ElementsKind _return_146_impl;
+  auto _return_146 = &_return_146_impl;
+  USE(_return_146);
+  Label label_macro_end_642_impl(this, {});
+  Label* label_macro_end_642 = &label_macro_end_642_impl;
+  USE(label_macro_end_642);
+  // ../../src/builtins/typed-array.tq:41:64
   {
-    // ../../src/builtins/typed-array.tq:42:5
-    *_return_131 = implicit_cast<ElementsKind>(FLOAT64_ELEMENTS);
-    Goto(label_macro_end_1575);
+    // ../../src/builtins/typed-array.tq:42:4
+    *_return_146 = FLOAT64_ELEMENTS;
+    Goto(label_macro_end_642);
   }
-  BIND(label_macro_end_1575);
-  return implicit_cast<ElementsKind>((*_return_131));
+  BIND(label_macro_end_642);
+  return (*_return_146);
 }
 
 ElementsKind TypedArrayBuiltinsFromDSLAssembler::KindForArrayType24ATFixedUint8ClampedArray() {
-  ElementsKind _return_132_impl;
-  auto _return_132 = &_return_132_impl;
-  USE(_return_132);
-  Label label_macro_end_1576_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1576 = &label_macro_end_1576_impl;
-  USE(label_macro_end_1576);
-  // ../../src/builtins/typed-array.tq:44:70
+  ElementsKind _return_147_impl;
+  auto _return_147 = &_return_147_impl;
+  USE(_return_147);
+  Label label_macro_end_643_impl(this, {});
+  Label* label_macro_end_643 = &label_macro_end_643_impl;
+  USE(label_macro_end_643);
+  // ../../src/builtins/typed-array.tq:44:69
   {
-    // ../../src/builtins/typed-array.tq:45:5
-    *_return_132 = implicit_cast<ElementsKind>(UINT8_CLAMPED_ELEMENTS);
-    Goto(label_macro_end_1576);
+    // ../../src/builtins/typed-array.tq:45:4
+    *_return_147 = UINT8_CLAMPED_ELEMENTS;
+    Goto(label_macro_end_643);
   }
-  BIND(label_macro_end_1576);
-  return implicit_cast<ElementsKind>((*_return_132));
+  BIND(label_macro_end_643);
+  return (*_return_147);
 }
 
 ElementsKind TypedArrayBuiltinsFromDSLAssembler::KindForArrayType21ATFixedBigUint64Array() {
-  ElementsKind _return_133_impl;
-  auto _return_133 = &_return_133_impl;
-  USE(_return_133);
-  Label label_macro_end_1577_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1577 = &label_macro_end_1577_impl;
-  USE(label_macro_end_1577);
-  // ../../src/builtins/typed-array.tq:47:67
+  ElementsKind _return_148_impl;
+  auto _return_148 = &_return_148_impl;
+  USE(_return_148);
+  Label label_macro_end_644_impl(this, {});
+  Label* label_macro_end_644 = &label_macro_end_644_impl;
+  USE(label_macro_end_644);
+  // ../../src/builtins/typed-array.tq:47:66
   {
-    // ../../src/builtins/typed-array.tq:48:5
-    *_return_133 = implicit_cast<ElementsKind>(BIGUINT64_ELEMENTS);
-    Goto(label_macro_end_1577);
+    // ../../src/builtins/typed-array.tq:48:4
+    *_return_148 = BIGUINT64_ELEMENTS;
+    Goto(label_macro_end_644);
   }
-  BIND(label_macro_end_1577);
-  return implicit_cast<ElementsKind>((*_return_133));
+  BIND(label_macro_end_644);
+  return (*_return_148);
 }
 
 ElementsKind TypedArrayBuiltinsFromDSLAssembler::KindForArrayType20ATFixedBigInt64Array() {
-  ElementsKind _return_134_impl;
-  auto _return_134 = &_return_134_impl;
-  USE(_return_134);
-  Label label_macro_end_1578_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1578 = &label_macro_end_1578_impl;
-  USE(label_macro_end_1578);
-  // ../../src/builtins/typed-array.tq:50:66
+  ElementsKind _return_149_impl;
+  auto _return_149 = &_return_149_impl;
+  USE(_return_149);
+  Label label_macro_end_645_impl(this, {});
+  Label* label_macro_end_645 = &label_macro_end_645_impl;
+  USE(label_macro_end_645);
+  // ../../src/builtins/typed-array.tq:50:65
   {
-    // ../../src/builtins/typed-array.tq:51:5
-    *_return_134 = implicit_cast<ElementsKind>(BIGINT64_ELEMENTS);
-    Goto(label_macro_end_1578);
+    // ../../src/builtins/typed-array.tq:51:4
+    *_return_149 = BIGINT64_ELEMENTS;
+    Goto(label_macro_end_645);
   }
-  BIND(label_macro_end_1578);
-  return implicit_cast<ElementsKind>((*_return_134));
+  BIND(label_macro_end_645);
+  return (*_return_149);
 }
 
-compiler::TNode<Number> TypedArrayBuiltinsFromDSLAssembler::CallCompareWithDetachedCheck(TNode<Context> p_context, TNode<JSTypedArray> p_array, TNode<JSReceiver> p_comparefn, TNode<Object> p_a, TNode<Object> p_b, Label* label_Detached_205) {
-  TVARIABLE(Number, _return_135_impl);
-  auto _return_135 = &_return_135_impl;
-  USE(_return_135);
-  Label label_macro_end_1579_impl(this, {_return_135}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1579 = &label_macro_end_1579_impl;
-  USE(label_macro_end_1579);
-  // ../../src/builtins/typed-array.tq:73:23
+compiler::TNode<Number> TypedArrayBuiltinsFromDSLAssembler::CallCompareWithDetachedCheck(TNode<Context> p_context, TNode<JSTypedArray> p_array, TNode<JSReceiver> p_comparefn, TNode<Object> p_a, TNode<Object> p_b, Label* label_Detached_108) {
+  TVARIABLE(Number, _return_150_impl);
+  auto _return_150 = &_return_150_impl;
+  USE(_return_150);
+  Label label_macro_end_646_impl(this, {_return_150});
+  Label* label_macro_end_646 = &label_macro_end_646_impl;
+  USE(label_macro_end_646);
+  // ../../src/builtins/typed-array.tq:72:41
   {
-    // ../../src/builtins/typed-array.tq:75:5
-    TNode<Object> t584 = UncheckedCast<Object>(Call(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSReceiver>>(p_comparefn), implicit_cast<TNode<Object>>(Undefined()), implicit_cast<TNode<Object>>(p_a), implicit_cast<TNode<Object>>(p_b)));
-    USE(implicit_cast<TNode<Object>>(t584));
-    TNode<Number> t585 = UncheckedCast<Number>(ToNumber_Inline(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<Object>>(t584)));
-    USE(implicit_cast<TNode<Number>>(t585));
-    TNode<Number> v_746_impl;
-    auto v_746 = &v_746_impl;
-    USE(v_746);
-    *v_746 = implicit_cast<TNode<Number>>(t585);
-    // ../../src/builtins/typed-array.tq:79:5
+    // ../../src/builtins/typed-array.tq:74:4
+    TNode<Object> t363 = UncheckedCast<Object>(Call(p_context, p_comparefn, Undefined(), p_a, p_b));
+    USE(t363);
+    TNode<Number> t364 = UncheckedCast<Number>(ToNumber_Inline(p_context, t363));
+    USE(t364);
+    TVARIABLE(Number, v_151_impl);
+    auto v_151 = &v_151_impl;
+    USE(v_151);
+    *v_151 = t364;
+    // ../../src/builtins/typed-array.tq:78:4
     {
-      Label label__True_206_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__True_206 = &label__True_206_impl;
-      USE(label__True_206);
-      Label label__False_207_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__False_207 = &label__False_207_impl;
-      USE(label__False_207);
-      TNode<JSArrayBuffer> t586 = UncheckedCast<JSArrayBuffer>(LoadTypedArrayBuffer(implicit_cast<TNode<JSTypedArray>>(p_array)));
-      TNode<BoolT> t587 = UncheckedCast<BoolT>(IsDetachedBuffer(implicit_cast<TNode<JSArrayBuffer>>(t586)));
-      USE(implicit_cast<TNode<BoolT>>(t587));
-      Branch(implicit_cast<TNode<BoolT>>(t587), label__True_206, label__False_207);
-      if (label__True_206->is_used())
+      Label label__True_109_impl(this);
+      Label* label__True_109 = &label__True_109_impl;
+      USE(label__True_109);
+      Label label__False_110_impl(this, {});
+      Label* label__False_110 = &label__False_110_impl;
+      USE(label__False_110);
+      TNode<JSArrayBuffer> t365 = UncheckedCast<JSArrayBuffer>(LoadTypedArrayBuffer(p_array));
+      TNode<BoolT> t366 = UncheckedCast<BoolT>(IsDetachedBuffer(t365));
+      USE(t366);
+      Branch(t366, label__True_109, label__False_110);
+      if (label__True_109->is_used())
       {
-        BIND(label__True_206);
-        // ../../src/builtins/typed-array.tq:79:41
-        Goto(label_Detached_205);
+        BIND(label__True_109);
+        // ../../src/builtins/typed-array.tq:78:40
+        Goto(label_Detached_108);
       }
-      BIND(label__False_207);
+      BIND(label__False_110);
     }
-    // ../../src/builtins/typed-array.tq:82:5
+    // ../../src/builtins/typed-array.tq:81:4
     {
-      Label label__True_208_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__True_208 = &label__True_208_impl;
-      USE(label__True_208);
-      Label label__False_209_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__False_209 = &label__False_209_impl;
-      USE(label__False_209);
-      TNode<BoolT> t588 = UncheckedCast<BoolT>(NumberIsNaN(implicit_cast<TNode<Number>>((*v_746))));
-      USE(implicit_cast<TNode<BoolT>>(t588));
-      Branch(implicit_cast<TNode<BoolT>>(t588), label__True_208, label__False_209);
-      if (label__True_208->is_used())
+      Label label__True_111_impl(this);
+      Label* label__True_111 = &label__True_111_impl;
+      USE(label__True_111);
+      Label label__False_112_impl(this, {});
+      Label* label__False_112 = &label__False_112_impl;
+      USE(label__False_112);
+      TNode<BoolT> t367 = UncheckedCast<BoolT>(NumberIsNaN((*v_151).value()));
+      USE(t367);
+      Branch(t367, label__True_111, label__False_112);
+      if (label__True_111->is_used())
       {
-        BIND(label__True_208);
-        // ../../src/builtins/typed-array.tq:82:25
-        int31_t t589 = 0;
-        TNode<Number> t590 = UncheckedCast<Number>(FromConstexpr22UT12ATHeapNumber5ATSmi(implicit_cast<int31_t>(t589)));
-        *_return_135 = implicit_cast<TNode<Number>>(t590);
-        Goto(label_macro_end_1579);
+        BIND(label__True_111);
+        // ../../src/builtins/typed-array.tq:81:24
+        int31_t t368 = 0;
+        TNode<Number> t369 = UncheckedCast<Number>(from_constexpr22UT12ATHeapNumber5ATSmi(t368));
+        *_return_150 = t369;
+        Goto(label_macro_end_646);
       }
-      BIND(label__False_209);
+      BIND(label__False_112);
     }
-    // ../../src/builtins/typed-array.tq:85:5
-    *_return_135 = implicit_cast<TNode<Number>>((*v_746));
-    Goto(label_macro_end_1579);
+    // ../../src/builtins/typed-array.tq:84:4
+    *_return_150 = (*v_151).value();
+    Goto(label_macro_end_646);
   }
-  BIND(label_macro_end_1579);
-  return implicit_cast<TNode<Number>>((*_return_135).value());
+  BIND(label_macro_end_646);
+  return (*_return_150).value();
 }
 
-void TypedArrayBuiltinsFromDSLAssembler::TypedArrayInsertionSort(TNode<Context> p_context, TNode<JSTypedArray> p_array, TNode<Smi> p_fromArg, TNode<Smi> p_toArg, TNode<JSReceiver> p_comparefn, TNode<Code> p_load, TNode<Code> p_store, Label* label_Detached_210) {
-  Label label_macro_end_1580_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1580 = &label_macro_end_1580_impl;
-  USE(label_macro_end_1580);
-  // ../../src/builtins/typed-array.tq:92:19
+void TypedArrayBuiltinsFromDSLAssembler::TypedArrayInsertionSort(TNode<Context> p_context, TNode<JSTypedArray> p_array, TNode<Smi> p_from_arg, TNode<Smi> p_to_arg, TNode<JSReceiver> p_comparefn, TNode<Code> p_Load, TNode<Code> p_Store, Label* label_Detached_113) {
+  Label label_macro_end_647_impl(this, {});
+  Label* label_macro_end_647 = &label_macro_end_647_impl;
+  USE(label_macro_end_647);
+  // ../../src/builtins/typed-array.tq:91:18
   {
-    // ../../src/builtins/typed-array.tq:93:5
-    TVARIABLE(Smi, from_136_impl);
-    auto from_136 = &from_136_impl;
-    USE(from_136);
-    *from_136 = implicit_cast<TNode<Smi>>(p_fromArg);
-    // ../../src/builtins/typed-array.tq:94:5
-    TVARIABLE(Smi, to_137_impl);
-    auto to_137 = &to_137_impl;
-    USE(to_137);
-    *to_137 = implicit_cast<TNode<Smi>>(p_toArg);
-    // ../../src/builtins/typed-array.tq:96:5
+    // ../../src/builtins/typed-array.tq:92:4
+    TVARIABLE(Smi, from_152_impl);
+    auto from_152 = &from_152_impl;
+    USE(from_152);
+    *from_152 = p_from_arg;
+    // ../../src/builtins/typed-array.tq:93:4
+    TVARIABLE(Smi, to_153_impl);
+    auto to_153 = &to_153_impl;
+    USE(to_153);
+    *to_153 = p_to_arg;
+    // ../../src/builtins/typed-array.tq:95:4
     {
-      Label label__True_211_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__True_211 = &label__True_211_impl;
-      USE(label__True_211);
-      Label label__False_212_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__False_212 = &label__False_212_impl;
-      USE(label__False_212);
-      TNode<JSArrayBuffer> t591 = UncheckedCast<JSArrayBuffer>(LoadTypedArrayBuffer(implicit_cast<TNode<JSTypedArray>>(p_array)));
-      TNode<BoolT> t592 = UncheckedCast<BoolT>(IsDetachedBuffer(implicit_cast<TNode<JSArrayBuffer>>(t591)));
-      USE(implicit_cast<TNode<BoolT>>(t592));
-      Branch(implicit_cast<TNode<BoolT>>(t592), label__True_211, label__False_212);
-      if (label__True_211->is_used())
+      Label label__True_114_impl(this);
+      Label* label__True_114 = &label__True_114_impl;
+      USE(label__True_114);
+      Label label__False_115_impl(this, {});
+      Label* label__False_115 = &label__False_115_impl;
+      USE(label__False_115);
+      TNode<JSArrayBuffer> t370 = UncheckedCast<JSArrayBuffer>(LoadTypedArrayBuffer(p_array));
+      TNode<BoolT> t371 = UncheckedCast<BoolT>(IsDetachedBuffer(t370));
+      USE(t371);
+      Branch(t371, label__True_114, label__False_115);
+      if (label__True_114->is_used())
       {
-        BIND(label__True_211);
-        // ../../src/builtins/typed-array.tq:96:41
-        Goto(label_Detached_210);
+        BIND(label__True_114);
+        // ../../src/builtins/typed-array.tq:95:40
+        Goto(label_Detached_113);
       }
-      BIND(label__False_212);
+      BIND(label__False_115);
     }
-    // ../../src/builtins/typed-array.tq:98:5
-    int31_t t593 = 1;
-    TNode<Smi> t594 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(t593)));
-    TNode<Smi> t595 = UncheckedCast<Smi>(SmiAdd(implicit_cast<TNode<Smi>>((*from_136).value()), implicit_cast<TNode<Smi>>(t594)));
-    USE(implicit_cast<TNode<Smi>>(t595));
-    TVARIABLE(Smi, i_138_impl);
-    auto i_138 = &i_138_impl;
-    USE(i_138);
-    *i_138 = implicit_cast<TNode<Smi>>(t595);
-    Label label__True_213_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-    Label* label__True_213 = &label__True_213_impl;
-    USE(label__True_213);
-    Label label__False_214_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-    Label* label__False_214 = &label__False_214_impl;
-    USE(label__False_214);
-    Label label_header_747_1581_impl(this, {i_138}, compiler::CodeAssemblerLabel::kNonDeferred);
-    Label* label_header_747_1581 = &label_header_747_1581_impl;
-    USE(label_header_747_1581);
-    Goto(label_header_747_1581);
-    BIND(label_header_747_1581);
-    Label label_action_748_1582_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-    Label* label_action_748_1582 = &label_action_748_1582_impl;
-    USE(label_action_748_1582);
-    TNode<BoolT> t596 = UncheckedCast<BoolT>(SmiLessThan(implicit_cast<TNode<Smi>>((*i_138).value()), implicit_cast<TNode<Smi>>((*to_137).value())));
-    USE(implicit_cast<TNode<BoolT>>(t596));
-    Branch(implicit_cast<TNode<BoolT>>(t596), label__True_213, label__False_214);
-    if (label__True_213->is_used())
+    // ../../src/builtins/typed-array.tq:97:4
+    int31_t t372 = 1;
+    TNode<Smi> t373 = UncheckedCast<Smi>(from_constexpr5ATSmi(t372));
+    TNode<Smi> t374 = UncheckedCast<Smi>(SmiAdd((*from_152).value(), t373));
+    USE(t374);
+    TVARIABLE(Smi, i_154_impl);
+    auto i_154 = &i_154_impl;
+    USE(i_154);
+    *i_154 = t374;
+    Label label__True_116_impl(this);
+    Label* label__True_116 = &label__True_116_impl;
+    USE(label__True_116);
+    Label label__False_117_impl(this);
+    Label* label__False_117 = &label__False_117_impl;
+    USE(label__False_117);
+    Label label_header_509_648_impl(this, {i_154});
+    Label* label_header_509_648 = &label_header_509_648_impl;
+    USE(label_header_509_648);
+    Goto(label_header_509_648);
+    BIND(label_header_509_648);
+    Label label_assignment_510_649_impl(this);
+    Label* label_assignment_510_649 = &label_assignment_510_649_impl;
+    USE(label_assignment_510_649);
+    TNode<BoolT> t375 = UncheckedCast<BoolT>(SmiLessThan((*i_154).value(), (*to_153).value()));
+    USE(t375);
+    Branch(t375, label__True_116, label__False_117);
+    if (label__True_116->is_used())
     {
-      BIND(label__True_213);
-      // ../../src/builtins/typed-array.tq:98:46
+      BIND(label__True_116);
+      // ../../src/builtins/typed-array.tq:97:45
       {
-        // ../../src/builtins/typed-array.tq:99:7
-        TNode<Object> t597 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*i_138).value())));
-        USE(implicit_cast<TNode<Object>>(t597));
-        TNode<Object> element_749_impl;
-        auto element_749 = &element_749_impl;
-        USE(element_749);
-        *element_749 = implicit_cast<TNode<Object>>(t597);
-        // ../../src/builtins/typed-array.tq:100:7
-        int31_t t598 = 1;
-        TNode<Smi> t599 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(t598)));
-        TNode<Smi> t600 = UncheckedCast<Smi>(SmiSub(implicit_cast<TNode<Smi>>((*i_138).value()), implicit_cast<TNode<Smi>>(t599)));
-        USE(implicit_cast<TNode<Smi>>(t600));
-        TVARIABLE(Smi, j_139_impl);
-        auto j_139 = &j_139_impl;
-        USE(j_139);
-        *j_139 = implicit_cast<TNode<Smi>>(t600);
-        // ../../src/builtins/typed-array.tq:101:7
-        Label label__True_215_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-        Label* label__True_215 = &label__True_215_impl;
-        USE(label__True_215);
-        Label label__False_216_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-        Label* label__False_216 = &label__False_216_impl;
-        USE(label__False_216);
-        Label label_header_750_1583_impl(this, {j_139}, compiler::CodeAssemblerLabel::kNonDeferred);
-        Label* label_header_750_1583 = &label_header_750_1583_impl;
-        USE(label_header_750_1583);
-        Goto(label_header_750_1583);
-        BIND(label_header_750_1583);
-        Label label_action_751_1584_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-        Label* label_action_751_1584 = &label_action_751_1584_impl;
-        USE(label_action_751_1584);
-        TNode<BoolT> t601 = UncheckedCast<BoolT>(SmiGreaterThanOrEqual(implicit_cast<TNode<Smi>>((*j_139).value()), implicit_cast<TNode<Smi>>((*from_136).value())));
-        USE(implicit_cast<TNode<BoolT>>(t601));
-        Branch(implicit_cast<TNode<BoolT>>(t601), label__True_215, label__False_216);
-        if (label__True_215->is_used())
+        // ../../src/builtins/typed-array.tq:98:6
+        TNode<Object> t376 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), p_Load, p_context, p_array, (*i_154).value()));
+        USE(t376);
+        TVARIABLE(Object, element_155_impl);
+        auto element_155 = &element_155_impl;
+        USE(element_155);
+        *element_155 = t376;
+        // ../../src/builtins/typed-array.tq:99:6
+        int31_t t377 = 1;
+        TNode<Smi> t378 = UncheckedCast<Smi>(from_constexpr5ATSmi(t377));
+        TNode<Smi> t379 = UncheckedCast<Smi>(SmiSub((*i_154).value(), t378));
+        USE(t379);
+        TVARIABLE(Smi, j_156_impl);
+        auto j_156 = &j_156_impl;
+        USE(j_156);
+        *j_156 = t379;
+        // ../../src/builtins/typed-array.tq:100:6
+        Label label__True_118_impl(this);
+        Label* label__True_118 = &label__True_118_impl;
+        USE(label__True_118);
+        Label label__False_119_impl(this);
+        Label* label__False_119 = &label__False_119_impl;
+        USE(label__False_119);
+        Label label_header_511_650_impl(this, {j_156});
+        Label* label_header_511_650 = &label_header_511_650_impl;
+        USE(label_header_511_650);
+        Goto(label_header_511_650);
+        BIND(label_header_511_650);
+        Label label_assignment_512_651_impl(this);
+        Label* label_assignment_512_651 = &label_assignment_512_651_impl;
+        USE(label_assignment_512_651);
+        TNode<BoolT> t380 = UncheckedCast<BoolT>(SmiGreaterThanOrEqual((*j_156).value(), (*from_152).value()));
+        USE(t380);
+        Branch(t380, label__True_118, label__False_119);
+        if (label__True_118->is_used())
         {
-          BIND(label__True_215);
-          // ../../src/builtins/typed-array.tq:101:30
+          BIND(label__True_118);
+          // ../../src/builtins/typed-array.tq:100:29
           {
-            // ../../src/builtins/typed-array.tq:102:9
-            TNode<Object> t602 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*j_139).value())));
-            USE(implicit_cast<TNode<Object>>(t602));
-            TNode<Object> tmp_752_impl;
-            auto tmp_752 = &tmp_752_impl;
-            USE(tmp_752);
-            *tmp_752 = implicit_cast<TNode<Object>>(t602);
-            // ../../src/builtins/typed-array.tq:103:9
-            TNode<Number> t603 = UncheckedCast<Number>(CallCompareWithDetachedCheck(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<JSReceiver>>(p_comparefn), implicit_cast<TNode<Object>>((*tmp_752)), implicit_cast<TNode<Object>>((*element_749)), label_Detached_210));
-            USE(implicit_cast<TNode<Number>>(t603));
-            TNode<Number> order_753_impl;
-            auto order_753 = &order_753_impl;
-            USE(order_753);
-            *order_753 = implicit_cast<TNode<Number>>(t603);
-            // ../../src/builtins/typed-array.tq:105:9
+            // ../../src/builtins/typed-array.tq:101:8
+            TNode<Object> t381 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), p_Load, p_context, p_array, (*j_156).value()));
+            USE(t381);
+            TVARIABLE(Object, tmp_157_impl);
+            auto tmp_157 = &tmp_157_impl;
+            USE(tmp_157);
+            *tmp_157 = t381;
+            // ../../src/builtins/typed-array.tq:102:8
+            TNode<Number> t382 = UncheckedCast<Number>(CallCompareWithDetachedCheck(p_context, p_array, p_comparefn, (*tmp_157).value(), (*element_155).value(), label_Detached_113));
+            USE(t382);
+            TVARIABLE(Number, order_158_impl);
+            auto order_158 = &order_158_impl;
+            USE(order_158);
+            *order_158 = t382;
+            // ../../src/builtins/typed-array.tq:104:8
             {
-              Label label__True_217_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-              Label* label__True_217 = &label__True_217_impl;
-              USE(label__True_217);
-              Label label__False_218_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-              Label* label__False_218 = &label__False_218_impl;
-              USE(label__False_218);
-              Label label_if_done_label_754_1585_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-              Label* label_if_done_label_754_1585 = &label_if_done_label_754_1585_impl;
-              USE(label_if_done_label_754_1585);
-              int31_t t604 = 0;
-              TNode<Number> t605 = UncheckedCast<Number>(FromConstexpr22UT12ATHeapNumber5ATSmi(implicit_cast<int31_t>(t604)));
-              BranchIfNumberGreaterThan(implicit_cast<TNode<Number>>((*order_753)), implicit_cast<TNode<Number>>(t605), label__True_217, label__False_218);
-              if (label__True_217->is_used())
+              Label label__True_120_impl(this);
+              Label* label__True_120 = &label__True_120_impl;
+              USE(label__True_120);
+              Label label__False_121_impl(this);
+              Label* label__False_121 = &label__False_121_impl;
+              USE(label__False_121);
+              Label label_if_done_label_513_652_impl(this, {});
+              Label* label_if_done_label_513_652 = &label_if_done_label_513_652_impl;
+              USE(label_if_done_label_513_652);
+              int31_t t383 = 0;
+              TNode<Number> t384 = UncheckedCast<Number>(from_constexpr22UT12ATHeapNumber5ATSmi(t383));
+              BranchIfNumberGreaterThan((*order_158).value(), t384, label__True_120, label__False_121);
+              if (label__True_120->is_used())
               {
-                BIND(label__True_217);
-                // ../../src/builtins/typed-array.tq:105:24
+                BIND(label__True_120);
+                // ../../src/builtins/typed-array.tq:104:23
                 {
-                  // ../../src/builtins/typed-array.tq:106:11
-                  int31_t t606 = 1;
-                  TNode<Smi> t607 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(t606)));
-                  TNode<Smi> t608 = UncheckedCast<Smi>(SmiAdd(implicit_cast<TNode<Smi>>((*j_139).value()), implicit_cast<TNode<Smi>>(t607)));
-                  USE(implicit_cast<TNode<Smi>>(t608));
-                  TNode<Object> t609 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_store), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>(t608), implicit_cast<TNode<Object>>((*tmp_752))));
-                  USE(implicit_cast<TNode<Object>>(t609));
+                  // ../../src/builtins/typed-array.tq:105:10
+                  int31_t t385 = 1;
+                  TNode<Smi> t386 = UncheckedCast<Smi>(from_constexpr5ATSmi(t385));
+                  TNode<Smi> t387 = UncheckedCast<Smi>(SmiAdd((*j_156).value(), t386));
+                  USE(t387);
+                  TNode<Object> t388 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), p_Store, p_context, p_array, t387, (*tmp_157).value()));
+                  USE(t388);
                 }
-                Goto(label_if_done_label_754_1585);
+                Goto(label_if_done_label_513_652);
               }
-              if (label__False_218->is_used())
+              if (label__False_121->is_used())
               {
-                BIND(label__False_218);
-                // ../../src/builtins/typed-array.tq:107:16
+                BIND(label__False_121);
+                // ../../src/builtins/typed-array.tq:106:15
                 {
-                  // ../../src/builtins/typed-array.tq:108:11
-                  Goto(label__False_216);
+                  // ../../src/builtins/typed-array.tq:107:10
+                  Goto(label__False_119);
                 }
               }
-              BIND(label_if_done_label_754_1585);
+              BIND(label_if_done_label_513_652);
             }
           }
-          Goto(label_action_751_1584);
+          Goto(label_assignment_512_651);
         }
         {
-          BIND(label_action_751_1584);
-          TNode<Smi> t610 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(1)));
-          TNode<Smi> t611 = UncheckedCast<Smi>(SmiSub(implicit_cast<TNode<Smi>>((*j_139).value()), implicit_cast<TNode<Smi>>(t610)));
-          *j_139 = implicit_cast<TNode<Smi>>(t611);
-          Goto(label_header_750_1583);
+          BIND(label_assignment_512_651);
+          TNode<Smi> t389 = UncheckedCast<Smi>(from_constexpr5ATSmi(1));
+          TNode<Smi> t390 = UncheckedCast<Smi>(SmiSub((*j_156).value(), t389));
+          *j_156 = t390;
+          Goto(label_header_511_650);
         }
-        BIND(label__False_216);
-        // ../../src/builtins/typed-array.tq:111:7
-        int31_t t612 = 1;
-        TNode<Smi> t613 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(t612)));
-        TNode<Smi> t614 = UncheckedCast<Smi>(SmiAdd(implicit_cast<TNode<Smi>>((*j_139).value()), implicit_cast<TNode<Smi>>(t613)));
-        USE(implicit_cast<TNode<Smi>>(t614));
-        TNode<Object> t615 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_store), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>(t614), implicit_cast<TNode<Object>>((*element_749))));
-        USE(implicit_cast<TNode<Object>>(t615));
+        BIND(label__False_119);
+        // ../../src/builtins/typed-array.tq:110:6
+        int31_t t391 = 1;
+        TNode<Smi> t392 = UncheckedCast<Smi>(from_constexpr5ATSmi(t391));
+        TNode<Smi> t393 = UncheckedCast<Smi>(SmiAdd((*j_156).value(), t392));
+        USE(t393);
+        TNode<Object> t394 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), p_Store, p_context, p_array, t393, (*element_155).value()));
+        USE(t394);
       }
-      Goto(label_action_748_1582);
+      Goto(label_assignment_510_649);
     }
     {
-      BIND(label_action_748_1582);
-      TNode<Smi> t616 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(1)));
-      TNode<Smi> t617 = UncheckedCast<Smi>(SmiAdd(implicit_cast<TNode<Smi>>((*i_138).value()), implicit_cast<TNode<Smi>>(t616)));
-      *i_138 = implicit_cast<TNode<Smi>>(t617);
-      Goto(label_header_747_1581);
+      BIND(label_assignment_510_649);
+      TNode<Smi> t395 = UncheckedCast<Smi>(from_constexpr5ATSmi(1));
+      TNode<Smi> t396 = UncheckedCast<Smi>(SmiAdd((*i_154).value(), t395));
+      *i_154 = t396;
+      Goto(label_header_509_648);
     }
-    BIND(label__False_214);
+    BIND(label__False_117);
   }
 }
 
-void TypedArrayBuiltinsFromDSLAssembler::TypedArrayQuickSortImpl(TNode<Context> p_context, TNode<JSTypedArray> p_array, TNode<Smi> p_fromArg, TNode<Smi> p_toArg, TNode<JSReceiver> p_comparefn, TNode<Code> p_load, TNode<Code> p_store, Label* label_Detached_219) {
-  Label label_macro_end_1586_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-  Label* label_macro_end_1586 = &label_macro_end_1586_impl;
-  USE(label_macro_end_1586);
-  // ../../src/builtins/typed-array.tq:118:19
+void TypedArrayBuiltinsFromDSLAssembler::TypedArrayQuickSortImpl(TNode<Context> p_context, TNode<JSTypedArray> p_array, TNode<Smi> p_from_arg, TNode<Smi> p_to_arg, TNode<JSReceiver> p_comparefn, TNode<Code> p_Load, TNode<Code> p_Store, Label* label_Detached_122) {
+  Label label_macro_end_653_impl(this, {});
+  Label* label_macro_end_653 = &label_macro_end_653_impl;
+  USE(label_macro_end_653);
+  // ../../src/builtins/typed-array.tq:117:18
   {
-    // ../../src/builtins/typed-array.tq:119:5
-    TVARIABLE(Smi, from_140_impl);
-    auto from_140 = &from_140_impl;
-    USE(from_140);
-    *from_140 = implicit_cast<TNode<Smi>>(p_fromArg);
-    // ../../src/builtins/typed-array.tq:120:5
-    TVARIABLE(Smi, to_141_impl);
-    auto to_141 = &to_141_impl;
-    USE(to_141);
-    *to_141 = implicit_cast<TNode<Smi>>(p_toArg);
-    // ../../src/builtins/typed-array.tq:122:5
+    // ../../src/builtins/typed-array.tq:118:4
+    TVARIABLE(Smi, from_159_impl);
+    auto from_159 = &from_159_impl;
+    USE(from_159);
+    *from_159 = p_from_arg;
+    // ../../src/builtins/typed-array.tq:119:4
+    TVARIABLE(Smi, to_160_impl);
+    auto to_160 = &to_160_impl;
+    USE(to_160);
+    *to_160 = p_to_arg;
+    // ../../src/builtins/typed-array.tq:121:4
     {
-      Label label__True_220_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__True_220 = &label__True_220_impl;
-      USE(label__True_220);
-      Label label__False_221_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__False_221 = &label__False_221_impl;
-      USE(label__False_221);
-      Label label_header_755_1587_impl(this, {from_140, to_141}, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label_header_755_1587 = &label_header_755_1587_impl;
-      USE(label_header_755_1587);
-      Goto(label_header_755_1587);
-      BIND(label_header_755_1587);
-      TNode<Smi> t618 = UncheckedCast<Smi>(SmiSub(implicit_cast<TNode<Smi>>((*to_141).value()), implicit_cast<TNode<Smi>>((*from_140).value())));
-      USE(implicit_cast<TNode<Smi>>(t618));
-      int31_t t619 = 1;
-      TNode<Smi> t620 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(t619)));
-      TNode<BoolT> t621 = UncheckedCast<BoolT>(SmiGreaterThan(implicit_cast<TNode<Smi>>(t618), implicit_cast<TNode<Smi>>(t620)));
-      USE(implicit_cast<TNode<BoolT>>(t621));
-      Branch(implicit_cast<TNode<BoolT>>(t621), label__True_220, label__False_221);
-      if (label__True_220->is_used())
+      Label label__True_123_impl(this);
+      Label* label__True_123 = &label__True_123_impl;
+      USE(label__True_123);
+      Label label__False_124_impl(this);
+      Label* label__False_124 = &label__False_124_impl;
+      USE(label__False_124);
+      Label label_header_514_654_impl(this, {from_159, to_160});
+      Label* label_header_514_654 = &label_header_514_654_impl;
+      USE(label_header_514_654);
+      Goto(label_header_514_654);
+      BIND(label_header_514_654);
+      TNode<Smi> t397 = UncheckedCast<Smi>(SmiSub((*to_160).value(), (*from_159).value()));
+      USE(t397);
+      int31_t t398 = 1;
+      TNode<Smi> t399 = UncheckedCast<Smi>(from_constexpr5ATSmi(t398));
+      TNode<BoolT> t400 = UncheckedCast<BoolT>(SmiGreaterThan(t397, t399));
+      USE(t400);
+      Branch(t400, label__True_123, label__False_124);
+      if (label__True_123->is_used())
       {
-        BIND(label__True_220);
-        // ../../src/builtins/typed-array.tq:122:27
+        BIND(label__True_123);
+        // ../../src/builtins/typed-array.tq:121:26
         {
-          // ../../src/builtins/typed-array.tq:123:7
+          // ../../src/builtins/typed-array.tq:122:6
           {
-            Label label__True_222_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label__True_222 = &label__True_222_impl;
-            USE(label__True_222);
-            Label label__False_223_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label__False_223 = &label__False_223_impl;
-            USE(label__False_223);
-            TNode<Smi> t622 = UncheckedCast<Smi>(SmiSub(implicit_cast<TNode<Smi>>((*to_141).value()), implicit_cast<TNode<Smi>>((*from_140).value())));
-            USE(implicit_cast<TNode<Smi>>(t622));
-            int31_t t623 = 10;
-            TNode<Smi> t624 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(t623)));
-            TNode<BoolT> t625 = UncheckedCast<BoolT>(SmiLessThanOrEqual(implicit_cast<TNode<Smi>>(t622), implicit_cast<TNode<Smi>>(t624)));
-            USE(implicit_cast<TNode<BoolT>>(t625));
-            Branch(implicit_cast<TNode<BoolT>>(t625), label__True_222, label__False_223);
-            if (label__True_222->is_used())
+            Label label__True_125_impl(this);
+            Label* label__True_125 = &label__True_125_impl;
+            USE(label__True_125);
+            Label label__False_126_impl(this, {});
+            Label* label__False_126 = &label__False_126_impl;
+            USE(label__False_126);
+            TNode<Smi> t401 = UncheckedCast<Smi>(SmiSub((*to_160).value(), (*from_159).value()));
+            USE(t401);
+            int31_t t402 = 10;
+            TNode<Smi> t403 = UncheckedCast<Smi>(from_constexpr5ATSmi(t402));
+            TNode<BoolT> t404 = UncheckedCast<BoolT>(SmiLessThanOrEqual(t401, t403));
+            USE(t404);
+            Branch(t404, label__True_125, label__False_126);
+            if (label__True_125->is_used())
             {
-              BIND(label__True_222);
-              // ../../src/builtins/typed-array.tq:123:28
+              BIND(label__True_125);
+              // ../../src/builtins/typed-array.tq:122:27
               {
-                // ../../src/builtins/typed-array.tq:127:9
-                TypedArrayInsertionSort(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*from_140).value()), implicit_cast<TNode<Smi>>((*to_141).value()), implicit_cast<TNode<JSReceiver>>(p_comparefn), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Code>>(p_store), label_Detached_219);
-                // ../../src/builtins/typed-array.tq:130:9
-                Goto(label__False_221);
+                // ../../src/builtins/typed-array.tq:126:8
+                TypedArrayInsertionSort(p_context, p_array, (*from_159).value(), (*to_160).value(), p_comparefn, p_Load, p_Store, label_Detached_122);
+                // ../../src/builtins/typed-array.tq:129:8
+                Goto(label__False_124);
               }
             }
-            BIND(label__False_223);
+            BIND(label__False_126);
           }
-          // ../../src/builtins/typed-array.tq:135:7
-          TNode<Smi> t626 = UncheckedCast<Smi>(SmiSub(implicit_cast<TNode<Smi>>((*to_141).value()), implicit_cast<TNode<Smi>>((*from_140).value())));
-          USE(implicit_cast<TNode<Smi>>(t626));
-          int31_t t627 = 1;
-          TNode<Smi> t628 = UncheckedCast<Smi>(SmiShr(implicit_cast<TNode<Smi>>(t626), implicit_cast<int31_t>(t627)));
-          USE(implicit_cast<TNode<Smi>>(t628));
-          TNode<Smi> t629 = UncheckedCast<Smi>(SmiAdd(implicit_cast<TNode<Smi>>((*from_140).value()), implicit_cast<TNode<Smi>>(t628)));
-          USE(implicit_cast<TNode<Smi>>(t629));
-          TNode<Smi> thirdIndex_756_impl;
-          auto thirdIndex_756 = &thirdIndex_756_impl;
-          USE(thirdIndex_756);
-          *thirdIndex_756 = implicit_cast<TNode<Smi>>(t629);
-          // ../../src/builtins/typed-array.tq:137:7
+          // ../../src/builtins/typed-array.tq:134:6
+          TNode<Smi> t405 = UncheckedCast<Smi>(SmiSub((*to_160).value(), (*from_159).value()));
+          USE(t405);
+          int31_t t406 = 1;
+          TNode<Smi> t407 = UncheckedCast<Smi>(SmiShr(t405, t406));
+          USE(t407);
+          TNode<Smi> t408 = UncheckedCast<Smi>(SmiAdd((*from_159).value(), t407));
+          USE(t408);
+          TVARIABLE(Smi, third_index_161_impl);
+          auto third_index_161 = &third_index_161_impl;
+          USE(third_index_161);
+          *third_index_161 = t408;
+          // ../../src/builtins/typed-array.tq:136:6
           {
-            Label label__True_224_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label__True_224 = &label__True_224_impl;
-            USE(label__True_224);
-            Label label__False_225_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label__False_225 = &label__False_225_impl;
-            USE(label__False_225);
-            TNode<JSArrayBuffer> t630 = UncheckedCast<JSArrayBuffer>(LoadTypedArrayBuffer(implicit_cast<TNode<JSTypedArray>>(p_array)));
-            TNode<BoolT> t631 = UncheckedCast<BoolT>(IsDetachedBuffer(implicit_cast<TNode<JSArrayBuffer>>(t630)));
-            USE(implicit_cast<TNode<BoolT>>(t631));
-            Branch(implicit_cast<TNode<BoolT>>(t631), label__True_224, label__False_225);
-            if (label__True_224->is_used())
+            Label label__True_127_impl(this);
+            Label* label__True_127 = &label__True_127_impl;
+            USE(label__True_127);
+            Label label__False_128_impl(this, {});
+            Label* label__False_128 = &label__False_128_impl;
+            USE(label__False_128);
+            TNode<JSArrayBuffer> t409 = UncheckedCast<JSArrayBuffer>(LoadTypedArrayBuffer(p_array));
+            TNode<BoolT> t410 = UncheckedCast<BoolT>(IsDetachedBuffer(t409));
+            USE(t410);
+            Branch(t410, label__True_127, label__False_128);
+            if (label__True_127->is_used())
             {
-              BIND(label__True_224);
-              // ../../src/builtins/typed-array.tq:137:43
-              Goto(label_Detached_219);
+              BIND(label__True_127);
+              // ../../src/builtins/typed-array.tq:136:42
+              Goto(label_Detached_122);
             }
-            BIND(label__False_225);
+            BIND(label__False_128);
           }
-          // ../../src/builtins/typed-array.tq:140:7
-          TNode<Object> t632 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*from_140).value())));
-          USE(implicit_cast<TNode<Object>>(t632));
-          TVARIABLE(Object, v0_142_impl);
-          auto v0_142 = &v0_142_impl;
-          USE(v0_142);
-          *v0_142 = implicit_cast<TNode<Object>>(t632);
-          // ../../src/builtins/typed-array.tq:141:7
-          int31_t t633 = 1;
-          TNode<Smi> t634 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(t633)));
-          TNode<Smi> t635 = UncheckedCast<Smi>(SmiSub(implicit_cast<TNode<Smi>>((*to_141).value()), implicit_cast<TNode<Smi>>(t634)));
-          USE(implicit_cast<TNode<Smi>>(t635));
-          TNode<Object> t636 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>(t635)));
-          USE(implicit_cast<TNode<Object>>(t636));
-          TVARIABLE(Object, v1_143_impl);
-          auto v1_143 = &v1_143_impl;
-          USE(v1_143);
-          *v1_143 = implicit_cast<TNode<Object>>(t636);
-          // ../../src/builtins/typed-array.tq:142:7
-          TNode<Object> t637 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*thirdIndex_756))));
-          USE(implicit_cast<TNode<Object>>(t637));
-          TVARIABLE(Object, v2_144_impl);
-          auto v2_144 = &v2_144_impl;
-          USE(v2_144);
-          *v2_144 = implicit_cast<TNode<Object>>(t637);
-          // ../../src/builtins/typed-array.tq:144:7
-          TNode<Number> t638 = UncheckedCast<Number>(CallCompareWithDetachedCheck(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<JSReceiver>>(p_comparefn), implicit_cast<TNode<Object>>((*v0_142).value()), implicit_cast<TNode<Object>>((*v1_143).value()), label_Detached_219));
-          USE(implicit_cast<TNode<Number>>(t638));
-          TNode<Number> c01_757_impl;
-          auto c01_757 = &c01_757_impl;
-          USE(c01_757);
-          *c01_757 = implicit_cast<TNode<Number>>(t638);
-          // ../../src/builtins/typed-array.tq:146:7
+          // ../../src/builtins/typed-array.tq:139:6
+          TNode<Object> t411 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), p_Load, p_context, p_array, (*from_159).value()));
+          USE(t411);
+          TVARIABLE(Object, v0_162_impl);
+          auto v0_162 = &v0_162_impl;
+          USE(v0_162);
+          *v0_162 = t411;
+          // ../../src/builtins/typed-array.tq:140:6
+          int31_t t412 = 1;
+          TNode<Smi> t413 = UncheckedCast<Smi>(from_constexpr5ATSmi(t412));
+          TNode<Smi> t414 = UncheckedCast<Smi>(SmiSub((*to_160).value(), t413));
+          USE(t414);
+          TNode<Object> t415 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), p_Load, p_context, p_array, t414));
+          USE(t415);
+          TVARIABLE(Object, v1_163_impl);
+          auto v1_163 = &v1_163_impl;
+          USE(v1_163);
+          *v1_163 = t415;
+          // ../../src/builtins/typed-array.tq:141:6
+          TNode<Object> t416 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), p_Load, p_context, p_array, (*third_index_161).value()));
+          USE(t416);
+          TVARIABLE(Object, v2_164_impl);
+          auto v2_164 = &v2_164_impl;
+          USE(v2_164);
+          *v2_164 = t416;
+          // ../../src/builtins/typed-array.tq:143:6
+          TNode<Number> t417 = UncheckedCast<Number>(CallCompareWithDetachedCheck(p_context, p_array, p_comparefn, (*v0_162).value(), (*v1_163).value(), label_Detached_122));
+          USE(t417);
+          TVARIABLE(Number, c01_165_impl);
+          auto c01_165 = &c01_165_impl;
+          USE(c01_165);
+          *c01_165 = t417;
+          // ../../src/builtins/typed-array.tq:145:6
           {
-            Label label__True_226_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label__True_226 = &label__True_226_impl;
-            USE(label__True_226);
-            Label label__False_227_impl(this, {v0_142, v1_143}, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label__False_227 = &label__False_227_impl;
-            USE(label__False_227);
-            int31_t t639 = 0;
-            TNode<Number> t640 = UncheckedCast<Number>(FromConstexpr22UT12ATHeapNumber5ATSmi(implicit_cast<int31_t>(t639)));
-            BranchIfNumberGreaterThan(implicit_cast<TNode<Number>>((*c01_757)), implicit_cast<TNode<Number>>(t640), label__True_226, label__False_227);
-            if (label__True_226->is_used())
+            Label label__True_129_impl(this);
+            Label* label__True_129 = &label__True_129_impl;
+            USE(label__True_129);
+            Label label__False_130_impl(this, {v0_162, v1_163});
+            Label* label__False_130 = &label__False_130_impl;
+            USE(label__False_130);
+            int31_t t418 = 0;
+            TNode<Number> t419 = UncheckedCast<Number>(from_constexpr22UT12ATHeapNumber5ATSmi(t418));
+            BranchIfNumberGreaterThan((*c01_165).value(), t419, label__True_129, label__False_130);
+            if (label__True_129->is_used())
             {
-              BIND(label__True_226);
-              // ../../src/builtins/typed-array.tq:146:20
+              BIND(label__True_129);
+              // ../../src/builtins/typed-array.tq:145:19
               {
-                // ../../src/builtins/typed-array.tq:148:9
-                TVARIABLE(Object, tmp_145_impl);
-                auto tmp_145 = &tmp_145_impl;
-                USE(tmp_145);
-                *tmp_145 = implicit_cast<TNode<Object>>((*v0_142).value());
-                // ../../src/builtins/typed-array.tq:149:9
-                *v0_142 = implicit_cast<TNode<Object>>((*v1_143).value());
-                // ../../src/builtins/typed-array.tq:150:9
-                *v1_143 = implicit_cast<TNode<Object>>((*tmp_145).value());
+                // ../../src/builtins/typed-array.tq:147:8
+                TVARIABLE(Object, tmp_166_impl);
+                auto tmp_166 = &tmp_166_impl;
+                USE(tmp_166);
+                *tmp_166 = (*v0_162).value();
+                // ../../src/builtins/typed-array.tq:148:8
+                *v0_162 = (*v1_163).value();
+                // ../../src/builtins/typed-array.tq:149:8
+                *v1_163 = (*tmp_166).value();
               }
-              Goto(label__False_227);
+              Goto(label__False_130);
             }
-            BIND(label__False_227);
+            BIND(label__False_130);
           }
-          // ../../src/builtins/typed-array.tq:153:7
-          TNode<Number> t641 = UncheckedCast<Number>(CallCompareWithDetachedCheck(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<JSReceiver>>(p_comparefn), implicit_cast<TNode<Object>>((*v0_142).value()), implicit_cast<TNode<Object>>((*v2_144).value()), label_Detached_219));
-          USE(implicit_cast<TNode<Number>>(t641));
-          TNode<Number> c02_758_impl;
-          auto c02_758 = &c02_758_impl;
-          USE(c02_758);
-          *c02_758 = implicit_cast<TNode<Number>>(t641);
-          // ../../src/builtins/typed-array.tq:155:7
+          // ../../src/builtins/typed-array.tq:152:6
+          TNode<Number> t420 = UncheckedCast<Number>(CallCompareWithDetachedCheck(p_context, p_array, p_comparefn, (*v0_162).value(), (*v2_164).value(), label_Detached_122));
+          USE(t420);
+          TVARIABLE(Number, c02_167_impl);
+          auto c02_167 = &c02_167_impl;
+          USE(c02_167);
+          *c02_167 = t420;
+          // ../../src/builtins/typed-array.tq:154:6
           {
-            Label label__True_228_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label__True_228 = &label__True_228_impl;
-            USE(label__True_228);
-            Label label__False_229_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label__False_229 = &label__False_229_impl;
-            USE(label__False_229);
-            Label label_if_done_label_759_1588_impl(this, {v0_142, v1_143, v2_144}, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label_if_done_label_759_1588 = &label_if_done_label_759_1588_impl;
-            USE(label_if_done_label_759_1588);
-            int31_t t642 = 0;
-            TNode<Number> t643 = UncheckedCast<Number>(FromConstexpr22UT12ATHeapNumber5ATSmi(implicit_cast<int31_t>(t642)));
-            BranchIfNumberGreaterThanOrEqual(implicit_cast<TNode<Number>>((*c02_758)), implicit_cast<TNode<Number>>(t643), label__True_228, label__False_229);
-            if (label__True_228->is_used())
+            Label label__True_131_impl(this);
+            Label* label__True_131 = &label__True_131_impl;
+            USE(label__True_131);
+            Label label__False_132_impl(this);
+            Label* label__False_132 = &label__False_132_impl;
+            USE(label__False_132);
+            Label label_if_done_label_515_655_impl(this, {v0_162, v1_163, v2_164});
+            Label* label_if_done_label_515_655 = &label_if_done_label_515_655_impl;
+            USE(label_if_done_label_515_655);
+            int31_t t421 = 0;
+            TNode<Number> t422 = UncheckedCast<Number>(from_constexpr22UT12ATHeapNumber5ATSmi(t421));
+            BranchIfNumberGreaterThanOrEqual((*c02_167).value(), t422, label__True_131, label__False_132);
+            if (label__True_131->is_used())
             {
-              BIND(label__True_228);
-              // ../../src/builtins/typed-array.tq:155:21
+              BIND(label__True_131);
+              // ../../src/builtins/typed-array.tq:154:20
               {
-                // ../../src/builtins/typed-array.tq:157:9
-                TNode<Object> tmp_760_impl;
-                auto tmp_760 = &tmp_760_impl;
-                USE(tmp_760);
-                *tmp_760 = implicit_cast<TNode<Object>>((*v0_142).value());
-                // ../../src/builtins/typed-array.tq:158:9
-                *v0_142 = implicit_cast<TNode<Object>>((*v2_144).value());
-                // ../../src/builtins/typed-array.tq:159:9
-                *v2_144 = implicit_cast<TNode<Object>>((*v1_143).value());
-                // ../../src/builtins/typed-array.tq:160:9
-                *v1_143 = implicit_cast<TNode<Object>>((*tmp_760));
+                // ../../src/builtins/typed-array.tq:156:8
+                TVARIABLE(Object, tmp_168_impl);
+                auto tmp_168 = &tmp_168_impl;
+                USE(tmp_168);
+                *tmp_168 = (*v0_162).value();
+                // ../../src/builtins/typed-array.tq:157:8
+                *v0_162 = (*v2_164).value();
+                // ../../src/builtins/typed-array.tq:158:8
+                *v2_164 = (*v1_163).value();
+                // ../../src/builtins/typed-array.tq:159:8
+                *v1_163 = (*tmp_168).value();
               }
-              Goto(label_if_done_label_759_1588);
+              Goto(label_if_done_label_515_655);
             }
-            if (label__False_229->is_used())
+            if (label__False_132->is_used())
             {
-              BIND(label__False_229);
-              // ../../src/builtins/typed-array.tq:161:14
+              BIND(label__False_132);
+              // ../../src/builtins/typed-array.tq:160:13
               {
-                // ../../src/builtins/typed-array.tq:163:9
-                TNode<Number> t644 = UncheckedCast<Number>(CallCompareWithDetachedCheck(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<JSReceiver>>(p_comparefn), implicit_cast<TNode<Object>>((*v1_143).value()), implicit_cast<TNode<Object>>((*v2_144).value()), label_Detached_219));
-                USE(implicit_cast<TNode<Number>>(t644));
-                TNode<Number> c12_761_impl;
-                auto c12_761 = &c12_761_impl;
-                USE(c12_761);
-                *c12_761 = implicit_cast<TNode<Number>>(t644);
-                // ../../src/builtins/typed-array.tq:165:9
+                // ../../src/builtins/typed-array.tq:162:8
+                TNode<Number> t423 = UncheckedCast<Number>(CallCompareWithDetachedCheck(p_context, p_array, p_comparefn, (*v1_163).value(), (*v2_164).value(), label_Detached_122));
+                USE(t423);
+                TVARIABLE(Number, c12_169_impl);
+                auto c12_169 = &c12_169_impl;
+                USE(c12_169);
+                *c12_169 = t423;
+                // ../../src/builtins/typed-array.tq:164:8
                 {
-                  Label label__True_230_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                  Label* label__True_230 = &label__True_230_impl;
-                  USE(label__True_230);
-                  Label label__False_231_impl(this, {v1_143, v2_144}, compiler::CodeAssemblerLabel::kNonDeferred);
-                  Label* label__False_231 = &label__False_231_impl;
-                  USE(label__False_231);
-                  int31_t t645 = 0;
-                  TNode<Number> t646 = UncheckedCast<Number>(FromConstexpr22UT12ATHeapNumber5ATSmi(implicit_cast<int31_t>(t645)));
-                  BranchIfNumberGreaterThan(implicit_cast<TNode<Number>>((*c12_761)), implicit_cast<TNode<Number>>(t646), label__True_230, label__False_231);
-                  if (label__True_230->is_used())
+                  Label label__True_133_impl(this);
+                  Label* label__True_133 = &label__True_133_impl;
+                  USE(label__True_133);
+                  Label label__False_134_impl(this, {v1_163, v2_164});
+                  Label* label__False_134 = &label__False_134_impl;
+                  USE(label__False_134);
+                  int31_t t424 = 0;
+                  TNode<Number> t425 = UncheckedCast<Number>(from_constexpr22UT12ATHeapNumber5ATSmi(t424));
+                  BranchIfNumberGreaterThan((*c12_169).value(), t425, label__True_133, label__False_134);
+                  if (label__True_133->is_used())
                   {
-                    BIND(label__True_230);
-                    // ../../src/builtins/typed-array.tq:165:22
+                    BIND(label__True_133);
+                    // ../../src/builtins/typed-array.tq:164:21
                     {
-                      // ../../src/builtins/typed-array.tq:167:11
-                      TNode<Object> tmp_762_impl;
-                      auto tmp_762 = &tmp_762_impl;
-                      USE(tmp_762);
-                      *tmp_762 = implicit_cast<TNode<Object>>((*v1_143).value());
-                      // ../../src/builtins/typed-array.tq:168:11
-                      *v1_143 = implicit_cast<TNode<Object>>((*v2_144).value());
-                      // ../../src/builtins/typed-array.tq:169:11
-                      *v2_144 = implicit_cast<TNode<Object>>((*tmp_762));
+                      // ../../src/builtins/typed-array.tq:166:10
+                      TVARIABLE(Object, tmp_170_impl);
+                      auto tmp_170 = &tmp_170_impl;
+                      USE(tmp_170);
+                      *tmp_170 = (*v1_163).value();
+                      // ../../src/builtins/typed-array.tq:167:10
+                      *v1_163 = (*v2_164).value();
+                      // ../../src/builtins/typed-array.tq:168:10
+                      *v2_164 = (*tmp_170).value();
                     }
-                    Goto(label__False_231);
+                    Goto(label__False_134);
                   }
-                  BIND(label__False_231);
+                  BIND(label__False_134);
                 }
               }
-              Goto(label_if_done_label_759_1588);
+              Goto(label_if_done_label_515_655);
             }
-            BIND(label_if_done_label_759_1588);
+            BIND(label_if_done_label_515_655);
           }
-          // ../../src/builtins/typed-array.tq:174:7
-          TNode<Object> t647 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_store), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*from_140).value()), implicit_cast<TNode<Object>>((*v0_142).value())));
-          USE(implicit_cast<TNode<Object>>(t647));
-          // ../../src/builtins/typed-array.tq:175:7
-          int31_t t648 = 1;
-          TNode<Smi> t649 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(t648)));
-          TNode<Smi> t650 = UncheckedCast<Smi>(SmiSub(implicit_cast<TNode<Smi>>((*to_141).value()), implicit_cast<TNode<Smi>>(t649)));
-          USE(implicit_cast<TNode<Smi>>(t650));
-          TNode<Object> t651 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_store), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>(t650), implicit_cast<TNode<Object>>((*v2_144).value())));
-          USE(implicit_cast<TNode<Object>>(t651));
-          // ../../src/builtins/typed-array.tq:177:7
-          TNode<Object> pivot_763_impl;
-          auto pivot_763 = &pivot_763_impl;
-          USE(pivot_763);
-          *pivot_763 = implicit_cast<TNode<Object>>((*v1_143).value());
-          // ../../src/builtins/typed-array.tq:178:7
-          int31_t t652 = 1;
-          TNode<Smi> t653 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(t652)));
-          TNode<Smi> t654 = UncheckedCast<Smi>(SmiAdd(implicit_cast<TNode<Smi>>((*from_140).value()), implicit_cast<TNode<Smi>>(t653)));
-          USE(implicit_cast<TNode<Smi>>(t654));
-          TVARIABLE(Smi, lowEnd_146_impl);
-          auto lowEnd_146 = &lowEnd_146_impl;
-          USE(lowEnd_146);
-          *lowEnd_146 = implicit_cast<TNode<Smi>>(t654);
-          // ../../src/builtins/typed-array.tq:179:7
-          int31_t t655 = 1;
-          TNode<Smi> t656 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(t655)));
-          TNode<Smi> t657 = UncheckedCast<Smi>(SmiSub(implicit_cast<TNode<Smi>>((*to_141).value()), implicit_cast<TNode<Smi>>(t656)));
-          USE(implicit_cast<TNode<Smi>>(t657));
-          TVARIABLE(Smi, highStart_147_impl);
-          auto highStart_147 = &highStart_147_impl;
-          USE(highStart_147);
-          *highStart_147 = implicit_cast<TNode<Smi>>(t657);
-          // ../../src/builtins/typed-array.tq:181:7
-          TNode<Object> t658 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*lowEnd_146).value())));
-          USE(implicit_cast<TNode<Object>>(t658));
-          TVARIABLE(Object, lowEndValue_148_impl);
-          auto lowEndValue_148 = &lowEndValue_148_impl;
-          USE(lowEndValue_148);
-          *lowEndValue_148 = implicit_cast<TNode<Object>>(t658);
-          // ../../src/builtins/typed-array.tq:182:7
-          TNode<Object> t659 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_store), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*thirdIndex_756)), implicit_cast<TNode<Object>>((*lowEndValue_148).value())));
-          USE(implicit_cast<TNode<Object>>(t659));
-          // ../../src/builtins/typed-array.tq:183:7
-          TNode<Object> t660 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_store), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*lowEnd_146).value()), implicit_cast<TNode<Object>>((*pivot_763))));
-          USE(implicit_cast<TNode<Object>>(t660));
-          // ../../src/builtins/typed-array.tq:187:7
-          int31_t t661 = 1;
-          TNode<Smi> t662 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(t661)));
-          TNode<Smi> t663 = UncheckedCast<Smi>(SmiAdd(implicit_cast<TNode<Smi>>((*lowEnd_146).value()), implicit_cast<TNode<Smi>>(t662)));
-          USE(implicit_cast<TNode<Smi>>(t663));
-          TVARIABLE(Smi, idx_149_impl);
-          auto idx_149 = &idx_149_impl;
-          USE(idx_149);
-          *idx_149 = implicit_cast<TNode<Smi>>(t663);
-          Label label__True_232_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-          Label* label__True_232 = &label__True_232_impl;
-          USE(label__True_232);
-          Label label__False_233_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-          Label* label__False_233 = &label__False_233_impl;
-          USE(label__False_233);
-          Label label_header_764_1589_impl(this, {highStart_147, idx_149, lowEndValue_148, lowEnd_146}, compiler::CodeAssemblerLabel::kNonDeferred);
-          Label* label_header_764_1589 = &label_header_764_1589_impl;
-          USE(label_header_764_1589);
-          Goto(label_header_764_1589);
-          BIND(label_header_764_1589);
-          Label label_action_765_1590_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-          Label* label_action_765_1590 = &label_action_765_1590_impl;
-          USE(label_action_765_1590);
-          TNode<BoolT> t664 = UncheckedCast<BoolT>(SmiLessThan(implicit_cast<TNode<Smi>>((*idx_149).value()), implicit_cast<TNode<Smi>>((*highStart_147).value())));
-          USE(implicit_cast<TNode<BoolT>>(t664));
-          Branch(implicit_cast<TNode<BoolT>>(t664), label__True_232, label__False_233);
-          if (label__True_232->is_used())
+          // ../../src/builtins/typed-array.tq:173:6
+          TNode<Object> t426 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), p_Store, p_context, p_array, (*from_159).value(), (*v0_162).value()));
+          USE(t426);
+          // ../../src/builtins/typed-array.tq:174:6
+          int31_t t427 = 1;
+          TNode<Smi> t428 = UncheckedCast<Smi>(from_constexpr5ATSmi(t427));
+          TNode<Smi> t429 = UncheckedCast<Smi>(SmiSub((*to_160).value(), t428));
+          USE(t429);
+          TNode<Object> t430 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), p_Store, p_context, p_array, t429, (*v2_164).value()));
+          USE(t430);
+          // ../../src/builtins/typed-array.tq:176:6
+          TVARIABLE(Object, pivot_171_impl);
+          auto pivot_171 = &pivot_171_impl;
+          USE(pivot_171);
+          *pivot_171 = (*v1_163).value();
+          // ../../src/builtins/typed-array.tq:177:6
+          int31_t t431 = 1;
+          TNode<Smi> t432 = UncheckedCast<Smi>(from_constexpr5ATSmi(t431));
+          TNode<Smi> t433 = UncheckedCast<Smi>(SmiAdd((*from_159).value(), t432));
+          USE(t433);
+          TVARIABLE(Smi, low_end_172_impl);
+          auto low_end_172 = &low_end_172_impl;
+          USE(low_end_172);
+          *low_end_172 = t433;
+          // ../../src/builtins/typed-array.tq:178:6
+          int31_t t434 = 1;
+          TNode<Smi> t435 = UncheckedCast<Smi>(from_constexpr5ATSmi(t434));
+          TNode<Smi> t436 = UncheckedCast<Smi>(SmiSub((*to_160).value(), t435));
+          USE(t436);
+          TVARIABLE(Smi, high_start_173_impl);
+          auto high_start_173 = &high_start_173_impl;
+          USE(high_start_173);
+          *high_start_173 = t436;
+          // ../../src/builtins/typed-array.tq:180:6
+          TNode<Object> t437 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), p_Load, p_context, p_array, (*low_end_172).value()));
+          USE(t437);
+          TVARIABLE(Object, low_end_value_174_impl);
+          auto low_end_value_174 = &low_end_value_174_impl;
+          USE(low_end_value_174);
+          *low_end_value_174 = t437;
+          // ../../src/builtins/typed-array.tq:181:6
+          TNode<Object> t438 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), p_Store, p_context, p_array, (*third_index_161).value(), (*low_end_value_174).value()));
+          USE(t438);
+          // ../../src/builtins/typed-array.tq:182:6
+          TNode<Object> t439 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), p_Store, p_context, p_array, (*low_end_172).value(), (*pivot_171).value()));
+          USE(t439);
+          // ../../src/builtins/typed-array.tq:186:6
+          int31_t t440 = 1;
+          TNode<Smi> t441 = UncheckedCast<Smi>(from_constexpr5ATSmi(t440));
+          TNode<Smi> t442 = UncheckedCast<Smi>(SmiAdd((*low_end_172).value(), t441));
+          USE(t442);
+          TVARIABLE(Smi, idx_175_impl);
+          auto idx_175 = &idx_175_impl;
+          USE(idx_175);
+          *idx_175 = t442;
+          Label label__True_135_impl(this);
+          Label* label__True_135 = &label__True_135_impl;
+          USE(label__True_135);
+          Label label__False_136_impl(this);
+          Label* label__False_136 = &label__False_136_impl;
+          USE(label__False_136);
+          Label label_header_516_656_impl(this, {low_end_172, high_start_173, low_end_value_174, idx_175});
+          Label* label_header_516_656 = &label_header_516_656_impl;
+          USE(label_header_516_656);
+          Goto(label_header_516_656);
+          BIND(label_header_516_656);
+          Label label_assignment_517_657_impl(this);
+          Label* label_assignment_517_657 = &label_assignment_517_657_impl;
+          USE(label_assignment_517_657);
+          TNode<BoolT> t443 = UncheckedCast<BoolT>(SmiLessThan((*idx_175).value(), (*high_start_173).value()));
+          USE(t443);
+          Branch(t443, label__True_135, label__False_136);
+          if (label__True_135->is_used())
           {
-            BIND(label__True_232);
-            // ../../src/builtins/typed-array.tq:187:63
+            BIND(label__True_135);
+            // ../../src/builtins/typed-array.tq:186:64
             {
-              // ../../src/builtins/typed-array.tq:188:9
-              TNode<Object> t665 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*idx_149).value())));
-              USE(implicit_cast<TNode<Object>>(t665));
-              TVARIABLE(Object, element_150_impl);
-              auto element_150 = &element_150_impl;
-              USE(element_150);
-              *element_150 = implicit_cast<TNode<Object>>(t665);
-              // ../../src/builtins/typed-array.tq:189:9
-              TNode<Number> t666 = UncheckedCast<Number>(CallCompareWithDetachedCheck(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<JSReceiver>>(p_comparefn), implicit_cast<TNode<Object>>((*element_150).value()), implicit_cast<TNode<Object>>((*pivot_763)), label_Detached_219));
-              USE(implicit_cast<TNode<Number>>(t666));
-              TVARIABLE(Number, order_151_impl);
-              auto order_151 = &order_151_impl;
-              USE(order_151);
-              *order_151 = implicit_cast<TNode<Number>>(t666);
-              // ../../src/builtins/typed-array.tq:192:9
+              // ../../src/builtins/typed-array.tq:187:8
+              TNode<Object> t444 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), p_Load, p_context, p_array, (*idx_175).value()));
+              USE(t444);
+              TVARIABLE(Object, element_176_impl);
+              auto element_176 = &element_176_impl;
+              USE(element_176);
+              *element_176 = t444;
+              // ../../src/builtins/typed-array.tq:188:8
+              TNode<Number> t445 = UncheckedCast<Number>(CallCompareWithDetachedCheck(p_context, p_array, p_comparefn, (*element_176).value(), (*pivot_171).value(), label_Detached_122));
+              USE(t445);
+              TVARIABLE(Number, order_177_impl);
+              auto order_177 = &order_177_impl;
+              USE(order_177);
+              *order_177 = t445;
+              // ../../src/builtins/typed-array.tq:191:8
               {
-                Label label__True_234_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                Label* label__True_234 = &label__True_234_impl;
-                USE(label__True_234);
-                Label label__False_235_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                Label* label__False_235 = &label__False_235_impl;
-                USE(label__False_235);
-                Label label_if_done_label_766_1591_impl(this, {element_150, highStart_147, lowEndValue_148, lowEnd_146, order_151}, compiler::CodeAssemblerLabel::kNonDeferred);
-                Label* label_if_done_label_766_1591 = &label_if_done_label_766_1591_impl;
-                USE(label_if_done_label_766_1591);
-                int31_t t667 = 0;
-                TNode<Number> t668 = UncheckedCast<Number>(FromConstexpr22UT12ATHeapNumber5ATSmi(implicit_cast<int31_t>(t667)));
-                BranchIfNumberLessThan(implicit_cast<TNode<Number>>((*order_151).value()), implicit_cast<TNode<Number>>(t668), label__True_234, label__False_235);
-                if (label__True_234->is_used())
+                Label label__True_137_impl(this);
+                Label* label__True_137 = &label__True_137_impl;
+                USE(label__True_137);
+                Label label__False_138_impl(this);
+                Label* label__False_138 = &label__False_138_impl;
+                USE(label__False_138);
+                Label label_if_done_label_518_658_impl(this, {low_end_172, high_start_173, low_end_value_174, element_176, order_177});
+                Label* label_if_done_label_518_658 = &label_if_done_label_518_658_impl;
+                USE(label_if_done_label_518_658);
+                int31_t t446 = 0;
+                TNode<Number> t447 = UncheckedCast<Number>(from_constexpr22UT12ATHeapNumber5ATSmi(t446));
+                BranchIfNumberLessThan((*order_177).value(), t447, label__True_137, label__False_138);
+                if (label__True_137->is_used())
                 {
-                  BIND(label__True_234);
-                  // ../../src/builtins/typed-array.tq:192:24
+                  BIND(label__True_137);
+                  // ../../src/builtins/typed-array.tq:191:23
                   {
-                    // ../../src/builtins/typed-array.tq:193:11
-                    TNode<Object> t669 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*lowEnd_146).value())));
-                    USE(implicit_cast<TNode<Object>>(t669));
-                    *lowEndValue_148 = implicit_cast<TNode<Object>>(t669);
-                    // ../../src/builtins/typed-array.tq:194:11
-                    TNode<Object> t670 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_store), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*idx_149).value()), implicit_cast<TNode<Object>>((*lowEndValue_148).value())));
-                    USE(implicit_cast<TNode<Object>>(t670));
-                    // ../../src/builtins/typed-array.tq:195:11
-                    TNode<Object> t671 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_store), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*lowEnd_146).value()), implicit_cast<TNode<Object>>((*element_150).value())));
-                    USE(implicit_cast<TNode<Object>>(t671));
-                    // ../../src/builtins/typed-array.tq:196:11
-                    TNode<Smi> t672 = implicit_cast<TNode<Smi>>((*lowEnd_146).value());
-                    USE(t672);
-                    TNode<Smi> t673 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(1)));
-                    TNode<Smi> t674 = UncheckedCast<Smi>(SmiAdd(implicit_cast<TNode<Smi>>((*lowEnd_146).value()), implicit_cast<TNode<Smi>>(t673)));
-                    *lowEnd_146 = implicit_cast<TNode<Smi>>(t674);
+                    // ../../src/builtins/typed-array.tq:192:10
+                    TNode<Object> t448 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), p_Load, p_context, p_array, (*low_end_172).value()));
+                    USE(t448);
+                    *low_end_value_174 = t448;
+                    // ../../src/builtins/typed-array.tq:193:10
+                    TNode<Object> t449 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), p_Store, p_context, p_array, (*idx_175).value(), (*low_end_value_174).value()));
+                    USE(t449);
+                    // ../../src/builtins/typed-array.tq:194:10
+                    TNode<Object> t450 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), p_Store, p_context, p_array, (*low_end_172).value(), (*element_176).value()));
+                    USE(t450);
+                    // ../../src/builtins/typed-array.tq:195:10
+                    TNode<Smi> t451 = (*low_end_172).value();
+                    USE(t451);
+                    TNode<Smi> t452 = UncheckedCast<Smi>(from_constexpr5ATSmi(1));
+                    TNode<Smi> t453 = UncheckedCast<Smi>(SmiAdd((*low_end_172).value(), t452));
+                    *low_end_172 = t453;
                   }
-                  Goto(label_if_done_label_766_1591);
+                  Goto(label_if_done_label_518_658);
                 }
-                if (label__False_235->is_used())
+                if (label__False_138->is_used())
                 {
-                  BIND(label__False_235);
-                  // ../../src/builtins/typed-array.tq:197:16
+                  BIND(label__False_138);
+                  // ../../src/builtins/typed-array.tq:196:15
                   {
-                    Label label__True_236_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                    Label* label__True_236 = &label__True_236_impl;
-                    USE(label__True_236);
-                    Label label__False_237_impl(this, {element_150, highStart_147, lowEndValue_148, lowEnd_146, order_151}, compiler::CodeAssemblerLabel::kNonDeferred);
-                    Label* label__False_237 = &label__False_237_impl;
-                    USE(label__False_237);
-                    int31_t t675 = 0;
-                    TNode<Number> t676 = UncheckedCast<Number>(FromConstexpr22UT12ATHeapNumber5ATSmi(implicit_cast<int31_t>(t675)));
-                    BranchIfNumberGreaterThan(implicit_cast<TNode<Number>>((*order_151).value()), implicit_cast<TNode<Number>>(t676), label__True_236, label__False_237);
-                    if (label__True_236->is_used())
+                    Label label__True_139_impl(this);
+                    Label* label__True_139 = &label__True_139_impl;
+                    USE(label__True_139);
+                    Label label__False_140_impl(this, {low_end_172, high_start_173, low_end_value_174, element_176, order_177});
+                    Label* label__False_140 = &label__False_140_impl;
+                    USE(label__False_140);
+                    int31_t t454 = 0;
+                    TNode<Number> t455 = UncheckedCast<Number>(from_constexpr22UT12ATHeapNumber5ATSmi(t454));
+                    BranchIfNumberGreaterThan((*order_177).value(), t455, label__True_139, label__False_140);
+                    if (label__True_139->is_used())
                     {
-                      BIND(label__True_236);
-                      // ../../src/builtins/typed-array.tq:197:31
+                      BIND(label__True_139);
+                      // ../../src/builtins/typed-array.tq:196:30
                       {
-                        // ../../src/builtins/typed-array.tq:198:11
-                        TVARIABLE(BoolT, breakFor_152_impl);
-                        auto breakFor_152 = &breakFor_152_impl;
-                        USE(breakFor_152);
-                        TNode<BoolT> t677 = UncheckedCast<BoolT>(FromConstexpr6ATbool(implicit_cast<bool>(false)));
-                        *breakFor_152 = implicit_cast<TNode<BoolT>>(t677);
-                        // ../../src/builtins/typed-array.tq:200:11
+                        // ../../src/builtins/typed-array.tq:197:10
+                        TVARIABLE(BoolT, break_for_178_impl);
+                        auto break_for_178 = &break_for_178_impl;
+                        USE(break_for_178);
+                        TNode<BoolT> t456 = UncheckedCast<BoolT>(from_constexpr6ATbool(false));
+                        *break_for_178 = t456;
+                        // ../../src/builtins/typed-array.tq:199:10
                         {
-                          Label label__True_238_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                          Label* label__True_238 = &label__True_238_impl;
-                          USE(label__True_238);
-                          Label label__False_239_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                          Label* label__False_239 = &label__False_239_impl;
-                          USE(label__False_239);
-                          Label label_header_767_1592_impl(this, {breakFor_152, highStart_147, order_151}, compiler::CodeAssemblerLabel::kNonDeferred);
-                          Label* label_header_767_1592 = &label_header_767_1592_impl;
-                          USE(label_header_767_1592);
-                          Goto(label_header_767_1592);
-                          BIND(label_header_767_1592);
-                          int31_t t678 = 0;
-                          TNode<Number> t679 = UncheckedCast<Number>(FromConstexpr22UT12ATHeapNumber5ATSmi(implicit_cast<int31_t>(t678)));
-                          BranchIfNumberGreaterThan(implicit_cast<TNode<Number>>((*order_151).value()), implicit_cast<TNode<Number>>(t679), label__True_238, label__False_239);
-                          if (label__True_238->is_used())
+                          Label label__True_141_impl(this);
+                          Label* label__True_141 = &label__True_141_impl;
+                          USE(label__True_141);
+                          Label label__False_142_impl(this);
+                          Label* label__False_142 = &label__False_142_impl;
+                          USE(label__False_142);
+                          Label label_header_519_659_impl(this, {high_start_173, order_177, break_for_178});
+                          Label* label_header_519_659 = &label_header_519_659_impl;
+                          USE(label_header_519_659);
+                          Goto(label_header_519_659);
+                          BIND(label_header_519_659);
+                          int31_t t457 = 0;
+                          TNode<Number> t458 = UncheckedCast<Number>(from_constexpr22UT12ATHeapNumber5ATSmi(t457));
+                          BranchIfNumberGreaterThan((*order_177).value(), t458, label__True_141, label__False_142);
+                          if (label__True_141->is_used())
                           {
-                            BIND(label__True_238);
-                            // ../../src/builtins/typed-array.tq:200:29
+                            BIND(label__True_141);
+                            // ../../src/builtins/typed-array.tq:199:28
                             {
-                              // ../../src/builtins/typed-array.tq:201:13
-                              TNode<Smi> t680 = implicit_cast<TNode<Smi>>((*highStart_147).value());
-                              USE(t680);
-                              TNode<Smi> t681 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(1)));
-                              TNode<Smi> t682 = UncheckedCast<Smi>(SmiSub(implicit_cast<TNode<Smi>>((*highStart_147).value()), implicit_cast<TNode<Smi>>(t681)));
-                              *highStart_147 = implicit_cast<TNode<Smi>>(t682);
-                              // ../../src/builtins/typed-array.tq:202:13
+                              // ../../src/builtins/typed-array.tq:200:12
+                              TNode<Smi> t459 = (*high_start_173).value();
+                              USE(t459);
+                              TNode<Smi> t460 = UncheckedCast<Smi>(from_constexpr5ATSmi(1));
+                              TNode<Smi> t461 = UncheckedCast<Smi>(SmiSub((*high_start_173).value(), t460));
+                              *high_start_173 = t461;
+                              // ../../src/builtins/typed-array.tq:201:12
                               {
-                                Label label__True_240_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                                Label* label__True_240 = &label__True_240_impl;
-                                USE(label__True_240);
-                                Label label__False_241_impl(this, {breakFor_152}, compiler::CodeAssemblerLabel::kNonDeferred);
-                                Label* label__False_241 = &label__False_241_impl;
-                                USE(label__False_241);
-                                TNode<BoolT> t683 = UncheckedCast<BoolT>(SmiEqual(implicit_cast<TNode<Smi>>((*highStart_147).value()), implicit_cast<TNode<Smi>>((*idx_149).value())));
-                                USE(implicit_cast<TNode<BoolT>>(t683));
-                                Branch(implicit_cast<TNode<BoolT>>(t683), label__True_240, label__False_241);
-                                if (label__True_240->is_used())
+                                Label label__True_143_impl(this);
+                                Label* label__True_143 = &label__True_143_impl;
+                                USE(label__True_143);
+                                Label label__False_144_impl(this, {break_for_178});
+                                Label* label__False_144 = &label__False_144_impl;
+                                USE(label__False_144);
+                                TNode<BoolT> t462 = UncheckedCast<BoolT>(SmiEqual((*high_start_173).value(), (*idx_175).value()));
+                                USE(t462);
+                                Branch(t462, label__True_143, label__False_144);
+                                if (label__True_143->is_used())
                                 {
-                                  BIND(label__True_240);
-                                  // ../../src/builtins/typed-array.tq:202:35
+                                  BIND(label__True_143);
+                                  // ../../src/builtins/typed-array.tq:201:35
                                   {
-                                    // ../../src/builtins/typed-array.tq:203:15
-                                    TNode<BoolT> t684 = UncheckedCast<BoolT>(FromConstexpr6ATbool(implicit_cast<bool>(true)));
-                                    *breakFor_152 = implicit_cast<TNode<BoolT>>(t684);
-                                    // ../../src/builtins/typed-array.tq:204:15
-                                    Goto(label__False_239);
+                                    // ../../src/builtins/typed-array.tq:202:14
+                                    TNode<BoolT> t463 = UncheckedCast<BoolT>(from_constexpr6ATbool(true));
+                                    *break_for_178 = t463;
+                                    // ../../src/builtins/typed-array.tq:203:14
+                                    Goto(label__False_142);
                                   }
                                 }
-                                BIND(label__False_241);
+                                BIND(label__False_144);
                               }
-                              // ../../src/builtins/typed-array.tq:207:13
-                              TNode<Object> t685 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*highStart_147).value())));
-                              USE(implicit_cast<TNode<Object>>(t685));
-                              TNode<Object> topElement_768_impl;
-                              auto topElement_768 = &topElement_768_impl;
-                              USE(topElement_768);
-                              *topElement_768 = implicit_cast<TNode<Object>>(t685);
-                              // ../../src/builtins/typed-array.tq:208:13
-                              TNode<Number> t686 = UncheckedCast<Number>(CallCompareWithDetachedCheck(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<JSReceiver>>(p_comparefn), implicit_cast<TNode<Object>>((*topElement_768)), implicit_cast<TNode<Object>>((*pivot_763)), label_Detached_219));
-                              USE(implicit_cast<TNode<Number>>(t686));
-                              *order_151 = implicit_cast<TNode<Number>>(t686);
+                              // ../../src/builtins/typed-array.tq:206:12
+                              TNode<Object> t464 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), p_Load, p_context, p_array, (*high_start_173).value()));
+                              USE(t464);
+                              TVARIABLE(Object, top_elem_179_impl);
+                              auto top_elem_179 = &top_elem_179_impl;
+                              USE(top_elem_179);
+                              *top_elem_179 = t464;
+                              // ../../src/builtins/typed-array.tq:207:12
+                              TNode<Number> t465 = UncheckedCast<Number>(CallCompareWithDetachedCheck(p_context, p_array, p_comparefn, (*top_elem_179).value(), (*pivot_171).value(), label_Detached_122));
+                              USE(t465);
+                              *order_177 = t465;
                             }
-                            Goto(label_header_767_1592);
+                            Goto(label_header_519_659);
                           }
-                          BIND(label__False_239);
+                          BIND(label__False_142);
                         }
-                        // ../../src/builtins/typed-array.tq:213:11
+                        // ../../src/builtins/typed-array.tq:211:10
                         {
-                          Label label__True_242_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                          Label* label__True_242 = &label__True_242_impl;
-                          USE(label__True_242);
-                          Label label__False_243_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-                          Label* label__False_243 = &label__False_243_impl;
-                          USE(label__False_243);
-                          Branch(implicit_cast<TNode<BoolT>>((*breakFor_152).value()), label__True_242, label__False_243);
-                          if (label__True_242->is_used())
+                          Label label__True_145_impl(this);
+                          Label* label__True_145 = &label__True_145_impl;
+                          USE(label__True_145);
+                          Label label__False_146_impl(this, {});
+                          Label* label__False_146 = &label__False_146_impl;
+                          USE(label__False_146);
+                          Branch((*break_for_178).value(), label__True_145, label__False_146);
+                          if (label__True_145->is_used())
                           {
-                            BIND(label__True_242);
-                            // ../../src/builtins/typed-array.tq:213:25
+                            BIND(label__True_145);
+                            // ../../src/builtins/typed-array.tq:211:25
                             {
-                              // ../../src/builtins/typed-array.tq:214:13
-                              Goto(label__False_233);
+                              // ../../src/builtins/typed-array.tq:212:12
+                              Goto(label__False_136);
                             }
                           }
-                          BIND(label__False_243);
+                          BIND(label__False_146);
                         }
-                        // ../../src/builtins/typed-array.tq:217:11
-                        TNode<Object> t687 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*highStart_147).value())));
-                        USE(implicit_cast<TNode<Object>>(t687));
-                        TNode<Object> highStartValue_769_impl;
-                        auto highStartValue_769 = &highStartValue_769_impl;
-                        USE(highStartValue_769);
-                        *highStartValue_769 = implicit_cast<TNode<Object>>(t687);
-                        // ../../src/builtins/typed-array.tq:218:11
-                        TNode<Object> t688 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_store), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*idx_149).value()), implicit_cast<TNode<Object>>((*highStartValue_769))));
-                        USE(implicit_cast<TNode<Object>>(t688));
-                        // ../../src/builtins/typed-array.tq:219:11
-                        TNode<Object> t689 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_store), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*highStart_147).value()), implicit_cast<TNode<Object>>((*element_150).value())));
-                        USE(implicit_cast<TNode<Object>>(t689));
-                        // ../../src/builtins/typed-array.tq:221:11
+                        // ../../src/builtins/typed-array.tq:215:10
+                        TNode<Object> t466 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), p_Load, p_context, p_array, (*high_start_173).value()));
+                        USE(t466);
+                        TVARIABLE(Object, high_start_value_180_impl);
+                        auto high_start_value_180 = &high_start_value_180_impl;
+                        USE(high_start_value_180);
+                        *high_start_value_180 = t466;
+                        // ../../src/builtins/typed-array.tq:216:10
+                        TNode<Object> t467 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), p_Store, p_context, p_array, (*idx_175).value(), (*high_start_value_180).value()));
+                        USE(t467);
+                        // ../../src/builtins/typed-array.tq:217:10
+                        TNode<Object> t468 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), p_Store, p_context, p_array, (*high_start_173).value(), (*element_176).value()));
+                        USE(t468);
+                        // ../../src/builtins/typed-array.tq:219:10
                         {
-                          Label label__True_244_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                          Label* label__True_244 = &label__True_244_impl;
-                          USE(label__True_244);
-                          Label label__False_245_impl(this, {element_150, lowEndValue_148, lowEnd_146}, compiler::CodeAssemblerLabel::kNonDeferred);
-                          Label* label__False_245 = &label__False_245_impl;
-                          USE(label__False_245);
-                          int31_t t690 = 0;
-                          TNode<Number> t691 = UncheckedCast<Number>(FromConstexpr22UT12ATHeapNumber5ATSmi(implicit_cast<int31_t>(t690)));
-                          BranchIfNumberLessThan(implicit_cast<TNode<Number>>((*order_151).value()), implicit_cast<TNode<Number>>(t691), label__True_244, label__False_245);
-                          if (label__True_244->is_used())
+                          Label label__True_147_impl(this);
+                          Label* label__True_147 = &label__True_147_impl;
+                          USE(label__True_147);
+                          Label label__False_148_impl(this, {low_end_172, low_end_value_174, element_176});
+                          Label* label__False_148 = &label__False_148_impl;
+                          USE(label__False_148);
+                          int31_t t469 = 0;
+                          TNode<Number> t470 = UncheckedCast<Number>(from_constexpr22UT12ATHeapNumber5ATSmi(t469));
+                          BranchIfNumberLessThan((*order_177).value(), t470, label__True_147, label__False_148);
+                          if (label__True_147->is_used())
                           {
-                            BIND(label__True_244);
-                            // ../../src/builtins/typed-array.tq:221:26
+                            BIND(label__True_147);
+                            // ../../src/builtins/typed-array.tq:219:25
                             {
-                              // ../../src/builtins/typed-array.tq:222:13
-                              TNode<Object> t692 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*idx_149).value())));
-                              USE(implicit_cast<TNode<Object>>(t692));
-                              *element_150 = implicit_cast<TNode<Object>>(t692);
-                              // ../../src/builtins/typed-array.tq:224:13
-                              TNode<Object> t693 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*lowEnd_146).value())));
-                              USE(implicit_cast<TNode<Object>>(t693));
-                              *lowEndValue_148 = implicit_cast<TNode<Object>>(t693);
-                              // ../../src/builtins/typed-array.tq:225:13
-                              TNode<Object> t694 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_store), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*idx_149).value()), implicit_cast<TNode<Object>>((*lowEndValue_148).value())));
-                              USE(implicit_cast<TNode<Object>>(t694));
-                              // ../../src/builtins/typed-array.tq:226:13
-                              TNode<Object> t695 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), implicit_cast<TNode<Code>>(p_store), implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*lowEnd_146).value()), implicit_cast<TNode<Object>>((*element_150).value())));
-                              USE(implicit_cast<TNode<Object>>(t695));
-                              // ../../src/builtins/typed-array.tq:227:13
-                              TNode<Smi> t696 = implicit_cast<TNode<Smi>>((*lowEnd_146).value());
-                              USE(t696);
-                              TNode<Smi> t697 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(1)));
-                              TNode<Smi> t698 = UncheckedCast<Smi>(SmiAdd(implicit_cast<TNode<Smi>>((*lowEnd_146).value()), implicit_cast<TNode<Smi>>(t697)));
-                              *lowEnd_146 = implicit_cast<TNode<Smi>>(t698);
+                              // ../../src/builtins/typed-array.tq:220:12
+                              TNode<Object> t471 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), p_Load, p_context, p_array, (*idx_175).value()));
+                              USE(t471);
+                              *element_176 = t471;
+                              // ../../src/builtins/typed-array.tq:222:12
+                              TNode<Object> t472 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).descriptor(), p_Load, p_context, p_array, (*low_end_172).value()));
+                              USE(t472);
+                              *low_end_value_174 = t472;
+                              // ../../src/builtins/typed-array.tq:223:12
+                              TNode<Object> t473 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), p_Store, p_context, p_array, (*idx_175).value(), (*low_end_value_174).value()));
+                              USE(t473);
+                              // ../../src/builtins/typed-array.tq:224:12
+                              TNode<Object> t474 = UncheckedCast<Object>(CallStub(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).descriptor(), p_Store, p_context, p_array, (*low_end_172).value(), (*element_176).value()));
+                              USE(t474);
+                              // ../../src/builtins/typed-array.tq:225:12
+                              TNode<Smi> t475 = (*low_end_172).value();
+                              USE(t475);
+                              TNode<Smi> t476 = UncheckedCast<Smi>(from_constexpr5ATSmi(1));
+                              TNode<Smi> t477 = UncheckedCast<Smi>(SmiAdd((*low_end_172).value(), t476));
+                              *low_end_172 = t477;
                             }
-                            Goto(label__False_245);
+                            Goto(label__False_148);
                           }
-                          BIND(label__False_245);
+                          BIND(label__False_148);
                         }
                       }
-                      Goto(label__False_237);
+                      Goto(label__False_140);
                     }
-                    BIND(label__False_237);
+                    BIND(label__False_140);
                   }
-                  Goto(label_if_done_label_766_1591);
+                  Goto(label_if_done_label_518_658);
                 }
-                BIND(label_if_done_label_766_1591);
+                BIND(label_if_done_label_518_658);
               }
             }
-            Goto(label_action_765_1590);
+            Goto(label_assignment_517_657);
           }
           {
-            BIND(label_action_765_1590);
-            TNode<Smi> t699 = implicit_cast<TNode<Smi>>((*idx_149).value());
-            USE(t699);
-            TNode<Smi> t700 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(1)));
-            TNode<Smi> t701 = UncheckedCast<Smi>(SmiAdd(implicit_cast<TNode<Smi>>((*idx_149).value()), implicit_cast<TNode<Smi>>(t700)));
-            *idx_149 = implicit_cast<TNode<Smi>>(t701);
-            Goto(label_header_764_1589);
+            BIND(label_assignment_517_657);
+            TNode<Smi> t478 = (*idx_175).value();
+            USE(t478);
+            TNode<Smi> t479 = UncheckedCast<Smi>(from_constexpr5ATSmi(1));
+            TNode<Smi> t480 = UncheckedCast<Smi>(SmiAdd((*idx_175).value(), t479));
+            *idx_175 = t480;
+            Goto(label_header_516_656);
           }
-          BIND(label__False_233);
-          // ../../src/builtins/typed-array.tq:232:7
+          BIND(label__False_136);
+          // ../../src/builtins/typed-array.tq:230:6
           {
-            Label label__True_246_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label__True_246 = &label__True_246_impl;
-            USE(label__True_246);
-            Label label__False_247_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label__False_247 = &label__False_247_impl;
-            USE(label__False_247);
-            Label label_if_done_label_770_1593_impl(this, {from_140, to_141}, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label_if_done_label_770_1593 = &label_if_done_label_770_1593_impl;
-            USE(label_if_done_label_770_1593);
-            TNode<Smi> t702 = UncheckedCast<Smi>(SmiSub(implicit_cast<TNode<Smi>>((*to_141).value()), implicit_cast<TNode<Smi>>((*highStart_147).value())));
-            USE(implicit_cast<TNode<Smi>>(t702));
-            TNode<Smi> t703 = UncheckedCast<Smi>(SmiSub(implicit_cast<TNode<Smi>>((*lowEnd_146).value()), implicit_cast<TNode<Smi>>((*from_140).value())));
-            USE(implicit_cast<TNode<Smi>>(t703));
-            TNode<BoolT> t704 = UncheckedCast<BoolT>(SmiLessThan(implicit_cast<TNode<Smi>>(t702), implicit_cast<TNode<Smi>>(t703)));
-            USE(implicit_cast<TNode<BoolT>>(t704));
-            Branch(implicit_cast<TNode<BoolT>>(t704), label__True_246, label__False_247);
-            if (label__True_246->is_used())
+            Label label__True_149_impl(this);
+            Label* label__True_149 = &label__True_149_impl;
+            USE(label__True_149);
+            Label label__False_150_impl(this);
+            Label* label__False_150 = &label__False_150_impl;
+            USE(label__False_150);
+            Label label_if_done_label_520_660_impl(this, {from_159, to_160});
+            Label* label_if_done_label_520_660 = &label_if_done_label_520_660_impl;
+            USE(label_if_done_label_520_660);
+            TNode<Smi> t481 = UncheckedCast<Smi>(SmiSub((*to_160).value(), (*high_start_173).value()));
+            USE(t481);
+            TNode<Smi> t482 = UncheckedCast<Smi>(SmiSub((*low_end_172).value(), (*from_159).value()));
+            USE(t482);
+            TNode<BoolT> t483 = UncheckedCast<BoolT>(SmiLessThan(t481, t482));
+            USE(t483);
+            Branch(t483, label__True_149, label__False_150);
+            if (label__True_149->is_used())
             {
-              BIND(label__True_246);
-              // ../../src/builtins/typed-array.tq:232:47
+              BIND(label__True_149);
+              // ../../src/builtins/typed-array.tq:230:48
               {
-                // ../../src/builtins/typed-array.tq:233:9
-                TNode<JSTypedArray> t705 = UncheckedCast<JSTypedArray>(CallBuiltin(Builtins::kTypedArrayQuickSort, implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*highStart_147).value()), implicit_cast<TNode<Smi>>((*to_141).value()), implicit_cast<TNode<JSReceiver>>(p_comparefn), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Code>>(p_store)));
-                USE(implicit_cast<TNode<JSTypedArray>>(t705));
-                // ../../src/builtins/typed-array.tq:235:9
-                *to_141 = implicit_cast<TNode<Smi>>((*lowEnd_146).value());
+                // ../../src/builtins/typed-array.tq:231:8
+                TNode<JSTypedArray> t484 = UncheckedCast<JSTypedArray>(CallBuiltin(Builtins::kTypedArrayQuickSort, p_context, p_array, (*high_start_173).value(), (*to_160).value(), p_comparefn, p_Load, p_Store));
+                USE(t484);
+                // ../../src/builtins/typed-array.tq:233:8
+                *to_160 = (*low_end_172).value();
               }
-              Goto(label_if_done_label_770_1593);
+              Goto(label_if_done_label_520_660);
             }
-            if (label__False_247->is_used())
+            if (label__False_150->is_used())
             {
-              BIND(label__False_247);
-              // ../../src/builtins/typed-array.tq:236:14
+              BIND(label__False_150);
+              // ../../src/builtins/typed-array.tq:234:13
               {
-                // ../../src/builtins/typed-array.tq:237:9
-                TNode<JSTypedArray> t706 = UncheckedCast<JSTypedArray>(CallBuiltin(Builtins::kTypedArrayQuickSort, implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>((*from_140).value()), implicit_cast<TNode<Smi>>((*lowEnd_146).value()), implicit_cast<TNode<JSReceiver>>(p_comparefn), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Code>>(p_store)));
-                USE(implicit_cast<TNode<JSTypedArray>>(t706));
-                // ../../src/builtins/typed-array.tq:239:9
-                *from_140 = implicit_cast<TNode<Smi>>((*highStart_147).value());
+                // ../../src/builtins/typed-array.tq:235:8
+                TNode<JSTypedArray> t485 = UncheckedCast<JSTypedArray>(CallBuiltin(Builtins::kTypedArrayQuickSort, p_context, p_array, (*from_159).value(), (*low_end_172).value(), p_comparefn, p_Load, p_Store));
+                USE(t485);
+                // ../../src/builtins/typed-array.tq:237:8
+                *from_159 = (*high_start_173).value();
               }
-              Goto(label_if_done_label_770_1593);
+              Goto(label_if_done_label_520_660);
             }
-            BIND(label_if_done_label_770_1593);
+            BIND(label_if_done_label_520_660);
           }
         }
-        Goto(label_header_755_1587);
+        Goto(label_header_514_654);
       }
-      BIND(label__False_221);
+      BIND(label__False_124);
     }
   }
 }
@@ -1093,49 +1092,49 @@ TF_BUILTIN(TypedArrayQuickSort, TypedArrayBuiltinsFromDSLAssembler) {
   USE(p_to);
   TNode<JSReceiver> p_comparefn = UncheckedCast<JSReceiver>(Parameter(Descriptor::kComparefn));
   USE(p_comparefn);
-  TNode<Code> p_load = UncheckedCast<Code>(Parameter(Descriptor::kLoad));
-  USE(p_load);
-  TNode<Code> p_store = UncheckedCast<Code>(Parameter(Descriptor::kStore));
-  USE(p_store);
-  // ../../src/builtins/typed-array.tq:246:72
+  TNode<Code> p_Load = UncheckedCast<Code>(Parameter(Descriptor::kLoad));
+  USE(p_Load);
+  TNode<Code> p_Store = UncheckedCast<Code>(Parameter(Descriptor::kStore));
+  USE(p_Store);
+  // ../../src/builtins/typed-array.tq:244:71
   {
-    // ../../src/builtins/typed-array.tq:247:5
+    // ../../src/builtins/typed-array.tq:245:4
     {
-      Label label_try_done_771_1594_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label_try_done_771_1594 = &label_try_done_771_1594_impl;
-      USE(label_try_done_771_1594);
-      Label label_Detached_248_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label_Detached_248 = &label_Detached_248_impl;
-      USE(label_Detached_248);
-      Label label_try_begin_772_1595_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label_try_begin_772_1595 = &label_try_begin_772_1595_impl;
-      USE(label_try_begin_772_1595);
-      Goto(label_try_begin_772_1595);
-      if (label_try_begin_772_1595->is_used())
+      Label label_try_done_521_661_impl(this);
+      Label* label_try_done_521_661 = &label_try_done_521_661_impl;
+      USE(label_try_done_521_661);
+      Label label_Detached_151_impl(this);
+      Label* label_Detached_151 = &label_Detached_151_impl;
+      USE(label_Detached_151);
+      Label label_try_begin_522_662_impl(this);
+      Label* label_try_begin_522_662 = &label_try_begin_522_662_impl;
+      USE(label_try_begin_522_662);
+      Goto(label_try_begin_522_662);
+      if (label_try_begin_522_662->is_used())
       {
-        BIND(label_try_begin_772_1595);
-        // ../../src/builtins/typed-array.tq:247:9
+        BIND(label_try_begin_522_662);
+        // ../../src/builtins/typed-array.tq:245:8
         {
-          // ../../src/builtins/typed-array.tq:248:7
-          TypedArrayQuickSortImpl(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>(p_array), implicit_cast<TNode<Smi>>(p_from), implicit_cast<TNode<Smi>>(p_to), implicit_cast<TNode<JSReceiver>>(p_comparefn), implicit_cast<TNode<Code>>(p_load), implicit_cast<TNode<Code>>(p_store), label_Detached_248);
+          // ../../src/builtins/typed-array.tq:246:6
+          TypedArrayQuickSortImpl(p_context, p_array, p_from, p_to, p_comparefn, p_Load, p_Store, label_Detached_151);
         }
-        Goto(label_try_done_771_1594);
+        Goto(label_try_done_521_661);
       }
-      if (label_Detached_248->is_used())
+      if (label_Detached_151->is_used())
       {
-        BIND(label_Detached_248);
-        // ../../src/builtins/typed-array.tq:251:20
+        BIND(label_Detached_151);
+        // ../../src/builtins/typed-array.tq:249:19
         {
-          // ../../src/builtins/typed-array.tq:252:7
-          const char* t707 = "%TypedArray%.prototype.sort";
-          TNode<Object> t708 = UncheckedCast<Object>(FromConstexpr22UT12ATHeapObject5ATSmi(implicit_cast<const char*>(t707)));
-          ThrowTypeError(implicit_cast<TNode<Context>>(p_context), implicit_cast<MessageTemplate::Template>(MessageTemplate::kDetachedOperation), implicit_cast<TNode<Object>>(t708));
+          // ../../src/builtins/typed-array.tq:250:6
+          const char* t486 = "%TypedArray%.prototype.sort";
+          TNode<Object> t487 = UncheckedCast<Object>(from_constexpr22UT12ATHeapObject5ATSmi(t486));
+          ThrowTypeError(p_context, MessageTemplate::kDetachedOperation, t487);
         }
       }
-      BIND(label_try_done_771_1594);
+      BIND(label_try_done_521_661);
     }
-    // ../../src/builtins/typed-array.tq:255:5
-    Return(implicit_cast<TNode<JSTypedArray>>(p_array));
+    // ../../src/builtins/typed-array.tq:253:4
+    Return(p_array);
   }
 }
 
@@ -1148,598 +1147,595 @@ TF_BUILTIN(TypedArrayPrototypeSort, TypedArrayBuiltinsFromDSLAssembler) {
   auto arguments = &arguments_impl;
   USE(arguments);
   USE(p_receiver);
-  // ../../src/builtins/typed-array.tq:260:71
+  // ../../src/builtins/typed-array.tq:258:70
   {
-    // ../../src/builtins/typed-array.tq:263:5
-    auto t709 = [=]() {
-      int31_t t711 = 0;
-      TNode<IntPtrT> t712 = UncheckedCast<IntPtrT>(FromConstexpr8ATintptr(implicit_cast<int31_t>(t711)));
-      TNode<Object> t713 = UncheckedCast<Object>(GetArgumentValue(implicit_cast<CodeStubArguments*>(arguments), implicit_cast<TNode<IntPtrT>>(t712)));
-      return implicit_cast<TNode<Object>>(t713);
+    // ../../src/builtins/typed-array.tq:261:4
+    auto t488 = [=]() {
+      int31_t t490 = 0;
+      TNode<IntPtrT> t491 = UncheckedCast<IntPtrT>(from_constexpr8ATintptr(t490));
+      TNode<Object> t492 = UncheckedCast<Object>(GetArgumentValue(arguments, t491));
+      return t492;
     };
-    auto t710 = [=]() {
-      return implicit_cast<TNode<Oddball>>(Undefined());
+    auto t489 = [=]() {
+      return Undefined();
     };
-    TVARIABLE(Object, t714_773_impl);
-    auto t714_773 = &t714_773_impl;
-    USE(t714_773);
+    TVARIABLE(Object, t493_523_impl);
+    auto t493_523 = &t493_523_impl;
+    USE(t493_523);
     {
-      Label label__True_249_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__True_249 = &label__True_249_impl;
-      USE(label__True_249);
-      Label label__False_250_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__False_250 = &label__False_250_impl;
-      USE(label__False_250);
-      Label label__done_774_1596_impl(this, {t714_773}, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__done_774_1596 = &label__done_774_1596_impl;
-      USE(label__done_774_1596);
-      TNode<IntPtrT> t715 = UncheckedCast<IntPtrT>(GetArgumentsLength(implicit_cast<CodeStubArguments*>(arguments)));
-      int31_t t716 = 0;
-      TNode<IntPtrT> t717 = UncheckedCast<IntPtrT>(FromConstexpr8ATintptr(implicit_cast<int31_t>(t716)));
-      TNode<BoolT> t718 = UncheckedCast<BoolT>(IntPtrGreaterThan(implicit_cast<TNode<IntPtrT>>(t715), implicit_cast<TNode<IntPtrT>>(t717)));
-      USE(implicit_cast<TNode<BoolT>>(t718));
-      Branch(implicit_cast<TNode<BoolT>>(t718), label__True_249, label__False_250);
-      BIND(label__True_249);
-            *t714_773 = implicit_cast<TNode<Object>>(t709());
-      Goto(label__done_774_1596);
-      BIND(label__False_250);
-            *t714_773 = implicit_cast<TNode<Object>>(t710());
-      Goto(label__done_774_1596);
-      BIND(label__done_774_1596);
+      Label label__True_152_impl(this);
+      Label* label__True_152 = &label__True_152_impl;
+      USE(label__True_152);
+      Label label__False_153_impl(this);
+      Label* label__False_153 = &label__False_153_impl;
+      USE(label__False_153);
+      Label label__done_524_663_impl(this, {t493_523});
+      Label* label__done_524_663 = &label__done_524_663_impl;
+      USE(label__done_524_663);
+      TNode<IntPtrT> t494 = UncheckedCast<IntPtrT>(GetArgumentsLength(arguments));
+      int31_t t495 = 0;
+      TNode<IntPtrT> t496 = UncheckedCast<IntPtrT>(from_constexpr8ATintptr(t495));
+      TNode<BoolT> t497 = UncheckedCast<BoolT>(IntPtrGreaterThan(t494, t496));
+      USE(t497);
+      Branch(t497, label__True_152, label__False_153);
+      BIND(label__True_152);
+            *t493_523 = t488();
+      Goto(label__done_524_663);
+      BIND(label__False_153);
+            *t493_523 = t489();
+      Goto(label__done_524_663);
+      BIND(label__done_524_663);
     }
-    TNode<Object> comparefnObj_775_impl;
-    auto comparefnObj_775 = &comparefnObj_775_impl;
-    USE(comparefnObj_775);
-    *comparefnObj_775 = implicit_cast<TNode<Object>>((*t714_773).value());
-    // ../../src/builtins/typed-array.tq:265:5
+    TVARIABLE(Object, comparefn_obj_181_impl);
+    auto comparefn_obj_181 = &comparefn_obj_181_impl;
+    USE(comparefn_obj_181);
+    *comparefn_obj_181 = (*t493_523).value();
+    // ../../src/builtins/typed-array.tq:262:4
     {
-      Label label__True_251_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__True_251 = &label__True_251_impl;
-      USE(label__True_251);
-      Label label__False_252_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__False_252 = &label__False_252_impl;
-      USE(label__False_252);
-      Label label__True_253_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__True_253 = &label__True_253_impl;
-      USE(label__True_253);
-      TNode<BoolT> t719 = UncheckedCast<BoolT>(WordNotEqual(implicit_cast<TNode<Object>>((*comparefnObj_775)), implicit_cast<TNode<Object>>(Undefined())));
-      USE(implicit_cast<TNode<BoolT>>(t719));
-      GotoIfNot(implicit_cast<TNode<BoolT>>(t719), label__False_252);
-      TNode<BoolT> t720 = UncheckedCast<BoolT>(TaggedIsCallable(implicit_cast<TNode<Object>>((*comparefnObj_775))));
-      USE(implicit_cast<TNode<BoolT>>(t720));
-      TNode<BoolT> t721 = UncheckedCast<BoolT>(Word32BinaryNot(implicit_cast<TNode<BoolT>>(t720)));
-      USE(implicit_cast<TNode<BoolT>>(t721));
-Branch(implicit_cast<TNode<BoolT>>(t721), label__True_251, label__False_252);
-      if (label__True_251->is_used())
+      Label label__True_154_impl(this);
+      Label* label__True_154 = &label__True_154_impl;
+      USE(label__True_154);
+      Label label__False_155_impl(this, {});
+      Label* label__False_155 = &label__False_155_impl;
+      USE(label__False_155);
+      Label label__True_156_impl(this);
+      Label* label__True_156 = &label__True_156_impl;
+      USE(label__True_156);
+      TNode<BoolT> t498 = UncheckedCast<BoolT>(WordNotEqual((*comparefn_obj_181).value(), Undefined()));
+      USE(t498);
+      GotoIfNot(t498, label__False_155);
+      TNode<BoolT> t499 = UncheckedCast<BoolT>(TaggedIsCallable((*comparefn_obj_181).value()));
+      USE(t499);
+      TNode<BoolT> t500 = UncheckedCast<BoolT>(Word32BinaryNot(t499));
+      USE(t500);
+      Branch(t500, label__True_154, label__False_155);
+      if (label__True_154->is_used())
       {
-        BIND(label__True_251);
-        // ../../src/builtins/typed-array.tq:265:71
+        BIND(label__True_154);
+        // ../../src/builtins/typed-array.tq:262:72
         {
-          // ../../src/builtins/typed-array.tq:266:7
-          ThrowTypeError(implicit_cast<TNode<Context>>(p_context), implicit_cast<MessageTemplate::Template>(MessageTemplate::kBadSortComparisonFunction), implicit_cast<TNode<Object>>((*comparefnObj_775)));
+          // ../../src/builtins/typed-array.tq:263:6
+          ThrowTypeError(p_context, MessageTemplate::kBadSortComparisonFunction, (*comparefn_obj_181).value());
         }
       }
-      BIND(label__False_252);
+      BIND(label__False_155);
     }
-    // ../../src/builtins/typed-array.tq:270:5
-    TNode<Object> obj_776_impl;
-    auto obj_776 = &obj_776_impl;
-    USE(obj_776);
-    *obj_776 = implicit_cast<TNode<Object>>(p_receiver);
-    // ../../src/builtins/typed-array.tq:274:5
-    const char* t722 = "%TypedArray%.prototype.sort";
-    TNode<JSTypedArray> t723 = UncheckedCast<JSTypedArray>(ValidateTypedArray(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<Object>>((*obj_776)), implicit_cast<const char*>(t722)));
-    USE(implicit_cast<TNode<JSTypedArray>>(t723));
-    TNode<JSTypedArray> array_777_impl;
-    auto array_777 = &array_777_impl;
-    USE(array_777);
-    *array_777 = implicit_cast<TNode<JSTypedArray>>(t723);
-    // ../../src/builtins/typed-array.tq:278:5
+    // ../../src/builtins/typed-array.tq:267:4
+    TVARIABLE(Object, obj_182_impl);
+    auto obj_182 = &obj_182_impl;
+    USE(obj_182);
+    *obj_182 = p_receiver;
+    // ../../src/builtins/typed-array.tq:271:4
+    const char* t501 = "%TypedArray%.prototype.sort";
+    TNode<JSTypedArray> t502 = UncheckedCast<JSTypedArray>(ValidateTypedArray(p_context, (*obj_182).value(), t501));
+    USE(t502);
+    TVARIABLE(JSTypedArray, array_183_impl);
+    auto array_183 = &array_183_impl;
+    USE(array_183);
+    *array_183 = t502;
+    // ../../src/builtins/typed-array.tq:275:4
     {
-      Label label__True_254_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__True_254 = &label__True_254_impl;
-      USE(label__True_254);
-      Label label__False_255_impl(this, {}, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label__False_255 = &label__False_255_impl;
-      USE(label__False_255);
-      TNode<BoolT> t724 = UncheckedCast<BoolT>(WordEqual(implicit_cast<TNode<Object>>((*comparefnObj_775)), implicit_cast<TNode<Object>>(Undefined())));
-      USE(implicit_cast<TNode<BoolT>>(t724));
-      Branch(implicit_cast<TNode<BoolT>>(t724), label__True_254, label__False_255);
-      if (label__True_254->is_used())
+      Label label__True_157_impl(this);
+      Label* label__True_157 = &label__True_157_impl;
+      USE(label__True_157);
+      Label label__False_158_impl(this, {});
+      Label* label__False_158 = &label__False_158_impl;
+      USE(label__False_158);
+      TNode<BoolT> t503 = UncheckedCast<BoolT>(WordEqual((*comparefn_obj_181).value(), Undefined()));
+      USE(t503);
+      Branch(t503, label__True_157, label__False_158);
+      if (label__True_157->is_used())
       {
-        BIND(label__True_254);
-        // ../../src/builtins/typed-array.tq:278:36
+        BIND(label__True_157);
+        // ../../src/builtins/typed-array.tq:275:36
         {
-          // ../../src/builtins/typed-array.tq:279:7
-          TNode<JSTypedArray> t725 = UncheckedCast<JSTypedArray>(CallRuntime(Runtime::kTypedArraySortFast, implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<Object>>((*obj_776))));
-          USE(implicit_cast<TNode<JSTypedArray>>(t725));
-          arguments->PopAndReturn(implicit_cast<TNode<JSTypedArray>>(t725));
+          // ../../src/builtins/typed-array.tq:276:6
+          TNode<JSTypedArray> t504 = UncheckedCast<JSTypedArray>(CallRuntime(Runtime::kTypedArraySortFast, p_context, (*obj_182).value()));
+          USE(t504);
+          arguments->PopAndReturn(t504);
         }
       }
-      BIND(label__False_255);
+      BIND(label__False_158);
     }
-    // ../../src/builtins/typed-array.tq:283:5
-    TNode<Smi> t726 = UncheckedCast<Smi>(LoadJSTypedArrayLength(implicit_cast<TNode<JSTypedArray>>((*array_777))));
-    TNode<Smi> len_778_impl;
-    auto len_778 = &len_778_impl;
-    USE(len_778);
-    *len_778 = implicit_cast<TNode<Smi>>(t726);
-    // ../../src/builtins/typed-array.tq:285:5
+    // ../../src/builtins/typed-array.tq:280:4
+    TNode<Smi> t505 = UncheckedCast<Smi>(LoadTypedArrayLength((*array_183).value()));
+    TVARIABLE(Smi, len_184_impl);
+    auto len_184 = &len_184_impl;
+    USE(len_184);
+    *len_184 = t505;
+    // ../../src/builtins/typed-array.tq:282:4
     {
-      Label label_try_done_779_1597_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label_try_done_779_1597 = &label_try_done_779_1597_impl;
-      USE(label_try_done_779_1597);
-      Label label_CastError_256_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label_CastError_256 = &label_CastError_256_impl;
-      USE(label_CastError_256);
-      Label label_try_begin_780_1598_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-      Label* label_try_begin_780_1598 = &label_try_begin_780_1598_impl;
-      USE(label_try_begin_780_1598);
-      Goto(label_try_begin_780_1598);
-      if (label_try_begin_780_1598->is_used())
+      Label label_try_done_525_664_impl(this);
+      Label* label_try_done_525_664 = &label_try_done_525_664_impl;
+      USE(label_try_done_525_664);
+      Label label_CastError_159_impl(this);
+      Label* label_CastError_159 = &label_CastError_159_impl;
+      USE(label_CastError_159);
+      Label label_try_begin_526_665_impl(this);
+      Label* label_try_begin_526_665 = &label_try_begin_526_665_impl;
+      USE(label_try_begin_526_665);
+      Goto(label_try_begin_526_665);
+      if (label_try_begin_526_665->is_used())
       {
-        BIND(label_try_begin_780_1598);
-        // ../../src/builtins/typed-array.tq:285:9
+        BIND(label_try_begin_526_665);
+        // ../../src/builtins/typed-array.tq:282:8
         {
-          // ../../src/builtins/typed-array.tq:286:7
-          TNode<JSReceiver> t727 = UncheckedCast<JSReceiver>(Cast45UT17ATJSBoundFunction12ATJSFunction9ATJSProxy(implicit_cast<TNode<Object>>((*comparefnObj_775)), label_CastError_256));
-          USE(implicit_cast<TNode<JSReceiver>>(t727));
-          TNode<JSReceiver> comparefn_781_impl;
-          auto comparefn_781 = &comparefn_781_impl;
-          USE(comparefn_781);
-          *comparefn_781 = implicit_cast<TNode<JSReceiver>>(t727);
-          // ../../src/builtins/typed-array.tq:288:7
-          TVARIABLE(Code, loadfn_153_impl);
-          auto loadfn_153 = &loadfn_153_impl;
-          USE(loadfn_153);
-          // ../../src/builtins/typed-array.tq:289:7
-          TVARIABLE(Code, storefn_154_impl);
-          auto storefn_154 = &storefn_154_impl;
-          USE(storefn_154);
-          // ../../src/builtins/typed-array.tq:291:7
-          TNode<Int32T> t728 = UncheckedCast<Int32T>(LoadElementsKind(implicit_cast<TNode<JSTypedArray>>((*array_777))));
-          TVARIABLE(Int32T, elementsKind_155_impl);
-          auto elementsKind_155 = &elementsKind_155_impl;
-          USE(elementsKind_155);
-          *elementsKind_155 = implicit_cast<TNode<Int32T>>(t728);
-          // ../../src/builtins/typed-array.tq:293:7
+          // ../../src/builtins/typed-array.tq:283:6
+          TNode<JSReceiver> t506 = UncheckedCast<JSReceiver>(cast45UT17ATJSBoundFunction12ATJSFunction9ATJSProxy((*comparefn_obj_181).value(), label_CastError_159));
+          USE(t506);
+          TVARIABLE(JSReceiver, comparefn_185_impl);
+          auto comparefn_185 = &comparefn_185_impl;
+          USE(comparefn_185);
+          *comparefn_185 = t506;
+          // ../../src/builtins/typed-array.tq:285:6
+          TVARIABLE(Code, loadfn_186_impl);
+          auto loadfn_186 = &loadfn_186_impl;
+          USE(loadfn_186);
+          // ../../src/builtins/typed-array.tq:286:6
+          TVARIABLE(Code, storefn_187_impl);
+          auto storefn_187 = &storefn_187_impl;
+          USE(storefn_187);
+          // ../../src/builtins/typed-array.tq:288:6
+          TNode<Int32T> t507 = UncheckedCast<Int32T>(LoadElementsKind((*array_183).value()));
+          TVARIABLE(Int32T, elements_kind_188_impl);
+          auto elements_kind_188 = &elements_kind_188_impl;
+          USE(elements_kind_188);
+          *elements_kind_188 = t507;
+          // ../../src/builtins/typed-array.tq:290:6
           {
-            Label label__True_257_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label__True_257 = &label__True_257_impl;
-            USE(label__True_257);
-            Label label__False_258_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label__False_258 = &label__False_258_impl;
-            USE(label__False_258);
-            Label label_if_done_label_782_1599_impl(this, {loadfn_153, storefn_154}, compiler::CodeAssemblerLabel::kNonDeferred);
-            Label* label_if_done_label_782_1599 = &label_if_done_label_782_1599_impl;
-            USE(label_if_done_label_782_1599);
-            TNode<BoolT> t729 = UncheckedCast<BoolT>(IsElementsKindGreaterThan(implicit_cast<TNode<Int32T>>((*elementsKind_155).value()), implicit_cast<ElementsKind>(UINT32_ELEMENTS)));
-            USE(implicit_cast<TNode<BoolT>>(t729));
-            Branch(implicit_cast<TNode<BoolT>>(t729), label__True_257, label__False_258);
-            if (label__True_257->is_used())
+            Label label__True_160_impl(this);
+            Label* label__True_160 = &label__True_160_impl;
+            USE(label__True_160);
+            Label label__False_161_impl(this);
+            Label* label__False_161 = &label__False_161_impl;
+            USE(label__False_161);
+            Label label_if_done_label_527_666_impl(this, {loadfn_186, storefn_187});
+            Label* label_if_done_label_527_666 = &label_if_done_label_527_666_impl;
+            USE(label_if_done_label_527_666);
+            TNode<BoolT> t508 = UncheckedCast<BoolT>(IsElementsKindGreaterThan((*elements_kind_188).value(), UINT32_ELEMENTS));
+            USE(t508);
+            Branch(t508, label__True_160, label__False_161);
+            if (label__True_160->is_used())
             {
-              BIND(label__True_257);
-              // ../../src/builtins/typed-array.tq:293:69
+              BIND(label__True_160);
+              // ../../src/builtins/typed-array.tq:290:69
               {
-                // ../../src/builtins/typed-array.tq:294:9
+                // ../../src/builtins/typed-array.tq:291:8
                 {
-                  Label label__True_259_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                  Label* label__True_259 = &label__True_259_impl;
-                  USE(label__True_259);
-                  Label label__False_260_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                  Label* label__False_260 = &label__False_260_impl;
-                  USE(label__False_260);
-                  Label label_if_done_label_783_1600_impl(this, {loadfn_153, storefn_154}, compiler::CodeAssemblerLabel::kNonDeferred);
-                  Label* label_if_done_label_783_1600 = &label_if_done_label_783_1600_impl;
-                  USE(label_if_done_label_783_1600);
-                  TNode<Int32T> t730 = UncheckedCast<Int32T>(FromConstexpr14ATElementsKind(implicit_cast<ElementsKind>(INT32_ELEMENTS)));
-                  TNode<BoolT> t731 = UncheckedCast<BoolT>(ElementsKindEqual(implicit_cast<TNode<Int32T>>((*elementsKind_155).value()), implicit_cast<TNode<Int32T>>(t730)));
-                  USE(implicit_cast<TNode<BoolT>>(t731));
-                  Branch(implicit_cast<TNode<BoolT>>(t731), label__True_259, label__False_260);
-                  if (label__True_259->is_used())
+                  Label label__True_162_impl(this);
+                  Label* label__True_162 = &label__True_162_impl;
+                  USE(label__True_162);
+                  Label label__False_163_impl(this);
+                  Label* label__False_163 = &label__False_163_impl;
+                  USE(label__False_163);
+                  Label label_if_done_label_528_667_impl(this, {loadfn_186, storefn_187});
+                  Label* label_if_done_label_528_667 = &label_if_done_label_528_667_impl;
+                  USE(label_if_done_label_528_667);
+                  TNode<Int32T> t509 = UncheckedCast<Int32T>(from_constexpr14ATElementsKind(INT32_ELEMENTS));
+                  TNode<BoolT> t510 = UncheckedCast<BoolT>(ElementsKindEqual((*elements_kind_188).value(), t509));
+                  USE(t510);
+                  Branch(t510, label__True_162, label__False_163);
+                  if (label__True_162->is_used())
                   {
-                    BIND(label__True_259);
-                    // ../../src/builtins/typed-array.tq:294:45
+                    BIND(label__True_162);
+                    // ../../src/builtins/typed-array.tq:291:45
                     {
-                      // ../../src/builtins/typed-array.tq:295:11
-                      *loadfn_153 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).code()));
-                      // ../../src/builtins/typed-array.tq:296:11
-                      *storefn_154 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).code()));
+                      // ../../src/builtins/typed-array.tq:292:10
+                      *loadfn_186 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt32Array).code());
+                      // ../../src/builtins/typed-array.tq:293:10
+                      *storefn_187 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt32Array).code());
                     }
-                    Goto(label_if_done_label_783_1600);
+                    Goto(label_if_done_label_528_667);
                   }
-                  if (label__False_260->is_used())
+                  if (label__False_163->is_used())
                   {
-                    BIND(label__False_260);
-                    // ../../src/builtins/typed-array.tq:297:16
+                    BIND(label__False_163);
+                    // ../../src/builtins/typed-array.tq:294:15
                     {
-                      Label label__True_261_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                      Label* label__True_261 = &label__True_261_impl;
-                      USE(label__True_261);
-                      Label label__False_262_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                      Label* label__False_262 = &label__False_262_impl;
-                      USE(label__False_262);
-                      Label label_if_done_label_784_1601_impl(this, {loadfn_153, storefn_154}, compiler::CodeAssemblerLabel::kNonDeferred);
-                      Label* label_if_done_label_784_1601 = &label_if_done_label_784_1601_impl;
-                      USE(label_if_done_label_784_1601);
-                      TNode<Int32T> t732 = UncheckedCast<Int32T>(FromConstexpr14ATElementsKind(implicit_cast<ElementsKind>(FLOAT32_ELEMENTS)));
-                      TNode<BoolT> t733 = UncheckedCast<BoolT>(ElementsKindEqual(implicit_cast<TNode<Int32T>>((*elementsKind_155).value()), implicit_cast<TNode<Int32T>>(t732)));
-                      USE(implicit_cast<TNode<BoolT>>(t733));
-                      Branch(implicit_cast<TNode<BoolT>>(t733), label__True_261, label__False_262);
-                      if (label__True_261->is_used())
+                      Label label__True_164_impl(this);
+                      Label* label__True_164 = &label__True_164_impl;
+                      USE(label__True_164);
+                      Label label__False_165_impl(this);
+                      Label* label__False_165 = &label__False_165_impl;
+                      USE(label__False_165);
+                      Label label_if_done_label_529_668_impl(this, {loadfn_186, storefn_187});
+                      Label* label_if_done_label_529_668 = &label_if_done_label_529_668_impl;
+                      USE(label_if_done_label_529_668);
+                      TNode<Int32T> t511 = UncheckedCast<Int32T>(from_constexpr14ATElementsKind(FLOAT32_ELEMENTS));
+                      TNode<BoolT> t512 = UncheckedCast<BoolT>(ElementsKindEqual((*elements_kind_188).value(), t511));
+                      USE(t512);
+                      Branch(t512, label__True_164, label__False_165);
+                      if (label__True_164->is_used())
                       {
-                        BIND(label__True_261);
-                        // ../../src/builtins/typed-array.tq:297:54
+                        BIND(label__True_164);
+                        // ../../src/builtins/typed-array.tq:294:54
                         {
-                          // ../../src/builtins/typed-array.tq:298:11
-                          *loadfn_153 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement19ATFixedFloat32Array).code()));
-                          // ../../src/builtins/typed-array.tq:299:11
-                          *storefn_154 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement19ATFixedFloat32Array).code()));
+                          // ../../src/builtins/typed-array.tq:295:10
+                          *loadfn_186 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement19ATFixedFloat32Array).code());
+                          // ../../src/builtins/typed-array.tq:296:10
+                          *storefn_187 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement19ATFixedFloat32Array).code());
                         }
-                        Goto(label_if_done_label_784_1601);
+                        Goto(label_if_done_label_529_668);
                       }
-                      if (label__False_262->is_used())
+                      if (label__False_165->is_used())
                       {
-                        BIND(label__False_262);
-                        // ../../src/builtins/typed-array.tq:300:16
+                        BIND(label__False_165);
+                        // ../../src/builtins/typed-array.tq:297:15
                         {
-                          Label label__True_263_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                          Label* label__True_263 = &label__True_263_impl;
-                          USE(label__True_263);
-                          Label label__False_264_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                          Label* label__False_264 = &label__False_264_impl;
-                          USE(label__False_264);
-                          Label label_if_done_label_785_1602_impl(this, {loadfn_153, storefn_154}, compiler::CodeAssemblerLabel::kNonDeferred);
-                          Label* label_if_done_label_785_1602 = &label_if_done_label_785_1602_impl;
-                          USE(label_if_done_label_785_1602);
-                          TNode<Int32T> t734 = UncheckedCast<Int32T>(FromConstexpr14ATElementsKind(implicit_cast<ElementsKind>(FLOAT64_ELEMENTS)));
-                          TNode<BoolT> t735 = UncheckedCast<BoolT>(ElementsKindEqual(implicit_cast<TNode<Int32T>>((*elementsKind_155).value()), implicit_cast<TNode<Int32T>>(t734)));
-                          USE(implicit_cast<TNode<BoolT>>(t735));
-                          Branch(implicit_cast<TNode<BoolT>>(t735), label__True_263, label__False_264);
-                          if (label__True_263->is_used())
+                          Label label__True_166_impl(this);
+                          Label* label__True_166 = &label__True_166_impl;
+                          USE(label__True_166);
+                          Label label__False_167_impl(this);
+                          Label* label__False_167 = &label__False_167_impl;
+                          USE(label__False_167);
+                          Label label_if_done_label_530_669_impl(this, {loadfn_186, storefn_187});
+                          Label* label_if_done_label_530_669 = &label_if_done_label_530_669_impl;
+                          USE(label_if_done_label_530_669);
+                          TNode<Int32T> t513 = UncheckedCast<Int32T>(from_constexpr14ATElementsKind(FLOAT64_ELEMENTS));
+                          TNode<BoolT> t514 = UncheckedCast<BoolT>(ElementsKindEqual((*elements_kind_188).value(), t513));
+                          USE(t514);
+                          Branch(t514, label__True_166, label__False_167);
+                          if (label__True_166->is_used())
                           {
-                            BIND(label__True_263);
-                            // ../../src/builtins/typed-array.tq:300:54
+                            BIND(label__True_166);
+                            // ../../src/builtins/typed-array.tq:297:54
                             {
-                              // ../../src/builtins/typed-array.tq:301:11
-                              *loadfn_153 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement19ATFixedFloat64Array).code()));
-                              // ../../src/builtins/typed-array.tq:302:11
-                              *storefn_154 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement19ATFixedFloat64Array).code()));
+                              // ../../src/builtins/typed-array.tq:298:10
+                              *loadfn_186 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement19ATFixedFloat64Array).code());
+                              // ../../src/builtins/typed-array.tq:299:10
+                              *storefn_187 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement19ATFixedFloat64Array).code());
                             }
-                            Goto(label_if_done_label_785_1602);
+                            Goto(label_if_done_label_530_669);
                           }
-                          if (label__False_264->is_used())
+                          if (label__False_167->is_used())
                           {
-                            BIND(label__False_264);
-                            // ../../src/builtins/typed-array.tq:303:16
+                            BIND(label__False_167);
+                            // ../../src/builtins/typed-array.tq:300:15
                             {
-                              Label label__True_265_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                              Label* label__True_265 = &label__True_265_impl;
-                              USE(label__True_265);
-                              Label label__False_266_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                              Label* label__False_266 = &label__False_266_impl;
-                              USE(label__False_266);
-                              Label label_if_done_label_786_1603_impl(this, {loadfn_153, storefn_154}, compiler::CodeAssemblerLabel::kNonDeferred);
-                              Label* label_if_done_label_786_1603 = &label_if_done_label_786_1603_impl;
-                              USE(label_if_done_label_786_1603);
-                              TNode<Int32T> t736 = UncheckedCast<Int32T>(FromConstexpr14ATElementsKind(implicit_cast<ElementsKind>(UINT8_CLAMPED_ELEMENTS)));
-                              TNode<BoolT> t737 = UncheckedCast<BoolT>(ElementsKindEqual(implicit_cast<TNode<Int32T>>((*elementsKind_155).value()), implicit_cast<TNode<Int32T>>(t736)));
-                              USE(implicit_cast<TNode<BoolT>>(t737));
-                              Branch(implicit_cast<TNode<BoolT>>(t737), label__True_265, label__False_266);
-                              if (label__True_265->is_used())
+                              Label label__True_168_impl(this);
+                              Label* label__True_168 = &label__True_168_impl;
+                              USE(label__True_168);
+                              Label label__False_169_impl(this);
+                              Label* label__False_169 = &label__False_169_impl;
+                              USE(label__False_169);
+                              Label label_if_done_label_531_670_impl(this, {loadfn_186, storefn_187});
+                              Label* label_if_done_label_531_670 = &label_if_done_label_531_670_impl;
+                              USE(label_if_done_label_531_670);
+                              TNode<Int32T> t515 = UncheckedCast<Int32T>(from_constexpr14ATElementsKind(UINT8_CLAMPED_ELEMENTS));
+                              TNode<BoolT> t516 = UncheckedCast<BoolT>(ElementsKindEqual((*elements_kind_188).value(), t515));
+                              USE(t516);
+                              Branch(t516, label__True_168, label__False_169);
+                              if (label__True_168->is_used())
                               {
-                                BIND(label__True_265);
-                                // ../../src/builtins/typed-array.tq:303:60
+                                BIND(label__True_168);
+                                // ../../src/builtins/typed-array.tq:300:60
                                 {
-                                  // ../../src/builtins/typed-array.tq:304:11
-                                  *loadfn_153 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement24ATFixedUint8ClampedArray).code()));
-                                  // ../../src/builtins/typed-array.tq:305:11
-                                  *storefn_154 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement24ATFixedUint8ClampedArray).code()));
+                                  // ../../src/builtins/typed-array.tq:301:10
+                                  *loadfn_186 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement24ATFixedUint8ClampedArray).code());
+                                  // ../../src/builtins/typed-array.tq:302:10
+                                  *storefn_187 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement24ATFixedUint8ClampedArray).code());
                                 }
-                                Goto(label_if_done_label_786_1603);
+                                Goto(label_if_done_label_531_670);
                               }
-                              if (label__False_266->is_used())
+                              if (label__False_169->is_used())
                               {
-                                BIND(label__False_266);
-                                // ../../src/builtins/typed-array.tq:306:16
+                                BIND(label__False_169);
+                                // ../../src/builtins/typed-array.tq:303:15
                                 {
-                                  Label label__True_267_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                                  Label* label__True_267 = &label__True_267_impl;
-                                  USE(label__True_267);
-                                  Label label__False_268_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                                  Label* label__False_268 = &label__False_268_impl;
-                                  USE(label__False_268);
-                                  Label label_if_done_label_787_1604_impl(this, {loadfn_153, storefn_154}, compiler::CodeAssemblerLabel::kNonDeferred);
-                                  Label* label_if_done_label_787_1604 = &label_if_done_label_787_1604_impl;
-                                  USE(label_if_done_label_787_1604);
-                                  TNode<Int32T> t738 = UncheckedCast<Int32T>(FromConstexpr14ATElementsKind(implicit_cast<ElementsKind>(BIGUINT64_ELEMENTS)));
-                                  TNode<BoolT> t739 = UncheckedCast<BoolT>(ElementsKindEqual(implicit_cast<TNode<Int32T>>((*elementsKind_155).value()), implicit_cast<TNode<Int32T>>(t738)));
-                                  USE(implicit_cast<TNode<BoolT>>(t739));
-                                  Branch(implicit_cast<TNode<BoolT>>(t739), label__True_267, label__False_268);
-                                  if (label__True_267->is_used())
+                                  Label label__True_170_impl(this);
+                                  Label* label__True_170 = &label__True_170_impl;
+                                  USE(label__True_170);
+                                  Label label__False_171_impl(this);
+                                  Label* label__False_171 = &label__False_171_impl;
+                                  USE(label__False_171);
+                                  Label label_if_done_label_532_671_impl(this, {loadfn_186, storefn_187});
+                                  Label* label_if_done_label_532_671 = &label_if_done_label_532_671_impl;
+                                  USE(label_if_done_label_532_671);
+                                  TNode<Int32T> t517 = UncheckedCast<Int32T>(from_constexpr14ATElementsKind(BIGUINT64_ELEMENTS));
+                                  TNode<BoolT> t518 = UncheckedCast<BoolT>(ElementsKindEqual((*elements_kind_188).value(), t517));
+                                  USE(t518);
+                                  Branch(t518, label__True_170, label__False_171);
+                                  if (label__True_170->is_used())
                                   {
-                                    BIND(label__True_267);
-                                    // ../../src/builtins/typed-array.tq:306:56
+                                    BIND(label__True_170);
+                                    // ../../src/builtins/typed-array.tq:303:56
                                     {
-                                      // ../../src/builtins/typed-array.tq:307:11
-                                      *loadfn_153 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement21ATFixedBigUint64Array).code()));
-                                      // ../../src/builtins/typed-array.tq:308:11
-                                      *storefn_154 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement21ATFixedBigUint64Array).code()));
+                                      // ../../src/builtins/typed-array.tq:304:10
+                                      *loadfn_186 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement21ATFixedBigUint64Array).code());
+                                      // ../../src/builtins/typed-array.tq:305:10
+                                      *storefn_187 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement21ATFixedBigUint64Array).code());
                                     }
-                                    Goto(label_if_done_label_787_1604);
+                                    Goto(label_if_done_label_532_671);
                                   }
-                                  if (label__False_268->is_used())
+                                  if (label__False_171->is_used())
                                   {
-                                    BIND(label__False_268);
-                                    // ../../src/builtins/typed-array.tq:309:16
+                                    BIND(label__False_171);
+                                    // ../../src/builtins/typed-array.tq:306:15
                                     {
-                                      Label label__True_269_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                                      Label* label__True_269 = &label__True_269_impl;
-                                      USE(label__True_269);
-                                      Label label__False_270_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                                      Label* label__False_270 = &label__False_270_impl;
-                                      USE(label__False_270);
-                                      Label label_if_done_label_788_1605_impl(this, {loadfn_153, storefn_154}, compiler::CodeAssemblerLabel::kNonDeferred);
-                                      Label* label_if_done_label_788_1605 = &label_if_done_label_788_1605_impl;
-                                      USE(label_if_done_label_788_1605);
-                                      TNode<Int32T> t740 = UncheckedCast<Int32T>(FromConstexpr14ATElementsKind(implicit_cast<ElementsKind>(BIGINT64_ELEMENTS)));
-                                      TNode<BoolT> t741 = UncheckedCast<BoolT>(ElementsKindEqual(implicit_cast<TNode<Int32T>>((*elementsKind_155).value()), implicit_cast<TNode<Int32T>>(t740)));
-                                      USE(implicit_cast<TNode<BoolT>>(t741));
-                                      Branch(implicit_cast<TNode<BoolT>>(t741), label__True_269, label__False_270);
-                                      if (label__True_269->is_used())
+                                      Label label__True_172_impl(this);
+                                      Label* label__True_172 = &label__True_172_impl;
+                                      USE(label__True_172);
+                                      Label label__False_173_impl(this);
+                                      Label* label__False_173 = &label__False_173_impl;
+                                      USE(label__False_173);
+                                      Label label_if_done_label_533_672_impl(this, {loadfn_186, storefn_187});
+                                      Label* label_if_done_label_533_672 = &label_if_done_label_533_672_impl;
+                                      USE(label_if_done_label_533_672);
+                                      TNode<Int32T> t519 = UncheckedCast<Int32T>(from_constexpr14ATElementsKind(BIGINT64_ELEMENTS));
+                                      TNode<BoolT> t520 = UncheckedCast<BoolT>(ElementsKindEqual((*elements_kind_188).value(), t519));
+                                      USE(t520);
+                                      Branch(t520, label__True_172, label__False_173);
+                                      if (label__True_172->is_used())
                                       {
-                                        BIND(label__True_269);
-                                        // ../../src/builtins/typed-array.tq:309:55
+                                        BIND(label__True_172);
+                                        // ../../src/builtins/typed-array.tq:306:55
                                         {
-                                          // ../../src/builtins/typed-array.tq:310:11
-                                          *loadfn_153 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement20ATFixedBigInt64Array).code()));
-                                          // ../../src/builtins/typed-array.tq:311:11
-                                          *storefn_154 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement20ATFixedBigInt64Array).code()));
+                                          // ../../src/builtins/typed-array.tq:307:10
+                                          *loadfn_186 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement20ATFixedBigInt64Array).code());
+                                          // ../../src/builtins/typed-array.tq:308:10
+                                          *storefn_187 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement20ATFixedBigInt64Array).code());
                                         }
-                                        Goto(label_if_done_label_788_1605);
+                                        Goto(label_if_done_label_533_672);
                                       }
-                                      if (label__False_270->is_used())
+                                      if (label__False_173->is_used())
                                       {
-                                        BIND(label__False_270);
-                                        // ../../src/builtins/typed-array.tq:312:16
+                                        BIND(label__False_173);
+                                        // ../../src/builtins/typed-array.tq:309:15
                                         {
-                                          // ../../src/builtins/typed-array.tq:313:11
-                                          Print("halting because of 'unreachable' at ../../src/builtins/typed-array.tq:313:11");
+                                          // ../../src/builtins/typed-array.tq:310:10
                                           Unreachable();
                                         }
                                       }
-                                      BIND(label_if_done_label_788_1605);
+                                      BIND(label_if_done_label_533_672);
                                     }
-                                    Goto(label_if_done_label_787_1604);
+                                    Goto(label_if_done_label_532_671);
                                   }
-                                  BIND(label_if_done_label_787_1604);
+                                  BIND(label_if_done_label_532_671);
                                 }
-                                Goto(label_if_done_label_786_1603);
+                                Goto(label_if_done_label_531_670);
                               }
-                              BIND(label_if_done_label_786_1603);
+                              BIND(label_if_done_label_531_670);
                             }
-                            Goto(label_if_done_label_785_1602);
+                            Goto(label_if_done_label_530_669);
                           }
-                          BIND(label_if_done_label_785_1602);
+                          BIND(label_if_done_label_530_669);
                         }
-                        Goto(label_if_done_label_784_1601);
+                        Goto(label_if_done_label_529_668);
                       }
-                      BIND(label_if_done_label_784_1601);
+                      BIND(label_if_done_label_529_668);
                     }
-                    Goto(label_if_done_label_783_1600);
+                    Goto(label_if_done_label_528_667);
                   }
-                  BIND(label_if_done_label_783_1600);
+                  BIND(label_if_done_label_528_667);
                 }
               }
-              Goto(label_if_done_label_782_1599);
+              Goto(label_if_done_label_527_666);
             }
-            if (label__False_258->is_used())
+            if (label__False_161->is_used())
             {
-              BIND(label__False_258);
-              // ../../src/builtins/typed-array.tq:315:14
+              BIND(label__False_161);
+              // ../../src/builtins/typed-array.tq:312:13
               {
-                // ../../src/builtins/typed-array.tq:316:9
+                // ../../src/builtins/typed-array.tq:313:8
                 {
-                  Label label__True_271_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                  Label* label__True_271 = &label__True_271_impl;
-                  USE(label__True_271);
-                  Label label__False_272_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                  Label* label__False_272 = &label__False_272_impl;
-                  USE(label__False_272);
-                  Label label_if_done_label_789_1606_impl(this, {loadfn_153, storefn_154}, compiler::CodeAssemblerLabel::kNonDeferred);
-                  Label* label_if_done_label_789_1606 = &label_if_done_label_789_1606_impl;
-                  USE(label_if_done_label_789_1606);
-                  TNode<Int32T> t742 = UncheckedCast<Int32T>(FromConstexpr14ATElementsKind(implicit_cast<ElementsKind>(UINT8_ELEMENTS)));
-                  TNode<BoolT> t743 = UncheckedCast<BoolT>(ElementsKindEqual(implicit_cast<TNode<Int32T>>((*elementsKind_155).value()), implicit_cast<TNode<Int32T>>(t742)));
-                  USE(implicit_cast<TNode<BoolT>>(t743));
-                  Branch(implicit_cast<TNode<BoolT>>(t743), label__True_271, label__False_272);
-                  if (label__True_271->is_used())
+                  Label label__True_174_impl(this);
+                  Label* label__True_174 = &label__True_174_impl;
+                  USE(label__True_174);
+                  Label label__False_175_impl(this);
+                  Label* label__False_175 = &label__False_175_impl;
+                  USE(label__False_175);
+                  Label label_if_done_label_534_673_impl(this, {loadfn_186, storefn_187});
+                  Label* label_if_done_label_534_673 = &label_if_done_label_534_673_impl;
+                  USE(label_if_done_label_534_673);
+                  TNode<Int32T> t521 = UncheckedCast<Int32T>(from_constexpr14ATElementsKind(UINT8_ELEMENTS));
+                  TNode<BoolT> t522 = UncheckedCast<BoolT>(ElementsKindEqual((*elements_kind_188).value(), t521));
+                  USE(t522);
+                  Branch(t522, label__True_174, label__False_175);
+                  if (label__True_174->is_used())
                   {
-                    BIND(label__True_271);
-                    // ../../src/builtins/typed-array.tq:316:45
+                    BIND(label__True_174);
+                    // ../../src/builtins/typed-array.tq:313:45
                     {
-                      // ../../src/builtins/typed-array.tq:317:11
-                      *loadfn_153 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedUint8Array).code()));
-                      // ../../src/builtins/typed-array.tq:318:11
-                      *storefn_154 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedUint8Array).code()));
+                      // ../../src/builtins/typed-array.tq:314:10
+                      *loadfn_186 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedUint8Array).code());
+                      // ../../src/builtins/typed-array.tq:315:10
+                      *storefn_187 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedUint8Array).code());
                     }
-                    Goto(label_if_done_label_789_1606);
+                    Goto(label_if_done_label_534_673);
                   }
-                  if (label__False_272->is_used())
+                  if (label__False_175->is_used())
                   {
-                    BIND(label__False_272);
-                    // ../../src/builtins/typed-array.tq:319:16
+                    BIND(label__False_175);
+                    // ../../src/builtins/typed-array.tq:316:15
                     {
-                      Label label__True_273_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                      Label* label__True_273 = &label__True_273_impl;
-                      USE(label__True_273);
-                      Label label__False_274_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                      Label* label__False_274 = &label__False_274_impl;
-                      USE(label__False_274);
-                      Label label_if_done_label_790_1607_impl(this, {loadfn_153, storefn_154}, compiler::CodeAssemblerLabel::kNonDeferred);
-                      Label* label_if_done_label_790_1607 = &label_if_done_label_790_1607_impl;
-                      USE(label_if_done_label_790_1607);
-                      TNode<Int32T> t744 = UncheckedCast<Int32T>(FromConstexpr14ATElementsKind(implicit_cast<ElementsKind>(INT8_ELEMENTS)));
-                      TNode<BoolT> t745 = UncheckedCast<BoolT>(ElementsKindEqual(implicit_cast<TNode<Int32T>>((*elementsKind_155).value()), implicit_cast<TNode<Int32T>>(t744)));
-                      USE(implicit_cast<TNode<BoolT>>(t745));
-                      Branch(implicit_cast<TNode<BoolT>>(t745), label__True_273, label__False_274);
-                      if (label__True_273->is_used())
+                      Label label__True_176_impl(this);
+                      Label* label__True_176 = &label__True_176_impl;
+                      USE(label__True_176);
+                      Label label__False_177_impl(this);
+                      Label* label__False_177 = &label__False_177_impl;
+                      USE(label__False_177);
+                      Label label_if_done_label_535_674_impl(this, {loadfn_186, storefn_187});
+                      Label* label_if_done_label_535_674 = &label_if_done_label_535_674_impl;
+                      USE(label_if_done_label_535_674);
+                      TNode<Int32T> t523 = UncheckedCast<Int32T>(from_constexpr14ATElementsKind(INT8_ELEMENTS));
+                      TNode<BoolT> t524 = UncheckedCast<BoolT>(ElementsKindEqual((*elements_kind_188).value(), t523));
+                      USE(t524);
+                      Branch(t524, label__True_176, label__False_177);
+                      if (label__True_176->is_used())
                       {
-                        BIND(label__True_273);
-                        // ../../src/builtins/typed-array.tq:319:51
+                        BIND(label__True_176);
+                        // ../../src/builtins/typed-array.tq:316:51
                         {
-                          // ../../src/builtins/typed-array.tq:320:11
-                          *loadfn_153 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement16ATFixedInt8Array).code()));
-                          // ../../src/builtins/typed-array.tq:321:11
-                          *storefn_154 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement16ATFixedInt8Array).code()));
+                          // ../../src/builtins/typed-array.tq:317:10
+                          *loadfn_186 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement16ATFixedInt8Array).code());
+                          // ../../src/builtins/typed-array.tq:318:10
+                          *storefn_187 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement16ATFixedInt8Array).code());
                         }
-                        Goto(label_if_done_label_790_1607);
+                        Goto(label_if_done_label_535_674);
                       }
-                      if (label__False_274->is_used())
+                      if (label__False_177->is_used())
                       {
-                        BIND(label__False_274);
-                        // ../../src/builtins/typed-array.tq:322:16
+                        BIND(label__False_177);
+                        // ../../src/builtins/typed-array.tq:319:15
                         {
-                          Label label__True_275_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                          Label* label__True_275 = &label__True_275_impl;
-                          USE(label__True_275);
-                          Label label__False_276_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                          Label* label__False_276 = &label__False_276_impl;
-                          USE(label__False_276);
-                          Label label_if_done_label_791_1608_impl(this, {loadfn_153, storefn_154}, compiler::CodeAssemblerLabel::kNonDeferred);
-                          Label* label_if_done_label_791_1608 = &label_if_done_label_791_1608_impl;
-                          USE(label_if_done_label_791_1608);
-                          TNode<Int32T> t746 = UncheckedCast<Int32T>(FromConstexpr14ATElementsKind(implicit_cast<ElementsKind>(UINT16_ELEMENTS)));
-                          TNode<BoolT> t747 = UncheckedCast<BoolT>(ElementsKindEqual(implicit_cast<TNode<Int32T>>((*elementsKind_155).value()), implicit_cast<TNode<Int32T>>(t746)));
-                          USE(implicit_cast<TNode<BoolT>>(t747));
-                          Branch(implicit_cast<TNode<BoolT>>(t747), label__True_275, label__False_276);
-                          if (label__True_275->is_used())
+                          Label label__True_178_impl(this);
+                          Label* label__True_178 = &label__True_178_impl;
+                          USE(label__True_178);
+                          Label label__False_179_impl(this);
+                          Label* label__False_179 = &label__False_179_impl;
+                          USE(label__False_179);
+                          Label label_if_done_label_536_675_impl(this, {loadfn_186, storefn_187});
+                          Label* label_if_done_label_536_675 = &label_if_done_label_536_675_impl;
+                          USE(label_if_done_label_536_675);
+                          TNode<Int32T> t525 = UncheckedCast<Int32T>(from_constexpr14ATElementsKind(UINT16_ELEMENTS));
+                          TNode<BoolT> t526 = UncheckedCast<BoolT>(ElementsKindEqual((*elements_kind_188).value(), t525));
+                          USE(t526);
+                          Branch(t526, label__True_178, label__False_179);
+                          if (label__True_178->is_used())
                           {
-                            BIND(label__True_275);
-                            // ../../src/builtins/typed-array.tq:322:53
+                            BIND(label__True_178);
+                            // ../../src/builtins/typed-array.tq:319:53
                             {
-                              // ../../src/builtins/typed-array.tq:323:11
-                              *loadfn_153 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement18ATFixedUint16Array).code()));
-                              // ../../src/builtins/typed-array.tq:324:11
-                              *storefn_154 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement18ATFixedUint16Array).code()));
+                              // ../../src/builtins/typed-array.tq:320:10
+                              *loadfn_186 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement18ATFixedUint16Array).code());
+                              // ../../src/builtins/typed-array.tq:321:10
+                              *storefn_187 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement18ATFixedUint16Array).code());
                             }
-                            Goto(label_if_done_label_791_1608);
+                            Goto(label_if_done_label_536_675);
                           }
-                          if (label__False_276->is_used())
+                          if (label__False_179->is_used())
                           {
-                            BIND(label__False_276);
-                            // ../../src/builtins/typed-array.tq:325:16
+                            BIND(label__False_179);
+                            // ../../src/builtins/typed-array.tq:322:15
                             {
-                              Label label__True_277_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                              Label* label__True_277 = &label__True_277_impl;
-                              USE(label__True_277);
-                              Label label__False_278_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                              Label* label__False_278 = &label__False_278_impl;
-                              USE(label__False_278);
-                              Label label_if_done_label_792_1609_impl(this, {loadfn_153, storefn_154}, compiler::CodeAssemblerLabel::kNonDeferred);
-                              Label* label_if_done_label_792_1609 = &label_if_done_label_792_1609_impl;
-                              USE(label_if_done_label_792_1609);
-                              TNode<Int32T> t748 = UncheckedCast<Int32T>(FromConstexpr14ATElementsKind(implicit_cast<ElementsKind>(INT16_ELEMENTS)));
-                              TNode<BoolT> t749 = UncheckedCast<BoolT>(ElementsKindEqual(implicit_cast<TNode<Int32T>>((*elementsKind_155).value()), implicit_cast<TNode<Int32T>>(t748)));
-                              USE(implicit_cast<TNode<BoolT>>(t749));
-                              Branch(implicit_cast<TNode<BoolT>>(t749), label__True_277, label__False_278);
-                              if (label__True_277->is_used())
+                              Label label__True_180_impl(this);
+                              Label* label__True_180 = &label__True_180_impl;
+                              USE(label__True_180);
+                              Label label__False_181_impl(this);
+                              Label* label__False_181 = &label__False_181_impl;
+                              USE(label__False_181);
+                              Label label_if_done_label_537_676_impl(this, {loadfn_186, storefn_187});
+                              Label* label_if_done_label_537_676 = &label_if_done_label_537_676_impl;
+                              USE(label_if_done_label_537_676);
+                              TNode<Int32T> t527 = UncheckedCast<Int32T>(from_constexpr14ATElementsKind(INT16_ELEMENTS));
+                              TNode<BoolT> t528 = UncheckedCast<BoolT>(ElementsKindEqual((*elements_kind_188).value(), t527));
+                              USE(t528);
+                              Branch(t528, label__True_180, label__False_181);
+                              if (label__True_180->is_used())
                               {
-                                BIND(label__True_277);
-                                // ../../src/builtins/typed-array.tq:325:52
+                                BIND(label__True_180);
+                                // ../../src/builtins/typed-array.tq:322:52
                                 {
-                                  // ../../src/builtins/typed-array.tq:326:11
-                                  *loadfn_153 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt16Array).code()));
-                                  // ../../src/builtins/typed-array.tq:327:11
-                                  *storefn_154 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt16Array).code()));
+                                  // ../../src/builtins/typed-array.tq:323:10
+                                  *loadfn_186 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement17ATFixedInt16Array).code());
+                                  // ../../src/builtins/typed-array.tq:324:10
+                                  *storefn_187 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement17ATFixedInt16Array).code());
                                 }
-                                Goto(label_if_done_label_792_1609);
+                                Goto(label_if_done_label_537_676);
                               }
-                              if (label__False_278->is_used())
+                              if (label__False_181->is_used())
                               {
-                                BIND(label__False_278);
-                                // ../../src/builtins/typed-array.tq:328:16
+                                BIND(label__False_181);
+                                // ../../src/builtins/typed-array.tq:325:15
                                 {
-                                  Label label__True_279_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                                  Label* label__True_279 = &label__True_279_impl;
-                                  USE(label__True_279);
-                                  Label label__False_280_impl(this, compiler::CodeAssemblerLabel::kNonDeferred);
-                                  Label* label__False_280 = &label__False_280_impl;
-                                  USE(label__False_280);
-                                  Label label_if_done_label_793_1610_impl(this, {loadfn_153, storefn_154}, compiler::CodeAssemblerLabel::kNonDeferred);
-                                  Label* label_if_done_label_793_1610 = &label_if_done_label_793_1610_impl;
-                                  USE(label_if_done_label_793_1610);
-                                  TNode<Int32T> t750 = UncheckedCast<Int32T>(FromConstexpr14ATElementsKind(implicit_cast<ElementsKind>(UINT32_ELEMENTS)));
-                                  TNode<BoolT> t751 = UncheckedCast<BoolT>(ElementsKindEqual(implicit_cast<TNode<Int32T>>((*elementsKind_155).value()), implicit_cast<TNode<Int32T>>(t750)));
-                                  USE(implicit_cast<TNode<BoolT>>(t751));
-                                  Branch(implicit_cast<TNode<BoolT>>(t751), label__True_279, label__False_280);
-                                  if (label__True_279->is_used())
+                                  Label label__True_182_impl(this);
+                                  Label* label__True_182 = &label__True_182_impl;
+                                  USE(label__True_182);
+                                  Label label__False_183_impl(this);
+                                  Label* label__False_183 = &label__False_183_impl;
+                                  USE(label__False_183);
+                                  Label label_if_done_label_538_677_impl(this, {loadfn_186, storefn_187});
+                                  Label* label_if_done_label_538_677 = &label_if_done_label_538_677_impl;
+                                  USE(label_if_done_label_538_677);
+                                  TNode<Int32T> t529 = UncheckedCast<Int32T>(from_constexpr14ATElementsKind(UINT32_ELEMENTS));
+                                  TNode<BoolT> t530 = UncheckedCast<BoolT>(ElementsKindEqual((*elements_kind_188).value(), t529));
+                                  USE(t530);
+                                  Branch(t530, label__True_182, label__False_183);
+                                  if (label__True_182->is_used())
                                   {
-                                    BIND(label__True_279);
-                                    // ../../src/builtins/typed-array.tq:328:53
+                                    BIND(label__True_182);
+                                    // ../../src/builtins/typed-array.tq:325:53
                                     {
-                                      // ../../src/builtins/typed-array.tq:329:11
-                                      *loadfn_153 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement18ATFixedUint32Array).code()));
-                                      // ../../src/builtins/typed-array.tq:330:11
-                                      *storefn_154 = implicit_cast<TNode<Code>>(HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement18ATFixedUint32Array).code()));
+                                      // ../../src/builtins/typed-array.tq:326:10
+                                      *loadfn_186 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kLoadFixedElement18ATFixedUint32Array).code());
+                                      // ../../src/builtins/typed-array.tq:327:10
+                                      *storefn_187 = HeapConstant(Builtins::CallableFor(isolate(), Builtins::kStoreFixedElement18ATFixedUint32Array).code());
                                     }
-                                    Goto(label_if_done_label_793_1610);
+                                    Goto(label_if_done_label_538_677);
                                   }
-                                  if (label__False_280->is_used())
+                                  if (label__False_183->is_used())
                                   {
-                                    BIND(label__False_280);
-                                    // ../../src/builtins/typed-array.tq:331:16
+                                    BIND(label__False_183);
+                                    // ../../src/builtins/typed-array.tq:328:15
                                     {
-                                      // ../../src/builtins/typed-array.tq:332:11
-                                      Print("halting because of 'unreachable' at ../../src/builtins/typed-array.tq:332:11");
+                                      // ../../src/builtins/typed-array.tq:329:10
                                       Unreachable();
                                     }
                                   }
-                                  BIND(label_if_done_label_793_1610);
+                                  BIND(label_if_done_label_538_677);
                                 }
-                                Goto(label_if_done_label_792_1609);
+                                Goto(label_if_done_label_537_676);
                               }
-                              BIND(label_if_done_label_792_1609);
+                              BIND(label_if_done_label_537_676);
                             }
-                            Goto(label_if_done_label_791_1608);
+                            Goto(label_if_done_label_536_675);
                           }
-                          BIND(label_if_done_label_791_1608);
+                          BIND(label_if_done_label_536_675);
                         }
-                        Goto(label_if_done_label_790_1607);
+                        Goto(label_if_done_label_535_674);
                       }
-                      BIND(label_if_done_label_790_1607);
+                      BIND(label_if_done_label_535_674);
                     }
-                    Goto(label_if_done_label_789_1606);
+                    Goto(label_if_done_label_534_673);
                   }
-                  BIND(label_if_done_label_789_1606);
+                  BIND(label_if_done_label_534_673);
                 }
               }
-              Goto(label_if_done_label_782_1599);
+              Goto(label_if_done_label_527_666);
             }
-            BIND(label_if_done_label_782_1599);
+            BIND(label_if_done_label_527_666);
           }
-          // ../../src/builtins/typed-array.tq:336:7
-          int31_t t752 = 0;
-          TNode<Smi> t753 = UncheckedCast<Smi>(FromConstexpr5ATSmi(implicit_cast<int31_t>(t752)));
-          TNode<JSTypedArray> t754 = UncheckedCast<JSTypedArray>(CallBuiltin(Builtins::kTypedArrayQuickSort, implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<JSTypedArray>>((*array_777)), implicit_cast<TNode<Smi>>(t753), implicit_cast<TNode<Smi>>((*len_778)), implicit_cast<TNode<JSReceiver>>((*comparefn_781)), implicit_cast<TNode<Code>>((*loadfn_153).value()), implicit_cast<TNode<Code>>((*storefn_154).value())));
-          USE(implicit_cast<TNode<JSTypedArray>>(t754));
+          // ../../src/builtins/typed-array.tq:333:6
+          int31_t t531 = 0;
+          TNode<Smi> t532 = UncheckedCast<Smi>(from_constexpr5ATSmi(t531));
+          TNode<JSTypedArray> t533 = UncheckedCast<JSTypedArray>(CallBuiltin(Builtins::kTypedArrayQuickSort, p_context, (*array_183).value(), t532, (*len_184).value(), (*comparefn_185).value(), (*loadfn_186).value(), (*storefn_187).value()));
+          USE(t533);
         }
-        Goto(label_try_done_779_1597);
+        Goto(label_try_done_525_664);
       }
-      if (label_CastError_256->is_used())
+      if (label_CastError_159->is_used())
       {
-        BIND(label_CastError_256);
-        // ../../src/builtins/typed-array.tq:338:21
+        BIND(label_CastError_159);
+        // ../../src/builtins/typed-array.tq:335:20
         {
-          // ../../src/builtins/typed-array.tq:339:7
-          Print("halting because of 'unreachable' at ../../src/builtins/typed-array.tq:339:7");
+          // ../../src/builtins/typed-array.tq:336:6
           Unreachable();
         }
       }
-      BIND(label_try_done_779_1597);
+      BIND(label_try_done_525_664);
     }
-    // ../../src/builtins/typed-array.tq:341:5
-    arguments->PopAndReturn(implicit_cast<TNode<JSTypedArray>>((*array_777)));
+    // ../../src/builtins/typed-array.tq:338:4
+    arguments->PopAndReturn((*array_183).value());
   }
 }
 
@@ -1750,15 +1746,15 @@ TF_BUILTIN(LoadFixedElement17ATFixedInt32Array, TypedArrayBuiltinsFromDSLAssembl
   USE(p_array);
   TNode<Smi> p_index = UncheckedCast<Smi>(Parameter(Descriptor::kIndex));
   USE(p_index);
-  // ../../src/builtins/typed-array.tq:55:66
+  // ../../src/builtins/typed-array.tq:55:65
   {
-    // ../../src/builtins/typed-array.tq:56:5
-    TNode<RawPtrT> t3998 = UncheckedCast<RawPtrT>(LoadDataPtr(implicit_cast<TNode<JSTypedArray>>(p_array)));
-    ElementsKind t3999 = KindForArrayType17ATFixedInt32Array();
-    USE(implicit_cast<ElementsKind>(t3999));
-    TNode<Object> t4000 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(implicit_cast<TNode<RawPtrT>>(t3998), implicit_cast<TNode<Smi>>(p_index), implicit_cast<ElementsKind>(t3999), implicit_cast<ParameterMode>(SMI_PARAMETERS)));
-    USE(implicit_cast<TNode<Object>>(t4000));
-    Return(implicit_cast<TNode<Object>>(t4000));
+    // ../../src/builtins/typed-array.tq:56:4
+    TNode<RawPtrT> t1916 = UncheckedCast<RawPtrT>(LoadDataPtr(p_array));
+    ElementsKind t1917 = KindForArrayType17ATFixedInt32Array();
+    USE(t1917);
+    TNode<Object> t1918 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(t1916, p_index, t1917, SMI_PARAMETERS));
+    USE(t1918);
+    Return(t1918);
   }
 }
 
@@ -1771,22 +1767,22 @@ TF_BUILTIN(StoreFixedElement17ATFixedInt32Array, TypedArrayBuiltinsFromDSLAssemb
   USE(p_index);
   TNode<Object> p_value = UncheckedCast<Object>(Parameter(Descriptor::kValue));
   USE(p_value);
-  // ../../src/builtins/typed-array.tq:62:30
+  // ../../src/builtins/typed-array.tq:62:29
   {
-    // ../../src/builtins/typed-array.tq:63:5
-    TNode<FixedArrayBase> t4001 = UncheckedCast<FixedArrayBase>(LoadElements(implicit_cast<TNode<JSObject>>(p_array)));
-    TNode<FixedTypedArrayBase> t4002 = UncheckedCast<FixedTypedArrayBase>(UnsafeCast21ATFixedTypedArrayBase(implicit_cast<TNode<Object>>(t4001)));
-    USE(implicit_cast<TNode<FixedTypedArrayBase>>(t4002));
-    TNode<FixedTypedArrayBase> elements_1215_impl;
-    auto elements_1215 = &elements_1215_impl;
-    USE(elements_1215);
-    *elements_1215 = implicit_cast<TNode<FixedTypedArrayBase>>(t4002);
-    // ../../src/builtins/typed-array.tq:65:5
-    ElementsKind t4003 = KindForArrayType17ATFixedInt32Array();
-    USE(implicit_cast<ElementsKind>(t4003));
-    StoreFixedTypedArrayElementFromTagged(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<FixedTypedArrayBase>>((*elements_1215)), implicit_cast<TNode<Smi>>(p_index), implicit_cast<TNode<Object>>(p_value), implicit_cast<ElementsKind>(t4003), implicit_cast<ParameterMode>(SMI_PARAMETERS));
-    // ../../src/builtins/typed-array.tq:67:5
-    Return(implicit_cast<TNode<Object>>(Undefined()));
+    // ../../src/builtins/typed-array.tq:63:4
+    TNode<FixedArrayBase> t1919 = UncheckedCast<FixedArrayBase>(LoadElements(p_array));
+    TNode<FixedTypedArrayBase> t1920 = UncheckedCast<FixedTypedArrayBase>(unsafe_cast21ATFixedTypedArrayBase(t1919));
+    USE(t1920);
+    TVARIABLE(FixedTypedArrayBase, elements_441_impl);
+    auto elements_441 = &elements_441_impl;
+    USE(elements_441);
+    *elements_441 = t1920;
+    // ../../src/builtins/typed-array.tq:65:4
+    ElementsKind t1921 = KindForArrayType17ATFixedInt32Array();
+    USE(t1921);
+    StoreFixedTypedArrayElementFromTagged(p_context, (*elements_441).value(), p_index, p_value, t1921, SMI_PARAMETERS);
+    // ../../src/builtins/typed-array.tq:67:4
+    Return(Undefined());
   }
 }
 
@@ -1797,15 +1793,15 @@ TF_BUILTIN(LoadFixedElement19ATFixedFloat32Array, TypedArrayBuiltinsFromDSLAssem
   USE(p_array);
   TNode<Smi> p_index = UncheckedCast<Smi>(Parameter(Descriptor::kIndex));
   USE(p_index);
-  // ../../src/builtins/typed-array.tq:55:66
+  // ../../src/builtins/typed-array.tq:55:65
   {
-    // ../../src/builtins/typed-array.tq:56:5
-    TNode<RawPtrT> t4004 = UncheckedCast<RawPtrT>(LoadDataPtr(implicit_cast<TNode<JSTypedArray>>(p_array)));
-    ElementsKind t4005 = KindForArrayType19ATFixedFloat32Array();
-    USE(implicit_cast<ElementsKind>(t4005));
-    TNode<Object> t4006 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(implicit_cast<TNode<RawPtrT>>(t4004), implicit_cast<TNode<Smi>>(p_index), implicit_cast<ElementsKind>(t4005), implicit_cast<ParameterMode>(SMI_PARAMETERS)));
-    USE(implicit_cast<TNode<Object>>(t4006));
-    Return(implicit_cast<TNode<Object>>(t4006));
+    // ../../src/builtins/typed-array.tq:56:4
+    TNode<RawPtrT> t1922 = UncheckedCast<RawPtrT>(LoadDataPtr(p_array));
+    ElementsKind t1923 = KindForArrayType19ATFixedFloat32Array();
+    USE(t1923);
+    TNode<Object> t1924 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(t1922, p_index, t1923, SMI_PARAMETERS));
+    USE(t1924);
+    Return(t1924);
   }
 }
 
@@ -1818,22 +1814,22 @@ TF_BUILTIN(StoreFixedElement19ATFixedFloat32Array, TypedArrayBuiltinsFromDSLAsse
   USE(p_index);
   TNode<Object> p_value = UncheckedCast<Object>(Parameter(Descriptor::kValue));
   USE(p_value);
-  // ../../src/builtins/typed-array.tq:62:30
+  // ../../src/builtins/typed-array.tq:62:29
   {
-    // ../../src/builtins/typed-array.tq:63:5
-    TNode<FixedArrayBase> t4007 = UncheckedCast<FixedArrayBase>(LoadElements(implicit_cast<TNode<JSObject>>(p_array)));
-    TNode<FixedTypedArrayBase> t4008 = UncheckedCast<FixedTypedArrayBase>(UnsafeCast21ATFixedTypedArrayBase(implicit_cast<TNode<Object>>(t4007)));
-    USE(implicit_cast<TNode<FixedTypedArrayBase>>(t4008));
-    TNode<FixedTypedArrayBase> elements_1216_impl;
-    auto elements_1216 = &elements_1216_impl;
-    USE(elements_1216);
-    *elements_1216 = implicit_cast<TNode<FixedTypedArrayBase>>(t4008);
-    // ../../src/builtins/typed-array.tq:65:5
-    ElementsKind t4009 = KindForArrayType19ATFixedFloat32Array();
-    USE(implicit_cast<ElementsKind>(t4009));
-    StoreFixedTypedArrayElementFromTagged(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<FixedTypedArrayBase>>((*elements_1216)), implicit_cast<TNode<Smi>>(p_index), implicit_cast<TNode<Object>>(p_value), implicit_cast<ElementsKind>(t4009), implicit_cast<ParameterMode>(SMI_PARAMETERS));
-    // ../../src/builtins/typed-array.tq:67:5
-    Return(implicit_cast<TNode<Object>>(Undefined()));
+    // ../../src/builtins/typed-array.tq:63:4
+    TNode<FixedArrayBase> t1925 = UncheckedCast<FixedArrayBase>(LoadElements(p_array));
+    TNode<FixedTypedArrayBase> t1926 = UncheckedCast<FixedTypedArrayBase>(unsafe_cast21ATFixedTypedArrayBase(t1925));
+    USE(t1926);
+    TVARIABLE(FixedTypedArrayBase, elements_442_impl);
+    auto elements_442 = &elements_442_impl;
+    USE(elements_442);
+    *elements_442 = t1926;
+    // ../../src/builtins/typed-array.tq:65:4
+    ElementsKind t1927 = KindForArrayType19ATFixedFloat32Array();
+    USE(t1927);
+    StoreFixedTypedArrayElementFromTagged(p_context, (*elements_442).value(), p_index, p_value, t1927, SMI_PARAMETERS);
+    // ../../src/builtins/typed-array.tq:67:4
+    Return(Undefined());
   }
 }
 
@@ -1844,15 +1840,15 @@ TF_BUILTIN(LoadFixedElement19ATFixedFloat64Array, TypedArrayBuiltinsFromDSLAssem
   USE(p_array);
   TNode<Smi> p_index = UncheckedCast<Smi>(Parameter(Descriptor::kIndex));
   USE(p_index);
-  // ../../src/builtins/typed-array.tq:55:66
+  // ../../src/builtins/typed-array.tq:55:65
   {
-    // ../../src/builtins/typed-array.tq:56:5
-    TNode<RawPtrT> t4010 = UncheckedCast<RawPtrT>(LoadDataPtr(implicit_cast<TNode<JSTypedArray>>(p_array)));
-    ElementsKind t4011 = KindForArrayType19ATFixedFloat64Array();
-    USE(implicit_cast<ElementsKind>(t4011));
-    TNode<Object> t4012 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(implicit_cast<TNode<RawPtrT>>(t4010), implicit_cast<TNode<Smi>>(p_index), implicit_cast<ElementsKind>(t4011), implicit_cast<ParameterMode>(SMI_PARAMETERS)));
-    USE(implicit_cast<TNode<Object>>(t4012));
-    Return(implicit_cast<TNode<Object>>(t4012));
+    // ../../src/builtins/typed-array.tq:56:4
+    TNode<RawPtrT> t1928 = UncheckedCast<RawPtrT>(LoadDataPtr(p_array));
+    ElementsKind t1929 = KindForArrayType19ATFixedFloat64Array();
+    USE(t1929);
+    TNode<Object> t1930 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(t1928, p_index, t1929, SMI_PARAMETERS));
+    USE(t1930);
+    Return(t1930);
   }
 }
 
@@ -1865,22 +1861,22 @@ TF_BUILTIN(StoreFixedElement19ATFixedFloat64Array, TypedArrayBuiltinsFromDSLAsse
   USE(p_index);
   TNode<Object> p_value = UncheckedCast<Object>(Parameter(Descriptor::kValue));
   USE(p_value);
-  // ../../src/builtins/typed-array.tq:62:30
+  // ../../src/builtins/typed-array.tq:62:29
   {
-    // ../../src/builtins/typed-array.tq:63:5
-    TNode<FixedArrayBase> t4013 = UncheckedCast<FixedArrayBase>(LoadElements(implicit_cast<TNode<JSObject>>(p_array)));
-    TNode<FixedTypedArrayBase> t4014 = UncheckedCast<FixedTypedArrayBase>(UnsafeCast21ATFixedTypedArrayBase(implicit_cast<TNode<Object>>(t4013)));
-    USE(implicit_cast<TNode<FixedTypedArrayBase>>(t4014));
-    TNode<FixedTypedArrayBase> elements_1217_impl;
-    auto elements_1217 = &elements_1217_impl;
-    USE(elements_1217);
-    *elements_1217 = implicit_cast<TNode<FixedTypedArrayBase>>(t4014);
-    // ../../src/builtins/typed-array.tq:65:5
-    ElementsKind t4015 = KindForArrayType19ATFixedFloat64Array();
-    USE(implicit_cast<ElementsKind>(t4015));
-    StoreFixedTypedArrayElementFromTagged(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<FixedTypedArrayBase>>((*elements_1217)), implicit_cast<TNode<Smi>>(p_index), implicit_cast<TNode<Object>>(p_value), implicit_cast<ElementsKind>(t4015), implicit_cast<ParameterMode>(SMI_PARAMETERS));
-    // ../../src/builtins/typed-array.tq:67:5
-    Return(implicit_cast<TNode<Object>>(Undefined()));
+    // ../../src/builtins/typed-array.tq:63:4
+    TNode<FixedArrayBase> t1931 = UncheckedCast<FixedArrayBase>(LoadElements(p_array));
+    TNode<FixedTypedArrayBase> t1932 = UncheckedCast<FixedTypedArrayBase>(unsafe_cast21ATFixedTypedArrayBase(t1931));
+    USE(t1932);
+    TVARIABLE(FixedTypedArrayBase, elements_443_impl);
+    auto elements_443 = &elements_443_impl;
+    USE(elements_443);
+    *elements_443 = t1932;
+    // ../../src/builtins/typed-array.tq:65:4
+    ElementsKind t1933 = KindForArrayType19ATFixedFloat64Array();
+    USE(t1933);
+    StoreFixedTypedArrayElementFromTagged(p_context, (*elements_443).value(), p_index, p_value, t1933, SMI_PARAMETERS);
+    // ../../src/builtins/typed-array.tq:67:4
+    Return(Undefined());
   }
 }
 
@@ -1891,15 +1887,15 @@ TF_BUILTIN(LoadFixedElement24ATFixedUint8ClampedArray, TypedArrayBuiltinsFromDSL
   USE(p_array);
   TNode<Smi> p_index = UncheckedCast<Smi>(Parameter(Descriptor::kIndex));
   USE(p_index);
-  // ../../src/builtins/typed-array.tq:55:66
+  // ../../src/builtins/typed-array.tq:55:65
   {
-    // ../../src/builtins/typed-array.tq:56:5
-    TNode<RawPtrT> t4016 = UncheckedCast<RawPtrT>(LoadDataPtr(implicit_cast<TNode<JSTypedArray>>(p_array)));
-    ElementsKind t4017 = KindForArrayType24ATFixedUint8ClampedArray();
-    USE(implicit_cast<ElementsKind>(t4017));
-    TNode<Object> t4018 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(implicit_cast<TNode<RawPtrT>>(t4016), implicit_cast<TNode<Smi>>(p_index), implicit_cast<ElementsKind>(t4017), implicit_cast<ParameterMode>(SMI_PARAMETERS)));
-    USE(implicit_cast<TNode<Object>>(t4018));
-    Return(implicit_cast<TNode<Object>>(t4018));
+    // ../../src/builtins/typed-array.tq:56:4
+    TNode<RawPtrT> t1934 = UncheckedCast<RawPtrT>(LoadDataPtr(p_array));
+    ElementsKind t1935 = KindForArrayType24ATFixedUint8ClampedArray();
+    USE(t1935);
+    TNode<Object> t1936 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(t1934, p_index, t1935, SMI_PARAMETERS));
+    USE(t1936);
+    Return(t1936);
   }
 }
 
@@ -1912,22 +1908,22 @@ TF_BUILTIN(StoreFixedElement24ATFixedUint8ClampedArray, TypedArrayBuiltinsFromDS
   USE(p_index);
   TNode<Object> p_value = UncheckedCast<Object>(Parameter(Descriptor::kValue));
   USE(p_value);
-  // ../../src/builtins/typed-array.tq:62:30
+  // ../../src/builtins/typed-array.tq:62:29
   {
-    // ../../src/builtins/typed-array.tq:63:5
-    TNode<FixedArrayBase> t4019 = UncheckedCast<FixedArrayBase>(LoadElements(implicit_cast<TNode<JSObject>>(p_array)));
-    TNode<FixedTypedArrayBase> t4020 = UncheckedCast<FixedTypedArrayBase>(UnsafeCast21ATFixedTypedArrayBase(implicit_cast<TNode<Object>>(t4019)));
-    USE(implicit_cast<TNode<FixedTypedArrayBase>>(t4020));
-    TNode<FixedTypedArrayBase> elements_1218_impl;
-    auto elements_1218 = &elements_1218_impl;
-    USE(elements_1218);
-    *elements_1218 = implicit_cast<TNode<FixedTypedArrayBase>>(t4020);
-    // ../../src/builtins/typed-array.tq:65:5
-    ElementsKind t4021 = KindForArrayType24ATFixedUint8ClampedArray();
-    USE(implicit_cast<ElementsKind>(t4021));
-    StoreFixedTypedArrayElementFromTagged(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<FixedTypedArrayBase>>((*elements_1218)), implicit_cast<TNode<Smi>>(p_index), implicit_cast<TNode<Object>>(p_value), implicit_cast<ElementsKind>(t4021), implicit_cast<ParameterMode>(SMI_PARAMETERS));
-    // ../../src/builtins/typed-array.tq:67:5
-    Return(implicit_cast<TNode<Object>>(Undefined()));
+    // ../../src/builtins/typed-array.tq:63:4
+    TNode<FixedArrayBase> t1937 = UncheckedCast<FixedArrayBase>(LoadElements(p_array));
+    TNode<FixedTypedArrayBase> t1938 = UncheckedCast<FixedTypedArrayBase>(unsafe_cast21ATFixedTypedArrayBase(t1937));
+    USE(t1938);
+    TVARIABLE(FixedTypedArrayBase, elements_444_impl);
+    auto elements_444 = &elements_444_impl;
+    USE(elements_444);
+    *elements_444 = t1938;
+    // ../../src/builtins/typed-array.tq:65:4
+    ElementsKind t1939 = KindForArrayType24ATFixedUint8ClampedArray();
+    USE(t1939);
+    StoreFixedTypedArrayElementFromTagged(p_context, (*elements_444).value(), p_index, p_value, t1939, SMI_PARAMETERS);
+    // ../../src/builtins/typed-array.tq:67:4
+    Return(Undefined());
   }
 }
 
@@ -1938,15 +1934,15 @@ TF_BUILTIN(LoadFixedElement21ATFixedBigUint64Array, TypedArrayBuiltinsFromDSLAss
   USE(p_array);
   TNode<Smi> p_index = UncheckedCast<Smi>(Parameter(Descriptor::kIndex));
   USE(p_index);
-  // ../../src/builtins/typed-array.tq:55:66
+  // ../../src/builtins/typed-array.tq:55:65
   {
-    // ../../src/builtins/typed-array.tq:56:5
-    TNode<RawPtrT> t4022 = UncheckedCast<RawPtrT>(LoadDataPtr(implicit_cast<TNode<JSTypedArray>>(p_array)));
-    ElementsKind t4023 = KindForArrayType21ATFixedBigUint64Array();
-    USE(implicit_cast<ElementsKind>(t4023));
-    TNode<Object> t4024 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(implicit_cast<TNode<RawPtrT>>(t4022), implicit_cast<TNode<Smi>>(p_index), implicit_cast<ElementsKind>(t4023), implicit_cast<ParameterMode>(SMI_PARAMETERS)));
-    USE(implicit_cast<TNode<Object>>(t4024));
-    Return(implicit_cast<TNode<Object>>(t4024));
+    // ../../src/builtins/typed-array.tq:56:4
+    TNode<RawPtrT> t1940 = UncheckedCast<RawPtrT>(LoadDataPtr(p_array));
+    ElementsKind t1941 = KindForArrayType21ATFixedBigUint64Array();
+    USE(t1941);
+    TNode<Object> t1942 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(t1940, p_index, t1941, SMI_PARAMETERS));
+    USE(t1942);
+    Return(t1942);
   }
 }
 
@@ -1959,22 +1955,22 @@ TF_BUILTIN(StoreFixedElement21ATFixedBigUint64Array, TypedArrayBuiltinsFromDSLAs
   USE(p_index);
   TNode<Object> p_value = UncheckedCast<Object>(Parameter(Descriptor::kValue));
   USE(p_value);
-  // ../../src/builtins/typed-array.tq:62:30
+  // ../../src/builtins/typed-array.tq:62:29
   {
-    // ../../src/builtins/typed-array.tq:63:5
-    TNode<FixedArrayBase> t4025 = UncheckedCast<FixedArrayBase>(LoadElements(implicit_cast<TNode<JSObject>>(p_array)));
-    TNode<FixedTypedArrayBase> t4026 = UncheckedCast<FixedTypedArrayBase>(UnsafeCast21ATFixedTypedArrayBase(implicit_cast<TNode<Object>>(t4025)));
-    USE(implicit_cast<TNode<FixedTypedArrayBase>>(t4026));
-    TNode<FixedTypedArrayBase> elements_1219_impl;
-    auto elements_1219 = &elements_1219_impl;
-    USE(elements_1219);
-    *elements_1219 = implicit_cast<TNode<FixedTypedArrayBase>>(t4026);
-    // ../../src/builtins/typed-array.tq:65:5
-    ElementsKind t4027 = KindForArrayType21ATFixedBigUint64Array();
-    USE(implicit_cast<ElementsKind>(t4027));
-    StoreFixedTypedArrayElementFromTagged(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<FixedTypedArrayBase>>((*elements_1219)), implicit_cast<TNode<Smi>>(p_index), implicit_cast<TNode<Object>>(p_value), implicit_cast<ElementsKind>(t4027), implicit_cast<ParameterMode>(SMI_PARAMETERS));
-    // ../../src/builtins/typed-array.tq:67:5
-    Return(implicit_cast<TNode<Object>>(Undefined()));
+    // ../../src/builtins/typed-array.tq:63:4
+    TNode<FixedArrayBase> t1943 = UncheckedCast<FixedArrayBase>(LoadElements(p_array));
+    TNode<FixedTypedArrayBase> t1944 = UncheckedCast<FixedTypedArrayBase>(unsafe_cast21ATFixedTypedArrayBase(t1943));
+    USE(t1944);
+    TVARIABLE(FixedTypedArrayBase, elements_445_impl);
+    auto elements_445 = &elements_445_impl;
+    USE(elements_445);
+    *elements_445 = t1944;
+    // ../../src/builtins/typed-array.tq:65:4
+    ElementsKind t1945 = KindForArrayType21ATFixedBigUint64Array();
+    USE(t1945);
+    StoreFixedTypedArrayElementFromTagged(p_context, (*elements_445).value(), p_index, p_value, t1945, SMI_PARAMETERS);
+    // ../../src/builtins/typed-array.tq:67:4
+    Return(Undefined());
   }
 }
 
@@ -1985,15 +1981,15 @@ TF_BUILTIN(LoadFixedElement20ATFixedBigInt64Array, TypedArrayBuiltinsFromDSLAsse
   USE(p_array);
   TNode<Smi> p_index = UncheckedCast<Smi>(Parameter(Descriptor::kIndex));
   USE(p_index);
-  // ../../src/builtins/typed-array.tq:55:66
+  // ../../src/builtins/typed-array.tq:55:65
   {
-    // ../../src/builtins/typed-array.tq:56:5
-    TNode<RawPtrT> t4028 = UncheckedCast<RawPtrT>(LoadDataPtr(implicit_cast<TNode<JSTypedArray>>(p_array)));
-    ElementsKind t4029 = KindForArrayType20ATFixedBigInt64Array();
-    USE(implicit_cast<ElementsKind>(t4029));
-    TNode<Object> t4030 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(implicit_cast<TNode<RawPtrT>>(t4028), implicit_cast<TNode<Smi>>(p_index), implicit_cast<ElementsKind>(t4029), implicit_cast<ParameterMode>(SMI_PARAMETERS)));
-    USE(implicit_cast<TNode<Object>>(t4030));
-    Return(implicit_cast<TNode<Object>>(t4030));
+    // ../../src/builtins/typed-array.tq:56:4
+    TNode<RawPtrT> t1946 = UncheckedCast<RawPtrT>(LoadDataPtr(p_array));
+    ElementsKind t1947 = KindForArrayType20ATFixedBigInt64Array();
+    USE(t1947);
+    TNode<Object> t1948 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(t1946, p_index, t1947, SMI_PARAMETERS));
+    USE(t1948);
+    Return(t1948);
   }
 }
 
@@ -2006,22 +2002,22 @@ TF_BUILTIN(StoreFixedElement20ATFixedBigInt64Array, TypedArrayBuiltinsFromDSLAss
   USE(p_index);
   TNode<Object> p_value = UncheckedCast<Object>(Parameter(Descriptor::kValue));
   USE(p_value);
-  // ../../src/builtins/typed-array.tq:62:30
+  // ../../src/builtins/typed-array.tq:62:29
   {
-    // ../../src/builtins/typed-array.tq:63:5
-    TNode<FixedArrayBase> t4031 = UncheckedCast<FixedArrayBase>(LoadElements(implicit_cast<TNode<JSObject>>(p_array)));
-    TNode<FixedTypedArrayBase> t4032 = UncheckedCast<FixedTypedArrayBase>(UnsafeCast21ATFixedTypedArrayBase(implicit_cast<TNode<Object>>(t4031)));
-    USE(implicit_cast<TNode<FixedTypedArrayBase>>(t4032));
-    TNode<FixedTypedArrayBase> elements_1220_impl;
-    auto elements_1220 = &elements_1220_impl;
-    USE(elements_1220);
-    *elements_1220 = implicit_cast<TNode<FixedTypedArrayBase>>(t4032);
-    // ../../src/builtins/typed-array.tq:65:5
-    ElementsKind t4033 = KindForArrayType20ATFixedBigInt64Array();
-    USE(implicit_cast<ElementsKind>(t4033));
-    StoreFixedTypedArrayElementFromTagged(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<FixedTypedArrayBase>>((*elements_1220)), implicit_cast<TNode<Smi>>(p_index), implicit_cast<TNode<Object>>(p_value), implicit_cast<ElementsKind>(t4033), implicit_cast<ParameterMode>(SMI_PARAMETERS));
-    // ../../src/builtins/typed-array.tq:67:5
-    Return(implicit_cast<TNode<Object>>(Undefined()));
+    // ../../src/builtins/typed-array.tq:63:4
+    TNode<FixedArrayBase> t1949 = UncheckedCast<FixedArrayBase>(LoadElements(p_array));
+    TNode<FixedTypedArrayBase> t1950 = UncheckedCast<FixedTypedArrayBase>(unsafe_cast21ATFixedTypedArrayBase(t1949));
+    USE(t1950);
+    TVARIABLE(FixedTypedArrayBase, elements_446_impl);
+    auto elements_446 = &elements_446_impl;
+    USE(elements_446);
+    *elements_446 = t1950;
+    // ../../src/builtins/typed-array.tq:65:4
+    ElementsKind t1951 = KindForArrayType20ATFixedBigInt64Array();
+    USE(t1951);
+    StoreFixedTypedArrayElementFromTagged(p_context, (*elements_446).value(), p_index, p_value, t1951, SMI_PARAMETERS);
+    // ../../src/builtins/typed-array.tq:67:4
+    Return(Undefined());
   }
 }
 
@@ -2032,15 +2028,15 @@ TF_BUILTIN(LoadFixedElement17ATFixedUint8Array, TypedArrayBuiltinsFromDSLAssembl
   USE(p_array);
   TNode<Smi> p_index = UncheckedCast<Smi>(Parameter(Descriptor::kIndex));
   USE(p_index);
-  // ../../src/builtins/typed-array.tq:55:66
+  // ../../src/builtins/typed-array.tq:55:65
   {
-    // ../../src/builtins/typed-array.tq:56:5
-    TNode<RawPtrT> t4034 = UncheckedCast<RawPtrT>(LoadDataPtr(implicit_cast<TNode<JSTypedArray>>(p_array)));
-    ElementsKind t4035 = KindForArrayType17ATFixedUint8Array();
-    USE(implicit_cast<ElementsKind>(t4035));
-    TNode<Object> t4036 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(implicit_cast<TNode<RawPtrT>>(t4034), implicit_cast<TNode<Smi>>(p_index), implicit_cast<ElementsKind>(t4035), implicit_cast<ParameterMode>(SMI_PARAMETERS)));
-    USE(implicit_cast<TNode<Object>>(t4036));
-    Return(implicit_cast<TNode<Object>>(t4036));
+    // ../../src/builtins/typed-array.tq:56:4
+    TNode<RawPtrT> t1952 = UncheckedCast<RawPtrT>(LoadDataPtr(p_array));
+    ElementsKind t1953 = KindForArrayType17ATFixedUint8Array();
+    USE(t1953);
+    TNode<Object> t1954 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(t1952, p_index, t1953, SMI_PARAMETERS));
+    USE(t1954);
+    Return(t1954);
   }
 }
 
@@ -2053,22 +2049,22 @@ TF_BUILTIN(StoreFixedElement17ATFixedUint8Array, TypedArrayBuiltinsFromDSLAssemb
   USE(p_index);
   TNode<Object> p_value = UncheckedCast<Object>(Parameter(Descriptor::kValue));
   USE(p_value);
-  // ../../src/builtins/typed-array.tq:62:30
+  // ../../src/builtins/typed-array.tq:62:29
   {
-    // ../../src/builtins/typed-array.tq:63:5
-    TNode<FixedArrayBase> t4037 = UncheckedCast<FixedArrayBase>(LoadElements(implicit_cast<TNode<JSObject>>(p_array)));
-    TNode<FixedTypedArrayBase> t4038 = UncheckedCast<FixedTypedArrayBase>(UnsafeCast21ATFixedTypedArrayBase(implicit_cast<TNode<Object>>(t4037)));
-    USE(implicit_cast<TNode<FixedTypedArrayBase>>(t4038));
-    TNode<FixedTypedArrayBase> elements_1221_impl;
-    auto elements_1221 = &elements_1221_impl;
-    USE(elements_1221);
-    *elements_1221 = implicit_cast<TNode<FixedTypedArrayBase>>(t4038);
-    // ../../src/builtins/typed-array.tq:65:5
-    ElementsKind t4039 = KindForArrayType17ATFixedUint8Array();
-    USE(implicit_cast<ElementsKind>(t4039));
-    StoreFixedTypedArrayElementFromTagged(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<FixedTypedArrayBase>>((*elements_1221)), implicit_cast<TNode<Smi>>(p_index), implicit_cast<TNode<Object>>(p_value), implicit_cast<ElementsKind>(t4039), implicit_cast<ParameterMode>(SMI_PARAMETERS));
-    // ../../src/builtins/typed-array.tq:67:5
-    Return(implicit_cast<TNode<Object>>(Undefined()));
+    // ../../src/builtins/typed-array.tq:63:4
+    TNode<FixedArrayBase> t1955 = UncheckedCast<FixedArrayBase>(LoadElements(p_array));
+    TNode<FixedTypedArrayBase> t1956 = UncheckedCast<FixedTypedArrayBase>(unsafe_cast21ATFixedTypedArrayBase(t1955));
+    USE(t1956);
+    TVARIABLE(FixedTypedArrayBase, elements_447_impl);
+    auto elements_447 = &elements_447_impl;
+    USE(elements_447);
+    *elements_447 = t1956;
+    // ../../src/builtins/typed-array.tq:65:4
+    ElementsKind t1957 = KindForArrayType17ATFixedUint8Array();
+    USE(t1957);
+    StoreFixedTypedArrayElementFromTagged(p_context, (*elements_447).value(), p_index, p_value, t1957, SMI_PARAMETERS);
+    // ../../src/builtins/typed-array.tq:67:4
+    Return(Undefined());
   }
 }
 
@@ -2079,15 +2075,15 @@ TF_BUILTIN(LoadFixedElement16ATFixedInt8Array, TypedArrayBuiltinsFromDSLAssemble
   USE(p_array);
   TNode<Smi> p_index = UncheckedCast<Smi>(Parameter(Descriptor::kIndex));
   USE(p_index);
-  // ../../src/builtins/typed-array.tq:55:66
+  // ../../src/builtins/typed-array.tq:55:65
   {
-    // ../../src/builtins/typed-array.tq:56:5
-    TNode<RawPtrT> t4040 = UncheckedCast<RawPtrT>(LoadDataPtr(implicit_cast<TNode<JSTypedArray>>(p_array)));
-    ElementsKind t4041 = KindForArrayType16ATFixedInt8Array();
-    USE(implicit_cast<ElementsKind>(t4041));
-    TNode<Object> t4042 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(implicit_cast<TNode<RawPtrT>>(t4040), implicit_cast<TNode<Smi>>(p_index), implicit_cast<ElementsKind>(t4041), implicit_cast<ParameterMode>(SMI_PARAMETERS)));
-    USE(implicit_cast<TNode<Object>>(t4042));
-    Return(implicit_cast<TNode<Object>>(t4042));
+    // ../../src/builtins/typed-array.tq:56:4
+    TNode<RawPtrT> t1958 = UncheckedCast<RawPtrT>(LoadDataPtr(p_array));
+    ElementsKind t1959 = KindForArrayType16ATFixedInt8Array();
+    USE(t1959);
+    TNode<Object> t1960 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(t1958, p_index, t1959, SMI_PARAMETERS));
+    USE(t1960);
+    Return(t1960);
   }
 }
 
@@ -2100,22 +2096,22 @@ TF_BUILTIN(StoreFixedElement16ATFixedInt8Array, TypedArrayBuiltinsFromDSLAssembl
   USE(p_index);
   TNode<Object> p_value = UncheckedCast<Object>(Parameter(Descriptor::kValue));
   USE(p_value);
-  // ../../src/builtins/typed-array.tq:62:30
+  // ../../src/builtins/typed-array.tq:62:29
   {
-    // ../../src/builtins/typed-array.tq:63:5
-    TNode<FixedArrayBase> t4043 = UncheckedCast<FixedArrayBase>(LoadElements(implicit_cast<TNode<JSObject>>(p_array)));
-    TNode<FixedTypedArrayBase> t4044 = UncheckedCast<FixedTypedArrayBase>(UnsafeCast21ATFixedTypedArrayBase(implicit_cast<TNode<Object>>(t4043)));
-    USE(implicit_cast<TNode<FixedTypedArrayBase>>(t4044));
-    TNode<FixedTypedArrayBase> elements_1222_impl;
-    auto elements_1222 = &elements_1222_impl;
-    USE(elements_1222);
-    *elements_1222 = implicit_cast<TNode<FixedTypedArrayBase>>(t4044);
-    // ../../src/builtins/typed-array.tq:65:5
-    ElementsKind t4045 = KindForArrayType16ATFixedInt8Array();
-    USE(implicit_cast<ElementsKind>(t4045));
-    StoreFixedTypedArrayElementFromTagged(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<FixedTypedArrayBase>>((*elements_1222)), implicit_cast<TNode<Smi>>(p_index), implicit_cast<TNode<Object>>(p_value), implicit_cast<ElementsKind>(t4045), implicit_cast<ParameterMode>(SMI_PARAMETERS));
-    // ../../src/builtins/typed-array.tq:67:5
-    Return(implicit_cast<TNode<Object>>(Undefined()));
+    // ../../src/builtins/typed-array.tq:63:4
+    TNode<FixedArrayBase> t1961 = UncheckedCast<FixedArrayBase>(LoadElements(p_array));
+    TNode<FixedTypedArrayBase> t1962 = UncheckedCast<FixedTypedArrayBase>(unsafe_cast21ATFixedTypedArrayBase(t1961));
+    USE(t1962);
+    TVARIABLE(FixedTypedArrayBase, elements_448_impl);
+    auto elements_448 = &elements_448_impl;
+    USE(elements_448);
+    *elements_448 = t1962;
+    // ../../src/builtins/typed-array.tq:65:4
+    ElementsKind t1963 = KindForArrayType16ATFixedInt8Array();
+    USE(t1963);
+    StoreFixedTypedArrayElementFromTagged(p_context, (*elements_448).value(), p_index, p_value, t1963, SMI_PARAMETERS);
+    // ../../src/builtins/typed-array.tq:67:4
+    Return(Undefined());
   }
 }
 
@@ -2126,15 +2122,15 @@ TF_BUILTIN(LoadFixedElement18ATFixedUint16Array, TypedArrayBuiltinsFromDSLAssemb
   USE(p_array);
   TNode<Smi> p_index = UncheckedCast<Smi>(Parameter(Descriptor::kIndex));
   USE(p_index);
-  // ../../src/builtins/typed-array.tq:55:66
+  // ../../src/builtins/typed-array.tq:55:65
   {
-    // ../../src/builtins/typed-array.tq:56:5
-    TNode<RawPtrT> t4046 = UncheckedCast<RawPtrT>(LoadDataPtr(implicit_cast<TNode<JSTypedArray>>(p_array)));
-    ElementsKind t4047 = KindForArrayType18ATFixedUint16Array();
-    USE(implicit_cast<ElementsKind>(t4047));
-    TNode<Object> t4048 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(implicit_cast<TNode<RawPtrT>>(t4046), implicit_cast<TNode<Smi>>(p_index), implicit_cast<ElementsKind>(t4047), implicit_cast<ParameterMode>(SMI_PARAMETERS)));
-    USE(implicit_cast<TNode<Object>>(t4048));
-    Return(implicit_cast<TNode<Object>>(t4048));
+    // ../../src/builtins/typed-array.tq:56:4
+    TNode<RawPtrT> t1964 = UncheckedCast<RawPtrT>(LoadDataPtr(p_array));
+    ElementsKind t1965 = KindForArrayType18ATFixedUint16Array();
+    USE(t1965);
+    TNode<Object> t1966 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(t1964, p_index, t1965, SMI_PARAMETERS));
+    USE(t1966);
+    Return(t1966);
   }
 }
 
@@ -2147,22 +2143,22 @@ TF_BUILTIN(StoreFixedElement18ATFixedUint16Array, TypedArrayBuiltinsFromDSLAssem
   USE(p_index);
   TNode<Object> p_value = UncheckedCast<Object>(Parameter(Descriptor::kValue));
   USE(p_value);
-  // ../../src/builtins/typed-array.tq:62:30
+  // ../../src/builtins/typed-array.tq:62:29
   {
-    // ../../src/builtins/typed-array.tq:63:5
-    TNode<FixedArrayBase> t4049 = UncheckedCast<FixedArrayBase>(LoadElements(implicit_cast<TNode<JSObject>>(p_array)));
-    TNode<FixedTypedArrayBase> t4050 = UncheckedCast<FixedTypedArrayBase>(UnsafeCast21ATFixedTypedArrayBase(implicit_cast<TNode<Object>>(t4049)));
-    USE(implicit_cast<TNode<FixedTypedArrayBase>>(t4050));
-    TNode<FixedTypedArrayBase> elements_1223_impl;
-    auto elements_1223 = &elements_1223_impl;
-    USE(elements_1223);
-    *elements_1223 = implicit_cast<TNode<FixedTypedArrayBase>>(t4050);
-    // ../../src/builtins/typed-array.tq:65:5
-    ElementsKind t4051 = KindForArrayType18ATFixedUint16Array();
-    USE(implicit_cast<ElementsKind>(t4051));
-    StoreFixedTypedArrayElementFromTagged(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<FixedTypedArrayBase>>((*elements_1223)), implicit_cast<TNode<Smi>>(p_index), implicit_cast<TNode<Object>>(p_value), implicit_cast<ElementsKind>(t4051), implicit_cast<ParameterMode>(SMI_PARAMETERS));
-    // ../../src/builtins/typed-array.tq:67:5
-    Return(implicit_cast<TNode<Object>>(Undefined()));
+    // ../../src/builtins/typed-array.tq:63:4
+    TNode<FixedArrayBase> t1967 = UncheckedCast<FixedArrayBase>(LoadElements(p_array));
+    TNode<FixedTypedArrayBase> t1968 = UncheckedCast<FixedTypedArrayBase>(unsafe_cast21ATFixedTypedArrayBase(t1967));
+    USE(t1968);
+    TVARIABLE(FixedTypedArrayBase, elements_449_impl);
+    auto elements_449 = &elements_449_impl;
+    USE(elements_449);
+    *elements_449 = t1968;
+    // ../../src/builtins/typed-array.tq:65:4
+    ElementsKind t1969 = KindForArrayType18ATFixedUint16Array();
+    USE(t1969);
+    StoreFixedTypedArrayElementFromTagged(p_context, (*elements_449).value(), p_index, p_value, t1969, SMI_PARAMETERS);
+    // ../../src/builtins/typed-array.tq:67:4
+    Return(Undefined());
   }
 }
 
@@ -2173,15 +2169,15 @@ TF_BUILTIN(LoadFixedElement17ATFixedInt16Array, TypedArrayBuiltinsFromDSLAssembl
   USE(p_array);
   TNode<Smi> p_index = UncheckedCast<Smi>(Parameter(Descriptor::kIndex));
   USE(p_index);
-  // ../../src/builtins/typed-array.tq:55:66
+  // ../../src/builtins/typed-array.tq:55:65
   {
-    // ../../src/builtins/typed-array.tq:56:5
-    TNode<RawPtrT> t4052 = UncheckedCast<RawPtrT>(LoadDataPtr(implicit_cast<TNode<JSTypedArray>>(p_array)));
-    ElementsKind t4053 = KindForArrayType17ATFixedInt16Array();
-    USE(implicit_cast<ElementsKind>(t4053));
-    TNode<Object> t4054 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(implicit_cast<TNode<RawPtrT>>(t4052), implicit_cast<TNode<Smi>>(p_index), implicit_cast<ElementsKind>(t4053), implicit_cast<ParameterMode>(SMI_PARAMETERS)));
-    USE(implicit_cast<TNode<Object>>(t4054));
-    Return(implicit_cast<TNode<Object>>(t4054));
+    // ../../src/builtins/typed-array.tq:56:4
+    TNode<RawPtrT> t1970 = UncheckedCast<RawPtrT>(LoadDataPtr(p_array));
+    ElementsKind t1971 = KindForArrayType17ATFixedInt16Array();
+    USE(t1971);
+    TNode<Object> t1972 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(t1970, p_index, t1971, SMI_PARAMETERS));
+    USE(t1972);
+    Return(t1972);
   }
 }
 
@@ -2194,22 +2190,22 @@ TF_BUILTIN(StoreFixedElement17ATFixedInt16Array, TypedArrayBuiltinsFromDSLAssemb
   USE(p_index);
   TNode<Object> p_value = UncheckedCast<Object>(Parameter(Descriptor::kValue));
   USE(p_value);
-  // ../../src/builtins/typed-array.tq:62:30
+  // ../../src/builtins/typed-array.tq:62:29
   {
-    // ../../src/builtins/typed-array.tq:63:5
-    TNode<FixedArrayBase> t4055 = UncheckedCast<FixedArrayBase>(LoadElements(implicit_cast<TNode<JSObject>>(p_array)));
-    TNode<FixedTypedArrayBase> t4056 = UncheckedCast<FixedTypedArrayBase>(UnsafeCast21ATFixedTypedArrayBase(implicit_cast<TNode<Object>>(t4055)));
-    USE(implicit_cast<TNode<FixedTypedArrayBase>>(t4056));
-    TNode<FixedTypedArrayBase> elements_1224_impl;
-    auto elements_1224 = &elements_1224_impl;
-    USE(elements_1224);
-    *elements_1224 = implicit_cast<TNode<FixedTypedArrayBase>>(t4056);
-    // ../../src/builtins/typed-array.tq:65:5
-    ElementsKind t4057 = KindForArrayType17ATFixedInt16Array();
-    USE(implicit_cast<ElementsKind>(t4057));
-    StoreFixedTypedArrayElementFromTagged(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<FixedTypedArrayBase>>((*elements_1224)), implicit_cast<TNode<Smi>>(p_index), implicit_cast<TNode<Object>>(p_value), implicit_cast<ElementsKind>(t4057), implicit_cast<ParameterMode>(SMI_PARAMETERS));
-    // ../../src/builtins/typed-array.tq:67:5
-    Return(implicit_cast<TNode<Object>>(Undefined()));
+    // ../../src/builtins/typed-array.tq:63:4
+    TNode<FixedArrayBase> t1973 = UncheckedCast<FixedArrayBase>(LoadElements(p_array));
+    TNode<FixedTypedArrayBase> t1974 = UncheckedCast<FixedTypedArrayBase>(unsafe_cast21ATFixedTypedArrayBase(t1973));
+    USE(t1974);
+    TVARIABLE(FixedTypedArrayBase, elements_450_impl);
+    auto elements_450 = &elements_450_impl;
+    USE(elements_450);
+    *elements_450 = t1974;
+    // ../../src/builtins/typed-array.tq:65:4
+    ElementsKind t1975 = KindForArrayType17ATFixedInt16Array();
+    USE(t1975);
+    StoreFixedTypedArrayElementFromTagged(p_context, (*elements_450).value(), p_index, p_value, t1975, SMI_PARAMETERS);
+    // ../../src/builtins/typed-array.tq:67:4
+    Return(Undefined());
   }
 }
 
@@ -2220,15 +2216,15 @@ TF_BUILTIN(LoadFixedElement18ATFixedUint32Array, TypedArrayBuiltinsFromDSLAssemb
   USE(p_array);
   TNode<Smi> p_index = UncheckedCast<Smi>(Parameter(Descriptor::kIndex));
   USE(p_index);
-  // ../../src/builtins/typed-array.tq:55:66
+  // ../../src/builtins/typed-array.tq:55:65
   {
-    // ../../src/builtins/typed-array.tq:56:5
-    TNode<RawPtrT> t4058 = UncheckedCast<RawPtrT>(LoadDataPtr(implicit_cast<TNode<JSTypedArray>>(p_array)));
-    ElementsKind t4059 = KindForArrayType18ATFixedUint32Array();
-    USE(implicit_cast<ElementsKind>(t4059));
-    TNode<Object> t4060 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(implicit_cast<TNode<RawPtrT>>(t4058), implicit_cast<TNode<Smi>>(p_index), implicit_cast<ElementsKind>(t4059), implicit_cast<ParameterMode>(SMI_PARAMETERS)));
-    USE(implicit_cast<TNode<Object>>(t4060));
-    Return(implicit_cast<TNode<Object>>(t4060));
+    // ../../src/builtins/typed-array.tq:56:4
+    TNode<RawPtrT> t1976 = UncheckedCast<RawPtrT>(LoadDataPtr(p_array));
+    ElementsKind t1977 = KindForArrayType18ATFixedUint32Array();
+    USE(t1977);
+    TNode<Object> t1978 = UncheckedCast<Object>(LoadFixedTypedArrayElementAsTagged(t1976, p_index, t1977, SMI_PARAMETERS));
+    USE(t1978);
+    Return(t1978);
   }
 }
 
@@ -2241,25 +2237,25 @@ TF_BUILTIN(StoreFixedElement18ATFixedUint32Array, TypedArrayBuiltinsFromDSLAssem
   USE(p_index);
   TNode<Object> p_value = UncheckedCast<Object>(Parameter(Descriptor::kValue));
   USE(p_value);
-  // ../../src/builtins/typed-array.tq:62:30
+  // ../../src/builtins/typed-array.tq:62:29
   {
-    // ../../src/builtins/typed-array.tq:63:5
-    TNode<FixedArrayBase> t4061 = UncheckedCast<FixedArrayBase>(LoadElements(implicit_cast<TNode<JSObject>>(p_array)));
-    TNode<FixedTypedArrayBase> t4062 = UncheckedCast<FixedTypedArrayBase>(UnsafeCast21ATFixedTypedArrayBase(implicit_cast<TNode<Object>>(t4061)));
-    USE(implicit_cast<TNode<FixedTypedArrayBase>>(t4062));
-    TNode<FixedTypedArrayBase> elements_1225_impl;
-    auto elements_1225 = &elements_1225_impl;
-    USE(elements_1225);
-    *elements_1225 = implicit_cast<TNode<FixedTypedArrayBase>>(t4062);
-    // ../../src/builtins/typed-array.tq:65:5
-    ElementsKind t4063 = KindForArrayType18ATFixedUint32Array();
-    USE(implicit_cast<ElementsKind>(t4063));
-    StoreFixedTypedArrayElementFromTagged(implicit_cast<TNode<Context>>(p_context), implicit_cast<TNode<FixedTypedArrayBase>>((*elements_1225)), implicit_cast<TNode<Smi>>(p_index), implicit_cast<TNode<Object>>(p_value), implicit_cast<ElementsKind>(t4063), implicit_cast<ParameterMode>(SMI_PARAMETERS));
-    // ../../src/builtins/typed-array.tq:67:5
-    Return(implicit_cast<TNode<Object>>(Undefined()));
+    // ../../src/builtins/typed-array.tq:63:4
+    TNode<FixedArrayBase> t1979 = UncheckedCast<FixedArrayBase>(LoadElements(p_array));
+    TNode<FixedTypedArrayBase> t1980 = UncheckedCast<FixedTypedArrayBase>(unsafe_cast21ATFixedTypedArrayBase(t1979));
+    USE(t1980);
+    TVARIABLE(FixedTypedArrayBase, elements_451_impl);
+    auto elements_451 = &elements_451_impl;
+    USE(elements_451);
+    *elements_451 = t1980;
+    // ../../src/builtins/typed-array.tq:65:4
+    ElementsKind t1981 = KindForArrayType18ATFixedUint32Array();
+    USE(t1981);
+    StoreFixedTypedArrayElementFromTagged(p_context, (*elements_451).value(), p_index, p_value, t1981, SMI_PARAMETERS);
+    // ../../src/builtins/typed-array.tq:67:4
+    Return(Undefined());
   }
 }
 
-}  // namespace internal
+}  // namepsace internal
 }  // namespace v8
 

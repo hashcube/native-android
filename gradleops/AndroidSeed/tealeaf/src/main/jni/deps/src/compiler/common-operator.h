@@ -5,22 +5,18 @@
 #ifndef V8_COMPILER_COMMON_OPERATOR_H_
 #define V8_COMPILER_COMMON_OPERATOR_H_
 
+#include "src/assembler.h"
 #include "src/base/compiler-specific.h"
 #include "src/compiler/frame-states.h"
 #include "src/deoptimize-reason.h"
 #include "src/globals.h"
 #include "src/machine-type.h"
-#include "src/reloc-info.h"
-#include "src/string-constants.h"
 #include "src/vector-slot-pair.h"
 #include "src/zone/zone-containers.h"
 #include "src/zone/zone-handle-set.h"
 
 namespace v8 {
 namespace internal {
-
-class StringConstantBase;
-
 namespace compiler {
 
 // Forward declarations.
@@ -259,7 +255,7 @@ class SparseInputMask final {
   // An iterator over a node's sparse inputs.
   class InputIterator final {
    public:
-    InputIterator() = default;
+    InputIterator() {}
     InputIterator(BitMaskType bit_mask, Node* parent);
 
     Node* parent() const { return parent_; }
@@ -437,9 +433,6 @@ const FrameStateInfo& FrameStateInfoOf(const Operator* op)
 
 Handle<HeapObject> HeapConstantOf(const Operator* op) V8_WARN_UNUSED_RESULT;
 
-const StringConstantBase* StringConstantBaseOf(const Operator* op)
-    V8_WARN_UNUSED_RESULT;
-
 // Interface for building common operators that can be used at any level of IR,
 // including JavaScript, mid-level, and low-level.
 class V8_EXPORT_PRIVATE CommonOperatorBuilder final
@@ -541,8 +534,6 @@ class V8_EXPORT_PRIVATE CommonOperatorBuilder final
 
   const Operator* MarkAsSafetyCheck(const Operator* op,
                                     IsSafetyCheck safety_check);
-
-  const Operator* DelayedStringConstant(const StringConstantBase* str);
 
  private:
   Zone* zone() const { return zone_; }

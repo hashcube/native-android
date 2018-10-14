@@ -17,6 +17,7 @@ namespace v8 {
 namespace internal {
 
 class BitVector;  // forward declaration
+class Counters;
 
 namespace compiler {  // external declarations from compiler.
 class NodeOriginTable;
@@ -25,10 +26,9 @@ class WasmGraphBuilder;
 
 namespace wasm {
 
-struct WasmModule;  // forward declaration of module interface.
-struct WasmFeatures;
-
 typedef compiler::WasmGraphBuilder TFBuilder;
+struct WasmModule;  // forward declaration of module interface.
+enum ModuleOrigin : uint8_t;
 
 // A wrapper around the signature and bytes of a function.
 struct FunctionBody {
@@ -43,29 +43,46 @@ struct FunctionBody {
 };
 
 V8_EXPORT_PRIVATE DecodeResult VerifyWasmCode(AccountingAllocator* allocator,
-                                              const WasmFeatures& enabled,
-                                              const WasmModule* module,
-                                              WasmFeatures* detected,
+                                              const wasm::WasmModule* module,
                                               FunctionBody& body);
 
-DecodeResult BuildTFGraph(AccountingAllocator* allocator,
-                          const WasmFeatures& enabled, const WasmModule* module,
-                          TFBuilder* builder, WasmFeatures* detected,
+// Note: If run in the background thread, must follow protocol using
+// isolate::async_counters() to guarantee usability of counters argument.
+DecodeResult VerifyWasmCodeWithStats(AccountingAllocator* allocator,
+                                     const wasm::WasmModule* module,
+                                     FunctionBody& body, ModuleOrigin origin,
+                                     Counters* counters);
+
+DecodeResult BuildTFGraph(AccountingAllocator* allocator, TFBuilder* builder,
                           FunctionBody& body,
                           compiler::NodeOriginTable* node_origins);
 enum PrintLocals { kPrintLocals, kOmitLocals };
 V8_EXPORT_PRIVATE
 bool PrintRawWasmCode(AccountingAllocator* allocator, const FunctionBody& body,
-                      const WasmModule* module, PrintLocals print_locals);
+                      const wasm::WasmModule* module, PrintLocals print_locals);
 
 V8_EXPORT_PRIVATE
 bool PrintRawWasmCode(AccountingAllocator* allocator, const FunctionBody& body,
-                      const WasmModule* module, PrintLocals print_locals,
+                      const wasm::WasmModule* module, PrintLocals print_locals,
                       std::ostream& out,
                       std::vector<int>* line_numbers = nullptr);
 
 // A simplified form of AST printing, e.g. from a debugger.
 void PrintRawWasmCode(const byte* start, const byte* end);
+
+inline DecodeResult VerifyWasmCode(AccountingAllocator* allocator,
+                                   const WasmModule* module, FunctionSig* sig,
+                                   const byte* start, const byte* end) {
+  FunctionBody body(sig, 0, start, end);
+  return VerifyWasmCode(allocator, module, body);
+}
+
+inline DecodeResult BuildTFGraph(AccountingAllocator* allocator,
+                                 TFBuilder* builder, FunctionSig* sig,
+                                 const byte* start, const byte* end) {
+  FunctionBody body(sig, 0, start, end);
+  return BuildTFGraph(allocator, builder, body, nullptr);
+}
 
 struct BodyLocalDecls {
   // The size of the encoded declarations.
@@ -76,8 +93,7 @@ struct BodyLocalDecls {
   explicit BodyLocalDecls(Zone* zone) : type_list(zone) {}
 };
 
-V8_EXPORT_PRIVATE bool DecodeLocalDecls(const WasmFeatures& enabled,
-                                        BodyLocalDecls* decls,
+V8_EXPORT_PRIVATE bool DecodeLocalDecls(BodyLocalDecls* decls,
                                         const byte* start, const byte* end);
 
 V8_EXPORT_PRIVATE BitVector* AnalyzeLoopAssignmentForTesting(Zone* zone,

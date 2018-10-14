@@ -25,11 +25,6 @@ namespace compiler {
 class CodeAssemblerState;
 }
 
-template <typename T>
-static constexpr T FirstFromVarArgs(T x, ...) noexcept {
-  return x;
-}
-
 // Convenience macro to avoid generating named accessors for all builtins.
 #define BUILTIN_CODE(isolate, name) \
   (isolate)->builtins()->builtin_handle(Builtins::k##name)
@@ -45,26 +40,19 @@ class Builtins {
 
   enum Name : int32_t {
 #define DEF_ENUM(Name, ...) k##Name,
-    BUILTIN_LIST(DEF_ENUM, DEF_ENUM, DEF_ENUM, DEF_ENUM, DEF_ENUM, DEF_ENUM,
-                 DEF_ENUM, DEF_ENUM, DEF_ENUM)
+    BUILTIN_LIST_ALL(DEF_ENUM)
 #undef DEF_ENUM
-        builtin_count,
-
-#define EXTRACT_NAME(Name, ...) k##Name,
-    // Define kFirstBytecodeHandler,
-    kFirstBytecodeHandler =
-        FirstFromVarArgs(BUILTIN_LIST_BYTECODE_HANDLERS(EXTRACT_NAME) 0)
-#undef EXTRACT_NAME
+        builtin_count
   };
 
   static const int32_t kNoBuiltinId = -1;
 
-  static constexpr bool IsBuiltinId(int maybe_id) {
+  static bool IsBuiltinId(int maybe_id) {
     return 0 <= maybe_id && maybe_id < builtin_count;
   }
 
   // The different builtin kinds are documented in builtins-definitions.h.
-  enum Kind { CPP, API, TFJ, TFC, TFS, TFH, BCH, DLH, ASM };
+  enum Kind { CPP, API, TFJ, TFC, TFS, TFH, ASM };
 
   static BailoutId GetContinuationBailoutId(Name name);
   static Name GetBuiltinFromBailoutId(BailoutId);
@@ -119,43 +107,9 @@ class Builtins {
   // special cases such as CompileLazy and DeserializeLazy.
   static bool IsLazy(int index);
 
-  static constexpr int kFirstWideBytecodeHandler =
-      kFirstBytecodeHandler + kNumberOfBytecodeHandlers;
-  static constexpr int kFirstExtraWideBytecodeHandler =
-      kFirstWideBytecodeHandler + kNumberOfWideBytecodeHandlers;
-  STATIC_ASSERT(kFirstExtraWideBytecodeHandler +
-                    kNumberOfWideBytecodeHandlers ==
-                builtin_count);
-
-  // Returns the index of the appropriate lazy deserializer in the builtins
-  // table.
-  static constexpr int LazyDeserializerForBuiltin(const int index) {
-    return index < kFirstWideBytecodeHandler
-               ? (index < kFirstBytecodeHandler
-                      ? Builtins::kDeserializeLazy
-                      : Builtins::kDeserializeLazyHandler)
-               : (index < kFirstExtraWideBytecodeHandler
-                      ? Builtins::kDeserializeLazyWideHandler
-                      : Builtins::kDeserializeLazyExtraWideHandler);
-  }
-
-  static constexpr bool IsLazyDeserializer(int builtin_index) {
-    return builtin_index == kDeserializeLazy ||
-           builtin_index == kDeserializeLazyHandler ||
-           builtin_index == kDeserializeLazyWideHandler ||
-           builtin_index == kDeserializeLazyExtraWideHandler;
-  }
-
-  static bool IsLazyDeserializer(Code* code);
-
   // Helper methods used for testing isolate-independent builtins.
   // TODO(jgruber,v8:6666): Remove once all builtins have been migrated.
   static bool IsIsolateIndependent(int index);
-
-  // Wasm runtime stubs are treated specially by wasm. To guarantee reachability
-  // through near jumps, their code is completely copied into a fresh off-heap
-  // area.
-  static bool IsWasmRuntimeStub(int index);
 
   bool is_initialized() const { return initialized_; }
 
@@ -216,8 +170,7 @@ class Builtins {
   static void Generate_##Name(compiler::CodeAssemblerState* state);
 
   BUILTIN_LIST(IGNORE_BUILTIN, IGNORE_BUILTIN, DECLARE_TF, DECLARE_TF,
-               DECLARE_TF, DECLARE_TF, IGNORE_BUILTIN, IGNORE_BUILTIN,
-               DECLARE_ASM)
+               DECLARE_TF, DECLARE_TF, DECLARE_ASM)
 
 #undef DECLARE_ASM
 #undef DECLARE_TF

@@ -96,7 +96,7 @@ class EmbeddedData final {
 
   // Padded with kCodeAlignment.
   uint32_t PaddedInstructionSizeOfBuiltin(int i) const {
-    return PadAndAlign(InstructionSizeOfBuiltin(i));
+    return RoundUp<kCodeAlignment>(InstructionSizeOfBuiltin(i));
   }
 
   size_t CreateHash() const;
@@ -104,48 +104,40 @@ class EmbeddedData final {
     return *reinterpret_cast<const size_t*>(data_ + HashOffset());
   }
 
-  struct Metadata {
-    // Blob layout information.
-    uint32_t instructions_offset;
-    uint32_t instructions_length;
-  };
-  STATIC_ASSERT(offsetof(Metadata, instructions_offset) == 0);
-  STATIC_ASSERT(offsetof(Metadata, instructions_length) == kUInt32Size);
-  STATIC_ASSERT(sizeof(Metadata) == kUInt32Size + kUInt32Size);
-
   // The layout of the blob is as follows:
   //
-  // [0] hash of the remaining blob
-  // [1] metadata of instruction stream 0
-  // ... metadata
-  // ... instruction streams
+  // [0]     hash of the remaining blob
+  // [1]     offset of instruction stream 0
+  // ...     offsets
+  // [N + 1] length of instruction stream 0
+  // ...     lengths
+  // ...     instruction streams
 
   static constexpr uint32_t kTableSize = Builtins::builtin_count;
   static constexpr uint32_t HashOffset() { return 0; }
   static constexpr uint32_t HashSize() { return kSizetSize; }
-  static constexpr uint32_t MetadataOffset() {
+  static constexpr uint32_t OffsetsOffset() {
     return HashOffset() + HashSize();
   }
-  static constexpr uint32_t MetadataSize() {
-    return sizeof(struct Metadata) * kTableSize;
+  static constexpr uint32_t OffsetsSize() { return kUInt32Size * kTableSize; }
+  static constexpr uint32_t LengthsOffset() {
+    return OffsetsOffset() + OffsetsSize();
   }
+  static constexpr uint32_t LengthsSize() { return kUInt32Size * kTableSize; }
   static constexpr uint32_t RawDataOffset() {
-    return PadAndAlign(MetadataOffset() + MetadataSize());
+    return RoundUp<kCodeAlignment>(LengthsOffset() + LengthsSize());
   }
 
  private:
   EmbeddedData(const uint8_t* data, uint32_t size) : data_(data), size_(size) {}
 
-  const Metadata* Metadata() const {
-    return reinterpret_cast<const struct Metadata*>(data_ + MetadataOffset());
+  const uint32_t* Offsets() const {
+    return reinterpret_cast<const uint32_t*>(data_ + OffsetsOffset());
+  }
+  const uint32_t* Lengths() const {
+    return reinterpret_cast<const uint32_t*>(data_ + LengthsOffset());
   }
   const uint8_t* RawData() const { return data_ + RawDataOffset(); }
-
-  static constexpr int PadAndAlign(int size) {
-    // Ensure we have at least one byte trailing the actual builtin
-    // instructions which we can later fill with int3.
-    return RoundUp<kCodeAlignment>(size + 1);
-  }
 
   void PrintStatistics() const;
 
@@ -175,6 +167,12 @@ class Snapshot : public AllStatic {
   static Code* EnsureBuiltinIsDeserialized(Isolate* isolate,
                                            Handle<SharedFunctionInfo> shared);
 
+  // Deserializes a single given handler code object. Intended to be called at
+  // runtime after the isolate has been fully initialized.
+  static Code* DeserializeHandler(Isolate* isolate,
+                                  interpreter::Bytecode bytecode,
+                                  interpreter::OperandScale operand_scale);
+
   // ---------------- Helper methods ----------------
 
   static bool HasContextSnapshot(Isolate* isolate, size_t index);
@@ -182,8 +180,6 @@ class Snapshot : public AllStatic {
 
   // To be implemented by the snapshot source.
   static const v8::StartupData* DefaultSnapshotBlob();
-
-  static bool VerifyChecksum(const v8::StartupData* data);
 
   // ---------------- Serialization ----------------
 
@@ -220,12 +216,10 @@ class Snapshot : public AllStatic {
   // Snapshot blob layout:
   // [0] number of contexts N
   // [1] rehashability
-  // [2] checksum part A
-  // [3] checksum part B
-  // [4] (128 bytes) version string
-  // [5] offset to builtins
-  // [6] offset to context 0
-  // [7] offset to context 1
+  // [2] (128 bytes) version string
+  // [3] offset to builtins
+  // [4] offset to context 0
+  // [5] offset to context 1
   // ...
   // ... offset to context N - 1
   // ... startup snapshot data
@@ -237,28 +231,16 @@ class Snapshot : public AllStatic {
   // TODO(yangguo): generalize rehashing, and remove this flag.
   static const uint32_t kRehashabilityOffset =
       kNumberOfContextsOffset + kUInt32Size;
-  static const uint32_t kChecksumPartAOffset =
-      kRehashabilityOffset + kUInt32Size;
-  static const uint32_t kChecksumPartBOffset =
-      kChecksumPartAOffset + kUInt32Size;
   static const uint32_t kVersionStringOffset =
-      kChecksumPartBOffset + kUInt32Size;
+      kRehashabilityOffset + kUInt32Size;
   static const uint32_t kVersionStringLength = 64;
   static const uint32_t kBuiltinOffsetOffset =
       kVersionStringOffset + kVersionStringLength;
   static const uint32_t kFirstContextOffsetOffset =
       kBuiltinOffsetOffset + kUInt32Size;
 
-  static Vector<const byte> ChecksummedContent(const v8::StartupData* data) {
-    const uint32_t kChecksumStart = kVersionStringOffset;
-    return Vector<const byte>(
-        reinterpret_cast<const byte*>(data->data + kChecksumStart),
-        data->raw_size - kChecksumStart);
-  }
-
   static uint32_t StartupSnapshotOffset(int num_contexts) {
-    return POINTER_SIZE_ALIGN(kFirstContextOffsetOffset +
-                              num_contexts * kInt32Size);
+    return kFirstContextOffsetOffset + num_contexts * kInt32Size;
   }
 
   static uint32_t ContextSnapshotOffsetOffset(int index) {

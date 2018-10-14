@@ -20,7 +20,8 @@ class AstValueFactory;
 class AstRawString;
 class Declaration;
 class ParseInfo;
-class PreParsedScopeDataBuilder;
+class PreParsedScopeData;
+class ProducedPreParsedScopeData;
 class SloppyBlockFunctionStatement;
 class Statement;
 class StringSet;
@@ -102,6 +103,7 @@ class V8_EXPORT_PRIVATE Scope : public NON_EXPORTED_BASE(ZoneObject) {
   void SetScopeName(const AstRawString* scope_name) {
     scope_name_ = scope_name;
   }
+  void set_needs_migration() { needs_migration_ = true; }
 #endif
 
   // TODO(verwaest): Is this needed on Scope?
@@ -112,7 +114,7 @@ class V8_EXPORT_PRIVATE Scope : public NON_EXPORTED_BASE(ZoneObject) {
   ModuleScope* AsModuleScope();
   const ModuleScope* AsModuleScope() const;
 
-  class Snapshot final {
+  class Snapshot final BASE_EMBEDDED {
    public:
     explicit Snapshot(Scope* scope);
     ~Snapshot();
@@ -123,8 +125,8 @@ class V8_EXPORT_PRIVATE Scope : public NON_EXPORTED_BASE(ZoneObject) {
     Scope* outer_scope_;
     Scope* top_inner_scope_;
     VariableProxy* top_unresolved_;
-    base::ThreadedList<Variable>::Iterator top_local_;
-    base::ThreadedList<Declaration>::Iterator top_decl_;
+    ThreadedList<Variable>::Iterator top_local_;
+    ThreadedList<Declaration>::Iterator top_decl_;
     const bool outer_scope_calls_eval_;
   };
 
@@ -201,9 +203,9 @@ class V8_EXPORT_PRIVATE Scope : public NON_EXPORTED_BASE(ZoneObject) {
   void DeclareCatchVariableName(const AstRawString* name);
 
   // Declarations list.
-  base::ThreadedList<Declaration>* declarations() { return &decls_; }
+  ThreadedList<Declaration>* declarations() { return &decls_; }
 
-  base::ThreadedList<Variable>* locals() { return &locals_; }
+  ThreadedList<Variable>* locals() { return &locals_; }
 
   // Create a new unresolved variable.
   VariableProxy* NewUnresolved(AstNodeFactory* factory,
@@ -216,7 +218,8 @@ class V8_EXPORT_PRIVATE Scope : public NON_EXPORTED_BASE(ZoneObject) {
     DCHECK(!already_resolved_);
     DCHECK_EQ(factory->zone(), zone());
     VariableProxy* proxy = factory->NewVariableProxy(name, kind, start_pos);
-    AddUnresolved(proxy);
+    proxy->set_next_unresolved(unresolved_);
+    unresolved_ = proxy;
     return proxy;
   }
 
@@ -477,9 +480,6 @@ class V8_EXPORT_PRIVATE Scope : public NON_EXPORTED_BASE(ZoneObject) {
     return false;
   }
 
-  static void* const kDummyPreParserVariable;
-  static void* const kDummyPreParserLexicalVariable;
-
  protected:
   explicit Scope(Zone* zone);
 
@@ -522,12 +522,12 @@ class V8_EXPORT_PRIVATE Scope : public NON_EXPORTED_BASE(ZoneObject) {
   VariableMap variables_;
   // In case of non-scopeinfo-backed scopes, this contains the variables of the
   // map above in order of addition.
-  base::ThreadedList<Variable> locals_;
+  ThreadedList<Variable> locals_;
   // Unresolved variables referred to from this scope. The proxies themselves
   // form a linked list of all unresolved proxies.
-  base::ThreadedList<VariableProxy> unresolved_list_;
+  VariableProxy* unresolved_;
   // Declarations.
-  base::ThreadedList<Declaration> decls_;
+  ThreadedList<Declaration> decls_;
 
   // Serialized scope info support.
   Handle<ScopeInfo> scope_info_;
@@ -597,10 +597,9 @@ class V8_EXPORT_PRIVATE Scope : public NON_EXPORTED_BASE(ZoneObject) {
   // Finds free variables of this scope. This mutates the unresolved variables
   // list along the way, so full resolution cannot be done afterwards.
   // If a ParseInfo* is passed, non-free variables will be resolved.
-  template <typename T>
-  void ResolveScopesThenForEachVariable(DeclarationScope* max_outer_scope,
-                                        T variable_proxy_stackvisitor,
-                                        ParseInfo* info = nullptr);
+  VariableProxy* FetchFreeVariables(DeclarationScope* max_outer_scope,
+                                    ParseInfo* info = nullptr,
+                                    VariableProxy* stack = nullptr);
 
   // Predicates.
   bool MustAllocate(Variable* var);
@@ -683,12 +682,6 @@ class V8_EXPORT_PRIVATE DeclarationScope : public Scope {
   }
   bool is_being_lazily_parsed() const { return is_being_lazily_parsed_; }
 #endif
-  void set_zone(Zone* zone) {
-#ifdef DEBUG
-    needs_migration_ = true;
-#endif
-    zone_ = zone;
-  }
 
   bool ShouldEagerCompile() const;
   void set_should_eager_compile();
@@ -811,16 +804,6 @@ class V8_EXPORT_PRIVATE DeclarationScope : public Scope {
     has_simple_parameters_ = false;
   }
 
-  // Returns whether the arguments object aliases formal parameters.
-  CreateArgumentsType GetArgumentsType() const {
-    DCHECK(is_function_scope());
-    DCHECK(!is_arrow_scope());
-    DCHECK_NOT_NULL(arguments_);
-    return is_sloppy(language_mode()) && has_simple_parameters()
-               ? CreateArgumentsType::kMappedArguments
-               : CreateArgumentsType::kUnmappedArguments;
-  }
-
   // The local variable 'arguments' if we need to allocate it; nullptr
   // otherwise.
   Variable* arguments() const {
@@ -926,13 +909,13 @@ class V8_EXPORT_PRIVATE DeclarationScope : public Scope {
   // saved in produced_preparsed_scope_data_.
   void SavePreParsedScopeDataForDeclarationScope();
 
-  void set_preparsed_scope_data_builder(
-      PreParsedScopeDataBuilder* preparsed_scope_data_builder) {
-    preparsed_scope_data_builder_ = preparsed_scope_data_builder;
+  void set_produced_preparsed_scope_data(
+      ProducedPreParsedScopeData* produced_preparsed_scope_data) {
+    produced_preparsed_scope_data_ = produced_preparsed_scope_data;
   }
 
-  PreParsedScopeDataBuilder* preparsed_scope_data_builder() const {
-    return preparsed_scope_data_builder_;
+  ProducedPreParsedScopeData* produced_preparsed_scope_data() const {
+    return produced_preparsed_scope_data_;
   }
 
  private:
@@ -988,7 +971,7 @@ class V8_EXPORT_PRIVATE DeclarationScope : public Scope {
   Variable* arguments_;
 
   // For producing the scope allocation data during preparsing.
-  PreParsedScopeDataBuilder* preparsed_scope_data_builder_;
+  ProducedPreParsedScopeData* produced_preparsed_scope_data_;
 
   struct RareData : public ZoneObject {
     // Convenience variable; Subclass constructor only

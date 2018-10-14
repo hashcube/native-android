@@ -78,8 +78,6 @@ class V8InspectorImpl : public V8Inspector {
                                               const StringView& state) override;
   void contextCreated(const V8ContextInfo&) override;
   void contextDestroyed(v8::Local<v8::Context>) override;
-  v8::MaybeLocal<v8::Context> contextById(int groupId,
-                                          v8::Maybe<int> contextId) override;
   void contextCollected(int contextGroupId, int contextId);
   void resetContextGroup(int contextGroupId) override;
   void idleStarted() override;
@@ -120,10 +118,9 @@ class V8InspectorImpl : public V8Inspector {
   InspectedContext* getContext(int contextId) const;
   V8Console* console();
   void forEachContext(int contextGroupId,
-                      const std::function<void(InspectedContext*)>& callback);
-  void forEachSession(
-      int contextGroupId,
-      const std::function<void(V8InspectorSessionImpl*)>& callback);
+                      std::function<void(InspectedContext*)> callback);
+  void forEachSession(int contextGroupId,
+                      std::function<void(V8InspectorSessionImpl*)> callback);
 
   class EvaluateScope {
    public:

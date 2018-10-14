@@ -139,7 +139,7 @@ void js_textbox_set_type(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void js_textbox_set_visible(const v8::FunctionCallbackInfo<v8::Value> &args) {
     Isolate *isolate = args.GetIsolate();
-    textbox_set_visible(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->BooleanValue(isolate));
+    textbox_set_visible(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->BooleanValue());
 }
 
 
@@ -193,8 +193,7 @@ void js_textbox_get_visible(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 
-Local<ObjectTemplate> js_textbox_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_textbox_get_template(Isolate *isolate) {
     // TODO: some day, turn this into a real class instead
     Handle<ObjectTemplate> tmpl = ObjectTemplate::New(isolate);
 

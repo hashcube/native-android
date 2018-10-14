@@ -11,7 +11,6 @@
 #include "src/objects/dictionary.h"
 #include "src/objects/map-inl.h"
 #include "src/objects/regexp-match-info.h"
-#include "src/objects/scope-info.h"
 #include "src/objects/shared-function-info-inl.h"
 #include "src/objects/template-objects.h"
 
@@ -47,11 +46,6 @@ Context* Context::cast(Object* context) {
   return reinterpret_cast<Context*>(context);
 }
 
-NativeContext* NativeContext::cast(Object* context) {
-  DCHECK(context->IsNativeContext());
-  return reinterpret_cast<NativeContext*>(context);
-}
-
 void Context::set_scope_info(ScopeInfo* scope_info) {
   set(SCOPE_INFO_INDEX, scope_info);
 }
@@ -73,14 +67,19 @@ void Context::set_extension(HeapObject* object) {
   set(EXTENSION_INDEX, object);
 }
 
-NativeContext* Context::native_context() const {
+Context* Context::native_context() const {
   Object* result = get(NATIVE_CONTEXT_INDEX);
   DCHECK(IsBootstrappingOrNativeContext(this->GetIsolate(), result));
-  return reinterpret_cast<NativeContext*>(result);
+  return reinterpret_cast<Context*>(result);
 }
 
-void Context::set_native_context(NativeContext* context) {
+
+void Context::set_native_context(Context* context) {
   set(NATIVE_CONTEXT_INDEX, context);
+}
+
+bool Context::IsNativeContext() const {
+  return map()->instance_type() == NATIVE_CONTEXT_TYPE;
 }
 
 bool Context::IsFunctionContext() const {

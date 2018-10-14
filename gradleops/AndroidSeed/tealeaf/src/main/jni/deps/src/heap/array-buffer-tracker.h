@@ -10,7 +10,7 @@
 #include "src/allocation.h"
 #include "src/base/platform/mutex.h"
 #include "src/globals.h"
-#include "src/objects/js-array-buffer.h"
+#include "src/objects/js-array.h"
 
 namespace v8 {
 namespace internal {
@@ -112,10 +112,6 @@ class LocalArrayBufferTracker {
   // different memory pages, making it impossible to guarantee order of freeing.
   typedef std::unordered_map<JSArrayBuffer*, JSArrayBuffer::Allocation, Hasher>
       TrackingData;
-
-  // Internal version of add that does not update counters. Requires separate
-  // logic for updating external memory counters.
-  inline void AddInternal(JSArrayBuffer* buffer, size_t length);
 
   inline Space* space();
 

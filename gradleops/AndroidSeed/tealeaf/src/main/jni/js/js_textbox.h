@@ -20,6 +20,6 @@
 using v8::Handle;
 using v8::ObjectTemplate;
 
-Local<ObjectTemplate> js_textbox_get_template();
+Local<ObjectTemplate> js_textbox_get_template(Isolate *isolate);
 
 #endif

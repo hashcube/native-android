@@ -9,9 +9,8 @@
 #include "src/base/bits.h"
 #include "src/external-reference-table.h"
 #include "src/globals.h"
-#include "src/msan.h"
 #include "src/snapshot/references.h"
-#include "src/v8memory.h"
+#include "src/utils.h"
 #include "src/visitors.h"
 
 namespace v8 {
@@ -40,7 +39,7 @@ class ExternalReferenceEncoder {
   };
 
   explicit ExternalReferenceEncoder(Isolate* isolate);
-  ~ExternalReferenceEncoder();  // NOLINT (modernize-use-equals-default)
+  ~ExternalReferenceEncoder();
 
   Value Encode(Address key);
   Maybe<Value> TryEncode(Address key);
@@ -301,10 +300,8 @@ class SerializedData {
   SerializedData(byte* data, int size)
       : data_(data), size_(size), owns_data_(false) {}
   SerializedData() : data_(nullptr), size_(0), owns_data_(false) {}
-  SerializedData(SerializedData&& other) V8_NOEXCEPT
-      : data_(other.data_),
-        size_(other.size_),
-        owns_data_(other.owns_data_) {
+  SerializedData(SerializedData&& other)
+      : data_(other.data_), size_(other.size_), owns_data_(other.owns_data_) {
     // Ensure |other| will not attempt to destroy our data in destructor.
     other.owns_data_ = false;
   }
@@ -349,45 +346,6 @@ class SerializedData {
 
  private:
   DISALLOW_COPY_AND_ASSIGN(SerializedData);
-};
-
-class Checksum {
- public:
-  explicit Checksum(Vector<const byte> payload) {
-#ifdef MEMORY_SANITIZER
-    // Computing the checksum includes padding bytes for objects like strings.
-    // Mark every object as initialized in the code serializer.
-    MSAN_MEMORY_IS_INITIALIZED(payload.start(), payload.length());
-#endif  // MEMORY_SANITIZER
-    // Fletcher's checksum. Modified to reduce 64-bit sums to 32-bit.
-    uintptr_t a = 1;
-    uintptr_t b = 0;
-    const uintptr_t* cur = reinterpret_cast<const uintptr_t*>(payload.start());
-    DCHECK(IsAligned(payload.length(), kIntptrSize));
-    const uintptr_t* end = cur + payload.length() / kIntptrSize;
-    while (cur < end) {
-      // Unsigned overflow expected and intended.
-      a += *cur++;
-      b += a;
-    }
-#if V8_HOST_ARCH_64_BIT
-    a ^= a >> 32;
-    b ^= b >> 32;
-#endif  // V8_HOST_ARCH_64_BIT
-    a_ = static_cast<uint32_t>(a);
-    b_ = static_cast<uint32_t>(b);
-  }
-
-  bool Check(uint32_t a, uint32_t b) const { return a == a_ && b == b_; }
-
-  uint32_t a() const { return a_; }
-  uint32_t b() const { return b_; }
-
- private:
-  uint32_t a_;
-  uint32_t b_;
-
-  DISALLOW_COPY_AND_ASSIGN(Checksum);
 };
 
 }  // namespace internal

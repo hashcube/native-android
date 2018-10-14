@@ -25,7 +25,7 @@ void defLoadSound(const v8::FunctionCallbackInfo<v8::Value> &args) {
     String::Utf8Value str(isolate, args[0]);
     const char *url = ToCString(str);
     sound_manager_load_sound(url);
-    LOGFN("end load sound");;
+    LOGFN("end load sound");
 }
 
 void defPlaySound(const v8::FunctionCallbackInfo<v8::Value> &args) {
@@ -98,8 +98,7 @@ void defSeekTo(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("end seek to position");
 }
 
-Local<ObjectTemplate> js_sound_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_sound_get_template(Isolate *isolate) {
     Local<ObjectTemplate> sound = ObjectTemplate::New(isolate);
     sound->Set(STRING_CACHE_playSound.Get(isolate), FunctionTemplate::New(isolate, defPlaySound));
     sound->Set(STRING_CACHE_loadSound.Get(isolate), FunctionTemplate::New(isolate, defLoadSound));

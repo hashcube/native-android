@@ -14,7 +14,6 @@
 #include "src/macro-assembler.h"
 #include "src/safepoint-table.h"
 #include "src/source-position-table.h"
-#include "src/trap-handler/trap-handler.h"
 
 namespace v8 {
 namespace internal {
@@ -28,6 +27,7 @@ class DeoptimizationExit;
 class FrameAccessState;
 class Linkage;
 class OutOfLineCode;
+class WasmCompilationData;
 
 struct BranchInfo {
   FlagsCondition condition;
@@ -50,40 +50,28 @@ class InstructionOperandIterator {
   size_t pos_;
 };
 
-enum class DeoptimizationLiteralKind { kObject, kNumber, kString };
-
-// Either a non-null Handle<Object>, a double or a StringConstantBase.
+// Either a non-null Handle<Object> or a double.
 class DeoptimizationLiteral {
  public:
-  DeoptimizationLiteral() : object_(), number_(0), string_(nullptr) {}
+  DeoptimizationLiteral() : object_(), number_(0) {}
   explicit DeoptimizationLiteral(Handle<Object> object)
-      : kind_(DeoptimizationLiteralKind::kObject), object_(object) {
+      : object_(object), number_(0) {
     DCHECK(!object_.is_null());
   }
-  explicit DeoptimizationLiteral(double number)
-      : kind_(DeoptimizationLiteralKind::kNumber), number_(number) {}
-  explicit DeoptimizationLiteral(const StringConstantBase* string)
-      : kind_(DeoptimizationLiteralKind::kString), string_(string) {}
+  explicit DeoptimizationLiteral(double number) : object_(), number_(number) {}
 
   Handle<Object> object() const { return object_; }
-  const StringConstantBase* string() const { return string_; }
 
   bool operator==(const DeoptimizationLiteral& other) const {
-    return kind_ == other.kind_ && object_.equals(other.object_) &&
-           bit_cast<uint64_t>(number_) == bit_cast<uint64_t>(other.number_) &&
-           bit_cast<intptr_t>(string_) == bit_cast<intptr_t>(other.string_);
+    return object_.equals(other.object_) &&
+           bit_cast<uint64_t>(number_) == bit_cast<uint64_t>(other.number_);
   }
 
   Handle<Object> Reify(Isolate* isolate) const;
 
-  DeoptimizationLiteralKind kind() const { return kind_; }
-
  private:
-  DeoptimizationLiteralKind kind_;
-
   Handle<Object> object_;
-  double number_ = 0;
-  const StringConstantBase* string_ = nullptr;
+  double number_;
 };
 
 // Generates native code for a sequence of instructions.
@@ -95,6 +83,7 @@ class CodeGenerator final : public GapResolver::Assembler {
                          base::Optional<OsrHelper> osr_helper,
                          int start_source_position,
                          JumpOptimizationInfo* jump_opt,
+                         WasmCompilationData* wasm_compilation_data,
                          PoisoningMitigationLevel poisoning_level,
                          const AssemblerOptions& options,
                          int32_t builtin_index);
@@ -106,8 +95,6 @@ class CodeGenerator final : public GapResolver::Assembler {
   MaybeHandle<Code> FinalizeCode();
 
   OwnedVector<byte> GetSourcePositionTable();
-  OwnedVector<trap_handler::ProtectedInstructionData>
-  GetProtectedInstructions();
 
   InstructionSequence* code() const { return code_; }
   FrameAccessState* frame_access_state() const { return frame_access_state_; }
@@ -163,7 +150,7 @@ class CodeGenerator final : public GapResolver::Assembler {
   // which is cheaper on some platforms than materializing the actual heap
   // object constant.
   bool IsMaterializableFromRoot(Handle<HeapObject> object,
-                                RootIndex* index_return);
+                                Heap::RootListIndex* index_return);
 
   enum CodeGenResult { kSuccess, kTooManyDeoptimizationBailouts };
 
@@ -440,7 +427,7 @@ class CodeGenerator final : public GapResolver::Assembler {
   int osr_pc_offset_;
   int optimized_out_literal_id_;
   SourcePositionTableBuilder source_position_table_builder_;
-  ZoneVector<trap_handler::ProtectedInstructionData> protected_instructions_;
+  WasmCompilationData* wasm_compilation_data_;
   CodeGenResult result_;
   PoisoningMitigationLevel poisoning_level_;
   ZoneVector<int> block_starts_;

@@ -66,8 +66,7 @@ void defLocalStorageClear(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("end localstorage clear");
 }
 
-Handle<ObjectTemplate> js_local_storage_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Handle<ObjectTemplate> js_local_storage_get_template(Isolate *isolate) {
     Handle<ObjectTemplate> localStorage = ObjectTemplate::New(isolate);
 
     localStorage->Set(STRING_CACHE_setItem.Get(isolate), FunctionTemplate::New(isolate, defLocalStorageSetItem));

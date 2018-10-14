@@ -6,7 +6,6 @@
 #define V8_ALLOCATION_H_
 
 #include "include/v8-platform.h"
-#include "src/base/address-region.h"
 #include "src/base/compiler-specific.h"
 #include "src/base/platform/platform.h"
 #include "src/globals.h"
@@ -83,9 +82,6 @@ void* AllocWithRetry(size_t size);
 void* AlignedAlloc(size_t size, size_t alignment);
 void AlignedFree(void *ptr);
 
-// Returns platfrom page allocator instance. Guaranteed to be a valid pointer.
-V8_EXPORT_PRIVATE v8::PageAllocator* GetPlatformPageAllocator();
-
 // Gets the page granularity for AllocatePages and FreePages. Addresses returned
 // by AllocatePages and AllocatePage are aligned to this size.
 V8_EXPORT_PRIVATE size_t AllocatePageSize();
@@ -105,16 +101,14 @@ V8_EXPORT_PRIVATE void* GetRandomMmapAddr();
 // AllocatePageSize(). Returns the address of the allocated memory, with the
 // specified size and alignment, or nullptr on failure.
 V8_EXPORT_PRIVATE
-V8_WARN_UNUSED_RESULT void* AllocatePages(v8::PageAllocator* page_allocator,
-                                          void* address, size_t size,
+V8_WARN_UNUSED_RESULT void* AllocatePages(void* address, size_t size,
                                           size_t alignment,
                                           PageAllocator::Permission access);
 
 // Frees memory allocated by a call to AllocatePages. |address| and |size| must
 // be multiples of AllocatePageSize(). Returns true on success, otherwise false.
 V8_EXPORT_PRIVATE
-V8_WARN_UNUSED_RESULT bool FreePages(v8::PageAllocator* page_allocator,
-                                     void* address, const size_t size);
+V8_WARN_UNUSED_RESULT bool FreePages(void* address, const size_t size);
 
 // Releases memory that is no longer needed. The range specified by |address|
 // and |size| must be an allocated memory region. |size| and |new_size| must be
@@ -122,8 +116,7 @@ V8_WARN_UNUSED_RESULT bool FreePages(v8::PageAllocator* page_allocator,
 // Released memory is left in an undefined state, so it should not be accessed.
 // Returns true on success, otherwise false.
 V8_EXPORT_PRIVATE
-V8_WARN_UNUSED_RESULT bool ReleasePages(v8::PageAllocator* page_allocator,
-                                        void* address, size_t size,
+V8_WARN_UNUSED_RESULT bool ReleasePages(void* address, size_t size,
                                         size_t new_size);
 
 // Sets permissions according to |access|. |address| and |size| must be
@@ -131,21 +124,18 @@ V8_WARN_UNUSED_RESULT bool ReleasePages(v8::PageAllocator* page_allocator,
 // cause the memory contents to be lost. Returns true on success, otherwise
 // false.
 V8_EXPORT_PRIVATE
-V8_WARN_UNUSED_RESULT bool SetPermissions(v8::PageAllocator* page_allocator,
-                                          void* address, size_t size,
+V8_WARN_UNUSED_RESULT bool SetPermissions(void* address, size_t size,
                                           PageAllocator::Permission access);
-inline bool SetPermissions(v8::PageAllocator* page_allocator, Address address,
-                           size_t size, PageAllocator::Permission access) {
-  return SetPermissions(page_allocator, reinterpret_cast<void*>(address), size,
-                        access);
+inline bool SetPermissions(Address address, size_t size,
+                           PageAllocator::Permission access) {
+  return SetPermissions(reinterpret_cast<void*>(address), size, access);
 }
 
 // Convenience function that allocates a single system page with read and write
 // permissions. |address| is a hint. Returns the base address of the memory and
 // the page size via |allocated| on success. Returns nullptr on failure.
 V8_EXPORT_PRIVATE
-V8_WARN_UNUSED_RESULT byte* AllocatePage(v8::PageAllocator* page_allocator,
-                                         void* address, size_t* allocated);
+V8_WARN_UNUSED_RESULT byte* AllocatePage(void* address, size_t* allocated);
 
 // Function that may release reserved memory regions to allow failed allocations
 // to succeed. |length| is the amount of memory needed. Returns |true| if memory
@@ -153,47 +143,30 @@ V8_WARN_UNUSED_RESULT byte* AllocatePage(v8::PageAllocator* page_allocator,
 V8_EXPORT_PRIVATE bool OnCriticalMemoryPressure(size_t length);
 
 // Represents and controls an area of reserved memory.
-class V8_EXPORT_PRIVATE VirtualMemory final {
+class V8_EXPORT_PRIVATE VirtualMemory {
  public:
   // Empty VirtualMemory object, controlling no reserved memory.
-  VirtualMemory() = default;
+  VirtualMemory();
 
   // Reserves virtual memory containing an area of the given size that is
-  // aligned per |alignment| rounded up to the |page_allocator|'s allocate page
-  // size.
-  // This may not be at the position returned by address().
-  VirtualMemory(v8::PageAllocator* page_allocator, size_t size, void* hint,
-                size_t alignment = 1);
+  // aligned per alignment. This may not be at the position returned by
+  // address().
+  VirtualMemory(size_t size, void* hint, size_t alignment = AllocatePageSize());
 
   // Construct a virtual memory by assigning it some already mapped address
   // and size.
-  VirtualMemory(v8::PageAllocator* page_allocator, Address address, size_t size)
-      : page_allocator_(page_allocator), region_(address, size) {
-    DCHECK_NOT_NULL(page_allocator);
-  }
+  VirtualMemory(Address address, size_t size)
+      : address_(address), size_(size) {}
 
   // Releases the reserved memory, if any, controlled by this VirtualMemory
   // object.
   ~VirtualMemory();
 
-  // Move constructor.
-  VirtualMemory(VirtualMemory&& other) V8_NOEXCEPT { TakeControl(&other); }
-
-  // Move assignment operator.
-  VirtualMemory& operator=(VirtualMemory&& other) V8_NOEXCEPT {
-    TakeControl(&other);
-    return *this;
-  }
-
   // Returns whether the memory has been reserved.
-  bool IsReserved() const { return region_.begin() != kNullAddress; }
+  bool IsReserved() const { return address_ != kNullAddress; }
 
   // Initialize or resets an embedded VirtualMemory object.
   void Reset();
-
-  v8::PageAllocator* page_allocator() { return page_allocator_; }
-
-  const base::AddressRegion& region() const { return region_; }
 
   // Returns the start address of the reserved memory.
   // If the memory was reserved with an alignment, this address is not
@@ -201,19 +174,19 @@ class V8_EXPORT_PRIVATE VirtualMemory final {
   // the alignment to get the start of the aligned block.
   Address address() const {
     DCHECK(IsReserved());
-    return region_.begin();
+    return address_;
   }
 
   Address end() const {
     DCHECK(IsReserved());
-    return region_.end();
+    return address_ + size_;
   }
 
   // Returns the size of the reserved memory. The returned value is only
   // meaningful when IsReserved() returns true.
   // If the memory was reserved with an alignment, this size may be larger
   // than the requested size.
-  size_t size() const { return region_.size(); }
+  size_t size() const { return size_; }
 
   // Sets permissions according to the access argument. address and size must be
   // multiples of CommitPageSize(). Returns true on success, otherwise false.
@@ -231,16 +204,17 @@ class V8_EXPORT_PRIVATE VirtualMemory final {
   void TakeControl(VirtualMemory* from);
 
   bool InVM(Address address, size_t size) {
-    return region_.contains(address, size);
+    return (address_ <= address) && ((address_ + size_) >= (address + size));
   }
 
  private:
-  // Page allocator that controls the virtual memory.
-  v8::PageAllocator* page_allocator_ = nullptr;
-  base::AddressRegion region_;
-
-  DISALLOW_COPY_AND_ASSIGN(VirtualMemory);
+  Address address_;  // Start address of the virtual memory.
+  size_t size_;    // Size of the virtual memory.
 };
+
+bool AllocVirtualMemory(size_t size, void* hint, VirtualMemory* result);
+bool AlignedAllocVirtualMemory(size_t size, size_t alignment, void* hint,
+                               VirtualMemory* result);
 
 }  // namespace internal
 }  // namespace v8

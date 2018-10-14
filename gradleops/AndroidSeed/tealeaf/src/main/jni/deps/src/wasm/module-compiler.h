@@ -11,7 +11,6 @@
 
 #include "src/cancelable-task.h"
 #include "src/globals.h"
-#include "src/wasm/wasm-features.h"
 #include "src/wasm/wasm-module.h"
 
 namespace v8 {
@@ -49,7 +48,7 @@ std::unique_ptr<CompilationState, CompilationStateDeleter> NewCompilationState(
 ModuleEnv* GetModuleEnv(CompilationState* compilation_state);
 
 MaybeHandle<WasmModuleObject> CompileToModuleObject(
-    Isolate* isolate, const WasmFeatures& enabled, ErrorThrower* thrower,
+    Isolate* isolate, ErrorThrower* thrower,
     std::shared_ptr<const WasmModule> module, const ModuleWireBytes& wire_bytes,
     Handle<Script> asm_js_script, Vector<const byte> asm_js_offset_table_bytes);
 
@@ -63,8 +62,7 @@ void CompileJsToWasmWrappers(Isolate* isolate,
                              Handle<WasmModuleObject> module_object);
 
 V8_EXPORT_PRIVATE Handle<Script> CreateWasmScript(
-    Isolate* isolate, const ModuleWireBytes& wire_bytes,
-    const std::string& source_map_url);
+    Isolate* isolate, const ModuleWireBytes& wire_bytes);
 
 // Triggered by the WasmCompileLazy builtin.
 // Returns the instruction start of the compiled code object.
@@ -79,10 +77,9 @@ Address CompileLazy(Isolate*, NativeModule*, uint32_t func_index);
 // TODO(wasm): factor out common parts of this with the synchronous pipeline.
 class AsyncCompileJob {
  public:
-  AsyncCompileJob(Isolate* isolate, const WasmFeatures& enabled_features,
-                  std::unique_ptr<byte[]> bytes_copy, size_t length,
-                  Handle<Context> context,
-                  std::shared_ptr<CompilationResultResolver> resolver);
+  explicit AsyncCompileJob(Isolate* isolate, std::unique_ptr<byte[]> bytes_copy,
+                           size_t length, Handle<Context> context,
+                           std::unique_ptr<CompilationResultResolver> resolver);
   ~AsyncCompileJob();
 
   void Start();
@@ -90,7 +87,6 @@ class AsyncCompileJob {
   std::shared_ptr<StreamingDecoder> CreateStreamingDecoder();
 
   void Abort();
-  void CancelPendingForegroundTask();
 
   Isolate* isolate() const { return isolate_; }
 
@@ -99,12 +95,14 @@ class AsyncCompileJob {
   class CompileStep;
 
   // States of the AsyncCompileJob.
-  class DecodeModule;            // Step 1  (async)
-  class DecodeFail;              // Step 1b (sync)
-  class PrepareAndStartCompile;  // Step 2  (sync)
-  class CompileFailed;           // Step 4b (sync)
-  class CompileWrappers;         // Step 5  (sync)
-  class FinishModule;            // Step 6  (sync)
+  class DecodeModule;
+  class DecodeFail;
+  class PrepareAndStartCompile;
+  class CompileFailed;
+  class CompileWrappers;
+  class FinishModule;
+  class AbortCompilation;
+  class UpdateToTopTierCompiledCode;
 
   const std::shared_ptr<Counters>& async_counters() const {
     return async_counters_;
@@ -118,7 +116,6 @@ class AsyncCompileJob {
   void AsyncCompileSucceeded(Handle<WasmModuleObject> result);
 
   void StartForegroundTask();
-  void ExecuteForegroundTaskImmediately();
 
   void StartBackgroundTask();
 
@@ -140,16 +137,16 @@ class AsyncCompileJob {
   friend class AsyncStreamingProcessor;
 
   Isolate* isolate_;
-  const WasmFeatures enabled_features_;
   const std::shared_ptr<Counters> async_counters_;
-  // Copy of the module wire bytes, moved into the {native_module_} on its
+  // Copy of the module wire bytes, moved into the {native_module_} on it's
   // creation.
   std::unique_ptr<byte[]> bytes_copy_;
   // Reference to the wire bytes (hold in {bytes_copy_} or as part of
   // {native_module_}).
   ModuleWireBytes wire_bytes_;
   Handle<Context> native_context_;
-  std::shared_ptr<CompilationResultResolver> resolver_;
+  std::unique_ptr<CompilationResultResolver> resolver_;
+  std::shared_ptr<const WasmModule> module_;
 
   std::vector<DeferredHandles*> deferred_handles_;
   Handle<WasmModuleObject> module_object_;
@@ -172,8 +169,8 @@ class AsyncCompileJob {
     return outstanding_finishers_.fetch_sub(1) == 1;
   }
 
-  // A reference to a pending foreground task, or {nullptr} if none is pending.
-  CompileTask* pending_foreground_task_ = nullptr;
+  // Counts the number of pending foreground tasks.
+  int32_t num_pending_foreground_tasks_ = 0;
 
   // The AsyncCompileJob owns the StreamingDecoder because the StreamingDecoder
   // contains data which is needed by the AsyncCompileJob for streaming

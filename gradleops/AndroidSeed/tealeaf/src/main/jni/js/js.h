@@ -35,7 +35,7 @@ const char* ToCString(const v8::String::Utf8Value& value);
 void ReportException(v8::TryCatch* try_catch);
 v8::Handle<v8::Value> ExecuteString(v8::Handle<v8::String> source,
                    v8::Handle<v8::Value> name,
-                   bool report_exceptions);
+                   bool report_exceptions, Isolate *isolate);
 
 void dispatchData(JNIEnv *env, jint id, jstring data);
 void dispatchEvent(jstring event);

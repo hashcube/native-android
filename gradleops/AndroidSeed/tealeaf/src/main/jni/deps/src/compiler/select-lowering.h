@@ -20,7 +20,7 @@ class Graph;
 class SelectLowering final : public Reducer {
  public:
   SelectLowering(Graph* graph, CommonOperatorBuilder* common);
-  ~SelectLowering() override;
+  ~SelectLowering();
 
   const char* reducer_name() const override { return "SelectLowering"; }
 

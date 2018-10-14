@@ -29,6 +29,7 @@ class FieldIndex final {
   static FieldIndex ForInObjectOffset(int offset, Encoding encoding,
                                       const Map* map = nullptr);
   static FieldIndex ForDescriptor(const Map* map, int descriptor_index);
+  static FieldIndex ForLoadByFieldIndex(const Map* map, int index);
 
   int GetLoadByFieldIndex() const;
 

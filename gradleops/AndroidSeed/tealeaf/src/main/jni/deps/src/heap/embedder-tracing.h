@@ -18,13 +18,14 @@ class V8_EXPORT_PRIVATE LocalEmbedderHeapTracer final {
  public:
   typedef std::pair<void*, void*> WrapperInfo;
 
-  explicit LocalEmbedderHeapTracer(Isolate* isolate) : isolate_(isolate) {}
+  explicit LocalEmbedderHeapTracer(Isolate* isolate)
+      : isolate_(isolate),
+        remote_tracer_(nullptr),
+        num_v8_marking_worklist_was_empty_(0) {}
 
   ~LocalEmbedderHeapTracer() {
     if (remote_tracer_) remote_tracer_->isolate_ = nullptr;
   }
-
-  EmbedderHeapTracer* remote_tracer() const { return remote_tracer_; }
 
   void SetRemoteTracer(EmbedderHeapTracer* tracer) {
     if (remote_tracer_) remote_tracer_->isolate_ = nullptr;
@@ -34,12 +35,14 @@ class V8_EXPORT_PRIVATE LocalEmbedderHeapTracer final {
       remote_tracer_->isolate_ = reinterpret_cast<v8::Isolate*>(isolate_);
   }
 
-  bool InUse() const { return remote_tracer_ != nullptr; }
+  bool InUse() { return remote_tracer_ != nullptr; }
 
   void TracePrologue();
   void TraceEpilogue();
+  void AbortTracing();
   void EnterFinalPause();
-  bool Trace(double deadline);
+  bool Trace(double deadline,
+             EmbedderHeapTracer::AdvanceTracingActions actions);
   bool IsRemoteTracingDone();
 
   size_t NumberOfCachedWrappersToTrace() {
@@ -65,20 +68,13 @@ class V8_EXPORT_PRIVATE LocalEmbedderHeapTracer final {
            num_v8_marking_worklist_was_empty_ > kMaxIncrementalFixpointRounds;
   }
 
-  void SetEmbedderStackStateForNextFinalization(
-      EmbedderHeapTracer::EmbedderStackState stack_state);
-
  private:
   typedef std::vector<WrapperInfo> WrapperCache;
 
   Isolate* const isolate_;
+  EmbedderHeapTracer* remote_tracer_;
   WrapperCache cached_wrappers_to_trace_;
-  EmbedderHeapTracer* remote_tracer_ = nullptr;
-  size_t num_v8_marking_worklist_was_empty_ = 0;
-  EmbedderHeapTracer::EmbedderStackState embedder_stack_state_ =
-      EmbedderHeapTracer::kUnknown;
-
-  friend class EmbedderStackStateScope;
+  size_t num_v8_marking_worklist_was_empty_;
 };
 
 }  // namespace internal

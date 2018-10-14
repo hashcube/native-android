@@ -6,7 +6,6 @@
 #define V8_BUILTINS_BUILTINS_PROXY_GEN_H_
 
 #include "src/code-stub-assembler.h"
-#include "src/objects/js-proxy.h"
 
 namespace v8 {
 namespace internal {

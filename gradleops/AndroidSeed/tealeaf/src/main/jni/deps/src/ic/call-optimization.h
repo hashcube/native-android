@@ -12,7 +12,7 @@
 namespace v8 {
 namespace internal {
 // Holds information about possible function call optimizations.
-class CallOptimization {
+class CallOptimization BASE_EMBEDDED {
  public:
   CallOptimization(Isolate* isolate, Handle<Object> function);
 

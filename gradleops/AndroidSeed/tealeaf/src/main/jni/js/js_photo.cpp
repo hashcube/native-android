@@ -57,8 +57,7 @@ void js_camera_get_next_id(const v8::FunctionCallbackInfo<v8::Value> &args) {
     args.GetReturnValue().Set(Number::New(isolate, camera_get_next_id()));
 }
 
-Local<ObjectTemplate> js_camera_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_camera_get_template(Isolate *isolate) {
     Handle<ObjectTemplate> camera = ObjectTemplate::New(isolate);
     camera->Set(STRING_CACHE_getNextId.Get(isolate), FunctionTemplate::New(isolate, js_camera_get_next_id));
     camera->Set(STRING_CACHE_getPhoto.Get(isolate), FunctionTemplate::New(isolate, js_camera_get_photo));
@@ -82,8 +81,7 @@ void js_gallery_get_next_id(const v8::FunctionCallbackInfo<v8::Value> &args) {
     args.GetReturnValue().Set(Number::New(isolate, gallery_get_next_id()));
 }
 
-Local<ObjectTemplate> js_gallery_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_gallery_get_template(Isolate *isolate) {
     Handle<ObjectTemplate> gallery = ObjectTemplate::New(isolate);
     gallery->Set(STRING_CACHE_getNextId.Get(isolate), FunctionTemplate::New(isolate, js_gallery_get_next_id));
     gallery->Set(STRING_CACHE_getPhoto.Get(isolate), FunctionTemplate::New(isolate, js_gallery_get_photo));

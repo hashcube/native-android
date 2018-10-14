@@ -18,7 +18,6 @@ namespace internal {
 class ByteArray;
 class BytecodeArray;
 class CodeDataContainer;
-class MaybeObject;
 
 namespace interpreter {
 class Register;
@@ -27,6 +26,8 @@ class Register;
 // Code describes objects with on-the-fly generated machine code.
 class Code : public HeapObject, public NeverReadOnlySpaceObject {
  public:
+  using NeverReadOnlySpaceObject::GetHeap;
+  using NeverReadOnlySpaceObject::GetIsolate;
   // Opaque data type for encapsulating code flags like kind, inline
   // cache state, and arguments count.
   typedef uint32_t Flags;
@@ -305,6 +306,9 @@ class Code : public HeapObject, public NeverReadOnlySpaceObject {
   // object has been moved by delta bytes.
   void Relocate(intptr_t delta);
 
+  // Migrate code described by desc.
+  void CopyFrom(Heap* heap, const CodeDesc& desc);
+
   // Migrate code from desc without flushing the instruction cache.
   void CopyFromNoFlush(Heap* heap, const CodeDesc& desc);
 
@@ -350,6 +354,9 @@ class Code : public HeapObject, public NeverReadOnlySpaceObject {
   inline bool IsWeakObject(Object* object);
 
   static inline bool IsWeakObjectInOptimizedCode(Object* object);
+
+  static Handle<WeakCell> WeakCellFor(Handle<Code> code);
+  WeakCell* CachedWeakCell();
 
   // Return true if the function is inlined in the code.
   bool Inlines(SharedFunctionInfo* sfi);
@@ -454,6 +461,9 @@ class Code : public HeapObject, public NeverReadOnlySpaceObject {
 // field {Code::code_data_container} itself is immutable.
 class CodeDataContainer : public HeapObject, public NeverReadOnlySpaceObject {
  public:
+  using NeverReadOnlySpaceObject::GetHeap;
+  using NeverReadOnlySpaceObject::GetIsolate;
+
   DECL_ACCESSORS(next_code_link, Object)
   DECL_INT_ACCESSORS(kind_specific_flags)
 
@@ -477,7 +487,15 @@ class CodeDataContainer : public HeapObject, public NeverReadOnlySpaceObject {
   static const int kPointerFieldsStrongEndOffset = kNextCodeLinkOffset;
   static const int kPointerFieldsWeakEndOffset = kKindSpecificFlagsOffset;
 
-  class BodyDescriptor;
+  // Ignores weakness.
+  typedef FixedBodyDescriptor<HeapObject::kHeaderSize,
+                              kPointerFieldsWeakEndOffset, kSize>
+      BodyDescriptor;
+
+  // Respects weakness.
+  typedef FixedBodyDescriptor<HeapObject::kHeaderSize,
+                              kPointerFieldsStrongEndOffset, kSize>
+      BodyDescriptorWeak;
 
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(CodeDataContainer);
@@ -485,6 +503,9 @@ class CodeDataContainer : public HeapObject, public NeverReadOnlySpaceObject {
 
 class AbstractCode : public HeapObject, public NeverReadOnlySpaceObject {
  public:
+  using NeverReadOnlySpaceObject::GetHeap;
+  using NeverReadOnlySpaceObject::GetIsolate;
+
   // All code kinds and INTERPRETED_FUNCTION.
   enum Kind {
 #define DEFINE_CODE_KIND_ENUM(name) name,
@@ -555,10 +576,10 @@ class AbstractCode : public HeapObject, public NeverReadOnlySpaceObject {
   static const int kMaxLoopNestingMarker = 6;
 };
 
-// Dependent code is a singly linked list of weak fixed arrays. Each array
-// contains weak pointers to code objects for one dependent group. The suffix of
-// the array can be filled with the undefined value if the number of codes is
-// less than the length of the array.
+// Dependent code is a singly linked list of fixed arrays. Each array contains
+// code objects in weak cells for one dependent group. The suffix of the array
+// can be filled with the undefined value if the number of codes is less than
+// the length of the array.
 //
 // +------+-----------------+--------+--------+-----+--------+-----------+-----+
 // | next | count & group 1 | code 1 | code 2 | ... | code n | undefined | ... |
@@ -570,11 +591,11 @@ class AbstractCode : public HeapObject, public NeverReadOnlySpaceObject {
 // +------+-----------------+--------+--------+-----+--------+-----------+-----+
 //    |
 //    V
-// empty_weak_fixed_array()
+// empty_fixed_array()
 //
-// The list of weak fixed arrays is ordered by dependency groups.
+// The list of fixed arrays is ordered by dependency groups.
 
-class DependentCode : public WeakFixedArray {
+class DependentCode : public FixedArray {
  public:
   DECL_CAST(DependentCode)
 
@@ -605,9 +626,14 @@ class DependentCode : public WeakFixedArray {
   };
 
   // Register a code dependency of {cell} on {object}.
-  static void InstallDependency(Isolate* isolate, const MaybeObjectHandle& code,
+  static void InstallDependency(Isolate* isolate, Handle<WeakCell> cell,
                                 Handle<HeapObject> object,
                                 DependencyGroup group);
+
+  bool Contains(DependencyGroup group, WeakCell* code_cell);
+  bool IsEmpty(DependencyGroup group);
+
+  void RemoveCompilationDependencies(DependencyGroup group, Foreign* info);
 
   void DeoptimizeDependentCodeGroup(Isolate* isolate, DependencyGroup group);
 
@@ -615,7 +641,7 @@ class DependentCode : public WeakFixedArray {
 
   // The following low-level accessors are exposed only for tests.
   inline DependencyGroup group();
-  inline MaybeObject* object_at(int i);
+  inline Object* object_at(int i);
   inline int count();
   inline DependentCode* next_link();
 
@@ -623,19 +649,18 @@ class DependentCode : public WeakFixedArray {
   static const char* DependencyGroupName(DependencyGroup group);
 
   // Get/Set {object}'s {DependentCode}.
-  static DependentCode* GetDependentCode(Handle<HeapObject> object);
-  static void SetDependentCode(Handle<HeapObject> object,
-                               Handle<DependentCode> dep);
+  static DependentCode* Get(Handle<HeapObject> object);
+  static void Set(Handle<HeapObject> object, Handle<DependentCode> dep);
 
   static Handle<DependentCode> New(Isolate* isolate, DependencyGroup group,
-                                   const MaybeObjectHandle& object,
+                                   Handle<Object> object,
                                    Handle<DependentCode> next);
   static Handle<DependentCode> EnsureSpace(Isolate* isolate,
                                            Handle<DependentCode> entries);
   static Handle<DependentCode> InsertWeakCode(Isolate* isolate,
                                               Handle<DependentCode> entries,
                                               DependencyGroup group,
-                                              const MaybeObjectHandle& code);
+                                              Handle<WeakCell> code_cell);
 
   // Compact by removing cleared weak cells and return true if there was
   // any cleared weak cell.
@@ -653,7 +678,7 @@ class DependentCode : public WeakFixedArray {
 
   inline void set_next_link(DependentCode* next);
   inline void set_count(int value);
-  inline void set_object_at(int i, MaybeObject* object);
+  inline void set_object_at(int i, Object* object);
   inline void clear_at(int i);
   inline void copy(int from, int to);
 
@@ -789,6 +814,8 @@ class BytecodeArray : public FixedArrayBase {
   static const int kMaxLength = kMaxSize - kHeaderSize;
 
   class BodyDescriptor;
+  // No weak fields.
+  typedef BodyDescriptor BodyDescriptorWeak;
 
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(BytecodeArray);
@@ -810,8 +837,9 @@ class DeoptimizationData : public FixedArray {
   static const int kOsrPcOffsetIndex = 4;
   static const int kOptimizationIdIndex = 5;
   static const int kSharedFunctionInfoIndex = 6;
-  static const int kInliningPositionsIndex = 7;
-  static const int kFirstDeoptEntryIndex = 8;
+  static const int kWeakCellCacheIndex = 7;
+  static const int kInliningPositionsIndex = 8;
+  static const int kFirstDeoptEntryIndex = 9;
 
   // Offsets of deopt entry elements relative to the start of the entry.
   static const int kBytecodeOffsetRawOffset = 0;
@@ -831,6 +859,7 @@ class DeoptimizationData : public FixedArray {
   DECL_ELEMENT_ACCESSORS(OsrPcOffset, Smi)
   DECL_ELEMENT_ACCESSORS(OptimizationId, Smi)
   DECL_ELEMENT_ACCESSORS(SharedFunctionInfo, Object)
+  DECL_ELEMENT_ACCESSORS(WeakCellCache, Object)
   DECL_ELEMENT_ACCESSORS(InliningPositions, PodArray<InliningPosition>)
 
 #undef DECL_ELEMENT_ACCESSORS
@@ -877,22 +906,6 @@ class DeoptimizationData : public FixedArray {
   }
 
   static int LengthFor(int entry_count) { return IndexForEntry(entry_count); }
-};
-
-class SourcePositionTableWithFrameCache : public Tuple2 {
- public:
-  DECL_ACCESSORS(source_position_table, ByteArray)
-  DECL_ACCESSORS(stack_frame_cache, SimpleNumberDictionary)
-
-  DECL_CAST(SourcePositionTableWithFrameCache)
-
-  static const int kSourcePositionTableIndex = Struct::kHeaderSize;
-  static const int kStackFrameCacheIndex =
-      kSourcePositionTableIndex + kPointerSize;
-  static const int kSize = kStackFrameCacheIndex + kPointerSize;
-
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(SourcePositionTableWithFrameCache);
 };
 
 }  // namespace internal

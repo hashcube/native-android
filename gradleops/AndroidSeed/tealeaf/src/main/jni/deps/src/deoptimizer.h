@@ -18,7 +18,6 @@
 #include "src/globals.h"
 #include "src/isolate.h"
 #include "src/macro-assembler.h"
-#include "src/objects/shared-function-info.h"
 #include "src/source-position.h"
 #include "src/zone/zone-chunk-list.h"
 
@@ -53,7 +52,6 @@ class TranslatedValue {
     kInvalid,
     kTagged,
     kInt32,
-    kInt64,
     kUInt32,
     kBoolBit,
     kFloat,
@@ -89,7 +87,6 @@ class TranslatedValue {
   static TranslatedValue NewFloat(TranslatedState* container, Float32 value);
   static TranslatedValue NewDouble(TranslatedState* container, Float64 value);
   static TranslatedValue NewInt32(TranslatedState* container, int32_t value);
-  static TranslatedValue NewInt64(TranslatedState* container, int64_t value);
   static TranslatedValue NewUInt32(TranslatedState* container, uint32_t value);
   static TranslatedValue NewBool(TranslatedState* container, uint32_t value);
   static TranslatedValue NewTagged(TranslatedState* container, Object* literal);
@@ -130,8 +127,6 @@ class TranslatedValue {
     uint32_t uint32_value_;
     // kind is kInt32.
     int32_t int32_value_;
-    // kind is kInt64.
-    int64_t int64_value_;
     // kind is kFloat
     Float32 float_value_;
     // kind is kDouble
@@ -143,7 +138,6 @@ class TranslatedValue {
   // Checked accessors for the union members.
   Object* raw_literal() const;
   int32_t int32_value() const;
-  int64_t int64_value() const;
   uint32_t uint32_value() const;
   Float32 float_value() const;
   Float64 double_value() const;
@@ -289,7 +283,7 @@ class TranslatedFrame {
 
 class TranslatedState {
  public:
-  TranslatedState() = default;
+  TranslatedState() {}
   explicit TranslatedState(const JavaScriptFrame* frame);
 
   void Prepare(Address stack_frame_pointer);
@@ -373,7 +367,6 @@ class TranslatedState {
   Handle<Object> GetValueAndAdvance(TranslatedFrame* frame, int* value_index);
 
   static uint32_t GetUInt32Slot(Address fp, int slot_index);
-  static uint64_t GetUInt64Slot(Address fp, int slot_index);
   static Float32 GetFloatSlot(Address fp, int slot_index);
   static Float64 GetDoubleSlot(Address fp, int slot_index);
 
@@ -392,9 +385,10 @@ class TranslatedState {
   FeedbackSlot feedback_slot_;
 };
 
-class OptimizedFunctionVisitor {
+
+class OptimizedFunctionVisitor BASE_EMBEDDED {
  public:
-  virtual ~OptimizedFunctionVisitor() = default;
+  virtual ~OptimizedFunctionVisitor() {}
   virtual void VisitFunction(JSFunction* function) = 0;
 };
 
@@ -506,7 +500,7 @@ class Deoptimizer : public Malloced {
   static const int kNotDeoptimizationEntry = -1;
 
   // Generators for the deoptimization entry code.
-  class TableEntryGenerator {
+  class TableEntryGenerator BASE_EMBEDDED {
    public:
     TableEntryGenerator(MacroAssembler* masm, DeoptimizeKind kind, int count)
         : masm_(masm), deopt_kind_(kind), count_(count) {}
@@ -869,7 +863,8 @@ class DeoptimizerData {
   DISALLOW_COPY_AND_ASSIGN(DeoptimizerData);
 };
 
-class TranslationBuffer {
+
+class TranslationBuffer BASE_EMBEDDED {
  public:
   explicit TranslationBuffer(Zone* zone) : contents_(zone) {}
 
@@ -882,7 +877,8 @@ class TranslationBuffer {
   ZoneChunkList<uint8_t> contents_;
 };
 
-class TranslationIterator {
+
+class TranslationIterator BASE_EMBEDDED {
  public:
   TranslationIterator(ByteArray* buffer, int index);
 
@@ -913,14 +909,12 @@ class TranslationIterator {
   V(CAPTURED_OBJECT)                                   \
   V(REGISTER)                                          \
   V(INT32_REGISTER)                                    \
-  V(INT64_REGISTER)                                    \
   V(UINT32_REGISTER)                                   \
   V(BOOL_REGISTER)                                     \
   V(FLOAT_REGISTER)                                    \
   V(DOUBLE_REGISTER)                                   \
   V(STACK_SLOT)                                        \
   V(INT32_STACK_SLOT)                                  \
-  V(INT64_STACK_SLOT)                                  \
   V(UINT32_STACK_SLOT)                                 \
   V(BOOL_STACK_SLOT)                                   \
   V(FLOAT_STACK_SLOT)                                  \
@@ -928,7 +922,7 @@ class TranslationIterator {
   V(LITERAL)                                           \
   V(UPDATE_FEEDBACK)
 
-class Translation {
+class Translation BASE_EMBEDDED {
  public:
 #define DECLARE_TRANSLATION_OPCODE_ENUM(item) item,
   enum Opcode {
@@ -968,14 +962,12 @@ class Translation {
   void DuplicateObject(int object_index);
   void StoreRegister(Register reg);
   void StoreInt32Register(Register reg);
-  void StoreInt64Register(Register reg);
   void StoreUint32Register(Register reg);
   void StoreBoolRegister(Register reg);
   void StoreFloatRegister(FloatRegister reg);
   void StoreDoubleRegister(DoubleRegister reg);
   void StoreStackSlot(int index);
   void StoreInt32StackSlot(int index);
-  void StoreInt64StackSlot(int index);
   void StoreUint32StackSlot(int index);
   void StoreBoolStackSlot(int index);
   void StoreFloatStackSlot(int index);

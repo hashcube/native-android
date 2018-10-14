@@ -161,10 +161,10 @@ class ZoneUnorderedMap
                                 ZoneAllocator<std::pair<const K, V>>> {
  public:
   // Constructs an empty map.
-  explicit ZoneUnorderedMap(Zone* zone, size_t bucket_count = 100)
+  explicit ZoneUnorderedMap(Zone* zone)
       : std::unordered_map<K, V, Hash, KeyEqual,
                            ZoneAllocator<std::pair<const K, V>>>(
-            bucket_count, Hash(), KeyEqual(),
+            100, Hash(), KeyEqual(),
             ZoneAllocator<std::pair<const K, V>>(zone)) {}
 };
 

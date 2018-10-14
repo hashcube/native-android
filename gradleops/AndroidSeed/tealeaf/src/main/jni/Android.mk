@@ -154,10 +154,10 @@ include $(PREBUILT_STATIC_LIBRARY)
 
 
 
-include $(CLEAR_VARS)
-LOCAL_MODULE := libv8_nosnapshot
-LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_nosnapshot.a
-include $(PREBUILT_STATIC_LIBRARY)
+#include $(CLEAR_VARS)
+#LOCAL_MODULE := libv8_nosnapshot
+#LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_nosnapshot.a
+#include $(PREBUILT_STATIC_LIBRARY)
 
 
 include $(CLEAR_VARS)
@@ -312,7 +312,7 @@ QR_SRC_FILES := \
 	core/qr/quirc/version_db.c \
 	core/qr/adapter/qrprocess.c
 
-#correct order v8_base v8_libplatform v8_libbase v8_libsampler v8_snapshot v8_inspector
+#correct order ibv8_initializers libv8_init libv8_base libv8_libplatform libv8_libbase libv8_libsampler libv8_nosnapshot libv8_snapshot libinspector libtorque_base
 LOCAL_STATIC_LIBRARIES := curl-prebuilt libzip cpufeatures libturbojpeg libjansson libpng  libv8_initializers libv8_init libv8_base libv8_libplatform libv8_libbase libv8_libsampler libv8_nosnapshot libv8_snapshot libinspector libtorque_base gnustl #libicui18n libicuuc #libv8_external_snapshot
 
 
@@ -332,6 +332,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib/include
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib/src
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/include
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/core
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/core/deps
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/core/image-cache/include
@@ -369,6 +370,8 @@ ifeq (${GPROF}, 1)
 LOCAL_CFLAGS += -DPROFILE -fno-omit-frame-pointer -fno-function-sections
 LOCAL_STATIC_LIBRARIES += andprof
 endif
+
+LOCAL_LDLIBS += -llog
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-module,android/cpufeatures)

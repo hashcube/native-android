@@ -22,4 +22,4 @@ using v8::Local;
 using v8::Value;
 
 void js_device_global_id(Local< String > property, const PropertyCallbackInfo< Value > &info);
-Local<ObjectTemplate> js_device_get_template();
+Local<ObjectTemplate> js_device_get_template(Isolate *isolate);

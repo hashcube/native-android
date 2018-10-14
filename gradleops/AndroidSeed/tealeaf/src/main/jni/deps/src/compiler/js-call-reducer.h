@@ -15,7 +15,6 @@ namespace internal {
 
 // Forward declarations.
 class Factory;
-class JSGlobalProxy;
 class VectorSlotPair;
 
 namespace compiler {
@@ -95,7 +94,6 @@ class V8_EXPORT_PRIVATE JSCallReducer final : public AdvancedReducer {
   Reduction ReduceArrayPrototypePush(Node* node);
   Reduction ReduceArrayPrototypePop(Node* node);
   Reduction ReduceArrayPrototypeShift(Node* node);
-  Reduction ReduceArrayPrototypeSlice(Node* node);
   Reduction ReduceArrayIsArray(Node* node);
   enum class ArrayIteratorKind { kArray, kTypedArray };
   Reduction ReduceArrayIterator(Node* node, IterationKind kind);
@@ -183,15 +181,14 @@ class V8_EXPORT_PRIVATE JSCallReducer final : public AdvancedReducer {
                                           InstanceType instance_type,
                                           FieldAccess const& access);
 
-  enum class DataViewAccess { kGet, kSet };
-  Reduction ReduceDataViewAccess(Node* node, DataViewAccess access,
-                                 ExternalArrayType element_type);
+  Reduction ReduceDataViewPrototypeGet(Node* node,
+                                       ExternalArrayType element_type);
+  Reduction ReduceDataViewPrototypeSet(Node* node,
+                                       ExternalArrayType element_type);
 
   Reduction ReduceDatePrototypeGetTime(Node* node);
   Reduction ReduceDateNow(Node* node);
   Reduction ReduceNumberParseInt(Node* node);
-
-  Reduction ReduceNumberConstructor(Node* node);
 
   // Returns the updated {to} node, and updates control and effect along the
   // way.
@@ -234,7 +231,7 @@ class V8_EXPORT_PRIVATE JSCallReducer final : public AdvancedReducer {
 
   Graph* graph() const;
   JSGraph* jsgraph() const { return jsgraph_; }
-  JSHeapBroker* js_heap_broker() const { return js_heap_broker_; }
+  const JSHeapBroker* js_heap_broker() const { return js_heap_broker_; }
   Isolate* isolate() const;
   Factory* factory() const;
   Handle<Context> native_context() const { return native_context_; }
@@ -246,7 +243,7 @@ class V8_EXPORT_PRIVATE JSCallReducer final : public AdvancedReducer {
   CompilationDependencies* dependencies() const { return dependencies_; }
 
   JSGraph* const jsgraph_;
-  JSHeapBroker* const js_heap_broker_;
+  const JSHeapBroker* const js_heap_broker_;
   Flags const flags_;
   Handle<Context> const native_context_;
   CompilationDependencies* const dependencies_;

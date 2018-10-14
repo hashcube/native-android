@@ -8,7 +8,6 @@
 #include "src/contexts.h"
 #include "src/objects.h"
 #include "src/objects/dictionary.h"
-#include "src/objects/js-array.h"
 
 namespace v8 {
 namespace internal {

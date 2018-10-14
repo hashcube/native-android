@@ -40,7 +40,7 @@ class V8Debugger : public v8::debug::DebugDelegate,
                    public v8::debug::AsyncEventDelegate {
  public:
   V8Debugger(v8::Isolate*, V8InspectorImpl*);
-  ~V8Debugger() override;
+  ~V8Debugger();
 
   bool enabled() const;
   v8::Isolate* isolate() const { return m_isolate; }
@@ -189,9 +189,6 @@ class V8Debugger : public v8::debug::DebugDelegate,
   int currentContextGroupId();
   bool asyncStepOutOfFunction(int targetContextGroupId, bool onlyAtReturn);
 
-  v8::MaybeLocal<v8::Uint32> stableObjectId(v8::Local<v8::Context>,
-                                            v8::Local<v8::Value>);
-
   v8::Isolate* m_isolate;
   V8InspectorImpl* m_inspector;
   int m_enableCount;
@@ -247,9 +244,6 @@ class V8Debugger : public v8::debug::DebugDelegate,
       m_serializedDebuggerIdToDebuggerId;
 
   std::unique_ptr<TerminateExecutionCallback> m_terminateExecutionCallback;
-
-  uint32_t m_lastStableObjectId = 0;
-  v8::Global<v8::debug::WeakMap> m_stableObjectId;
 
   WasmTranslation m_wasmTranslation;
 

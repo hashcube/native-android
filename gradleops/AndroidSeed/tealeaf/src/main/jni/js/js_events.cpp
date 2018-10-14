@@ -26,8 +26,8 @@ static char *m_buffer[MAX_BUFFERED_EVENTS] = { 0 };
 static int m_buffer_len = 0;
 
 CEXPORT void js_dispatch_event(const char *event_str) {
-    Locker l(getIsolate());
-    Isolate *isolate = Isolate::GetCurrent();
+    Isolate *isolate = getIsolate();
+    Locker l(isolate);
     HandleScope handle_scope(isolate);
     Handle<Context> context = getContext();
     if (!context.IsEmpty()) {

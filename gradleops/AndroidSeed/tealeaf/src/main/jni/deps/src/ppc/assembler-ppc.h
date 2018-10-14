@@ -298,6 +298,7 @@ GENERAL_REGISTERS(DEFINE_REGISTER)
 constexpr Register no_reg = Register::no_reg();
 
 // Aliases
+constexpr Register kLithiumScratch = r11;        // lithium scratch.
 constexpr Register kConstantPoolRegister = r28;  // Constant pool.
 constexpr Register kRootRegister = r29;          // Roots array pointer.
 constexpr Register cp = r30;                     // JavaScript context pointer.
@@ -373,7 +374,7 @@ C_REGISTERS(DECLARE_C_REGISTER)
 // Machine instruction Operands
 
 // Class Operand represents a shifter operand in data processing instructions
-class Operand {
+class Operand BASE_EMBEDDED {
  public:
   // immediate
   V8_INLINE explicit Operand(intptr_t immediate,
@@ -394,7 +395,6 @@ class Operand {
   V8_INLINE explicit Operand(Register rm);
 
   static Operand EmbeddedNumber(double number);  // Smi or HeapNumber.
-  static Operand EmbeddedStringConstant(const StringConstantBase* str);
   static Operand EmbeddedCode(CodeStub* stub);
 
   // Return true if this is a register operand.
@@ -443,7 +443,7 @@ class Operand {
 // Class MemOperand represents a memory operand in load and store instructions
 // On PowerPC we have base register + 16bit signed value
 // Alternatively we can have a 16bit signed value immediate
-class MemOperand {
+class MemOperand BASE_EMBEDDED {
  public:
   explicit MemOperand(Register rn, int32_t offset = 0);
 
@@ -597,6 +597,9 @@ class Assembler : public AssemblerBase {
       Address pc, Address target,
       RelocInfo::Mode mode = RelocInfo::INTERNAL_REFERENCE);
 
+  // Size of an instruction.
+  static constexpr int kInstrSize = sizeof(Instr);
+
   // Here we are patching the address in the LUI/ORI instruction pair.
   // These values are used in the serialization process and must be zero for
   // PPC platform, as Code, Embedded Object or External-reference pointers
@@ -660,6 +663,7 @@ class Assembler : public AssemblerBase {
   template <class R>                                                     \
   inline void name(const R rt, const Register ra, const Register rb,     \
                    const RCBit rc = LeaveRC) {                           \
+    DCHECK(ra != r0);                                                    \
     x_form(instr_name, rt.code(), ra.code(), rb.code(), rc);             \
   }                                                                      \
   template <class R>                                                     \
@@ -1633,7 +1637,8 @@ class Assembler : public AssemblerBase {
   friend class EnsureSpace;
 };
 
-class EnsureSpace {
+
+class EnsureSpace BASE_EMBEDDED {
  public:
   explicit EnsureSpace(Assembler* assembler) { assembler->CheckBuffer(); }
 };

@@ -11,7 +11,6 @@
 #include "src/isolate.h"
 #include "src/objects/dictionary.h"
 #include "src/objects/map-inl.h"
-#include "src/objects/maybe-object-inl.h"
 #include "src/v8memory.h"
 
 // Has to be the last include (doesn't have include guards):
@@ -26,12 +25,6 @@ CAST_ACCESSOR(Code)
 CAST_ACCESSOR(CodeDataContainer)
 CAST_ACCESSOR(DependentCode)
 CAST_ACCESSOR(DeoptimizationData)
-CAST_ACCESSOR(SourcePositionTableWithFrameCache)
-
-ACCESSORS(SourcePositionTableWithFrameCache, source_position_table, ByteArray,
-          kSourcePositionTableIndex)
-ACCESSORS(SourcePositionTableWithFrameCache, stack_frame_cache,
-          SimpleNumberDictionary, kStackFrameCacheIndex)
 
 int AbstractCode::raw_instruction_size() {
   if (IsCode()) {
@@ -139,17 +132,17 @@ BytecodeArray* AbstractCode::GetBytecodeArray() {
 }
 
 DependentCode* DependentCode::next_link() {
-  return DependentCode::cast(Get(kNextLinkIndex)->GetHeapObjectAssumeStrong());
+  return DependentCode::cast(get(kNextLinkIndex));
 }
 
 void DependentCode::set_next_link(DependentCode* next) {
-  Set(kNextLinkIndex, HeapObjectReference::Strong(next));
+  set(kNextLinkIndex, next);
 }
 
-int DependentCode::flags() { return Smi::ToInt(Get(kFlagsIndex)->cast<Smi>()); }
+int DependentCode::flags() { return Smi::ToInt(get(kFlagsIndex)); }
 
 void DependentCode::set_flags(int flags) {
-  Set(kFlagsIndex, MaybeObject::FromObject(Smi::FromInt(flags)));
+  set(kFlagsIndex, Smi::FromInt(flags));
 }
 
 int DependentCode::count() { return CountField::decode(flags()); }
@@ -162,21 +155,16 @@ DependentCode::DependencyGroup DependentCode::group() {
   return static_cast<DependencyGroup>(GroupField::decode(flags()));
 }
 
-void DependentCode::set_object_at(int i, MaybeObject* object) {
-  Set(kCodesStartIndex + i, object);
+void DependentCode::set_object_at(int i, Object* object) {
+  set(kCodesStartIndex + i, object);
 }
 
-MaybeObject* DependentCode::object_at(int i) {
-  return Get(kCodesStartIndex + i);
-}
+Object* DependentCode::object_at(int i) { return get(kCodesStartIndex + i); }
 
-void DependentCode::clear_at(int i) {
-  Set(kCodesStartIndex + i,
-      HeapObjectReference::Strong(GetReadOnlyRoots().undefined_value()));
-}
+void DependentCode::clear_at(int i) { set_undefined(kCodesStartIndex + i); }
 
 void DependentCode::copy(int from, int to) {
-  Set(kCodesStartIndex + to, Get(kCodesStartIndex + from));
+  set(kCodesStartIndex + to, get(kCodesStartIndex + from));
 }
 
 INT_ACCESSORS(Code, raw_instruction_size, kInstructionSizeOffset)
@@ -326,10 +314,8 @@ Address Code::entry() const { return raw_instruction_start(); }
 bool Code::contains(Address inner_pointer) {
   if (is_off_heap_trampoline()) {
     DCHECK(FLAG_embedded_builtins);
-    if (OffHeapInstructionStart() <= inner_pointer &&
-        inner_pointer < OffHeapInstructionEnd()) {
-      return true;
-    }
+    return (OffHeapInstructionStart() <= inner_pointer) &&
+           (inner_pointer < OffHeapInstructionEnd());
   }
   return (address() <= inner_pointer) && (inner_pointer < address() + Size());
 }
@@ -569,7 +555,7 @@ Object* Code::GetObjectFromCodeEntry(Address code_entry) {
 }
 
 Object* Code::GetObjectFromEntryAddress(Address location_of_address) {
-  return GetObjectFromCodeEntry(Memory<Address>(location_of_address));
+  return GetObjectFromCodeEntry(Memory::Address_at(location_of_address));
 }
 
 bool Code::CanContainWeakObjects() {

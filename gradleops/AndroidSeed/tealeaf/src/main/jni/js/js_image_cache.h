@@ -21,6 +21,6 @@ using namespace v8;
 
 using v8::Handle;
 using v8::ObjectTemplate;
-Local<ObjectTemplate> js_image_cache_get_template();
+Local<ObjectTemplate> js_image_cache_get_template(Isolate *isolate);
 
 #endif //JS_IMAGE_CACHE_H

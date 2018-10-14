@@ -35,8 +35,7 @@ void game_hash_getter(Local< String > property, const PropertyCallbackInfo< Valu
     info.GetReturnValue().Set(String::NewFromUtf8(isolate, build_get_game_hash()));
 }
 
-Local<ObjectTemplate> js_build_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_build_get_template(Isolate *isolate) {
     Local<ObjectTemplate> build = ObjectTemplate::New(isolate);
     build->SetAccessor(STRING_CACHE_sdkHash.Get(isolate), sdk_hash_getter);
     build->SetAccessor(STRING_CACHE_androidHash.Get(isolate), android_hash_getter);

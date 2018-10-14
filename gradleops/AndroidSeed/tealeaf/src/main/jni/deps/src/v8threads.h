@@ -59,7 +59,7 @@ class ThreadVisitor {
   virtual void VisitThread(Isolate* isolate, ThreadLocalTop* top) = 0;
 
  protected:
-  virtual ~ThreadVisitor() = default;
+  virtual ~ThreadVisitor() {}
 };
 
 class ThreadManager {
@@ -67,7 +67,6 @@ class ThreadManager {
   void Lock();
   void Unlock();
 
-  void InitThread(const ExecutionAccess&);
   void ArchiveThread();
   bool RestoreThread();
   void FreeThreadResources();

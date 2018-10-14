@@ -27,6 +27,7 @@ extern "C" {
 #include "js/js_console.h"
 #include "js/js_haptics.h"
 #include "js/js_sound.h"
+#include "js_context.h"
 #include "js/js_overlay.h"
 #include "js/js_device.h"
 #include "js/js_dialog.h"
@@ -62,7 +63,7 @@ void native_eval(const v8::FunctionCallbackInfo<v8::Value> &args) {
     String::Utf8Value str2(isolate, args[1]);
     const char *pstr = ToCString(str2);
 
-    Local<Value> ret = ExecuteString(String::NewFromUtf8(isolate,cstr), String::NewFromUtf8(isolate, pstr), true);
+    Local<Value> ret = ExecuteString(String::NewFromUtf8(isolate,cstr), String::NewFromUtf8(isolate, pstr), true, isolate);
     LOGFN("endeval");
     args.GetReturnValue().Set(ret);
 }
@@ -199,8 +200,7 @@ void js_is_simulator(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 
-Local<ObjectTemplate> js_native_get_template(const char* uri, const char* native_hash) {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> js_native_get_template(const char* uri, const char* native_hash, Isolate *isolate) {
     Local<ObjectTemplate> NATIVE = ObjectTemplate::New(isolate);
 
     // functions
@@ -219,41 +219,41 @@ Local<ObjectTemplate> js_native_get_template(const char* uri, const char* native
     NATIVE->Set(STRING_CACHE_isSimulator.Get(isolate), FunctionTemplate::New(isolate, js_is_simulator));
 
     // templates
-    NATIVE->Set(STRING_CACHE_console.Get(isolate), js_console_get_template());
-    NATIVE->Set(STRING_CACHE_gl.Get(isolate), js_gl_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_localStorage.Get(isolate), js_local_storage_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_sound.Get(isolate), js_sound_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_overlay.Get(isolate), js_overlay_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_device.Get(isolate), js_device_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_textbox.Get(isolate), js_textbox_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_dialogs.Get(isolate), js_dialog_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_haptics.Get(isolate), js_haptics_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_camera.Get(isolate), js_camera_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_gallery.Get(isolate), js_gallery_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_timestep.Get(isolate), js_timestep_get_template());
-    NATIVE->Set(STRING_CACHE_xhr.Get(isolate), js_xhr_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_plugins.Get(isolate), js_plugins_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_gc.Get(isolate), js_gc_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_build.Get(isolate), js_build_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_locale.Get(isolate), js_locale_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_profiler.Get(isolate), js_profiler_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_input.Get(isolate), js_input_get_template()->NewInstance());
-    NATIVE->Set(STRING_CACHE_statusBar.Get(isolate), js_status_bar_get_template()->NewInstance());
-    NATIVE->Set(String::NewFromUtf8(isolate, "imageCache"), js_image_cache_get_template()->NewInstance());
+    NATIVE->Set(STRING_CACHE_console.Get(isolate), js_console_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_gl.Get(isolate), js_gl_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_localStorage.Get(isolate), js_local_storage_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_sound.Get(isolate), js_sound_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_overlay.Get(isolate), js_overlay_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_device.Get(isolate), js_device_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_textbox.Get(isolate), js_textbox_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_dialogs.Get(isolate), js_dialog_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_haptics.Get(isolate), js_haptics_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_camera.Get(isolate), js_camera_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_gallery.Get(isolate), js_gallery_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_timestep.Get(isolate), js_timestep_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_xhr.Get(isolate), js_xhr_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_plugins.Get(isolate), js_plugins_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_gc.Get(isolate), js_gc_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_build.Get(isolate), js_build_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_locale.Get(isolate), js_locale_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_profiler.Get(isolate), js_profiler_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_input.Get(isolate), js_input_get_template(isolate));
+    NATIVE->Set(STRING_CACHE_statusBar.Get(isolate), js_status_bar_get_template(isolate));
+    NATIVE->Set(String::NewFromUtf8(isolate, "imageCache"), js_image_cache_get_template(isolate));
 
     // market
     Handle<ObjectTemplate> market = ObjectTemplate::New(isolate);
     const char *marketUrl = get_market_url();
     market->Set(STRING_CACHE_url.Get(isolate), String::NewFromUtf8(isolate, marketUrl), ReadOnly);
     free((void*)marketUrl);
-    NATIVE->Set(STRING_CACHE_market.Get(isolate), market->NewInstance());
+    NATIVE->Set(STRING_CACHE_market.Get(isolate), market);
 
     // Values
     NATIVE->SetAccessor(STRING_CACHE_deviceUUID.Get(isolate), js_device_global_id);
     NATIVE->SetAccessor(STRING_CACHE_installReferrer.Get(isolate), js_install_referrer);
     NATIVE->SetAccessor(STRING_CACHE_usedHeap.Get(isolate), js_used_heap);
     NATIVE->Set(STRING_CACHE_simulateID.Get(isolate), String::NewFromUtf8(isolate, config_get_simulate_id()));
-    NATIVE->Set(STRING_CACHE_screen.Get(isolate), Object::New(isolate));
+    NATIVE->Set(STRING_CACHE_screen.Get(isolate), String::NewFromUtf8(isolate,"screen"));
     NATIVE->Set(STRING_CACHE_uri.Get(isolate), String::NewFromUtf8(isolate, uri));
     NATIVE->Set(STRING_CACHE_tcpHost.Get(isolate), String::NewFromUtf8(isolate, config_get_tcp_host()));
     NATIVE->Set(STRING_CACHE_tcpPort.Get(isolate), Number::New(isolate, config_get_tcp_port()));

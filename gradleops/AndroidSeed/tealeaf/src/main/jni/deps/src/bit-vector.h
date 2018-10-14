@@ -21,7 +21,7 @@ class BitVector : public ZoneObject {
   };
 
   // Iterator for the elements of this BitVector.
-  class Iterator {
+  class Iterator BASE_EMBEDDED {
    public:
     explicit Iterator(BitVector* target)
         : target_(target),
@@ -31,7 +31,7 @@ class BitVector : public ZoneObject {
           current_(-1) {
       Advance();
     }
-    ~Iterator() = default;
+    ~Iterator() {}
 
     bool Done() const { return current_index_ >= target_->data_length_; }
     void Advance();
@@ -305,9 +305,10 @@ class BitVector : public ZoneObject {
   DISALLOW_COPY_AND_ASSIGN(BitVector);
 };
 
-class GrowableBitVector {
+
+class GrowableBitVector BASE_EMBEDDED {
  public:
-  class Iterator {
+  class Iterator BASE_EMBEDDED {
    public:
     Iterator(const GrowableBitVector* target, Zone* zone)
         : it_(target->bits_ == nullptr ? new (zone) BitVector(1, zone)

@@ -11,7 +11,6 @@
 #include <memory>
 
 #include "src/globals.h"
-#include "src/handles.h"
 
 namespace v8 {
 namespace internal {
@@ -31,7 +30,7 @@ class SourcePositionTable;
 
 struct TurboJsonFile : public std::ofstream {
   TurboJsonFile(OptimizedCompilationInfo* info, std::ios_base::openmode mode);
-  ~TurboJsonFile() override;
+  ~TurboJsonFile();
 };
 
 struct SourcePositionAsJSON {

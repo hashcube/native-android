@@ -23,7 +23,7 @@ using namespace v8;
 using v8::Handle;
 using v8::ObjectTemplate;
 
-Local<ObjectTemplate> js_camera_get_template();
-Local<ObjectTemplate> js_gallery_get_template();
+Local<ObjectTemplate> js_camera_get_template(Isolate *isolate);
+Local<ObjectTemplate> js_gallery_get_template(Isolate *isolate);
 
 #endif

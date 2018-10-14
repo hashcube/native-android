@@ -12,7 +12,6 @@
 #include <vector>
 
 #include "include/v8-inspector.h"
-#include "include/v8-internal.h"
 #include "include/v8.h"
 #include "src/allocation.h"
 #include "src/base/atomicops.h"
@@ -59,32 +58,43 @@ namespace heap {
 class HeapTester;
 }  // namespace heap
 
+class AccessCompilerData;
 class AddressToIndexHashMap;
 class AstStringConstants;
+class BasicBlockProfiler;
 class Bootstrapper;
 class BuiltinsConstantsTableBuilder;
 class CancelableTaskManager;
 class CodeEventDispatcher;
+class ExternalCodeEventListener;
+class CodeGenerator;
+class CodeRange;
+class CodeStubDescriptor;
 class CodeTracer;
 class CompilationCache;
 class CompilationStatistics;
 class CompilerDispatcher;
 class ContextSlotCache;
 class Counters;
+class CpuFeatures;
 class Debug;
 class DeoptimizerData;
 class DescriptorLookupCache;
+class EmptyStatement;
 class EternalHandles;
 class ExternalCallbackScope;
 class HandleScopeImplementer;
 class HeapObjectToIndexHashMap;
 class HeapProfiler;
+class InlineRuntimeFunctionsTable;
 class InnerPointerToCodeCache;
+class InstructionStream;
 class Logger;
 class MaterializedObjectStore;
 class Microtask;
 class OptimizingCompileDispatcher;
 class PromiseOnStack;
+class Redirection;
 class RegExpStack;
 class RootVisitor;
 class RuntimeProfiler;
@@ -93,7 +103,10 @@ class SetupIsolateDelegate;
 class Simulator;
 class StartupDeserializer;
 class StandardFrame;
+class StatsTable;
+class StringTracker;
 class StubCache;
+class SweeperThread;
 class ThreadManager;
 class ThreadState;
 class ThreadVisitor;  // Defined in v8threads.h
@@ -155,24 +168,6 @@ class WasmEngine;
     }                                                             \
   } while (false)
 
-/**
- * RETURN_RESULT_OR_FAILURE is used in functions with return type Object* (such
- * as "RUNTIME_FUNCTION(...) {...}" or "BUILTIN(...) {...}" ) to return either
- * the contents of a MaybeHandle<X>, or the "exception" sentinel value.
- * Example usage:
- *
- * RUNTIME_FUNCTION(Runtime_Func) {
- *   ...
- *   RETURN_RESULT_OR_FAILURE(
- *       isolate,
- *       FunctionWithReturnTypeMaybeHandleX(...));
- * }
- *
- * If inside a function with return type MaybeHandle<X> use RETURN_ON_EXCEPTION
- * instead.
- * If inside a function with return type Handle<X>, or Maybe<X> use
- * RETURN_ON_EXCEPTION_VALUE instead.
- */
 #define RETURN_RESULT_OR_FAILURE(isolate, call)      \
   do {                                               \
     Handle<Object> __result__;                       \
@@ -222,36 +217,6 @@ class WasmEngine;
     return value;                                          \
   } while (false)
 
-/**
- * RETURN_ON_EXCEPTION_VALUE conditionally returns the given value when the
- * given MaybeHandle is empty. It is typically used in functions with return
- * type Maybe<X> or Handle<X>. Example usage:
- *
- * Handle<X> Func() {
- *   ...
- *   RETURN_ON_EXCEPTION_VALUE(
- *       isolate,
- *       FunctionWithReturnTypeMaybeHandleX(...),
- *       Handle<X>());
- *   // code to handle non exception
- *   ...
- * }
- *
- * Maybe<bool> Func() {
- *   ..
- *   RETURN_ON_EXCEPTION_VALUE(
- *       isolate,
- *       FunctionWithReturnTypeMaybeHandleX(...),
- *       Nothing<bool>);
- *   // code to handle non exception
- *   return Just(true);
- * }
- *
- * If inside a function with return type MaybeHandle<X>, use RETURN_ON_EXCEPTION
- * instead.
- * If inside a function with return type Object*, use
- * RETURN_FAILURE_ON_EXCEPTION instead.
- */
 #define RETURN_ON_EXCEPTION_VALUE(isolate, call, value)            \
   do {                                                             \
     if ((call).is_null()) {                                        \
@@ -260,26 +225,6 @@ class WasmEngine;
     }                                                              \
   } while (false)
 
-/**
- * RETURN_FAILURE_ON_EXCEPTION conditionally returns the "exception" sentinel if
- * the given MaybeHandle is empty; so it can only be used in functions with
- * return type Object*, such as RUNTIME_FUNCTION(...) {...} or BUILTIN(...)
- * {...}. Example usage:
- *
- * RUNTIME_FUNCTION(Runtime_Func) {
- *   ...
- *   RETURN_FAILURE_ON_EXCEPTION(
- *       isolate,
- *       FunctionWithReturnTypeMaybeHandleX(...));
- *   // code to handle non exception
- *   ...
- * }
- *
- * If inside a function with return type MaybeHandle<X>, use RETURN_ON_EXCEPTION
- * instead.
- * If inside a function with return type Maybe<X> or Handle<X>, use
- * RETURN_ON_EXCEPTION_VALUE instead.
- */
 #define RETURN_FAILURE_ON_EXCEPTION(isolate, call)                     \
   do {                                                                 \
     Isolate* __isolate__ = (isolate);                                  \
@@ -287,26 +232,6 @@ class WasmEngine;
                               ReadOnlyRoots(__isolate__).exception()); \
   } while (false);
 
-/**
- * RETURN_ON_EXCEPTION conditionally returns an empty MaybeHandle<T> if the
- * given MaybeHandle is empty. Use it to return immediately from a function with
- * return type MaybeHandle when an exception was thrown. Example usage:
- *
- * MaybeHandle<X> Func() {
- *   ...
- *   RETURN_ON_EXCEPTION(
- *       isolate,
- *       FunctionWithReturnTypeMaybeHandleY(...),
- *       X);
- *   // code to handle non exception
- *   ...
- * }
- *
- * If inside a function with return type Object*, use
- * RETURN_FAILURE_ON_EXCEPTION instead.
- * If inside a function with return type
- * Maybe<X> or Handle<X>, use RETURN_ON_EXCEPTION_VALUE instead.
- */
 #define RETURN_ON_EXCEPTION(isolate, call, T)  \
   RETURN_ON_EXCEPTION_VALUE(isolate, call, MaybeHandle<T>())
 
@@ -383,7 +308,8 @@ class ThreadId {
   inline void set_##name(type v) { name##_ = v; }  \
   inline type name() const { return name##_; }
 
-class ThreadLocalTop {
+
+class ThreadLocalTop BASE_EMBEDDED {
  public:
   // Does early low-level initialization that does not depend on the
   // isolate being present.
@@ -422,6 +348,9 @@ class ThreadLocalTop {
   Context* context_ = nullptr;
   ThreadId thread_id_ = ThreadId::Invalid();
   Object* pending_exception_ = nullptr;
+  // TODO(kschimpf): Change this to a stack of caught exceptions (rather than
+  // just innermost catching try block).
+  Object* wasm_caught_exception_ = nullptr;
 
   // Communication channel between Isolate::FindHandler and the CEntry.
   Context* pending_handler_context_ = nullptr;
@@ -467,12 +396,10 @@ class ThreadLocalTop {
   // Call back function to report unsafe JS accesses.
   v8::FailedAccessCheckCallback failed_access_check_callback_ = nullptr;
 
-  // Address of the thread-local "thread in wasm" flag.
-  Address thread_in_wasm_flag_address_ = kNullAddress;
-
  private:
   v8::TryCatch* try_catch_handler_ = nullptr;
 };
+
 
 #ifdef DEBUG
 
@@ -507,7 +434,6 @@ typedef std::vector<HeapObject*> DebugObjectCache;
   V(ExtensionCallback, wasm_instance_callback, &NoExtension)                  \
   V(ApiImplementationCallback, wasm_compile_streaming_callback, nullptr)      \
   V(WasmStreamingCallback, wasm_streaming_callback, nullptr)                  \
-  V(WasmThreadsEnabledCallback, wasm_threads_enabled_callback, nullptr)       \
   /* State for Relocatable. */                                                \
   V(Relocatable*, relocatable_top, nullptr)                                   \
   V(DebugObjectCache*, string_stream_debug_object_cache, nullptr)             \
@@ -515,6 +441,7 @@ typedef std::vector<HeapObject*> DebugObjectCache;
   V(const intptr_t*, api_external_references, nullptr)                        \
   V(AddressToIndexHashMap*, external_reference_map, nullptr)                  \
   V(HeapObjectToIndexHashMap*, root_index_map, nullptr)                       \
+  V(int, pending_microtask_count, 0)                                          \
   V(CompilationStatistics*, turbo_statistics, nullptr)                        \
   V(CodeTracer*, code_tracer, nullptr)                                        \
   V(uint32_t, per_isolate_assert_data, 0xFFFFFFFFu)                           \
@@ -626,11 +553,6 @@ class Isolate : private HiddenFactory {
     return isolate;
   }
 
-  // Get the isolate that the given HeapObject lives in, returning true on
-  // success. If the object is not writable (i.e. lives in read-only space),
-  // return false.
-  inline static bool FromWritableHeapObject(HeapObject* obj, Isolate** isolate);
-
   // Usually called by Init(), but can be called early e.g. to allow
   // testing components that require logging but not the whole
   // isolate.
@@ -652,8 +574,6 @@ class Isolate : private HiddenFactory {
   void ReleaseSharedPtrs();
 
   void ClearSerializerData();
-
-  bool LogObjectRelocation();
 
   // Find the PerThread for this particular (isolate, thread) combination
   // If one does not yet exist, return null.
@@ -701,7 +621,10 @@ class Isolate : private HiddenFactory {
   inline void set_pending_exception(Object* exception_obj);
   inline void clear_pending_exception();
 
-  bool AreWasmThreadsEnabled(Handle<Context> context);
+  // Interface to wasm caught exception.
+  inline Object* get_wasm_caught_exception();
+  inline void set_wasm_caught_exception(Object* exception);
+  inline void clear_wasm_caught_exception();
 
   THREAD_LOCAL_TOP_ADDRESS(Object*, pending_exception)
 
@@ -737,6 +660,7 @@ class Isolate : private HiddenFactory {
   bool IsExternalHandlerOnTop(Object* exception);
 
   inline bool is_catchable_by_javascript(Object* exception);
+  bool is_catchable_by_wasm(Object* exception);
 
   // JS execution stack (see frames.h).
   static Address c_entry_fp(ThreadLocalTop* thread) {
@@ -888,7 +812,7 @@ class Isolate : private HiddenFactory {
   };
   CatchType PredictExceptionCatcher();
 
-  V8_EXPORT_PRIVATE void ScheduleThrow(Object* exception);
+  void ScheduleThrow(Object* exception);
   // Re-set pending message, script and positions reported to the TryCatch
   // back to the TLS for re-use when rethrowing.
   void RestorePendingMessageFromTryCatch(v8::TryCatch* handler);
@@ -934,8 +858,12 @@ class Isolate : private HiddenFactory {
   void IterateThread(ThreadVisitor* v, char* t);
 
   // Returns the current native context.
-  inline Handle<NativeContext> native_context();
-  inline NativeContext* raw_native_context();
+  inline Handle<Context> native_context();
+  inline Context* raw_native_context();
+
+  // Returns the native context of the calling JavaScript code.  That
+  // is, the native context of the top-most JavaScript frame.
+  Handle<Context> GetCallingNativeContext();
 
   Handle<Context> GetIncumbentContext();
 
@@ -1081,7 +1009,6 @@ class Isolate : private HiddenFactory {
   v8::internal::Factory* factory() {
     // Upcast to the privately inherited base-class using c-style casts to avoid
     // undefined behavior (as static_cast cannot cast across private bases).
-    // NOLINTNEXTLINE (google-readability-casting)
     return (v8::internal::Factory*)this;  // NOLINT(readability/casting)
   }
 
@@ -1116,8 +1043,6 @@ class Isolate : private HiddenFactory {
   bool initialized_from_snapshot() { return initialized_from_snapshot_; }
 
   bool NeedsSourcePositionsForProfiling() const;
-
-  bool NeedsDetailedOptimizedCodeLineInfo() const;
 
   bool is_best_effort_code_coverage() const {
     return code_coverage_mode() == debug::Coverage::kBestEffort;
@@ -1182,13 +1107,6 @@ class Isolate : private HiddenFactory {
 
   icu::RegexMatcher* language_variant_regexp_matcher() {
     return language_variant_regexp_matcher_;
-  }
-
-  const std::string& default_locale() { return default_locale_; }
-
-  void set_default_locale(const std::string& locale) {
-    DCHECK_EQ(default_locale_.length(), 0);
-    default_locale_ = locale;
   }
 
   void set_language_tag_regexp_matchers(
@@ -1311,10 +1229,6 @@ class Isolate : private HiddenFactory {
   bool force_slow_path() const { return force_slow_path_; }
   bool* force_slow_path_address() { return &force_slow_path_; }
 
-  DebugInfo::ExecutionMode* debug_execution_mode_address() {
-    return &debug_execution_mode_;
-  }
-
   V8_EXPORT_PRIVATE base::RandomNumberGenerator* random_number_generator();
 
   V8_EXPORT_PRIVATE base::RandomNumberGenerator* fuzzer_rng();
@@ -1357,11 +1271,14 @@ class Isolate : private HiddenFactory {
   void RunMicrotasks();
   bool IsRunningMicrotasks() const { return is_running_microtasks_; }
 
-  Handle<Symbol> SymbolFor(RootIndex dictionary_index, Handle<String> name,
-                           bool private_symbol);
+  Handle<Symbol> SymbolFor(Heap::RootListIndex dictionary_index,
+                           Handle<String> name, bool private_symbol);
 
   void SetUseCounterCallback(v8::Isolate::UseCounterCallback callback);
   void CountUsage(v8::Isolate::UseCounterFeature feature);
+
+  BasicBlockProfiler* GetOrCreateBasicBlockProfiler();
+  BasicBlockProfiler* basic_block_profiler() { return basic_block_profiler_; }
 
   std::string GetTurboCfgFileName();
 
@@ -1379,6 +1296,10 @@ class Isolate : private HiddenFactory {
 
   Address promise_hook_or_async_event_delegate_address() {
     return reinterpret_cast<Address>(&promise_hook_or_async_event_delegate_);
+  }
+
+  Address pending_microtask_count_address() {
+    return reinterpret_cast<Address>(&pending_microtask_count_);
   }
 
   Address handle_scope_implementer_address() {
@@ -1469,11 +1390,6 @@ class Isolate : private HiddenFactory {
   Handle<JSObject> RunHostInitializeImportMetaObjectCallback(
       Handle<Module> module);
 
-  void SetPrepareStackTraceCallback(PrepareStackTraceCallback callback);
-  MaybeHandle<Object> RunPrepareStackTraceCallback(Handle<Context>,
-                                                   Handle<JSObject> Error);
-  bool HasPrepareStackTraceCallback() const;
-
   void SetRAILMode(RAILMode rail_mode);
 
   RAILMode rail_mode() { return rail_mode_.Value(); }
@@ -1509,7 +1425,10 @@ class Isolate : private HiddenFactory {
   }
 
   wasm::WasmEngine* wasm_engine() const { return wasm_engine_.get(); }
-  void SetWasmEngine(std::shared_ptr<wasm::WasmEngine> engine);
+  void set_wasm_engine(std::shared_ptr<wasm::WasmEngine> engine) {
+    DCHECK_NULL(wasm_engine_);  // Only call once before {Init}.
+    wasm_engine_ = std::move(engine);
+  }
 
   const v8::Context::BackupIncumbentScope* top_backup_incumbent_scope() const {
     return top_backup_incumbent_scope_;
@@ -1537,7 +1456,8 @@ class Isolate : private HiddenFactory {
 
   class ThreadDataTable {
    public:
-    ThreadDataTable() = default;
+    ThreadDataTable();
+    ~ThreadDataTable();
 
     PerIsolateThreadData* Lookup(ThreadId thread_id);
     void Insert(PerIsolateThreadData* data);
@@ -1701,7 +1621,6 @@ class Isolate : private HiddenFactory {
   icu::RegexMatcher* language_singleton_regexp_matcher_;
   icu::RegexMatcher* language_tag_regexp_matcher_;
   icu::RegexMatcher* language_variant_regexp_matcher_;
-  std::string default_locale_;
 #endif  // V8_INTL_SUPPORT
 
   // Whether the isolate has been created for snapshotting.
@@ -1793,6 +1712,7 @@ class Isolate : private HiddenFactory {
   bool is_running_microtasks_;
 
   v8::Isolate::UseCounterCallback use_counter_callback_;
+  BasicBlockProfiler* basic_block_profiler_;
 
   std::vector<Object*> partial_snapshot_cache_;
 
@@ -1836,8 +1756,6 @@ class Isolate : private HiddenFactory {
   const v8::Context::BackupIncumbentScope* top_backup_incumbent_scope_ =
       nullptr;
 
-  PrepareStackTraceCallback prepare_stack_trace_callback_ = nullptr;
-
   // TODO(kenton@cloudflare.com): This mutex can be removed if
   // thread_data_table_ is always accessed under the isolate lock. I do not
   // know if this is the case, so I'm preserving it for now.
@@ -1858,6 +1776,9 @@ class Isolate : private HiddenFactory {
   friend class v8::Locker;
   friend class v8::SnapshotCreator;
   friend class v8::Unlocker;
+  friend v8::StartupData v8::V8::CreateSnapshotDataBlob(const char*);
+  friend v8::StartupData v8::V8::WarmUpSnapshotDataBlob(v8::StartupData,
+                                                        const char*);
 
   DISALLOW_COPY_AND_ASSIGN(Isolate);
 };
@@ -1883,7 +1804,7 @@ class PromiseOnStack {
 // If the GCC version is 4.1.x or 4.2.x an additional field is added to the
 // class as a work around for a bug in the generated code found with these
 // versions of GCC. See V8 issue 122 for details.
-class V8_EXPORT_PRIVATE SaveContext {
+class SaveContext BASE_EMBEDDED {
  public:
   explicit SaveContext(Isolate* isolate);
   ~SaveContext();
@@ -1901,7 +1822,8 @@ class V8_EXPORT_PRIVATE SaveContext {
   Address c_entry_fp_;
 };
 
-class AssertNoContextChange {
+
+class AssertNoContextChange BASE_EMBEDDED {
 #ifdef DEBUG
  public:
   explicit AssertNoContextChange(Isolate* isolate);
@@ -1918,7 +1840,8 @@ class AssertNoContextChange {
 #endif
 };
 
-class ExecutionAccess {
+
+class ExecutionAccess BASE_EMBEDDED {
  public:
   explicit ExecutionAccess(Isolate* isolate) : isolate_(isolate) {
     Lock(isolate);
@@ -1938,7 +1861,7 @@ class ExecutionAccess {
 
 
 // Support for checking for stack-overflows.
-class StackLimitCheck {
+class StackLimitCheck BASE_EMBEDDED {
  public:
   explicit StackLimitCheck(Isolate* isolate) : isolate_(isolate) { }
 
@@ -2014,7 +1937,7 @@ class PostponeInterruptsScope : public InterruptsScope {
                           int intercept_mask = StackGuard::ALL_INTERRUPTS)
       : InterruptsScope(isolate, intercept_mask,
                         InterruptsScope::kPostponeInterrupts) {}
-  ~PostponeInterruptsScope() override = default;
+  virtual ~PostponeInterruptsScope() = default;
 };
 
 // Support for overriding PostponeInterruptsScope. Interrupt is not ignored if
@@ -2022,11 +1945,10 @@ class PostponeInterruptsScope : public InterruptsScope {
 // PostponeInterruptsScopes.
 class SafeForInterruptsScope : public InterruptsScope {
  public:
-  SafeForInterruptsScope(Isolate* isolate,
-                         int intercept_mask = StackGuard::ALL_INTERRUPTS)
+  SafeForInterruptsScope(Isolate* isolate, int intercept_mask)
       : InterruptsScope(isolate, intercept_mask,
                         InterruptsScope::kRunInterrupts) {}
-  ~SafeForInterruptsScope() override = default;
+  virtual ~SafeForInterruptsScope() = default;
 };
 
 class StackTraceFailureMessage {

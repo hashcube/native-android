@@ -21,6 +21,9 @@ class TypedArrayBuiltinsAssembler : public BaseBuiltinsFromDSLAssembler {
                                             const char* method_name);
 
  protected:
+  void GenerateTypedArrayPrototypeGetter(Node* context, Node* receiver,
+                                         const char* method_name,
+                                         int object_offset);
   void GenerateTypedArrayPrototypeIterationMethod(TNode<Context> context,
                                                   TNode<Object> receiver,
                                                   const char* method_name,
@@ -47,11 +50,14 @@ class TypedArrayBuiltinsAssembler : public BaseBuiltinsFromDSLAssembler {
                            TNode<Smi> element_size);
 
   void SetupTypedArray(TNode<JSTypedArray> holder, TNode<Smi> length,
-                       TNode<UintPtrT> byte_offset,
-                       TNode<UintPtrT> byte_length);
+                       TNode<Number> byte_offset, TNode<Number> byte_length);
   void AttachBuffer(TNode<JSTypedArray> holder, TNode<JSArrayBuffer> buffer,
                     TNode<Map> map, TNode<Smi> length,
                     TNode<Number> byte_offset);
+
+  void IterableToListSlowPath(TNode<Context> context, TNode<Object> iterable,
+                              TNode<Object> iterator_fn,
+                              Variable* created_list);
 
   TNode<Map> LoadMapForType(TNode<JSTypedArray> array);
   TNode<UintPtrT> CalculateExternalPointer(TNode<UintPtrT> backing_store,

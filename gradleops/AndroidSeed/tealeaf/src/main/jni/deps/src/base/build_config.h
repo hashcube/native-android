@@ -196,9 +196,9 @@
 #endif
 
 #if defined(V8_TARGET_ARCH_IA32) || defined(V8_TARGET_ARCH_X64)
-#define V8_TARGET_ARCH_STORES_RETURN_ADDRESS_ON_STACK true
+#define V8_TARGET_ARCH_STORES_RETURN_ADDRESS_ON_STACK 1
 #else
-#define V8_TARGET_ARCH_STORES_RETURN_ADDRESS_ON_STACK false
+#define V8_TARGET_ARCH_STORES_RETURN_ADDRESS_ON_STACK 0
 #endif
 
 // Number of bits to represent the page size for paged spaces. The value of 19

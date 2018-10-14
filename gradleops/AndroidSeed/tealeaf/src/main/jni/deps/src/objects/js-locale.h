@@ -9,6 +9,7 @@
 #ifndef V8_OBJECTS_JS_LOCALE_H_
 #define V8_OBJECTS_JS_LOCALE_H_
 
+#include "src/api.h"
 #include "src/global-handles.h"
 #include "src/heap/factory.h"
 #include "src/isolate.h"
@@ -29,8 +30,6 @@ class JSLocale : public JSObject {
                                                 Handle<JSLocale> locale_holder,
                                                 Handle<String> locale,
                                                 Handle<JSReceiver> options);
-  static Handle<String> Maximize(Isolate* isolate, String* locale);
-  static Handle<String> Minimize(Isolate* isolate, String* locale);
 
   DECL_CAST(JSLocale)
 
@@ -76,7 +75,5 @@ class JSLocale : public JSObject {
 
 }  // namespace internal
 }  // namespace v8
-
-#include "src/objects/object-macros-undef.h"
 
 #endif  // V8_OBJECTS_JS_LOCALE_H_

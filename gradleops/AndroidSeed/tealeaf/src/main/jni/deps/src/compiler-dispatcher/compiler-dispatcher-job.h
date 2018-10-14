@@ -21,14 +21,16 @@ class V8_EXPORT_PRIVATE CompilerDispatcherJob {
 
   enum class Status {
     kInitial,
-    kReadyToFinalize,
+    kPrepared,
+    kCompiled,
+    kHasErrorsToReport,
     kDone,
     kFailed,
   };
 
   CompilerDispatcherJob(Type type) : type_(type), status_(Status::kInitial) {}
 
-  virtual ~CompilerDispatcherJob() = default;
+  virtual ~CompilerDispatcherJob() {}
 
   Type type() const { return type_; }
 
@@ -46,25 +48,35 @@ class V8_EXPORT_PRIVATE CompilerDispatcherJob {
 
   // Return true if the next step can be run on any thread.
   bool NextStepCanRunOnAnyThread() const {
-    return status() == Status::kInitial;
+    return status() == Status::kPrepared;
   }
 
   // Casts to implementations.
   const UnoptimizedCompileJob* AsUnoptimizedCompileJob() const;
 
-  // Transition from kInitial to kReadyToFinalize.
+  // Transition from kInitial to kPrepared. Must only be invoked on the
+  // main thread.
+  virtual void PrepareOnMainThread(Isolate* isolate) = 0;
+
+  // Transition from kPrepared to kCompiled (or kReportErrors).
   virtual void Compile(bool on_background_thread) = 0;
 
-  // Transition from kReadyToFinalize to kDone (or kFailed). Must only be
-  // invoked on the main thread.
-  virtual void FinalizeOnMainThread(Isolate* isolate,
-                                    Handle<SharedFunctionInfo> shared) = 0;
+  // Transition from kCompiled to kDone (or kFailed). Must only be invoked on
+  // the main thread.
+  virtual void FinalizeOnMainThread(Isolate* isolate) = 0;
+
+  // Transition from kReportErrors to kFailed. Must only be invoked on the main
+  // thread.
+  virtual void ReportErrorsOnMainThread(Isolate* isolate) = 0;
 
   // Free all resources. Must only be invoked on the main thread.
   virtual void ResetOnMainThread(Isolate* isolate) = 0;
 
   // Estimate how long the next step will take using the tracer.
   virtual double EstimateRuntimeOfNextStepInMs() const = 0;
+
+  // Print short description of job. Must only be invoked on the main thread.
+  virtual void ShortPrintOnMainThread() = 0;
 
  protected:
   void set_status(Status status) { status_ = status; }

@@ -55,8 +55,7 @@ void js_haptics_has_vibrator(Local<String> property, const PropertyCallbackInfo<
     info.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
-Handle<ObjectTemplate> js_haptics_get_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Handle<ObjectTemplate> js_haptics_get_template(Isolate *isolate) {
     Handle<ObjectTemplate> haptics = ObjectTemplate::New(isolate);
     haptics->Set(STRING_CACHE_cancel.Get(isolate), FunctionTemplate::New(isolate, js_haptics_cancel));
     haptics->Set(STRING_CACHE_vibrate.Get(isolate), FunctionTemplate::New(isolate, js_haptics_vibrate));

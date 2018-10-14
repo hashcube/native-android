@@ -39,8 +39,7 @@ void js_socket_close(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("end socket close");
 }
 
-Local<ObjectTemplate> get_socket_template() {
-    Isolate *isolate = Isolate::GetCurrent();
+Local<ObjectTemplate> get_socket_template(Isolate *isolate) {
     Handle<ObjectTemplate> socket = ObjectTemplate::New(isolate);
     socket->Set(STRING_CACHE_send.Get(isolate), FunctionTemplate::New(isolate, js_socket_send));
     socket->Set(STRING_CACHE_close.Get(isolate), FunctionTemplate::New(isolate, js_socket_close));
@@ -58,7 +57,7 @@ void js_socket_ctor(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
     int id = socket_create(host_str, port);
 
-    Handle<Object> socket = get_socket_template()->NewInstance();
+    Handle<Object> socket = get_socket_template(isolate)->NewInstance();
     socket->Set(STRING_CACHE___id.Get(isolate), Number::New(isolate, id));
     args.GetReturnValue().Set(socket);
 }

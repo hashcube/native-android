@@ -13,8 +13,8 @@ namespace internal {
 class TriggerFailureExtension : public v8::Extension {
  public:
   TriggerFailureExtension() : v8::Extension("v8/trigger-failure", kSource) {}
-  v8::Local<v8::FunctionTemplate> GetNativeFunctionTemplate(
-      v8::Isolate* isolate, v8::Local<v8::String> name) override;
+  virtual v8::Local<v8::FunctionTemplate> GetNativeFunctionTemplate(
+      v8::Isolate* isolate, v8::Local<v8::String> name);
   static void TriggerCheckFalse(
       const v8::FunctionCallbackInfo<v8::Value>& args);
   static void TriggerAssertFalse(

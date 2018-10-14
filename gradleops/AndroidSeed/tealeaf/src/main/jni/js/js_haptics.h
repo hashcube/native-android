@@ -22,7 +22,7 @@ using namespace v8;
 using v8::Local;
 using v8::ObjectTemplate;
 
-Local<ObjectTemplate> js_haptics_get_template();
+Local<ObjectTemplate> js_haptics_get_template(Isolate *isolate);
 
 #endif
 

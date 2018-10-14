@@ -50,7 +50,7 @@ class MessageLocation {
 
 class StackFrameBase {
  public:
-  virtual ~StackFrameBase() = default;
+  virtual ~StackFrameBase() {}
 
   virtual Handle<Object> GetReceiver() const = 0;
   virtual Handle<Object> GetFunction() const = 0;
@@ -77,7 +77,7 @@ class StackFrameBase {
   virtual MaybeHandle<String> ToString() = 0;
 
  protected:
-  StackFrameBase() = default;
+  StackFrameBase() {}
   explicit StackFrameBase(Isolate* isolate) : isolate_(isolate) {}
   Isolate* isolate_;
 
@@ -91,7 +91,7 @@ class JSStackFrame : public StackFrameBase {
   JSStackFrame(Isolate* isolate, Handle<Object> receiver,
                Handle<JSFunction> function, Handle<AbstractCode> code,
                int offset);
-  ~JSStackFrame() override = default;
+  virtual ~JSStackFrame() {}
 
   Handle<Object> GetReceiver() const override { return receiver_; }
   Handle<Object> GetFunction() const override;
@@ -114,7 +114,7 @@ class JSStackFrame : public StackFrameBase {
   MaybeHandle<String> ToString() override;
 
  private:
-  JSStackFrame() = default;
+  JSStackFrame();
   void FromFrameArray(Isolate* isolate, Handle<FrameArray> array, int frame_ix);
 
   bool HasScript() const override;
@@ -133,7 +133,7 @@ class JSStackFrame : public StackFrameBase {
 
 class WasmStackFrame : public StackFrameBase {
  public:
-  ~WasmStackFrame() override = default;
+  virtual ~WasmStackFrame() {}
 
   Handle<Object> GetReceiver() const override;
   Handle<Object> GetFunction() const override;
@@ -168,7 +168,7 @@ class WasmStackFrame : public StackFrameBase {
   int offset_;
 
  private:
-  WasmStackFrame() = default;
+  WasmStackFrame();
   void FromFrameArray(Isolate* isolate, Handle<FrameArray> array, int frame_ix);
 
   friend class FrameArrayIterator;
@@ -177,7 +177,7 @@ class WasmStackFrame : public StackFrameBase {
 
 class AsmJsWasmStackFrame : public WasmStackFrame {
  public:
-  ~AsmJsWasmStackFrame() override = default;
+  virtual ~AsmJsWasmStackFrame() {}
 
   Handle<Object> GetReceiver() const override;
   Handle<Object> GetFunction() const override;
@@ -193,7 +193,7 @@ class AsmJsWasmStackFrame : public WasmStackFrame {
 
  private:
   friend class FrameArrayIterator;
-  AsmJsWasmStackFrame() = default;
+  AsmJsWasmStackFrame();
   void FromFrameArray(Isolate* isolate, Handle<FrameArray> array, int frame_ix);
 
   bool is_at_number_conversion_;
@@ -263,7 +263,6 @@ class ErrorUtils : public AllStatic {
   T(Unsupported, "Not supported")                                              \
   T(WrongServiceType, "Internal error, wrong service type: %")                 \
   T(WrongValueType, "Internal error. Wrong value type.")                       \
-  T(IcuError, "Internal error. Icu error.")                                    \
   /* TypeError */                                                              \
   T(ApplyNonFunction,                                                          \
     "Function.prototype.apply was called on %, which is a % and not a "        \
@@ -274,7 +273,6 @@ class ErrorUtils : public AllStatic {
     "Derived ArrayBuffer constructor created a buffer which was too small")    \
   T(ArrayBufferSpeciesThis,                                                    \
     "ArrayBuffer subclass returned this from species constructor")             \
-  T(ArrayItemNotType, "array %[%] is not type %")                              \
   T(AwaitNotInAsyncFunction, "await is only valid in async function")          \
   T(AtomicsWaitNotAllowed, "Atomics.wait cannot be called in this context")    \
   T(BadSortComparisonFunction,                                                 \
@@ -347,7 +345,6 @@ class ErrorUtils : public AllStatic {
   T(LocaleNotEmpty,                                                            \
     "First argument to Intl.Locale constructor can't be empty or missing")     \
   T(LocaleBadParameters, "Incorrect locale information provided")              \
-  T(ListFormatBadParameters, "Incorrect ListFormat information provided")      \
   T(MapperFunctionNonCallable, "flatMap mapper function is not callable")      \
   T(MethodCalledOnWrongObject,                                                 \
     "Method % called on a non-object or on a wrong type of object.")           \
@@ -375,9 +372,7 @@ class ErrorUtils : public AllStatic {
     "% is not a function or its return value is not iterable")                 \
   T(NotCallableOrAsyncIterable,                                                \
     "% is not a function or its return value is not async iterable")           \
-  T(NotFiniteNumber, "Value need to be finite number for %()")                 \
   T(NotIterable, "% is not iterable")                                          \
-  T(NotIterableNoSymbolLoad, "% is not iterable (cannot read property %)")     \
   T(NotAsyncIterable, "% is not async iterable")                               \
   T(NotPropertyName, "% is not a valid property name")                         \
   T(NotTypedArray, "this is not a typed array.")                               \
@@ -536,6 +531,8 @@ class ErrorUtils : public AllStatic {
   T(BigIntNegativeExponent, "Exponent must be positive")                       \
   T(BigIntTooBig, "Maximum BigInt size exceeded")                              \
   T(DateRange, "Provided date is not in valid range.")                         \
+  T(ExpectedTimezoneID,                                                        \
+    "Expected Area/Location(/Location)* for time zone, got %")                 \
   T(ExpectedLocation,                                                          \
     "Expected letters optionally connected with underscores or hyphens for "   \
     "a location, got %")                                                       \
@@ -557,7 +554,6 @@ class ErrorUtils : public AllStatic {
   T(InvalidWeakSetValue, "Invalid value used in weak set")                     \
   T(InvalidStringLength, "Invalid string length")                              \
   T(InvalidTimeValue, "Invalid time value")                                    \
-  T(InvalidTimeZone, "Invalid time zone specified: %")                         \
   T(InvalidTypedArrayAlignment, "% of % should be a multiple of %")            \
   T(InvalidTypedArrayIndex, "Invalid typed array index")                       \
   T(InvalidTypedArrayLength, "Invalid typed array length: %")                  \
@@ -578,6 +574,7 @@ class ErrorUtils : public AllStatic {
   T(ToRadixFormatRange, "toString() radix argument must be between 2 and 36")  \
   T(TypedArraySetOffsetOutOfBounds, "offset is out of bounds")                 \
   T(TypedArraySetSourceTooLarge, "Source is too large")                        \
+  T(UnsupportedTimeZone, "Unsupported time zone specified %")                  \
   T(ValueOutOfRange, "Value % out of range for % options property %")          \
   /* SyntaxError */                                                            \
   T(AmbiguousExport,                                                           \
@@ -736,7 +733,6 @@ class ErrorUtils : public AllStatic {
   /* Wasm errors (currently Error) */                                          \
   T(WasmTrapUnreachable, "unreachable")                                        \
   T(WasmTrapMemOutOfBounds, "memory access out of bounds")                     \
-  T(WasmTrapUnalignedAccess, "operation does not support unaligned accesses")  \
   T(WasmTrapDivByZero, "divide by zero")                                       \
   T(WasmTrapDivUnrepresentable, "divide result unrepresentable")               \
   T(WasmTrapRemByZero, "remainder by zero")                                    \
@@ -761,14 +757,7 @@ class ErrorUtils : public AllStatic {
   T(DataCloneDeserializationError, "Unable to deserialize cloned data.")       \
   T(DataCloneDeserializationVersionError,                                      \
     "Unable to deserialize cloned data due to invalid or unsupported "         \
-    "version.")                                                                \
-  /* Builtins-Trace Errors */                                                  \
-  T(TraceEventCategoryError, "Trace event category must be a string.")         \
-  T(TraceEventNameError, "Trace event name must be a string.")                 \
-  T(TraceEventNameLengthError,                                                 \
-    "Trace event name must not be an empty string.")                           \
-  T(TraceEventPhaseError, "Trace event phase must be a number.")               \
-  T(TraceEventIDError, "Trace event id must be a number.")
+    "version.")
 
 class MessageTemplate {
  public:
@@ -781,7 +770,7 @@ class MessageTemplate {
 
   static const char* TemplateString(int template_index);
 
-  static MaybeHandle<String> FormatMessage(Isolate* isolate, int template_index,
+  static MaybeHandle<String> FormatMessage(int template_index,
                                            Handle<String> arg0,
                                            Handle<String> arg1,
                                            Handle<String> arg2);

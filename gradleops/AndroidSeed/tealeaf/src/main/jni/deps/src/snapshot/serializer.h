@@ -28,8 +28,8 @@ class CodeAddressMap : public CodeEventLogger {
     isolate_->logger()->RemoveCodeEventListener(this);
   }
 
-  void CodeMoveEvent(AbstractCode* from, AbstractCode* to) override {
-    address_to_name_map_.Move(from->address(), to->address());
+  void CodeMoveEvent(AbstractCode* from, Address to) override {
+    address_to_name_map_.Move(from->address(), to);
   }
 
   void CodeDisableOptEvent(AbstractCode* code,
@@ -170,10 +170,9 @@ class Serializer : public SerializerDeserializer {
 
   void VisitRootPointers(Root root, const char* description, Object** start,
                          Object** end) override;
-  void SerializeRootObject(Object* object);
 
-  void PutRoot(RootIndex root_index, HeapObject* object, HowToCode how,
-               WhereToPoint where, int skip);
+  void PutRoot(int index, HeapObject* object, HowToCode how, WhereToPoint where,
+               int skip);
   void PutSmi(Smi* smi);
   void PutBackReference(HeapObject* object, SerializerReference reference);
   void PutAttachedReference(SerializerReference reference,
@@ -210,8 +209,7 @@ class Serializer : public SerializerDeserializer {
   }
 
   // GetInt reads 4 bytes at once, requiring padding at the end.
-  // Use padding_offset to specify the space you want to use after padding.
-  void Pad(int padding_offset = 0);
+  void Pad();
 
   // We may not need the code address map for logging for every instance
   // of the serializer.  Initialize it on demand.
@@ -255,8 +253,10 @@ class Serializer : public SerializerDeserializer {
 
 #ifdef OBJECT_PRINT
   static const int kInstanceTypes = LAST_TYPE + 1;
-  int* instance_type_count_[LAST_SPACE];
-  size_t* instance_type_size_[LAST_SPACE];
+  int* instance_type_count_;
+  size_t* instance_type_size_;
+  int* read_only_instance_type_count_;
+  size_t* read_only_instance_type_size_;
 #endif  // OBJECT_PRINT
 
 #ifdef DEBUG
@@ -285,7 +285,6 @@ class Serializer<AllocatorT>::ObjectSerializer : public ObjectVisitor {
     serializer_->PushStack(obj);
 #endif  // DEBUG
   }
-  // NOLINTNEXTLINE (modernize-use-equals-default)
   ~ObjectSerializer() override {
 #ifdef DEBUG
     serializer_->PopStack();
