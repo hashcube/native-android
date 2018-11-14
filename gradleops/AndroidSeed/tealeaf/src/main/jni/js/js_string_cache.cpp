@@ -113,7 +113,7 @@ Persistent<String> STRING_CACHE_xadvance;
 Persistent<String> STRING_CACHE_CONFIG;
 Persistent<String> STRING_CACHE_load;
 Persistent<String> STRING_CACHE_eval;
-Persistent<String> STRING_CACHE_render;
+Persistent<Value> STRING_CACHE_render;
 Persistent<String> STRING_CACHE_sendEvent;
 Persistent<String> STRING_CACHE_sendRequest;
 Persistent<String> STRING_CACHE__loadImage;

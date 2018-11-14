@@ -6,6 +6,6 @@ APP_PLATFORM := android-21
 # was changed to c++_shared  according to compile errors fix
 APP_STL := c++_static
 APP_CPPFLAGS += -std=c++11
-CMAKE_CXX_FLAGS += -mapcs-frame #for debug
+CMAKE_CXX_FLAGS += -mapcs-frame -frtti #for debug
 LOCAL_C_INCLUDES += ${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/include
 APP_ALLOW_MISSING_DEPS=true

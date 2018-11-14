@@ -358,11 +358,11 @@ CEXPORT void js_tick(long dt) {
         LOG("{js} WARNING: Tick attempted before JavaScript engine was running");
         return;
     }
-
+    TryCatch try_catch(m_isolate);
     HandleScope handle_scope(m_isolate);
     Handle<Context> context = getContext();
     Context::Scope context_scope(context);
-    TryCatch try_catch(m_isolate);
+   
     
     if (dt > 1000) {
         dt = 1;

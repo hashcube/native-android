@@ -18,14 +18,22 @@
 #include "js/js_animate.h"
 #include "js/js_image_map.h"
 #include "js/js_timestep_events.h"
+#include "js/js.h"
 #include "timestep/timestep_view.h"
 #include "timestep/timestep_image_map.h"
 #include "js/js_context.h"
 #include "core/log.h"
 #include <math.h>
-
+#include <typeinfo>
 #include "gen/js_timestep_image_map_template.gen.h"
 #include "gen/js_timestep_view_template.gen.h"
+#include <string>
+#include <typeinfo>
+
+#include <iostream>
+#include <string>
+#include <typeinfo>
+
 
 #include "include/v8.h"
 using namespace v8;
@@ -59,7 +67,7 @@ static void cb_js_finalize(Persistent<Value> ctx, void *param) {
 
         if (view) {
             // LOOK: This assumes that js_view is never modified after the view is created
-            view->js_view.Clear();
+            view->js_view.Get(isolate).Clear();
         }
     } else {
         // Should never happen because we have the __view reference
@@ -90,7 +98,7 @@ static void weakCallbackForFrontend(const v8::WeakCallbackInfo<timestep_view> &d
 
         if (view) {
             // LOOK: This assumes that js_view is never modified after the view is created
-            view->js_view.Clear();
+            view->js_view.Get(isolate).Clear();
         }
     } else {
         // Should never happen because we have the __view reference
@@ -177,20 +185,25 @@ Local<ObjectTemplate> js_timestep_get_template(Isolate *isolate) {
 
 // This is the constructor for the view backing
 void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
-    Handle<Object> thiz = args.This();
-    Local<Context> context = Context::New(isolate);
+    Isolate *isolate = getIsolate();
+    Handle<Object> thiz = args.Holder();
+    // Todo 1: verify, was here: Local<Context> context = Context::New(isolate);
+    Local<Context> contextIsolate = isolate->GetCurrentContext();
+    // Todo 2: remove redundant context after todo 3
+    Local<Context> context = getContext();
 #ifdef VIEW_LEAKS
     ++frontend_count;
     ++backing_count;
     LOG("{view} WARNING: View front count = %d, backing count = %d", frontend_count, backing_count);
 #endif
 
-    // This is the front-end view object
-    Handle<Object> js_view = args[0]->ToObject(isolate);
-
+    
     // Create an internal C object and attach it to the view backing
     timestep_view *view = timestep_view_init();
+    view->js_view.Reset(isolate, args[0]->ToObject(isolate));
+    Handle<Object> js_view = view->js_view.Get(isolate);
+    // todo 3: verify if paramter js_view is correct one for 1st argument, check reference chain to verify every object refers each other correctly and make sure main object is correctly removed or garbage collected
+    view->js_view.SetWeak(view, weakCallbackForFrontend, v8::WeakCallbackType::kParameter);
     thiz->SetInternalField(0, External::New(isolate, view));
     thiz->SetInternalField(1, js_view);
 
@@ -198,16 +211,45 @@ void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &ar
     Persistent<Object> ref(isolate, thiz);
     ref.SetWeak(view, weakCallbackForTimestepHolder, v8::WeakCallbackType::kParameter);
 
-    // Track the lifetime of the front-end view also
-    Persistent<Object> js_ref(isolate, js_view);
+     
+    // Add an internal C reference to the front-end view object in the view backing (old v8)
+    // Todo 4 : remove this line, move above comment to appropriate place
+    //view->js_view = js_view;
+   
+/* Testing properties loop
+    v8::Local<v8::Array> propertyNames;
+    js_view->GetPropertyNames(context).ToLocal(&propertyNames);
+    MaybeLocal<Array> maybeProperties = js_view->GetPropertyNames(context);
 
-    // todo verify if paramter js_view is correct one for 1st argument
-    js_ref.SetWeak(view, weakCallbackForFrontend, v8::WeakCallbackType::kParameter);
+    if(!maybeProperties.IsEmpty()){
+        Handle<Array> properties = maybeProperties.ToLocalChecked();
+        if( !properties.IsEmpty() && properties->IsArray() && properties->Length()>0){
 
-    // Add an internal C reference to the front-end view object in the view backing
-    view->js_view = js_ref.Get(isolate);
+            int propsSize = properties->Length();
 
-    Handle<Value> render = js_view->GetRealNamedPropertyInPrototypeChain(context, STRING_CACHE_render.Get(isolate)).ToLocalChecked();
+            LOG("Properties NOT empty and size: %d", propsSize);
+            if (propsSize < 200) {
+                for (int i = 0; i < propsSize; ++i) {
+                    LOG("property Index is: %d", i);
+
+                    Local<Value> pname = propertyNames->Get(i);
+                    Local<String> pNameStr = Local<String>::Cast(pname);
+                    String::Utf8Value str2(isolate, pNameStr);
+                    LOG("Property name is: %s", ToCString(str2));
+                }
+            }
+        }
+        else {
+            LOG("%s", "Properties are empty");
+        }
+    }
+    else {
+        LOG("%s", "Maybe properties are empty");
+    }
+*/
+
+    Handle<Value> render = js_view->GetRealNamedPropertyInPrototypeChain(context, Local<Name>::Cast(STRING_CACHE_render.Get(isolate))).ToLocalChecked();
+
     bool has_js_render = false;
     if (!render.IsEmpty() && render->IsFunction()) {
         Handle<Value> type = render->ToObject(isolate)->Get(context, STRING_CACHE_HAS_NATIVE_IMPL.Get(isolate)).ToLocalChecked();
@@ -377,10 +419,11 @@ void timestep_view_set__height(v8::Local<v8::String> property, v8::Local<v8::Val
 // -- end copy
 
 void def_timestep_view_render(Local<Object> js_view, Handle<Object> js_ctx, Handle<Object> js_opts, Isolate *isolate) {
-    Handle<Function> render = Handle<Function>::Cast(js_view->Get(STRING_CACHE_render.Get(isolate)));
+    Local<Context> context = getIsolate()->GetCurrentContext();           
+    Handle<Function> render = Handle<Function>::Cast(js_view->Get(context, STRING_CACHE_render.Get(isolate)).ToLocalChecked());
     if (!render.IsEmpty() && render->IsFunction()) {
-        Handle<Value> args[] = {js_ctx, js_opts};
-        render->Call(js_view, 2, args);
+            Handle<Value> args[] = {js_ctx, js_opts};
+            render->Call(js_view, 2, args);
     }
 }
 
@@ -389,7 +432,7 @@ Local<Object> def_get_viewport(Handle<Object> js_opts, Isolate *isolate) {
 }
 
 void def_restore_viewport(Handle<Object> js_opts, Handle<Object> js_viewport, Isolate *isolate) {
-    js_opts->Set(STRING_CACHE_viewport.Get(isolate), js_viewport);
+    js_opts->Set(isolate->GetCurrentContext(), STRING_CACHE_viewport.Get(isolate), js_viewport);
 }
 
 void def_timestep_view_needs_reflow(Handle<Object> js_view, bool force, Isolate *isolate) {
@@ -403,7 +446,7 @@ void def_timestep_view_needs_reflow(Handle<Object> js_view, bool force, Isolate 
 }
 
 void def_timestep_view_tick(Handle<Object> js_view, double dt, Isolate *isolate) {
-    Handle<Function> tick = Handle<Function>::Cast(js_view->Get(STRING_CACHE_tick.Get(isolate)));
+    Handle<Function> tick = Handle<Function>::Cast(js_view->Get(isolate->GetCurrentContext(), STRING_CACHE_tick.Get(isolate)).ToLocalChecked());
     if (!tick.IsEmpty() && tick->IsFunction()) {
         Handle<Value> args[] = {Number::New(isolate, dt)};
         tick->Call(js_view, 1, args);
@@ -466,7 +509,7 @@ void def_timestep_view_getSubviews(const v8::FunctionCallbackInfo<v8::Value> &ar
     for (i = 0; i < v->subview_count; i++) {
         timestep_view *subview = v->subviews[i];
         if (!subview->js_view.IsEmpty()) {
-            subviews->Set(Number::New(isolate, i), subview->js_view);
+            subviews->Set(Number::New(isolate, i), subview->js_view.Get(isolate));
             ++actual_count;
         }
     }
@@ -480,7 +523,7 @@ void def_timestep_view_getSubviews(const v8::FunctionCallbackInfo<v8::Value> &ar
         for (i = 0; i < v->subview_count; i++) {
             timestep_view *subview = v->subviews[i];
             if (!subview->js_view.IsEmpty()) {
-                subviews->Set(Number::New(isolate, next_index++), subview->js_view);
+                subviews->Set(Number::New(isolate, next_index++), subview->js_view.Get(isolate));
             }
         }
     }

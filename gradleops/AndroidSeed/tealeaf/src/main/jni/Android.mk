@@ -320,7 +320,7 @@ LOCAL_LDLIBS := -llog -landroid -lGLESv2 -lz
 
 #Removed -Wall -Werror for source code updates, must be put back and fix build on release after update phase
 #Removed -std=gnu++11 in order to avoid <<--error: invalid argument '-std=gnu++11' not allowed with 'C/ObjC'-->>
-LOCAL_CFLAGS += -Wno-narrowing -Wno-unused-function -funroll-loops -ftree-vectorize -ffast-math -Wno-uninitialized -Wc++11-narrowing -w  # -O3 
+LOCAL_CFLAGS += -Wno-narrowing -Wno-unused-function -funroll-loops -ftree-vectorize -ffast-math -Wno-uninitialized -Wc++11-narrowing -w -frtti# -O3 
 
 
 ifeq ($(APP_ABI),armeabi-v7a)
