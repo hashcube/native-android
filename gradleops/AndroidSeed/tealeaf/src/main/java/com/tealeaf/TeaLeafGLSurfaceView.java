@@ -41,11 +41,13 @@ import android.view.KeyEvent;
 import android.view.WindowManager;
 import com.tealeaf.plugin.PluginManager;
 // import android.view.OrientationEventListener;
-
+import java.io.IOException;
 import com.tealeaf.event.ImageLoadedEvent;
 import com.tealeaf.event.ResumeEvent;
 import com.tealeaf.event.RedrawOffscreenBuffersEvent;
 // import com.tealeaf.event.OrientationEvent;
+import android.os.Handler;
+import android.widget.Toast;
 
 import com.tealeaf.util.Device;
 
@@ -358,6 +360,9 @@ public class TeaLeafGLSurfaceView extends com.tealeaf.GLSurfaceView {
 
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {
+	/*	if(BuildConfig.DEBUG){
+			restart();
+		}*/
 		// if we get to the GL surface with a touch, then we should clear the
 		// focus on the textbox layer
 		if (context.hasTextInputView()) {
@@ -482,34 +487,88 @@ public class TeaLeafGLSurfaceView extends com.tealeaf.GLSurfaceView {
 		}
 
 		// FIXME this should be moved into its own file and maybe started
-		// earlier
-		class JSInitializer implements Runnable {
+	public interface TeaLeafGLSurfaceViewStateCallback{
+			public void changeState(int newState);
+		}
+
+		public TeaLeafGLSurfaceViewStateCallback teaLeafGLSurfaceViewStateCallback = new TeaLeafGLSurfaceViewStateCallback(){
+			public void changeState(int newState){
+				state = newState;
+			}
+		};
+
+	public class JSInitializer implements Runnable {
+		TeaLeafGLSurfaceViewStateCallback teaLeafGLSurfaceViewStateCallback;
 			public void run() {
+
 				if (!NativeShim.initIsolate()) {
-					state = FIRST_INIT_FAIL;
+
+					teaLeafGLSurfaceViewStateCallback.changeState(FIRST_INIT_FAIL);
 					logger.log("{js} ERROR: Unable to initialize isolate");
 				} else {
-					if (NativeShim.initJS(view.context.getLaunchUri(),
-							view.context.getOptions().getAndroidHash())) {
-						NativeShim.run();
-						state = FIRST_LOAD;
+					// was
+					//if (NativeShim.initJS(view.context.getLaunchUri(),
+					//		view.context.getOptions().getAndroidHash())) {
+					if (NativeShim.initJS(TeaLeaf.get().getLaunchUri(),
+							TeaLeaf.get().getOptions().getAndroidHash()))
+					{
+
+						if(BuildConfig.DEBUG) {
+							// Todo check: Maybe auhtor uses resourses uppack as pausing between init insp and run it
+							NativeShim.startInspectorServer();
+						}
+
+
+						if (NativeShim.runNativeJSScript())
+						{
+							//Todo: make sure if we need to start NativeShim.run() from callback (after inspector started) in same thread
+							NativeShim.run();
+							teaLeafGLSurfaceViewStateCallback.changeState(FIRST_LOAD);
+						} else {
+							teaLeafGLSurfaceViewStateCallback.changeState(FIRST_INIT_FAIL);
+							logger.log("{js} ERROR: Unable to retrieve native.js");
+						}
+
 					} else {
-						state = FIRST_INIT_FAIL;
+						teaLeafGLSurfaceViewStateCallback.changeState(FIRST_INIT_FAIL);
 						logger.log("{js} ERROR: Unable to retrieve native.js");
 					}
 				}
 			}
+
+		private JSInitializer init(TeaLeafGLSurfaceViewStateCallback teaLeafGLSurfaceViewStateCallback){
+			this.teaLeafGLSurfaceViewStateCallback= teaLeafGLSurfaceViewStateCallback;
+			return this;
+		}
 		}
 
+		/**
+		 * Start inspector before V8Engine is launched and before script compiles and runs
+		 */
 		private boolean beginJSInitialization() {
 			state = 0;
-
-			Thread thread = new Thread(new JSInitializer());
+			Thread thread = new Thread(new JSInitializer().init(teaLeafGLSurfaceViewStateCallback));
 			thread.setName("JS Thread");
 			thread.start();
 
 			return true;
 		}
+
+
+	/*	private TeaLeafThreadsCallback teaLeafThreadsCallbackJSInitializer = new TeaLeafThreadsCallback() {
+			@Override
+			public void runFinally(Context context) {
+				Toast.makeText(TeaLeaf.get(), "5 seconds to open debug url in chrome debug tools", Toast.LENGTH_LONG);
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				Thread thread = new Thread(new JSInitializer().init(teaLeafGLSurfaceViewStateCallback));
+				thread.setName("JS Thread");
+			//	TeaLeaf.get().runOnUiThread(thread);
+			}
+		};*/
 
 		private void handleInitFail(final String title, final String prompt) {
 			if (view.context.getOptions().isDevelop()) {
@@ -738,7 +797,6 @@ public class TeaLeafGLSurfaceView extends com.tealeaf.GLSurfaceView {
 		}
 
 		public void onSurfaceChanged(GL10 gl, int width, int height) {
-
 			if (this.view.context.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 					&& height > width) {
 				int tempWidth = width;
@@ -855,4 +913,5 @@ public class TeaLeafGLSurfaceView extends com.tealeaf.GLSurfaceView {
 			state = FIRST_RUN;
 		}
 	}
+
 }

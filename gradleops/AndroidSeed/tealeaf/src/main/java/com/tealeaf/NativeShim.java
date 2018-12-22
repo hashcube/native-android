@@ -37,11 +37,13 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.graphics.Bitmap;
 
+import android.os.Handler;
 import android.view.Window;
 
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.os.Build;
+import android.os.Looper;
 
 public class NativeShim {
 	private static HashMap<String, TeaLeafCallable> callables = new HashMap<String, TeaLeafCallable>();
@@ -53,6 +55,7 @@ public class NativeShim {
 	private Haptics haptics;
 	private LocationManager locationManager;
 	private TeaLeaf context;
+	private static TeaLeaf contextStatic;
 	private ResourceManager resourceManager;
 	private ArrayList<TeaLeafSocket> sockets = new ArrayList<TeaLeafSocket>();
 	private ArrayList<String> overlayEvents = new ArrayList<String>();
@@ -76,6 +79,7 @@ public class NativeShim {
 		this.locationManager = locationManager;
 		this.resourceManager = resourceManager;
 		this.context = context;
+		this.contextStatic = context;
 		this.remoteLogger = context.getRemoteLogger();
 		this.connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		this.networkStateReceiver = new NetworkStateReceiver(this);
@@ -801,6 +805,7 @@ public class NativeShim {
 	public static native boolean initIsolate();
 	public static native void init(Object shim, String codeHost, String tcpHost, int codePort, int tcpPort, String entryPoint, String sourceDir, int width, int height, boolean remote_loading, String splash, String simulateID);
 	public static native boolean initJS(String uri, String androidHash);
+	public static native boolean runNativeJSScript();
 	public static native void destroy();
 	public static native void reset();
 	public static native void run();
@@ -838,4 +843,126 @@ public class NativeShim {
 	public static native void dispatchInputEvents(int[] ids, int[] types, int[] xs, int[] ys, int count);
 
 	public static native void saveTextures();
+
+
+
+	// Todo remove triggering this from native code
+	public static void startInspectorServer(){
+		final Handler handler = new Handler(Looper.getMainLooper());
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					V8Inspector v8Inspector =
+							new V8Inspector(
+									contextStatic.getApplication().getFilesDir().getAbsolutePath(),
+									contextStatic.getApplication().getPackageName(),
+									handler);
+					v8Inspector.start();
+
+					v8Inspector.waitForDebugger(false);
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+	}
+
+	public static String getPackageName(){
+     return TeaLeafApplication.PACKAGE_NAME;
+	}
+
+/*	public static void startInspectorServer2(final TeaLeafThreadsCallback teaLeafThreadsCallback){
+		final Handler handler = new Handler();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					V8Inspector v8Inspector =
+							new V8Inspector(
+									contextStatic.getApplication().getFilesDir().getAbsolutePath(),
+									contextStatic.getApplication().getPackageName(),
+									handler);
+					v8Inspector.start();
+
+					v8Inspector.waitForDebugger(false, teaLeafThreadsCallback);
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+	}*/
+
+		/*
+				public void startV8InspectorByNativeScript(){
+
+if (isDebuggable) {
+                    try {
+                        v8Inspector = new AndroidJsV8Inspector(app.getFilesDir().getAbsolutePath(), app.getPackageName());
+                        v8Inspector.start();
+
+                        // the following snippet is used as means to notify the VSCode extension
+                        // debugger that the debugger agent has started
+                        File debuggerStartedFile = new File("/data/local/tmp", app.getPackageName() + "-debugger-started");
+                        if (debuggerStartedFile.exists() && !debuggerStartedFile.isDirectory() && debuggerStartedFile.length() == 0) {
+                            java.io.FileWriter fileWriter = new java.io.FileWriter(debuggerStartedFile);
+                            fileWriter.write("started");
+                            fileWriter.close();
+                        }
+
+                        // check if --debug-brk flag has been set. If positive:
+                        // write to the file to invalidate the flag
+                        // inform the v8Inspector to pause the main thread
+                        File debugBreakFile = new File("/data/local/tmp", app.getPackageName() + "-debugbreak");
+                        boolean shouldBreak = false;
+                        if (debugBreakFile.exists() && !debugBreakFile.isDirectory() && debugBreakFile.length() == 0) {
+                            java.io.FileWriter fileWriter = new java.io.FileWriter(debugBreakFile);
+                            fileWriter.write("started");
+                            fileWriter.close();
+
+                            shouldBreak = true;
+                        }
+
+                        v8Inspector.waitForDebugger(shouldBreak);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    // if app is in debuggable mode run livesync service
+                    // runtime needs to be initialized before the NativeScriptSyncService is enabled because it uses runtime.runScript(...)
+                    initLiveSync(runtime, logger, app);
+
+                    waitForLiveSync(app);
+                }
+
+
+		}
+		*/
+
+	
+	public static native String stringFromJNI();
+
+    public static native String stringFromJNI2();
+
+    //public static native void initV8();
+
+    //public static native void init();
+
+    public static native void connect(Object connection);
+
+    public static native void waitForFrontend();
+
+    public static native void scheduleBreak();
+
+    public static native void disconnect();
+
+    public static native void dispatchMessage(String message);
+
+    public static native void require(String filePath);
+    
+    public static native void extractAssets(String apkPath, String input, String outputDir, boolean checkForNewerFiles);
+
+
 }

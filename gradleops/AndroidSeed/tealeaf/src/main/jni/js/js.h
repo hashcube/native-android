@@ -19,12 +19,13 @@ using namespace v8;
 #include "core/core_js.h"
 
 #include "platform/platform.h"
-
+#include "libplatform/libplatform.h"
 #include "js/js_string_cache.h"
 
 #define JS_OBJECT_WRAPPER v8::Local<v8::Object>
 #define PERSISTENT_JS_OBJECT_WRAPPER v8::Persistent<v8::Object>
-
+extern v8::Platform* platform_;
+extern v8::Persistent<v8::Context> m_context;
 void js_object_wrapper_init(PERSISTENT_JS_OBJECT_WRAPPER *obj);
 void js_object_wrapper_root(PERSISTENT_JS_OBJECT_WRAPPER *obj, JS_OBJECT_WRAPPER target);
 void js_object_wrapper_delete(PERSISTENT_JS_OBJECT_WRAPPER *obj);
@@ -34,7 +35,7 @@ v8::Handle<v8::Value> log(const v8::internal::Arguments& args);
 const char* ToCString(const v8::String::Utf8Value& value);
 void ReportException(v8::TryCatch* try_catch);
 v8::Handle<v8::Value> ExecuteString(v8::Handle<v8::String> source,
-                   v8::Handle<v8::Value> name,
+                   const char * filename,
                    bool report_exceptions, Isolate *isolate);
 
 void dispatchData(JNIEnv *env, jint id, jstring data);
@@ -44,5 +45,5 @@ bool js_init_isolate();
 
 v8::Local<v8::Context> getContext();
 v8::Isolate *getIsolate();
-
+v8::Platform *getPlatform();
 #endif

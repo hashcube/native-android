@@ -18,8 +18,17 @@ import java.io.InputStream;
 import java.io.File;
 import java.util.List;
 import java.util.Arrays;
+
+import android.Manifest;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
+
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.BaseMultiplePermissionsListener;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.tealeaf.event.BackButtonEvent;
 import com.tealeaf.event.JSUpdateNotificationEvent;
 import com.tealeaf.event.KeyboardScreenResizeEvent;
@@ -31,10 +40,15 @@ import com.tealeaf.event.PhotoBeginLoadedEvent;
 import com.tealeaf.event.WindowFocusAcquiredEvent;
 import com.tealeaf.event.WindowFocusLostEvent;
 import com.tealeaf.event.AppLinkEvent;
+import com.tealeaf.extractassets.DefaultExtractPolicy;
+import com.tealeaf.extractassets.LogcatLogger;
+import com.tealeaf.extractassets.Logger;
 import com.tealeaf.plugin.PluginManager;
+import com.tealeaf.util.CopyAssets;
 import com.tealeaf.util.ILogger;
 
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.ViewTreeObserver;
 
 import android.content.BroadcastReceiver;
@@ -77,6 +91,8 @@ import android.widget.AbsoluteLayout;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.app.ActivityManager;
+
+import static com.tealeaf.V8Inspector.copyAssets;
 
 /*
  * FIXME general things
@@ -237,6 +253,12 @@ public class TeaLeaf extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 	        PluginManager.init(this);
 		instance = this;
+		extractAssets();
+
+
+
+
+
 		setFullscreenFlag();
 		configureActivity();
 		String appID = findAppID();
@@ -333,6 +355,50 @@ public class TeaLeaf extends FragmentActivity {
 				}
 			}
 		});
+	}
+
+	private void extractAssets() {
+
+
+		{
+			//copyAssets();
+			//ManualInstrumentation.Frame extractionFrame = ManualInstrumentation.start("Extracting assets");
+			try {
+				//if (logger.isEnabled()) {
+				Log.d(getClass().getSimpleName(),"Extracting assets...");
+				//}
+				Logger logger = new LogcatLogger(this);
+				AssetExtractor aE = new AssetExtractor(null, logger);
+
+				DefaultExtractPolicy extractPolicy = new DefaultExtractPolicy(logger);
+
+				String outputDir = getFilesDir().getPath() + File.separator;
+
+				// will force deletion of previously extracted files in app/files directories
+				// see https://github.com/NativeScript/NativeScript/issues/4137 for reference
+				boolean removePreviouslyInstalledAssets = true;
+				aE.extractAssets(this, "resources", outputDir, extractPolicy, removePreviouslyInstalledAssets);
+				//aE.extractAssets(this, "internal", outputDir, extractPolicy, removePreviouslyInstalledAssets);
+				//aE.extractAssets(this, "metadata", outputDir, extractPolicy, false);
+				extractPolicy.setAssetsThumb(getApplication());
+				//boolean shouldExtractSnapshots = true;
+
+				// will extract snapshot of the device appropriate architecture
+				//if (shouldExtractSnapshots) {
+				//	if (logger.isEnabled()) {
+				//		logger.write("Extracting snapshot blob");
+				//	}
+
+					//@SuppressWarnings("deprecation")
+				//	String cpu_abi = Build.CPU_ABI;
+				//	aE.extractAssets(this, "snapshots/" + cpu_abi, outputDir, extractPolicy, removePreviouslyInstalledAssets);
+				//}
+
+
+			} finally {
+				//extractionFrame.close();
+			}
+		}
 	}
 
 	public Bitmap getBitmapFromView(EditText view) {

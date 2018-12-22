@@ -33,15 +33,22 @@ include $(PREBUILT_STATIC_LIBRARY)
 
 # build libzip
 include $(CLEAR_VARS)
+LOCAL_CFLAGS := -DHAVE_CONFIG_H=1
 LOCAL_MODULE    := libzip
 LOCAL_SRC_FILES :=\
+	libzip/mkstemp.c \
+	libzip/zip.h \
 	libzip/zip_add.c \
 	libzip/zip_add_dir.c \
+	libzip/zip_add_entry.c \
+	libzip/zip_algorithm_deflate.c \
+	libzip/zip_buffer.c \
 	libzip/zip_close.c \
 	libzip/zip_delete.c \
+	libzip/zip_dir_add.c \
 	libzip/zip_dirent.c \
-	libzip/zip_entry_free.c \
-	libzip/zip_entry_new.c \
+	libzip/zip_discard.c \
+	libzip/zip_entry.c \
 	libzip/zip_err_str.c \
 	libzip/zip_error.c \
 	libzip/zip_error_clear.c \
@@ -49,50 +56,102 @@ LOCAL_SRC_FILES :=\
 	libzip/zip_error_get_sys_type.c \
 	libzip/zip_error_strerror.c \
 	libzip/zip_error_to_str.c \
+	libzip/zip_extra_field.c \
+	libzip/zip_extra_field_api.c \
 	libzip/zip_fclose.c \
+	libzip/zip_fdopen.c \
+	libzip/zip_file_add.c \
 	libzip/zip_file_error_clear.c \
 	libzip/zip_file_error_get.c \
+	libzip/zip_file_get_comment.c \
+	libzip/zip_file_get_external_attributes.c \
 	libzip/zip_file_get_offset.c \
+	libzip/zip_file_rename.c \
+	libzip/zip_file_replace.c \
+	libzip/zip_file_set_comment.c \
+	libzip/zip_file_set_encryption.c \
+	libzip/zip_file_set_external_attributes.c \
+	libzip/zip_file_set_mtime.c \
 	libzip/zip_file_strerror.c \
 	libzip/zip_filerange_crc.c \
 	libzip/zip_fopen.c \
+	libzip/zip_fopen_encrypted.c \
 	libzip/zip_fopen_index.c \
+	libzip/zip_fopen_index_encrypted.c \
 	libzip/zip_fread.c \
-	libzip/zip_free.c \
+	libzip/zip_fseek.c \
+	libzip/zip_ftell.c \
 	libzip/zip_get_archive_comment.c \
 	libzip/zip_get_archive_flag.c \
+	libzip/zip_get_encryption_implementation.c \
 	libzip/zip_get_file_comment.c \
-	libzip/zip_get_num_files.c \
 	libzip/zip_get_name.c \
+	libzip/zip_get_num_entries.c \
+	libzip/zip_get_num_files.c \
+	libzip/zip_hash.c \
+	libzip/zip_io_util.c \
+	libzip/zip_libzip_version.c \
 	libzip/zip_memdup.c \
 	libzip/zip_name_locate.c \
 	libzip/zip_new.c \
 	libzip/zip_open.c \
+	libzip/zip_progress.c \
+	libzip/zip_random_unix.c \
 	libzip/zip_rename.c \
 	libzip/zip_replace.c \
 	libzip/zip_set_archive_comment.c \
 	libzip/zip_set_archive_flag.c \
+	libzip/zip_set_default_password.c \
 	libzip/zip_set_file_comment.c \
+	libzip/zip_set_file_compression.c \
+	libzip/zip_set_name.c \
+	libzip/zip_source_begin_write.c \
+	libzip/zip_source_begin_write_cloning.c \
 	libzip/zip_source_buffer.c \
+	libzip/zip_source_call.c \
+	libzip/zip_source_close.c \
+	libzip/zip_source_commit_write.c \
+	libzip/zip_source_compress.c \
+	libzip/zip_source_crc.c \
+	libzip/zip_source_error.c \
 	libzip/zip_source_file.c \
 	libzip/zip_source_filep.c \
 	libzip/zip_source_free.c \
 	libzip/zip_source_function.c \
+	libzip/zip_source_get_compression_flags.c \
+	libzip/zip_source_is_deleted.c \
+	libzip/zip_source_layered.c \
+	libzip/zip_source_open.c \
+	libzip/zip_source_pkware.c \
+	libzip/zip_source_read.c \
+	libzip/zip_source_remove.c \
+	libzip/zip_source_rollback_write.c \
+	libzip/zip_source_seek.c \
+	libzip/zip_source_seek_write.c \
+	libzip/zip_source_stat.c \
+	libzip/zip_source_supports.c \
+	libzip/zip_source_tell.c \
+	libzip/zip_source_tell_write.c \
+	libzip/zip_source_window.c \
+	libzip/zip_source_write.c \
 	libzip/zip_source_zip.c \
-	libzip/zip_set_name.c \
+	libzip/zip_source_zip_new.c \
 	libzip/zip_stat.c \
 	libzip/zip_stat_index.c \
 	libzip/zip_stat_init.c \
 	libzip/zip_strerror.c \
+	libzip/zip_string.c \
 	libzip/zip_unchange.c \
 	libzip/zip_unchange_all.c \
 	libzip/zip_unchange_archive.c \
-	libzip/zip_unchange_data.c
+	libzip/zip_unchange_data.c \
+	libzip/zip_utf-8.c 
 
 LOCAL_LDLIBS := -lz
 
-#include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
+
+
 
 LOCAL_LDFLAGS := -Wl,-Map,tealeaf.map, --verbose
 
@@ -172,11 +231,6 @@ include $(PREBUILT_STATIC_LIBRARY)
 #include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := libinspector
-LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libinspector.a
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
 LOCAL_MODULE := libtorque_base
 LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libtorque_base.a
 include $(PREBUILT_STATIC_LIBRARY)
@@ -185,11 +239,12 @@ include $(PREBUILT_STATIC_LIBRARY)
 
 
 
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/lib
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/include
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/console
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib/include
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/deps/src
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 # *** v8 updated
 
 #include $(CLEAR_VARS)
@@ -206,8 +261,14 @@ include $(PREBUILT_STATIC_LIBRARY)
 
 
 
-include $(CLEAR_VARS)
 
+
+
+
+
+
+
+include $(CLEAR_VARS)
 
 LOCAL_MODULE    := libtealeaf
 LOCAL_SRC_FILES :=  	js/js.cpp                             \
@@ -288,7 +349,96 @@ LOCAL_SRC_FILES :=  	js/js.cpp                             \
 			core/timestep/timestep_view.cpp                   \
 			gen/js_timestep_view_template.gen.cpp             \
 			js/js_string_cache.cpp                            \
-			gen/js_timestep_image_map_template.gen.cpp
+			gen/js_timestep_image_map_template.gen.cpp	              \
+			ArgConverter.cpp	              \
+    ArrayBufferHelper.cpp	              \
+    ArrayElementAccessor.cpp	              \
+    ArrayHelper.cpp	              \
+    AssetExtractor.cpp	              \
+    CallbackHandlers.cpp	              \
+    Constants.cpp	              \
+    DirectBuffer.cpp	              \
+    FieldAccessor.cpp	              \
+    File.cpp	              \
+    JEnv.cpp	              \
+    JType.cpp	              \
+    JniSignatureParser.cpp	              \
+    JsArgConverter.cpp	              \
+    JsArgToArrayConverter.cpp	              \
+    Logger.cpp	              \
+    ManualInstrumentation.cpp	              \
+    MetadataMethodInfo.cpp	              \
+    MetadataNode.cpp	              \
+    MetadataReader.cpp	              \
+    MetadataTreeNode.cpp	              \
+    MethodCache.cpp	              \
+    ModuleInternal.cpp	              \
+    NativeScriptException.cpp	              \
+    NumericCasts.cpp	              \
+    ObjectManager.cpp	              \
+    Profiler.cpp	              \
+    ReadWriteLock.cpp	              \
+    Runtime.cpp	              \
+    SimpleAllocator.cpp	              \
+    SimpleProfiler.cpp	              \
+   Util.cpp	              \
+    V8GlobalHelpers.cpp	              \
+    V8StringConstants.cpp	              \
+    WeakRef.cpp	              \
+   com_tns_Runtime.cpp	              \
+    deps/console/Console.cpp	              \
+    com_tealeaf_AssetExtractor.cpp	              \
+        JsV8InspectorClient.cpp	              \
+        DOMDomainCallbackHandlers.cpp	              \
+        NetworkDomainCallbackHandlers.cpp	              \
+ 		deps/v8_inspector/src/inspector/protocol/CSS.cpp	              \
+        deps/v8_inspector/src/inspector/protocol/Console.cpp	              \
+        deps/v8_inspector/src/inspector/protocol/DOM.cpp	              \
+        deps/v8_inspector/src/inspector/protocol/Debugger.cpp	              \
+        deps/v8_inspector/src/inspector/protocol/HeapProfiler.cpp	              \
+        deps/v8_inspector/src/inspector/protocol/Log.cpp	              \
+        deps/v8_inspector/src/inspector/protocol/Network.cpp	              \
+        deps/v8_inspector/src/inspector/protocol/Overlay.cpp	              \
+        deps/v8_inspector/src/inspector/protocol/Page.cpp	              \
+        deps/v8_inspector/src/inspector/protocol/Profiler.cpp	              \
+        deps/v8_inspector/src/inspector/protocol/Protocol.cpp	              \
+        deps/v8_inspector/src/inspector/protocol/Runtime.cpp	              \
+        deps/v8_inspector/src/inspector/protocol/Schema.cpp	              \
+        deps/v8_inspector/src/inspector/utils/base64.cpp	              \
+        deps/v8_inspector/src/inspector/utils/v8-inspector-common.cpp	              \
+        deps/v8_inspector/src/inspector/utils/v8-network-request-data.cpp	              \
+        deps/v8_inspector/src/inspector/utils/v8-page-resources.cpp	              \
+        deps/v8_inspector/src/inspector/v8-css-agent-impl.cpp	              \
+        deps/v8_inspector/src/inspector/v8-dom-agent-impl.cpp	              \
+        deps/v8_inspector/src/inspector/v8-log-agent-impl.cpp	              \
+        deps/v8_inspector/src/inspector/v8-network-agent-impl.cpp	              \
+        deps/v8_inspector/src/inspector/v8-overlay-agent-impl.cpp	              \
+        deps/v8_inspector/src/inspector/v8-page-agent-impl.cpp	              \
+        deps/v8_inspector/src/inspector/injected-script.cc	              \
+        deps/v8_inspector/src/inspector/inspected-context.cc	              \
+        deps/v8_inspector/src/inspector/remote-object-id.cc	              \
+        deps/v8_inspector/src/inspector/search-util.cc	              \
+        deps/v8_inspector/src/inspector/string-16.cc	              \
+        deps/v8_inspector/src/inspector/string-util.cc	              \
+        deps/v8_inspector/src/inspector/v8-console.cc	              \
+        deps/v8_inspector/src/inspector/v8-console-agent-impl.cc	              \
+        deps/v8_inspector/src/inspector/v8-console-message.cc	              \
+        deps/v8_inspector/src/inspector/v8-debugger.cc	              \
+        deps/v8_inspector/src/inspector/v8-debugger-agent-impl.cc	              \
+        deps/v8_inspector/src/inspector/v8-debugger-script.cc	              \
+        deps/v8_inspector/src/inspector/v8-function-call.cc	              \
+        deps/v8_inspector/src/inspector/v8-heap-profiler-agent-impl.cc	              \
+        deps/v8_inspector/src/inspector/v8-injected-script-host.cc	              \
+        deps/v8_inspector/src/inspector/v8-inspector-impl.cc	              \
+        deps/v8_inspector/src/inspector/v8-inspector-session-impl.cc	              \
+        deps/v8_inspector/src/inspector/v8-internal-value-type.cc	              \
+        deps/v8_inspector/src/inspector/v8-profiler-agent-impl.cc	              \
+        deps/v8_inspector/src/inspector/v8-regex.cc	              \
+        deps/v8_inspector/src/inspector/v8-runtime-agent-impl.cc	              \
+        deps/v8_inspector/src/inspector/v8-schema-agent-impl.cc	              \
+        deps/v8_inspector/src/inspector/v8-stack-trace-impl.cc	              \
+        deps/v8_inspector/src/inspector/v8-value-utils.cc	              \
+        deps/v8_inspector/src/inspector/wasm-translation.cc   
 
 #PROFILE_SRC_FILES := 	lib/v8-profiler/cpu_profiler.cpp	  \
 #			lib/v8-profiler/heap_profiler.cpp	              \
@@ -313,14 +463,14 @@ QR_SRC_FILES := \
 	core/qr/adapter/qrprocess.c
 
 #correct order ibv8_initializers libv8_init libv8_base libv8_libplatform libv8_libbase libv8_libsampler libv8_nosnapshot libv8_snapshot libinspector libtorque_base
-LOCAL_STATIC_LIBRARIES := curl-prebuilt libzip cpufeatures libturbojpeg libjansson libpng  libv8_initializers libv8_init libv8_base libv8_libplatform libv8_libbase libv8_libsampler libv8_nosnapshot libv8_snapshot libinspector libtorque_base gnustl #libicui18n libicuuc #libv8_external_snapshot
+LOCAL_STATIC_LIBRARIES := curl-prebuilt libzip cpufeatures libturbojpeg libjansson libpng  libv8_initializers libv8_init libv8_base libv8_libplatform libv8_libbase libv8_libsampler libv8_nosnapshot libv8_snapshot libtorque_base gnustl #libicui18n libicuuc #libv8_external_snapshot
 
 
 LOCAL_LDLIBS := -llog -landroid -lGLESv2 -lz
 
 #Removed -Wall -Werror for source code updates, must be put back and fix build on release after update phase
 #Removed -std=gnu++11 in order to avoid <<--error: invalid argument '-std=gnu++11' not allowed with 'C/ObjC'-->>
-LOCAL_CFLAGS += -Wno-narrowing -Wno-unused-function -funroll-loops -ftree-vectorize -ffast-math -Wno-uninitialized -Wc++11-narrowing -w -frtti# -O3 
+LOCAL_CFLAGS += -Wno-narrowing -Wno-unused-function -funroll-loops -ftree-vectorize -ffast-math -Wno-uninitialized -Wc++11-narrowing -w -frtti -fexceptions# -O3 
 
 
 ifeq ($(APP_ABI),armeabi-v7a)
@@ -328,6 +478,7 @@ ifeq ($(APP_ABI),armeabi-v7a)
 endif
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib/include
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib/src
@@ -337,6 +488,10 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/core
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/core/deps
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/core/image-cache/include
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/core/qr
+
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/include
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8_inspector
+
 LOCAL_SHARED_LIBRARIES += ssl-prebuilt
 LOCAL_SHARED_LIBRARIES += crypto-prebuilt
 
@@ -350,20 +505,20 @@ ifeq (${RELEASE}, 1)
 LOCAL_CFLAGS += -DRELEASE
 APP_OPTIM := release
 
-# Add profiler to release mode
-#ifeq (${JSPROF}, 1)
-#LOCAL_CFLAGS += -DENABLE_PROFILER -DREMOTE_DEBUG
-#LOCAL_SRC_FILES += $(PROFILE_SRC_FILES)
-#LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8
-#endif
+# Add inspector to release mode
+ifeq (${JSPROF}, 1)
+LOCAL_CFLAGS += -DENABLE_PROFILER -DREMOTE_DEBUG
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8
+#LOCAL_SRC_FILES += $(INSPECTOR_SRC_FILES)
+endif
+#LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8
 # DEBUG build
 else
-# Profiler is always on for debug mode
+# Inspector is always on for debug mode
 LOCAL_CFLAGS += -DHASH_DEBUG=1 -DDEBUG -DREMOTE_DEBUG #-DU_USING_ICU_NAMESPACE=1
 APP_OPTIM := debug
-LOCAL_SRC_FILES += $(PROFILE_SRC_FILES)
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8
+#LOCAL_SRC_FILES += $(INSPECTOR_SRC_FILES)
 endif
 
 ifeq (${GPROF}, 1)

@@ -63,7 +63,7 @@ void native_eval(const v8::FunctionCallbackInfo<v8::Value> &args) {
     String::Utf8Value str2(isolate, args[1]);
     const char *pstr = ToCString(str2);
 
-    Local<Value> ret = ExecuteString(String::NewFromUtf8(isolate,cstr), String::NewFromUtf8(isolate, pstr), true, isolate);
+    Local<Value> ret = ExecuteString(String::NewFromUtf8(isolate,cstr), pstr, true, isolate);
     LOGFN("endeval");
     args.GetReturnValue().Set(ret);
 }

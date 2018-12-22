@@ -23,13 +23,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "libzip/zip.h"
-#include "libzip/zipint.h"
 #include "core/platform/native.h"
 #include "core/config.h"
 #include "deps/cpu-features.h"
 #include "libzip/zip.h"
-#include "libzip/zipint.h"
 
 extern "C" {
 #include "core/texture_manager.h"
@@ -209,7 +206,7 @@ CEXPORT unsigned char *resource_loader_read_file(const char * url, unsigned long
         struct zip_stat stats;
         zip_stat(APKArchive, filename, 4, &stats);
         // + 1 for the null termination
-        *sz = file->bytes_left;
+        *sz = stats.size;//file->bytes_left;
         //read file to buffer
         data = (unsigned char*)malloc(*sz + 1);
         memset(data, 0, *sz);

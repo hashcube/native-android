@@ -204,13 +204,13 @@ static void weakCallbackForObjectHolder(const v8::WeakCallbackInfo<view_animatio
 
 void js_animate_constructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
     Isolate *isolate = args.GetIsolate();
-    Local<Object> thiz = Local<Object>::Cast(args.This());
+    Local<Object> thiz = Local<Object>::Cast(args.Holder());
     Local<Object> js_timestep_view = Local<Object>::Cast(args[0]);
 
-    timestep_view *view = GET_TIMESTEP_VIEW(Local<Object>::Cast(js_timestep_view->Get(STRING_CACHE___view.Get(isolate))));
+    timestep_view *view = GET_TIMESTEP_VIEW(Local<Object>::Cast(js_timestep_view->Get(getContext(), STRING_CACHE___view.Get(getIsolate())).ToLocalChecked()));
     view_animation *anim = view_animation_init(view);
 
-    thiz->SetInternalField(0, External::New(isolate, anim));
+    thiz->SetInternalField(0, External::New(getIsolate(), anim));
     Persistent<Object> js_anim(isolate, thiz);
     //static void js_animation_finalize(Persistent<Value> js_anim, void *param) {
     //       void (*)                   (const WeakCallbackInfo<view_animation_t> &)
@@ -258,7 +258,8 @@ Local<FunctionTemplate> get_animate_class(Isolate *isolate) {
 
     Local<Template> proto = animate_class->PrototypeTemplate();
     //Local<ObjectTemplate> global = ObjectTemplate::New(isolate);
-   // animate_class->InstanceTemplate()->SetInternalFieldCount(1);
+   
+    
     proto->Set(String::NewFromUtf8(isolate,"now"), FunctionTemplate::New(isolate, js_animate_now));
     proto->Set(String::NewFromUtf8(isolate,"then"), FunctionTemplate::New(isolate, js_animate_then));
     proto->Set(String::NewFromUtf8(isolate,"commit"), FunctionTemplate::New(isolate, js_animate_commit));
@@ -268,7 +269,7 @@ Local<FunctionTemplate> get_animate_class(Isolate *isolate) {
     proto->Set(String::NewFromUtf8(isolate,"resume"), FunctionTemplate::New(isolate, js_animate_resume));
     proto->Set(String::NewFromUtf8(isolate,"isPaused"), FunctionTemplate::New(isolate, js_animate_is_paused));
     proto->Set(String::NewFromUtf8(isolate,"hasFrames"), FunctionTemplate::New(isolate, js_animate_has_frames));
-
+    animate_class->InstanceTemplate()->SetInternalFieldCount(1);
     return animate_class;
 }
 

@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with the Game Closure SDK.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "platform/native_shim.h"
 #include "platform/resource_loader.h"
 #include "platform/platform.h"
 
@@ -30,6 +31,16 @@ extern "C" {
 #include <signal.h>
 #include <stdlib.h>
 
+#include "JEnv.h"
+#include "NativeScriptException.h"
+#include <sstream>
+#include "JsV8InspectorClient.h"
+#include "ArgConverter.h"
+#include "AssetExtractor.h"
+
+using namespace tns;
+using namespace std;
+
 // TODO: We should really be using RegisterClass() here to load the native shim
 // methods ahead of time so that during actual invocation it doesn't need to do
 // LoadMethod()
@@ -38,7 +49,7 @@ static JavaVM* static_vm = NULL;
 static native_shim shim;
 static int m_initialized = 0;
 
-static JNIEnv* get_env() {
+JNIEnv* get_env() {
     JNIEnv* env;
     static_vm->AttachCurrentThread(&env, NULL);
     return env;
@@ -201,6 +212,20 @@ extern "C" {
         return result;
     }
 
+        JNIEXPORT jboolean JNICALL Java_com_tealeaf_NativeShim_runNativeJSScript(JNIEnv* env, jobject thiz) {
+
+            bool success = core_run_native_js_script();
+            jboolean result;
+
+            if (success) {
+                result = JNI_TRUE;
+            } else {
+                result = JNI_FALSE;
+            }
+
+            return result;
+        }
+
     void Java_com_tealeaf_NativeShim_dispatchEvents(JNIEnv* env, jobject thiz, jobjectArray events) {
         jsize len = env->GetArrayLength(events);
         for (int i = 0; i < len; i++) {
@@ -310,4 +335,44 @@ extern "C" {
             static_vm->DetachCurrentThread();
         }
     }
+    
+//called from NativeScript Java file com_tns_AndroidJsV8Inspector
+
+JNIEXPORT extern "C" void Java_com_tealeaf_NativeShim_initInspector(JNIEnv* env, jobject object) {
+    JsV8InspectorClient::GetInstance()->init();
+}
+
+JNIEXPORT extern "C" void Java_com_tealeaf_NativeShim_connect(JNIEnv* env, jobject instance, jobject connection) {
+    JsV8InspectorClient::GetInstance()->connect(connection);
+}
+
+JNIEXPORT extern "C" void Java_com_tealeaf_NativeShim_scheduleBreak(JNIEnv* env, jobject instance) {
+    JsV8InspectorClient::GetInstance()->scheduleBreak();
+}
+
+JNIEXPORT extern "C" void Java_com_tealeaf_NativeShim_disconnect(JNIEnv* env, jobject instance) {
+    JsV8InspectorClient::GetInstance()->disconnect();
+}
+
+JNIEXPORT extern "C" void Java_com_tealeaf_NativeShim_dispatchMessage(JNIEnv* env, jobject instance, jstring jMessage) {
+    std::string message = ArgConverter::jstringToString(jMessage);
+    JsV8InspectorClient::GetInstance()->dispatchMessage(message);
+}
+
+/* JNIEXPORT extern "C" void  Java_com_tealeaf_NativeShim_extractAssets(JNIEnv* env, jobject obj, jstring apk, jstring inputDir, jstring outputDir, jboolean _forceOverwrite) {
+    try {
+        AssetExtractor::ExtractAssets(env, obj, apk, inputDir, outputDir, _forceOverwrite);
+    } catch (NativeScriptException& e) {
+        e.ReThrowToJava();
+    } catch (std::exception e) {
+        stringstream ss;
+        ss << "Error: c++ exception: " << e.what() << endl;
+        NativeScriptException nsEx(ss.str());
+        nsEx.ReThrowToJava();
+    } catch (...) {
+        NativeScriptException nsEx(std::string("Error: c++ exception!"));
+        nsEx.ReThrowToJava();
+    }
+}
+*/
 }

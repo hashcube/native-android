@@ -25,7 +25,7 @@ using namespace v8;
 
 CEXPORT void js_timer_unlink(core_timer* timer) {
     js_timer *t = (js_timer*)timer->js_data;
-    t->callback.Reset();
+   // t->callback.Reset();
 }
 
 CEXPORT void js_timer_fire(core_timer *timer) {
@@ -35,12 +35,10 @@ CEXPORT void js_timer_fire(core_timer *timer) {
     Local<Context> context = getContext();
     Context::Scope context_scope(context);
     TryCatch try_catch(isolate);
-
+    
     js_timer *t = (js_timer*) timer->js_data;
-    Handle<Value> ret = t->callback.Get(isolate)->Call(context, context->Global(), 0, NULL).ToLocalChecked();
-    if (ret.IsEmpty()) {
-        ReportException(&try_catch);
-    }
+    t->callback.Get(isolate)->Call( context->Global(), 0, {});
+   
 }
 
 static js_timer *get_timer(Local<Object> callback, Isolate *isolate) {
@@ -51,9 +49,9 @@ static js_timer *get_timer(Local<Object> callback, Isolate *isolate) {
         timer->callback.Reset(isolate, lf);
     }
     else{
-        timer->callback.Reset();
+      //  timer->callback.Reset();
     }
-    timer->arguments = NULL;//FIXME make passing arguments to settimeout work
+   // timer->arguments = NULL;//FIXME make passing arguments to settimeout work
     return timer;
 }
 

@@ -5,12 +5,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- 
+
  * The Game Closure SDK is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- 
+
  * You should have received a copy of the GNU General Public License
  * along with the Game Closure SDK.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -18,9 +18,9 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <string>
-
 #include "core/util/detect.h"
 #include "core/timestep/timestep_animate.h"
+#include "platform/native_shim.h"
 
 #include "core/config.h"
 #include "core/tealeaf_context.h"
@@ -46,7 +46,11 @@
 
 #include "platform/platform.h"
 #include "libplatform/libplatform.h"
+#include <chrono>
+#include <thread>
+#include <ArgConverter.h>
 
+/*
 #if defined(REMOTE_DEBUG)
 #include "debug/debug.h"
 #endif
@@ -54,19 +58,35 @@
 #if defined(ENABLE_PROFILER)
 #include "lib/v8-profiler/profiler.h"
 #endif
-
+*/
 
 #include "include/v8.h"
 #include "js.h"
 
-using namespace v8;
+#include <jni.h>
+#include <v8-inspector.h>
 
-std::unique_ptr<v8::Platform> running_platform;
+#include "File.h"
+#include "ArgConverter.h"
+#include "JEnv.h"
+#include "NativeScriptException.h"
+#include <sstream>
+#include "JsV8InspectorClient.h"
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+
+using namespace v8;
+using namespace tns;
+using namespace std;
+
 Persistent<Context> m_context;
 Isolate *m_isolate = NULL;
+v8::Platform* platform_;
 
 // JS Ready flag: Indicates that the JavaScript engine is running (see core/core_js.h)
 bool js_ready = false;
+string app_package_name;
 
 CEXPORT bool js_is_ready();
 
@@ -84,7 +104,7 @@ static int calc_elapsed(struct timeval *mark) {
 /*timing stuff*/
 static DECL_BENCH(et);
 
-CEXPORT void eval_str(const char *str) {
+CEXPORT void eval_str(const char *str, const char * filename) {
     Locker l(m_isolate);
     HandleScope handle_scope(m_isolate);
     if (m_context.IsEmpty()) {
@@ -119,7 +139,8 @@ CEXPORT void eval_str(const char *str) {
 
     }
     else {
-        ExecuteString(source, file_name, true, m_isolate);
+        ExecuteString(source, filename, true, m_isolate);
+
     }
 }
 
@@ -137,20 +158,20 @@ void timer_start(const v8::FunctionCallbackInfo<v8::Value> &args) {
     Handle<Context> context = getContext();
     LOGFN("setTick");
     Context::Scope context_scope(context);
-    
+
     // Old block
     if (tickFunction == NULL) {
         // tickFunction = (Persistent<Function>*)calloc(1, sizeof(Persistent<Function>)); // this needs to be tested still
         tickFunction = new Persistent<Function>();
     }
-    
+
     // Updated at Aug 28 2018
     if (args[0]->IsFunction()) {
         Local<v8::Function> function = Local<Function>::Cast(args[0]);
         //Handle<Function> fun = Handle<Function>::Cast(args[0]->ToObject());
         tickFunction->Reset(isolate, function);
     }
-    
+
     LOGFN("end setTick");
     MARK(et);
     //return Undefined(isolate);
@@ -173,18 +194,96 @@ Isolate *getIsolate() {
     return m_isolate;
 }
 
+v8::Platform *getPlatform() {
+    return platform_;
+}
+
 const char* ToCString(const String::Utf8Value& value) {
     return *value ? *value : "<string conversion failed>";
 }
 
+static string getFileName(const string& s) {
+
+   char sep = '/';
+
+#ifdef _WIN32
+   sep = '\\';
+#endif
+
+   size_t i = s.rfind(sep, s.length());
+   if (i != string::npos) {
+      return(s.substr(i+1, s.length() - i));
+   }
+
+   return("");
+}
+
+static string getAppPackageName(){
+
+        if(app_package_name == ""){
+        //call NativeShim.java method example
+        JNIEnv* env = get_env();
+        jclass inspectorStarterClass = env->FindClass("com/tealeaf/NativeShim");
+        jmethodID getResourcesMethod = env->GetStaticMethodID(inspectorStarterClass, "getPackageName", "()Ljava/lang/String;");
+        env->CallStaticObjectMethod(inspectorStarterClass, getResourcesMethod);
+        jstring packageName= (jstring)env->CallStaticObjectMethod(inspectorStarterClass, getResourcesMethod);
+        const char* pname = env->GetStringUTFChars(packageName, NULL);
+        app_package_name = string(pname);
+        }
+        return app_package_name;
+}
+
+
 // Executes a string within the current v8 context.
-Handle<Value> ExecuteString(v8::Handle<v8::String> source, v8::Handle<v8::Value> name, bool report_exceptions, Isolate *isolate) {
+Handle<Value> ExecuteString(v8::Handle<v8::String> source, const char * file_name, bool report_exceptions, Isolate *isolate) {
     EscapableHandleScope handle_scope(isolate);
     v8::TryCatch try_catch(isolate);
-    v8::MaybeLocal<v8::Script> script = v8::Script::Compile(source); //, name->ToString()
+    
+        Persistent<String> sourceP;
+        sourceP.Reset(isolate, source);
+
+         std::string filename = "";
+        #if defined(DEBUG)
+        std::string cStrName(file_name);
+
+        if(cStrName == "native.js"){
+        filename = "/data/data/com.hashcube.sqmtest/files/resources/native.js";
+        }
+        else {
+        filename = "/data/data/"+getAppPackageName()+"/files/resources/" + getFileName(string(cStrName));
+        if (File::Exists(filename)) {
+                remove(filename.c_str());
+        }
+        //savefile
+        std::ofstream outfile ( filename);
+        outfile << ToCString(String::Utf8Value(isolate, sourceP.Get(isolate))) << std::endl;
+        outfile.close(); 
+        }
+        #endif
+
+
+ v8::MaybeLocal<v8::Script> script;
+
+    if(filename == "" || filename == "entry_point"){
+        script = v8::Script::Compile(getContext(), sourceP.Get(isolate));
+    }
+    else{
+    #if defined(DEBUG)
+        auto src = File::ReadText(filename);
+        auto originName = "file://" + filename;
+        v8::ScriptOrigin origin(ArgConverter::ConvertToV8String(isolate, originName));
+        script = v8::Script::Compile(getContext(), sourceP.Get(isolate), &origin);
+
+        #else
+        script = v8::Script::Compile(getContext(), sourceP.Get(isolate));
+          #endif // DEBUG
+    }
+
+
     if (script.IsEmpty()) {
         // Print errors that happened during compilation.
         if (report_exceptions)
+            sourceP.Reset();
             ReportException(&try_catch);
         return Undefined(m_isolate);
     } else {
@@ -196,11 +295,16 @@ Handle<Value> ExecuteString(v8::Handle<v8::String> source, v8::Handle<v8::Value>
                 ReportException(&try_catch);
             return Undefined(m_isolate);
         } else {
+            Handle<Context> context = getContext();
             assert(!try_catch.HasCaught());
             return handle_scope.Escape(result.ToLocalChecked());
         }
+        sourceP.Reset();
     }
 }
+
+
+
 
 static inline void log_error(const char *message) {
     if(!js_is_ready()) {
@@ -278,17 +382,21 @@ DECL_BENCH(gc_bench);
 static const char *m_gc_type = "Unknown";
 #endif
 
+
+
+
+
 void gc_start(Isolate* isolate, GCType type, GCCallbackFlags flags) {
 #ifndef RELEASE
     MARK(gc_bench);
-    
+
     static const char* types[] = {
-        "Unknown",
-        "Scavenge",
-        "Mark/Sweep/Compact",
-        "All"
+            "Unknown",
+            "Scavenge",
+            "Mark/Sweep/Compact",
+            "All"
     };
-    
+
     m_gc_type = types[type];
 #endif
 }
@@ -307,7 +415,7 @@ void ReportException(v8::TryCatch* try_catch) {
     v8::Handle<v8::Message> message = try_catch->Message();
     if (message.IsEmpty()) {
         LOG("{js} WARNING: No exception message");
-        
+
         // V8 didn't provide any extra information about this error; just
         const char* exception_string = ToCString(exception);
         // print the exception.
@@ -324,7 +432,7 @@ void ReportException(v8::TryCatch* try_catch) {
         v8::String::Utf8Value sourceline(m_isolate, message->GetSourceLine(getContext()).ToLocalChecked());
         const char* sourceline_string = ToCString(sourceline);
         log_error(sourceline_string);
-        
+
         v8::String::Utf8Value stack_trace(m_isolate, try_catch->StackTrace(getContext()).ToLocalChecked());
         const char* stack_trace_string = "no line";
         if (stack_trace.length() > 0) {
@@ -353,7 +461,7 @@ Handle<Function> get_on_resize() {
 
 CEXPORT void js_tick(long dt) {
     Locker l(m_isolate);
-    
+
     if (!js_ready) {
         LOG("{js} WARNING: Tick attempted before JavaScript engine was running");
         return;
@@ -362,12 +470,12 @@ CEXPORT void js_tick(long dt) {
     HandleScope handle_scope(m_isolate);
     Handle<Context> context = getContext();
     Context::Scope context_scope(context);
-   
-    
+
+
     if (dt > 1000) {
         dt = 1;
     }
-    
+
     Handle<Object> global = context->Global();
     tealeaf_canvas *canvas = tealeaf_canvas_get();
     if (canvas->should_resize) {
@@ -383,11 +491,11 @@ CEXPORT void js_tick(long dt) {
             }
         }
     }
-    
+
     if (tickFunction == NULL) {
         return;
     }
-    
+
     view_animation_tick_animations(dt, m_isolate);
     Handle<Function> func = tickFunction->Get(m_isolate);
     if (func->IsFunction()) {
@@ -404,21 +512,22 @@ CEXPORT void js_tick(long dt) {
 CEXPORT bool js_is_ready() {
     return js_ready;
 }
-
+/*
 #if defined(REMOTE_DEBUG)
 static void DispatchDebugMessages() {
     // Locker should already be held here
-    
+
     Locker l(m_isolate);
     HandleScope handle_scope(m_isolate);
     Context::Scope context_scope(getContext());
     TryCatch try_catch(m_isolate);
-    
+
     // Todo: fix, the class is removed in v8 6.9.0
-    // v8::debug::ProcessDebugMessages();
+    // OLD v8::debug::ProcessDebugMessages();
+
 }
 #endif // REMOTE_DEBUG
-
+*/
 
 class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
 public:
@@ -430,21 +539,24 @@ public:
     virtual void Free(void* data, size_t) { free(data); }
 };
 
+
+
+
 // Call this from the main thread of javascript execution, so that the isolate
 // is tied to the correct thread id.  This is important for profiling because
 // the V8 profiler internally will send SIGPROF to this thread.
 bool js_init_isolate() {
     DECL_BENCH(t);
     MARK(t);
-    
+
     // Initialize V8.
     v8::V8::InitializeICUDefaultLocation(nullptr);
     v8::V8::InitializeExternalStartupData(nullptr);
-    v8::Platform* platform = v8::platform::CreateDefaultPlatform();
-    v8::V8::InitializePlatform(platform);
+     platform_ = v8::platform::CreateDefaultPlatform();
+    v8::V8::InitializePlatform(platform_);
     v8::V8::Initialize();
     LOG("v8engine inited");
-    
+
     // Create a new Isolate and make it the current one.
     ArrayBufferAllocator allocator;
     v8::Isolate::CreateParams create_params;
@@ -467,110 +579,128 @@ bool init_js(const char *uri, const char *native_hash) {
     m_isolate->AddGCEpilogueCallback(gc_end, GCType::kGCTypeAll);
     MARK(t);
     Local<ObjectTemplate> global = ObjectTemplate::New(m_isolate);
-    
+
     js_string_cache_init(m_isolate);
-    
+
     // set the global object's functions *before* Context::New creates an instance, otherwise we just don't get them
     global->Set(STRING_CACHE_setTimeout.Get(m_isolate), FunctionTemplate::New(m_isolate, defSetTimeout));
     global->Set(STRING_CACHE_clearTimeout.Get(m_isolate), FunctionTemplate::New(m_isolate, defClearTimeout));
     global->Set(STRING_CACHE_setInterval.Get(m_isolate), FunctionTemplate::New(m_isolate, defSetInterval));
     global->Set(STRING_CACHE_clearInterval.Get(m_isolate), FunctionTemplate::New(m_isolate, defClearInterval));
     global->Set(STRING_CACHE_setLocation.Get(m_isolate), FunctionTemplate::New(m_isolate, native_set_location));
-    
+
     m_context.Reset(m_isolate, Context::New(m_isolate, NULL, global));
-    
+
+    #if defined(DEBUG)
+       JsV8InspectorClient::GetInstance()->init();
+    #else // DEBUG
+        LOG("{debugger} JavaScript Debug Server is disabled");
+    #endif // DEBUG
+
+     /*
+        call NativeShim.java method example
+        JNIEnv* env = get_env();
+        jclass inspectorStarterClass = env->FindClass("com/tealeaf/NativeShim");
+        jmethodID getResourcesMethod = env->GetStaticMethodID(inspectorStarterClass, "startInspectorServer", "()V");
+        env->CallStaticObjectMethod(inspectorStarterClass, getResourcesMethod);
+        */
+  
     if (m_context.IsEmpty()) {
         LOG("{js} ERROR: Unable to create context");
         return false;
     }
-    
+
+
+
+
 #if defined(REMOTE_DEBUG)
-    // Todo: fix, the class is removed in v8 6.9.0
-    /*v8::debug::ProcessDebugMessagesSetDebugMessageDispatchHandler(DispatchDebugMessages, true);
-     if (v8::Debug::EnableAgent("game-closure-jsds", 9222, false)) {
-     LOG("{debugger} JavaScript Debug Server running on port 9222");
-     } else {
-     LOG("{debugger} ERROR: JavaScript Debug Server could not start. Is another app already running a debug server?");
-     }*/
+    // Todo: put inspector initialization here
+
+
 #else // REMOTE_DEBUG
     LOG("{debugger} JavaScript Debug Server is disabled");
 #endif // REMOTE_DEBUG
-    
+
     Local<Context> context = getContext();
     Context::Scope scope(context);
-    
+
+    v8::HandleScope handle_scope(getIsolate());
+
+
     // config
     Handle<ObjectTemplate> config = v8::ObjectTemplate::New(getIsolate());
     config->Set(m_isolate, "baseURL", String::NewFromUtf8(getIsolate(), config_get_code_host()));
-    
+
     // window.location
     native_initialize_location(config_get_code_host(), m_isolate);
-    
+
     // screen
     int width = config_get_screen_width();
     int height = config_get_screen_height();
-    
+
     Handle<ObjectTemplate> screen = ObjectTemplate::New(getIsolate());
     screen->Set(STRING_CACHE_width.Get(getIsolate()), Number::New(getIsolate(),width));
     screen->Set(STRING_CACHE_height.Get(getIsolate()), Number::New(getIsolate(),height));
-    
+
     // timer
     Handle<ObjectTemplate> timer = ObjectTemplate::New(getIsolate());
     timer->Set(STRING_CACHE_start.Get(getIsolate()), FunctionTemplate::New(getIsolate(), timer_start));
-    
+
     // navigator
     Handle<ObjectTemplate> navigator = js_navigator_get_template(m_isolate);
-    
+
     // native
     Handle<ObjectTemplate> NATIVE = js_native_get_template(uri, native_hash, m_isolate);
     NATIVE->Set(STRING_CACHE_timer.Get(m_isolate), timer);
-    
+
     // global_object
     Local<Object> global_object = m_context.Get(m_isolate)->Global();
-    
+
     global_object->Set(STRING_CACHE_CONFIG.Get(m_isolate), config->NewInstance());
     global_object->Set(STRING_CACHE_screen.Get(m_isolate), screen->NewInstance());
     global_object->Set(STRING_CACHE_navigator.Get(m_isolate), navigator->NewInstance());
     global_object->Set(STRING_CACHE_window.Get(m_isolate), global_object);
     global_object->Set(STRING_CACHE_NATIVE.Get(m_isolate), NATIVE->NewInstance());
     global_object->Set(STRING_CACHE_GLOBAL.Get(m_isolate), global_object);
-    
+
     global_object->SetAccessor(context, STRING_CACHE_location.Get(m_isolate), jsGetLocation, jsSetLocation);
-    
-    
+
+
 #if defined(ENABLE_PROFILER)
     Handle<ObjectTemplate> PROFILER = ObjectTemplate::New();
     nodex::InitializeProfiler(PROFILER);
     global_object->Set(STRING_CACHE_PROFILER, PROFILER->NewInstance());
 #endif // ENABLE_PROFILER
-    
+
     LOG("{js} Initialized in %dms", ELAPSED(t));
-    
+
     js_ready = true;
-    
+
+
+
     return true;
 }
 
 CEXPORT bool destroy_js() {
     LOG("{js} Shutting down");
-    
+
     if(js_ready) {
         js_ready = false;
         Locker l(m_isolate);
-        
+
         HandleScope scope(m_isolate);
-        
+
         // Cleanup timer
         core_timer_clear_all();
         if(tickFunction != NULL && !(*tickFunction).IsEmpty()) {
             (*tickFunction).Reset();
         }
         tickFunction = NULL;
-        
-        
+
+
         m_context.Get(getIsolate())->DetachGlobal();
         m_context.Reset();
     }
-    
+
     return true;
 }
