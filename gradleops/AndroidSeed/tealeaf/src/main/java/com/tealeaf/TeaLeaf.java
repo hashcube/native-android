@@ -23,12 +23,6 @@ import android.Manifest;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.multi.BaseMultiplePermissionsListener;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.tealeaf.event.BackButtonEvent;
 import com.tealeaf.event.JSUpdateNotificationEvent;
 import com.tealeaf.event.KeyboardScreenResizeEvent;
