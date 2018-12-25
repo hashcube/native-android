@@ -823,7 +823,6 @@ function makeAndroidProject(api, app, config, opts) {
               executeOnCreate(api, app, config, opts)
             ]);
           })
-          .all()
       }
       else {
         return Promise.resolve();
@@ -1173,7 +1172,7 @@ function updateManifest(api, app, config, opts) {
       return injectPluginXML(opts);
     })
     .then(function () {
-      return Object.keys(opts.moduleConfig);
+      return Promise.resolve(Object.keys(opts.moduleConfig));
     })
     .map(function (moduleName) {
       var module = opts.moduleConfig[moduleName];

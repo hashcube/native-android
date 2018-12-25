@@ -247,7 +247,7 @@ Handle<Value> ExecuteString(v8::Handle<v8::String> source, const char * file_nam
         std::string cStrName(file_name);
 
         if(cStrName == "native.js"){
-        filename = "/data/data/com.hashcube.sqmtest/files/resources/native.js";
+        filename = "/data/data/"+getAppPackageName()+"/files/resources/native.js";
         }
         else {
         filename = "/data/data/"+getAppPackageName()+"/files/resources/" + getFileName(string(cStrName));
