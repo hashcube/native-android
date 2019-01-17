@@ -116,8 +116,9 @@ var getModuleConfig = function(api, app) {
           throw err;
         }
       });
-  })
-    .return(moduleConfig);
+  }).then(function (){
+    return Promise.resolve(moduleConfig);
+    });
 };
 
 var getTextBetween = function(text, startToken, endToken) {
@@ -358,7 +359,7 @@ function injectPluginXML(opts) {
           } else {
             logger.log('No plugin gradle dependency to inject');
           }
-        })
+        });
     })
     // read and apply manifest placeholders to app build.gradle
     .then(function () {
@@ -404,7 +405,7 @@ function injectPluginXML(opts) {
           } else {
             logger.log('No plugin gradle dependency to inject');
           }
-        })
+        });
     })
     // read and apply plugins to main build.gradle (mainly to integrate Google Play Services plugin)
     .then(function () {
@@ -449,7 +450,7 @@ function injectPluginXML(opts) {
           } else {
             logger.log('No plugin gradle dependency to inject');
           }
-        })
+        });
     })
     // read and apply styles
     .then(function () {
@@ -458,7 +459,6 @@ function injectPluginXML(opts) {
         fs.readFileAsync(stylesFile, 'utf-8')]
         .concat(readStylesFiles)
       )
-
         .then(function (results) {
           var xml = results.shift();
           if (results && results.length > 0 && xml && xml.length > 0) {
@@ -479,9 +479,9 @@ function injectPluginXML(opts) {
 
             return fs.writeFileAsync(stylesFile, xml, 'utf-8');
           } else {
-            logger.log('No plugin gradle dependency to inject');
+            return Promise.resolve(logger.log('No plugin gradle dependency to inject'));
           }
-        })
+        });
     })
     // read and apply plugins proguard settings
     .then(function () {
@@ -514,8 +514,8 @@ function injectPluginXML(opts) {
           }
         })
         .then (function () {
-          return installJarsDependencies()
-        })
+          return installJarsDependencies();
+        });
     });
 }
 
@@ -820,9 +820,11 @@ function makeAndroidProject(api, app, config, opts) {
               saveLocalizedStringsXmls(projectPath, config.titles),
               updateManifest(api, app, config, opts),
               updateActivity(app, config),
-              executeOnCreate(api, app, config, opts)
             ]);
           })
+            .then(function() {
+                executeOnCreate(api, app, config, opts);
+            })
       }
       else {
         return Promise.resolve();
@@ -834,7 +836,7 @@ function makeAndroidProject(api, app, config, opts) {
         return setGradleParameters(app).then(spawnWithLogger(api, './gradlew', [
             "clean"
           ], {cwd: projectPath})
-        )})
+        )});
 }
 
 function signAPK(api, app, shortName, outputPath, debug, config) {
@@ -1174,24 +1176,72 @@ function updateManifest(api, app, config, opts) {
     .then(function () {
       return Promise.resolve(Object.keys(opts.moduleConfig));
     })
-    .map(function (moduleName) {
+    .map (function (moduleName) {
       var module = opts.moduleConfig[moduleName];
       var config = module.config;
-      if (config.transformGradleApp) {
-        var transformFilePath = path.join(module.path, 'android', config.transformGradleApp);
-        transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config);
-      }
+      var tasks = [];
 
-      if (config.transformGradleTealeaf) {
-        var transformFilePath = path.join(module.path, 'android', config.transformGradleTealeaf);
-        transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config);
-      }
+        if (config.transformGradleApp) {
+            var transformFilePath = path.join(module.path, 'android', config.transformGradleApp);
+            tasks.push(transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config));
+        }
 
-      if (config.injectionXSL) {
-        var xslPath = path.join(module.path, 'android', config.injectionXSL);
-        return transformXSL(api, defaultManifest, outputManifest, xslPath, params, config);
-      }
-    }, {concurrency: 1}) // Run the plugin XSLT in series instead of parallel
+        if (config.transformGradleTealeaf) {
+            var transformFilePath = path.join(module.path, 'android', config.transformGradleTealeaf);
+            tasks.push(transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config));
+        }
+
+        if (config.injectionXSL) {
+            var xslPath = path.join(module.path, 'android', config.injectionXSL);
+            tasks.push(transformXSL(api, defaultManifest, outputManifest, xslPath, params, config));
+        }
+
+        return Promise.all(tasks);
+
+
+
+
+
+      // var checkTransformGragleApp = function(config) {
+      //     if (config.transformGradleApp) {
+      //       var transformFilePath = path.join(module.path, 'android', config.transformGradleApp);
+      //       return transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config);
+      //     }
+      //     else {
+      //       return Promise.resolve();
+      //     }
+      // };
+      //
+      // var checkTransformGradleTealeaf = function (config) {
+      //     if (config.transformGradleTealeaf) {
+      //       var transformFilePath = path.join(module.path, 'android', config.transformGradleTealeaf);
+      //       return transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config);
+      //     } else {
+      //       return Promise.resolve();
+      //     }
+      // };
+      //
+      // var checkInjectionXSL = function (config) {
+      //     if (config.injectionXSL) {
+      //       var xslPath = path.join(module.path, 'android', config.injectionXSL);
+      //       return transformXSL(api, defaultManifest, outputManifest, xslPath, params, config);
+      //     }
+      //     else {
+      //       return Promise.resolve({});
+      //     }
+      // };
+      //
+      // var completeMap = async function (config) {
+      //     var result1 = await checkTransformGragleApp(config);
+      //     var result2 = await checkTransformGradleTealeaf(config);
+      //     var result3 = await checkInjectionXSL(config);
+      //     return {result1, result2, result3};
+      //   }
+      //
+      // return await completeMap(config);
+         }, {concurrency: 1})
+
+  // Run the plugin XSLT in series instead of parallel
 
     .then(function() {
       /** Before this copy to original file seed of mygame/manifest.json:
@@ -1207,7 +1257,7 @@ function updateManifest(api, app, config, opts) {
       return transformXSL(api, xmlPath, xmlPath,
         path.join(__dirname, "AndroidManifest.xsl"),
         params, config);
-    });
+    })
 }
 
 function setGradleParameters(app) {
@@ -1230,7 +1280,7 @@ function setGradleParameters(app) {
           .replace(/BuildToolVersionlaceholder/g, app.manifest.android.buildToolsVersion);
         return fs.writeFileAsync(gradleAppFile, contents);
       });
-  }
+  };
 
   var writeTealeafGradle = function() {
     var gradleTeleafFile = path.join(projectPath,
@@ -1241,9 +1291,9 @@ function setGradleParameters(app) {
           .replace(/BuildToolVersionlaceholder/g, app.manifest.android.buildToolsVersion);
         return fs.writeFileAsync(gradleTeleafFile, contents);
       });
-  }
+  };
 
-  return Promise.all([writeAppGradle(), writeTealeafGradle()])
+  return Promise.all([writeAppGradle(), writeTealeafGradle()]);
 }
 
 function updateActivity(app, config) {
@@ -1271,8 +1321,9 @@ function createProject(api, app, config) {
       return makeAndroidProject(api, app, config, {
         outputPath: config.outputPath,
         moduleConfig: moduleConfig
+      }).then(function(){
+        return Promise.resolve(moduleConfig);
       })
-        .return(moduleConfig);
     })
     .then(function (moduleConfig) {
       return installModuleCode(api, app, {

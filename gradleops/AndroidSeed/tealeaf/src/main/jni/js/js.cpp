@@ -75,6 +75,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
+#include <sys/stat.h>
 
 using namespace v8;
 using namespace tns;
@@ -234,6 +235,24 @@ static string getAppPackageName(){
 }
 
 
+std::string GetDirectory (const std::string& path)
+{
+    size_t found = path.find_last_of("/\\");
+    return(path.substr(0, found));
+}
+
+void eraseSubStr(std::string & mainStr, const std::string & toErase)
+{
+	// Search for the substring in string
+	size_t pos = mainStr.find(toErase);
+ 
+	if (pos != std::string::npos)
+	{
+		// If found then erase it from string
+		mainStr.erase(pos, toErase.length());
+	}
+}
+
 // Executes a string within the current v8 context.
 Handle<Value> ExecuteString(v8::Handle<v8::String> source, const char * file_name, bool report_exceptions, Isolate *isolate) {
     EscapableHandleScope handle_scope(isolate);
@@ -250,7 +269,19 @@ Handle<Value> ExecuteString(v8::Handle<v8::String> source, const char * file_nam
         filename = "/data/data/"+getAppPackageName()+"/files/resources/native.js";
         }
         else {
-        filename = "/data/data/"+getAppPackageName()+"/files/resources/" + getFileName(string(cStrName));
+        eraseSubStr( cStrName, "http://");
+        std::replace(cStrName.begin(), cStrName.end(), '.', '_');
+        std::replace(cStrName.begin(), cStrName.end(), '-', '_');
+        std::replace(cStrName.begin(), cStrName.end(), '/', '_');
+       // filename = "/data/data/"+getAppPackageName()+"/files/resources/" +cStrName; //+"/"+ getFileName(string(cStrName)
+      //  const char *dirName = GetDirectory(filename).c_str();
+       // int result_code = mkdir(GetDirectory(dirName).c_str(), 0770);
+        
+        
+        filename = "/data/data/"+getAppPackageName()+"/files/resources/"+ string(cStrName);
+        const char *dirName = GetDirectory(filename).c_str();
+      
+      ////////
         if (File::Exists(filename)) {
                 remove(filename.c_str());
         }
@@ -264,7 +295,7 @@ Handle<Value> ExecuteString(v8::Handle<v8::String> source, const char * file_nam
 
  v8::MaybeLocal<v8::Script> script;
 
-    if(filename == "" || filename == "entry_point"){
+    if(filename == "" || filename == "entry_point.js"){
         script = v8::Script::Compile(getContext(), sourceP.Get(isolate));
     }
     else{
@@ -302,9 +333,6 @@ Handle<Value> ExecuteString(v8::Handle<v8::String> source, const char * file_nam
         sourceP.Reset();
     }
 }
-
-
-
 
 static inline void log_error(const char *message) {
     if(!js_is_ready()) {
@@ -362,7 +390,10 @@ static void remote_log_error(const char *message, const char *url, int line_numb
 //// JS Object Wrapper
 
 void js_object_wrapper_init(PERSISTENT_JS_OBJECT_WRAPPER *obj) {
-    obj->Reset();
+    if (!obj->IsEmpty()) {
+        obj->Empty();
+        obj->Reset();
+    }
 }
 
 void js_object_wrapper_root(PERSISTENT_JS_OBJECT_WRAPPER *obj, JS_OBJECT_WRAPPER target) {
