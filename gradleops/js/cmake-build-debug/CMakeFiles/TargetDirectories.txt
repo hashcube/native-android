@@ -1,0 +1,3 @@
+/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/CMakeFiles/js.dir

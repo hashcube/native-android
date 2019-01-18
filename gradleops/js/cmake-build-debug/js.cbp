@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="js"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="js">
+				<Option output="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/js" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/."/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 js"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="js/fast">
+				<Option output="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/js" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/."/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 js/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_animate.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_animate.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_before_inspector.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_build.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_build.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_console.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_console.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_context.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_context.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_device.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_device.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_dialog.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_dialog.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_events.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_events.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_gc.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_gc.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_haptics.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_haptics.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_image_cache.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_image_cache.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_image_map.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_image_map.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_input.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_input.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_local_storage.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_local_storage.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_locale.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_locale.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_location.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_location.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_native.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_native.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_navigator.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_navigator.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_overlay.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_overlay.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_photo.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_photo.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_plugins.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_plugins.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_profiler.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_profiler.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_push_notifications.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_socket.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_socket.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_sound.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_sound.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_status_bar.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_status_bar.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_string_cache.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_string_cache.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_textbox.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_textbox.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_timer.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_timer.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_timestep_events.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_timestep_events.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_timestep_image_map.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_timestep_image_map.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_timestep_view.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_timestep_view.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_xhr.cpp">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/js_xhr.h">
+			<Option target="js"/>
+		</Unit>
+		<Unit filename="/Users/alex/codeworks/YG/reposAndroid/devkitworks/temp/devkit/game1/modules/devkit-core/modules/native-android/gradleops/js/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,0 +1,74 @@
+cmake_minimum_required(VERSION 3.12)
+project(js)
+
+set(CMAKE_CXX_STANDARD 14)
+
+include_directories(.)
+
+add_executable(js
+        js.cpp
+        js.h
+        js_animate.cpp
+        js_animate.h
+        js_before_inspector.cpp
+        js_build.cpp
+        js_build.h
+        js_console.cpp
+        js_console.h
+        js_context.cpp
+        js_context.h
+        js_device.cpp
+        js_device.h
+        js_dialog.cpp
+        js_dialog.h
+        js_events.cpp
+        js_events.h
+        js_gc.cpp
+        js_gc.h
+        js_haptics.cpp
+        js_haptics.h
+        js_image_cache.cpp
+        js_image_cache.h
+        js_image_map.cpp
+        js_image_map.h
+        js_input.cpp
+        js_input.h
+        js_local_storage.cpp
+        js_local_storage.h
+        js_locale.cpp
+        js_locale.h
+        js_location.cpp
+        js_location.h
+        js_native.cpp
+        js_native.h
+        js_navigator.cpp
+        js_navigator.h
+        js_overlay.cpp
+        js_overlay.h
+        js_photo.cpp
+        js_photo.h
+        js_plugins.cpp
+        js_plugins.h
+        js_profiler.cpp
+        js_profiler.h
+        js_push_notifications.h
+        js_socket.cpp
+        js_socket.h
+        js_sound.cpp
+        js_sound.h
+        js_status_bar.cpp
+        js_status_bar.h
+        js_string_cache.cpp
+        js_string_cache.h
+        js_textbox.cpp
+        js_textbox.h
+        js_timer.cpp
+        js_timer.h
+        js_timestep_events.cpp
+        js_timestep_events.h
+        js_timestep_image_map.cpp
+        js_timestep_image_map.h
+        js_timestep_view.cpp
+        js_timestep_view.h
+        js_xhr.cpp
+        js_xhr.h)
