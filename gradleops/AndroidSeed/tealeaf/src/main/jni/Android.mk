@@ -357,6 +357,7 @@ LOCAL_SRC_FILES :=  	js/js.cpp                             \
     AssetExtractor.cpp	              \
     CallbackHandlers.cpp	              \
     Constants.cpp	              \
+    DesugaredInterfaceCompanionClassNameResolver.cpp	              \
     DirectBuffer.cpp	              \
     FieldAccessor.cpp	              \
     File.cpp	              \

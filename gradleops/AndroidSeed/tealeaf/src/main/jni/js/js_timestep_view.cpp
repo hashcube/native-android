@@ -253,7 +253,7 @@ void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &ar
     bool has_js_render = false;
     if (!render.IsEmpty() && render->IsFunction()) {
         Handle<Value> type = render->ToObject(isolate)->Get(context, STRING_CACHE_HAS_NATIVE_IMPL.Get(isolate)).ToLocalChecked();
-        has_js_render = !type->IsBoolean() || !type->BooleanValue();
+        has_js_render = !type->IsBoolean() || !type->BooleanValue(getIsolate());
     }
 
     view->has_jsrender = has_js_render;

@@ -139,7 +139,7 @@ void js_textbox_set_type(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void js_textbox_set_visible(const v8::FunctionCallbackInfo<v8::Value> &args) {
     Isolate *isolate = getIsolate();
-    textbox_set_visible(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->BooleanValue());
+    textbox_set_visible(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->BooleanValue(getIsolate()));
 }
 
 

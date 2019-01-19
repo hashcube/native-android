@@ -5,11 +5,8 @@
 #include <utime.h>
 #include <sys/stat.h>
 #include "AssetExtractor.h"
-#include "NativeScriptException.h"
-#include <sstream>
 
 using namespace tns;
-using namespace std;
 
 void AssetExtractor::ExtractAssets(JNIEnv* env, jobject obj, jstring apk, jstring input, jstring outputDir, jboolean _forceOverwrite) {
     auto forceOverwrite = JNI_TRUE == _forceOverwrite;
@@ -26,7 +23,7 @@ void AssetExtractor::ExtractAssets(JNIEnv* env, jobject obj, jstring apk, jstrin
     auto z = zip_open(strApk.c_str(), 0, &err);
 
     assert(z != nullptr);
-    zip_int64_t num = zip_get_num_files(z);
+    zip_int64_t num = zip_get_num_entries(z, 0);
     struct zip_stat sb;
     struct zip_file* zf;
     char buf[65536];
@@ -115,8 +112,3 @@ std::string AssetExtractor::jstringToString(JNIEnv* env, jstring value) {
 
     return s;
 }
-
-
-
-
-

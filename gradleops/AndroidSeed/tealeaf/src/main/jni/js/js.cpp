@@ -262,7 +262,7 @@ Handle<Value> ExecuteString(v8::Handle<v8::String> source, const char * file_nam
         sourceP.Reset(isolate, source);
 
          std::string filename = "";
-        #if !defined(DEBUG)
+        #if defined(DEBUG)
         std::string cStrName(file_name);
 
         if(cStrName == "native.js"){
@@ -299,7 +299,7 @@ Handle<Value> ExecuteString(v8::Handle<v8::String> source, const char * file_nam
         script = v8::Script::Compile(getContext(), sourceP.Get(isolate));
     }
     else{
-    #if !defined(DEBUG)
+    #if defined(DEBUG)
         auto src = File::ReadText(filename);
         auto originName = "file://" + filename;
         v8::ScriptOrigin origin(ArgConverter::ConvertToV8String(isolate, originName));
@@ -622,7 +622,7 @@ bool init_js(const char *uri, const char *native_hash) {
 
     m_context.Reset(m_isolate, Context::New(m_isolate, NULL, global));
 
-    #if !defined(DEBUG)
+    #if defined(DEBUG)
        JsV8InspectorClient::GetInstance()->init();
     #else // DEBUG
         LOG("{debugger} JavaScript Debug Server is disabled");
