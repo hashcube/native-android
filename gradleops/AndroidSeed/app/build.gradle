@@ -19,10 +19,6 @@ android {
             abortOnError false
         }
         
-        aaptOptions {
-            noCompress "js"
-        }
-        
     //<!--START_MANIFEST_PLACEHOLDERS-->
     //<!--END_MANIFEST_PLACEHOLDERS-->
         

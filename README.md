@@ -6,7 +6,7 @@ This is the native 'tealeaf' platform for android devices
 2. Export path:
 export ANDROID_HOME=/home/USERNAME/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
-export PATH=$PATH:/path/to/ndk-r9b/android-ndk-r16b
+export PATH=$PATH:/path/to/ndk-r9b/android-ndk-r18b
 
 3. Install and configure NDK tools with installed SDK Manger (see 1)
 

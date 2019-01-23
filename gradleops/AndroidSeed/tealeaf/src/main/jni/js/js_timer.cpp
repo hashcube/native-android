@@ -43,6 +43,8 @@ CEXPORT void js_timer_fire(core_timer *timer) {
 
 static js_timer *get_timer(Local<Object> callback, Isolate *isolate) {
     js_timer* timer = new js_timer();
+    // Old
+    //js_timer *timer = (js_timer*)malloc(sizeof(js_timer));
 
     if (!callback.IsEmpty() && callback->IsFunction()) {
         Local<Function> lf = Local<Function>::Cast(callback);

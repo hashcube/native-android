@@ -82,6 +82,19 @@ static void cb_js_finalize(Persistent<Value> ctx, void *param) {
 #endif
 }*/
 
+
+
+/* shorthand for new fixed v8 v 7.1
+         timestep_view *view = data.GetParameter();
+        if (view) {
+            view->js_view.Reset();
+        }
+          else {
+        // Should never happen because we have the __view reference
+        LOG("{view} ERROR: Front-end not found in backing finalizer!");
+    }
+    */
+
 static void weakCallbackForFrontend(const v8::WeakCallbackInfo<timestep_view> &data) {
     Isolate *isolate = data.GetIsolate();
     HandleScope handle_scope(isolate);
