@@ -571,7 +571,12 @@ public:
 };
 
 
-
+boolean isDebug = false;
+ #if defined(DEBUG)
+       isDebug = true;
+    #else // DEBUG
+        LOG("{debugger} JavaScript Debug Server is disabled");
+    #endif // DEBUG
 
 // Call this from the main thread of javascript execution, so that the isolate
 // is tied to the correct thread id.  This is important for profiling because
@@ -583,7 +588,18 @@ bool js_init_isolate() {
     // Initialize V8.
     v8::V8::InitializeICUDefaultLocation(nullptr);
     v8::V8::InitializeExternalStartupData(nullptr);
-     platform_ = v8::platform::CreateDefaultPlatform();
+    if(isDebug){
+     // The default V8 platform isn't Chrome DevTools compatible. The frontend uses the
+        // Runtime.evaluate protocol command with timeout flag for every execution in the console.
+        // The default platform doesn't implement executing delayed javascript code from a background
+        // thread. To avoid implementing a full blown scheduler, we use the default platform with a
+        // timeout=0 flag.
+        platform_ =  V8InspectorPlatform::CreateDefaultPlatform();
+     }
+     else{
+        platform_ = v8::platform::CreateDefaultPlatform();
+    }
+    Runtime::platform = platform_;
     v8::V8::InitializePlatform(platform_);
     v8::V8::Initialize();
     LOG("v8engine inited");
@@ -602,10 +618,27 @@ bool js_init_isolate() {
     }
 }
 
+
+
 bool init_js(const char *uri, const char *native_hash) {
     DECL_BENCH(t);
-    v8::Locker l(m_isolate);
+    //v8::Locker l(m_isolate);
+     Isolate::Scope isolate_scope(m_isolate);
     HandleScope handleScope(m_isolate);
+    
+     m_objectManager->SetInstanceIsolate(isolate);
+
+    // Sets a structure with v8 String constants on the isolate object at slot 1
+    V8StringConstants::PerIsolateV8Constants* consts = new V8StringConstants::PerIsolateV8Constants(isolate);
+    isolate->SetData((uint32_t)Runtime::IsolateData::CONSTANTS, consts);
+
+    V8::SetFlagsFromString(Constants::V8_STARTUP_FLAGS.c_str(), Constants::V8_STARTUP_FLAGS.size());
+    isolate->SetCaptureStackTraceForUncaughtExceptions(true, 100, StackTrace::kOverview);
+
+    isolate->AddMessageListener(NativeScriptException::OnUncaughtError);
+
+    __android_log_print(ANDROID_LOG_DEBUG, "TNS.Native", "V8 version %s", V8::GetVersion());
+    
     m_isolate->AddGCPrologueCallback(gc_start, GCType::kGCTypeAll);
     m_isolate->AddGCEpilogueCallback(gc_end, GCType::kGCTypeAll);
     MARK(t);
