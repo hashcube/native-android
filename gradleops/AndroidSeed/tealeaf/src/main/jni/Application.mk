@@ -1,3 +1,4 @@
+#todo add neon and then test on Huawei PRA-LA1 ( P8 Lite)
 APP_ABI := arm64-v8a #armeabi-v7a 
 APP_PLATFORM := android-21 
 
@@ -5,7 +6,7 @@ APP_PLATFORM := android-21
 # by reccomendations should be c++_static
 # was changed to c++_shared  according to compile errors fix
 APP_STL := c++_static
-APP_CPPFLAGS += -std=c++14 -fexceptions
+APP_CPPFLAGS += -std=c++14 -static-libstdc++ -fexceptions
 CMAKE_CXX_FLAGS += -mapcs-frame -frtti #for debug
-LOCAL_C_INCLUDES += ${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/include
+LOCAL_C_INCLUDES += ${ANDROID_NDK}/sources/cxx-stl/llvm-libc++/include
 APP_ALLOW_MISSING_DEPS=true

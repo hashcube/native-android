@@ -14,6 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with the Game Closure SDK.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+ #include "CallbackHandlers.h"
+#include "MetadataNode.h"
+#include "JsArgConverter.h"
+#include "JsArgToArrayConverter.h"
+#include "ArgConverter.h"
+#include "Util.h"
+#include "V8GlobalHelpers.h"
+#include "V8StringConstants.h"
+#include "Constants.h"
+
+#include "Version.h"
+#include "WeakRef.h"
+#include "NativeScriptAssert.h"
+#include "SimpleProfiler.h"
+#include "SimpleAllocator.h"
+#include "ModuleInternal.h"
+#include "NativeScriptException.h"
+#include "V8NativeScriptExtension.h"
+ #include "Runtime.h"
+ 
+ 
 #include <assert.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -45,10 +67,26 @@
 #include <log.h>
 
 #include "platform/platform.h"
+#include "src/libplatform/default-platform.h"
+#include "v8-platform.h"
 #include "libplatform/libplatform.h"
+#include "include/libplatform/libplatform.h"
 #include <chrono>
 #include <thread>
 #include <ArgConverter.h>
+
+#include "libplatform/libplatform-export.h"
+#include "libplatform/v8-tracing.h"
+#include "v8-platform.h"  // NOLINT(build/include)
+#include "v8config.h"
+#include "libplatform/libplatform.h"
+#include "include/libplatform/libplatform.h"
+#ifdef DEBUG
+#include "JsV8InspectorClient.h"
+#include "v8_inspector/src/inspector/v8-inspector-platform.h"
+#endif
+#include "src/libplatform/default-platform.h"
+#include "v8-platform.h"
 
 /*
 #if defined(REMOTE_DEBUG)
@@ -59,23 +97,28 @@
 #include "lib/v8-profiler/profiler.h"
 #endif
 */
-
+#include "include/libplatform/libplatform.h"
 #include "include/v8.h"
 #include "js.h"
 
 #include <jni.h>
 #include <v8-inspector.h>
 
+
 #include "File.h"
 #include "ArgConverter.h"
 #include "JEnv.h"
 #include "NativeScriptException.h"
 #include <sstream>
+
 #include "JsV8InspectorClient.h"
+#include "v8_inspector/src/inspector/v8-inspector-platform.h"
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
 #include <sys/stat.h>
+
+
 
 using namespace v8;
 using namespace tns;
@@ -84,6 +127,11 @@ using namespace std;
 Persistent<Context> m_context;
 Isolate *m_isolate = NULL;
 v8::Platform* platform_;
+
+bool s_mainThreadInitialized = false;
+bool isDebug = false;
+v8::Persistent<v8::Function>* m_gcFunc;
+volatile bool m_runGC;
 
 // JS Ready flag: Indicates that the JavaScript engine is running (see core/core_js.h)
 bool js_ready = false;
@@ -571,12 +619,7 @@ public:
 };
 
 
-boolean isDebug = false;
- #if defined(DEBUG)
-       isDebug = true;
-    #else // DEBUG
-        LOG("{debugger} JavaScript Debug Server is disabled");
-    #endif // DEBUG
+
 
 // Call this from the main thread of javascript execution, so that the isolate
 // is tied to the correct thread id.  This is important for profiling because
@@ -584,6 +627,12 @@ boolean isDebug = false;
 bool js_init_isolate() {
     DECL_BENCH(t);
     MARK(t);
+ #if defined(DEBUG)
+       isDebug = true;
+    #else // DEBUG
+        LOG("{debugger} JavaScript Debug Server is disabled");
+    #endif // DEBUG
+
 
     // Initialize V8.
     v8::V8::InitializeICUDefaultLocation(nullptr);
@@ -626,16 +675,16 @@ bool init_js(const char *uri, const char *native_hash) {
      Isolate::Scope isolate_scope(m_isolate);
     HandleScope handleScope(m_isolate);
     
-     m_objectManager->SetInstanceIsolate(isolate);
+     //m_objectManager->SetInstanceIsolate(m_isolate);
 
     // Sets a structure with v8 String constants on the isolate object at slot 1
-    V8StringConstants::PerIsolateV8Constants* consts = new V8StringConstants::PerIsolateV8Constants(isolate);
-    isolate->SetData((uint32_t)Runtime::IsolateData::CONSTANTS, consts);
+    V8StringConstants::PerIsolateV8Constants* consts = new V8StringConstants::PerIsolateV8Constants(m_isolate);
+    m_isolate->SetData((uint32_t)Runtime::IsolateData::CONSTANTS, consts);
 
     V8::SetFlagsFromString(Constants::V8_STARTUP_FLAGS.c_str(), Constants::V8_STARTUP_FLAGS.size());
-    isolate->SetCaptureStackTraceForUncaughtExceptions(true, 100, StackTrace::kOverview);
+    m_isolate->SetCaptureStackTraceForUncaughtExceptions(true, 100, StackTrace::kOverview);
 
-    isolate->AddMessageListener(NativeScriptException::OnUncaughtError);
+    m_isolate->AddMessageListener(NativeScriptException::OnUncaughtError);
 
     __android_log_print(ANDROID_LOG_DEBUG, "TNS.Native", "V8 version %s", V8::GetVersion());
     
@@ -653,13 +702,104 @@ bool init_js(const char *uri, const char *native_hash) {
     global->Set(STRING_CACHE_clearInterval.Get(m_isolate), FunctionTemplate::New(m_isolate, defClearInterval));
     global->Set(STRING_CACHE_setLocation.Get(m_isolate), FunctionTemplate::New(m_isolate, native_set_location));
 
+const auto readOnlyFlags = static_cast<PropertyAttribute>(PropertyAttribute::DontDelete | PropertyAttribute::ReadOnly);
+
+
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__log"), FunctionTemplate::New(m_isolate, CallbackHandlers::LogMethodCallback));
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__dumpReferenceTables"), FunctionTemplate::New(m_isolate, CallbackHandlers::DumpReferenceTablesMethodCallback));
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__enableVerboseLogging"), FunctionTemplate::New(m_isolate, CallbackHandlers::EnableVerboseLoggingMethodCallback));
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__disableVerboseLogging"), FunctionTemplate::New(m_isolate, CallbackHandlers::DisableVerboseLoggingMethodCallback));
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__exit"), FunctionTemplate::New(m_isolate, CallbackHandlers::ExitMethodCallback));
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__runtimeVersion"), ArgConverter::ConvertToV8String(m_isolate, NATIVE_SCRIPT_RUNTIME_VERSION), readOnlyFlags);
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__time"), FunctionTemplate::New(m_isolate, CallbackHandlers::TimeCallback));
+
+/*
+     * Attach `Worker` object constructor only to the main thread (m_isolate)'s global object
+     * Workers should not be created from within other Workers, for now
+     */
+    if (!s_mainThreadInitialized) {
+        Local<FunctionTemplate> workerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::NewThreadCallback);
+        Local<ObjectTemplate> prototype = workerFuncTemplate->PrototypeTemplate();
+
+        /*
+         * Attach methods from the EventTarget interface (postMessage, terminate) to the Worker object prototype
+         */
+        auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectPostMessageCallback);
+        auto terminateWorkerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectTerminateCallback);
+
+        prototype->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
+        prototype->Set(ArgConverter::ConvertToV8String(m_isolate, "terminate"), terminateWorkerFuncTemplate);
+
+        global->Set(ArgConverter::ConvertToV8String(m_isolate, "Worker"), workerFuncTemplate);
+    }
+    /*
+     * Emulate a `WorkerGlobalScope`
+     * Attach 'postMessage', 'close' to the global object
+     */
+    else {
+        auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalPostMessageCallback);
+        global->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
+        auto closeFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalCloseCallback);
+        global->Set(ArgConverter::ConvertToV8String(m_isolate, "close"), closeFuncTemplate);
+    }
+
+/*
+     * Attach `Worker` object constructor only to the main thread (m_isolate)'s global object
+     * Workers should not be created from within other Workers, for now
+     */
+    if (!s_mainThreadInitialized) {
+        Local<FunctionTemplate> workerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::NewThreadCallback);
+        Local<ObjectTemplate> prototype = workerFuncTemplate->PrototypeTemplate();
+
+        /*
+         * Attach methods from the EventTarget interface (postMessage, terminate) to the Worker object prototype
+         */
+        auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectPostMessageCallback);
+        auto terminateWorkerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectTerminateCallback);
+
+        prototype->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
+        prototype->Set(ArgConverter::ConvertToV8String(m_isolate, "terminate"), terminateWorkerFuncTemplate);
+
+        global->Set(ArgConverter::ConvertToV8String(m_isolate, "Worker"), workerFuncTemplate);
+    }
+    /*
+     * Emulate a `WorkerGlobalScope`
+     * Attach 'postMessage', 'close' to the global object
+     */
+    else {
+        auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalPostMessageCallback);
+        global->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
+        auto closeFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalCloseCallback);
+        global->Set(ArgConverter::ConvertToV8String(m_isolate, "close"), closeFuncTemplate);
+    }
+
+
+
+
+
+SimpleProfiler::Init(m_isolate, global);
+
+    CallbackHandlers::CreateGlobalCastFunctions(m_isolate, global);
+
     m_context.Reset(m_isolate, Context::New(m_isolate, NULL, global));
+    
+    m_context.Get(m_isolate)->Enter();
+
 
     #if defined(DEBUG)
        JsV8InspectorClient::GetInstance()->init();
+       JsV8InspectorClient::attachInspectorCallbacks(m_isolate, global);
     #else // DEBUG
         LOG("{debugger} JavaScript Debug Server is disabled");
     #endif // DEBUG
+
+
+auto gcFunc = getContext()->Global()->Get(ArgConverter::ConvertToV8String(m_isolate, "gc"));
+    if (!gcFunc.IsEmpty() && gcFunc->IsFunction()) {
+        m_gcFunc = new Persistent<Function>(m_isolate, gcFunc.As<Function>());
+        Local<Value> recv;
+        gcFunc.As<Function>()->Call( recv, 0, 0);
+    }
 
      /*
         call NativeShim.java method example
@@ -740,6 +880,7 @@ bool init_js(const char *uri, const char *native_hash) {
 
     js_ready = true;
 
+s_mainThreadInitialized = true;
 
 
     return true;

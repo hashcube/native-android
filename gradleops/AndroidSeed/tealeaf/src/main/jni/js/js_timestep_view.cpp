@@ -100,7 +100,8 @@ static void weakCallbackForFrontend(const v8::WeakCallbackInfo<timestep_view> &d
     HandleScope handle_scope(isolate);
 
     // Get object _view reference to backing from front-end view object
-    Handle<Value> _view = STRING_CACHE___view.Get(isolate);
+ /*   Handle<Value> _view = STRING_CACHE___view.Get|
+ (isolate);
 
 
     // If the reference has not been cleared,
@@ -117,6 +118,9 @@ static void weakCallbackForFrontend(const v8::WeakCallbackInfo<timestep_view> &d
         // Should never happen because we have the __view reference
         LOG("{view} ERROR: Front-end not found in backing finalizer!");
     }
+    */
+
+data.GetParameter()->js_view.Reset();
 
 
 #ifdef VIEW_LEAKS

@@ -155,7 +155,7 @@ include $(BUILD_STATIC_LIBRARY)
 
 LOCAL_LDFLAGS := -Wl,-Map,tealeaf.map, --verbose
 
--include ${LOCAL_PATH}/profiler/android-ndk-profiler.mk
+#-include ${LOCAL_PATH}/profiler/android-ndk-profiler.mk
 
 #include $(CLEAR_VARS)
 #LOCAL_MODULE := gnustl
@@ -243,6 +243,8 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/lib
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/include
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8_inspector
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8_inspector/src
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/console
 
 # *** v8 updated
@@ -463,26 +465,28 @@ QR_SRC_FILES := \
 	core/qr/quirc/version_db.c \
 	core/qr/adapter/qrprocess.c
 
-#correct order ibv8_initializers libv8_init libv8_base libv8_libplatform libv8_libbase libv8_libsampler libv8_nosnapshot libv8_snapshot libinspector libtorque_base
-LOCAL_STATIC_LIBRARIES := curl-prebuilt libzip cpufeatures libturbojpeg libjansson libpng  libv8_initializers libv8_init libv8_base libv8_libplatform libv8_libbase libv8_libsampler libv8_nosnapshot libv8_snapshot libtorque_base gnustl #libicui18n libicuuc #libv8_external_snapshot
+#correct order: libv8_libplatform libv8_base libv8_snapshot libv8_init libv8_initializers libv8_libsampler libv8_libbase libtorque_base
+LOCAL_STATIC_LIBRARIES := curl-prebuilt libzip cpufeatures libturbojpeg libjansson libpng libv8_libplatform libv8_base libv8_snapshot libv8_init libv8_initializers libv8_libsampler libv8_libbase libtorque_base c++_static#libicui18n libicuuc #libv8_external_snapshot
+
+
+
 
 
 LOCAL_LDLIBS := -llog -landroid -lGLESv2 -lz
 
 #Removed -Wall -Werror for source code updates, must be put back and fix build on release after update phase
 #Removed -std=gnu++11 in order to avoid <<--error: invalid argument '-std=gnu++11' not allowed with 'C/ObjC'-->>
-LOCAL_CFLAGS += -Wno-narrowing -Wno-unused-function -funroll-loops -ftree-vectorize -ffast-math -Wno-uninitialized -Wc++11-narrowing -w -frtti -fexceptions# -O3 
+LOCAL_CFLAGS += -Wno-narrowing -Wno-unused-function -funroll-loops -ftree-vectorize -ffast-math -Wno-uninitialized -Wc++11-narrowing -w -fno-rtti -fexceptions# -O3  # -frtti
 
 
 ifeq ($(APP_ABI),armeabi-v7a)
 	LOCAL_CFLAGS += -march=armv7-a -mfloat-abi=softfp
 endif
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib/include
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib/src
+LOCAL_C_INCLUDES += $(LOCAL_PATH)
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/lib
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/lib/include
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/lib/src
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/include
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/core
@@ -492,6 +496,8 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/core/qr
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/include
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8_inspector
+
+LOCAL_C_INCLUDES += ${ANDROID_NDK}/sources/cxx-stl/llvm-libc++/include
 
 LOCAL_SHARED_LIBRARIES += ssl-prebuilt
 LOCAL_SHARED_LIBRARIES += crypto-prebuilt
@@ -508,7 +514,7 @@ APP_OPTIM := release
 
 # Add inspector to release mode
 ifeq (${JSPROF}, 1)
-LOCAL_CFLAGS += -DENABLE_PROFILER -DREMOTE_DEBUG
+LOCAL_CFLAGS +=  -DREMOTE_DEBUG #-DENABLE_PROFILER
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8
 #LOCAL_SRC_FILES += $(INSPECTOR_SRC_FILES)
 endif
