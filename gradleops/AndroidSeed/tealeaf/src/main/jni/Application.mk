@@ -1,5 +1,4 @@
-#todo add neon and then test on Huawei PRA-LA1 ( P8 Lite)
-APP_ABI := arm64-v8a #armeabi-v7a 
+APP_ABI := armeabi-v7a  # arm64-v8a
 APP_PLATFORM := android-21 
 
 #was static here 'APP_STL := gnustl_static'
