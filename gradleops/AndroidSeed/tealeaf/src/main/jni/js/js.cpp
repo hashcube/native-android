@@ -669,7 +669,7 @@ bool js_init_isolate() {
 
 
 
-bool init_js(const char *uri, const char *native_hash) {
+bool init_js(const char *uri, const char *native_hash, jobject thiz) {
     DECL_BENCH(t);
     //v8::Locker l(m_isolate);
      Isolate::Scope isolate_scope(m_isolate);
