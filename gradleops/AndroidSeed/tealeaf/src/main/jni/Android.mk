@@ -363,7 +363,10 @@ APP_OPTIM := release
 
 # Add inspector to release mode
 ifeq (${JSPROF}, 1)
+
 LOCAL_CFLAGS +=  -DREMOTE_DEBUG #-DENABLE_PROFILER
+
+
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8
 #LOCAL_SRC_FILES += $(INSPECTOR_SRC_FILES)
 endif
