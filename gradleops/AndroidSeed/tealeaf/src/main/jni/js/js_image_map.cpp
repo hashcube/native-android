@@ -68,7 +68,7 @@ Local<Value> image_map_constructor(const v8::FunctionCallbackInfo<v8::Value> &ar
     map->url = strdup(ToCString(str));
 
     Persistent<Object> ref = Persistent<Object>(isolate, thiz);
-    ref.SetWeak(map, image_map_finalize, v8::WeakCallbackType::kParameter);
+    //ref.SetWeak(map, image_map_finalize, v8::WeakCallbackType::kParameter);
 
     return thiz;
 }

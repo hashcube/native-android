@@ -220,13 +220,13 @@ void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &ar
     view->js_view.Reset(isolate, args[0]->ToObject(isolate));
     Handle<Object> js_view = view->js_view.Get(isolate);
     // todo 3: verify if paramter js_view is correct one for 1st argument, check reference chain to verify every object refers each other correctly and make sure main object is correctly removed or garbage collected
-    view->js_view.SetWeak(view, weakCallbackForFrontend, v8::WeakCallbackType::kParameter);
+    //view->js_view.SetWeak(view, weakCallbackForFrontend, v8::WeakCallbackType::kParameter);
     thiz->SetInternalField(0, External::New(isolate, view));
     thiz->SetInternalField(1, js_view);
 
     // Track the lifetime of the view backing
     Persistent<Object> ref(isolate, thiz);
-    ref.SetWeak(view, weakCallbackForTimestepHolder, v8::WeakCallbackType::kParameter);
+    //ref.SetWeak(view, weakCallbackForTimestepHolder, v8::WeakCallbackType::kParameter);
 
      
     // Add an internal C reference to the front-end view object in the view backing (old v8)

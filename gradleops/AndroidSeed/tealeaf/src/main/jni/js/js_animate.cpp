@@ -44,7 +44,6 @@ using namespace v8;
 
 
 static inline void build_style_frame(anim_frame *frame, Handle<Object> target, Isolate *isolate) {
-
 #define ADD_PROP(const_name, prop)								\
 		_ADD_PROP(const_name, prop, false);							\
 		_ADD_PROP(const_name, d ## prop, true);
@@ -214,7 +213,7 @@ void js_animate_constructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
     Persistent<Object> js_anim(isolate, thiz);
     //static void js_animation_finalize(Persistent<Value> js_anim, void *param) {
     //       void (*)                   (const WeakCallbackInfo<view_animation_t> &)
-    js_anim.SetWeak(anim, weakCallbackForObjectHolder, v8::WeakCallbackType::kParameter);
+    //js_anim.SetWeak(anim, weakCallbackForObjectHolder, v8::WeakCallbackType::kParameter);
 
    /* tealeaf/src/main/jni/deps/v8/include/v8.h:638:18:
     note: candidate function [with P = view_animation_t] not viable: no known conversion from

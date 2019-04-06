@@ -142,7 +142,7 @@ class InjectedScript::ProtocolPromiseHandler {
         m_callback(std::move(callback)),
         m_wrapper(m_inspector->isolate(),
                   v8::External::New(m_inspector->isolate(), this)) {
-    m_wrapper.SetWeak(this, cleanup, v8::WeakCallbackType::kParameter);
+    //m_wrapper.SetWeak(this, cleanup, v8::WeakCallbackType::kParameter);
   }
 
   static void cleanup(

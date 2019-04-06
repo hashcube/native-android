@@ -70,7 +70,7 @@ void def_timestep_image_map_constructor(const v8::FunctionCallbackInfo<v8::Value
     map->url = strdup(ToCString(str));
 
     Persistent<Object> ref(isolate, thiz);
-    ref.SetWeak(map, image_map_finalize, v8::WeakCallbackType::kParameter);
+    //ref.SetWeak(map, image_map_finalize, v8::WeakCallbackType::kParameter);
 
     args.GetReturnValue().Set(thiz);
 }

@@ -110,7 +110,6 @@ void js_textbox_set_height(const v8::FunctionCallbackInfo<v8::Value> &args) {
     textbox_set_height(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
-
 void s_textbox_set_value(const v8::FunctionCallbackInfo<v8::Value> &args) {
     Isolate *isolate = getIsolate();
     String::Utf8Value value(isolate, args[1]);

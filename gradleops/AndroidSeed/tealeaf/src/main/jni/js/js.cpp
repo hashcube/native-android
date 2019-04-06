@@ -461,9 +461,46 @@ DECL_BENCH(gc_bench);
 static const char *m_gc_type = "Unknown";
 #endif
 
+/*EmbedderHeapTracer* tracer;
+class DevkitEmbedderHeapTracer : public EmbedderHeapTracer
+{
+    public:
+        DevkitEmbedderHeapTracer() {}
+        ~DevkitEmbedderHeapTracer() {}
+        void RegisterV8References(
+      const std::vector<std::pair<void*, void*> >& internal_fields) = 0;
+      
+      void TracePrologue() {
+        }
+      bool AdvanceTracing(double deadline_in_ms,
+                              AdvanceTracingActions actions) = 0;
+   
+  virtual void TraceEpilogue() {};
+ 
+  void EnterFinalPause() {}
 
 
+  void AbortTracing() {}    
+        
+      
+      
+      }
+      */
 
+
+class ClearWeakPersistentHandleVisitor : public PersistentHandleVisitor
+{
+    public:
+        ClearWeakPersistentHandleVisitor () {} //PersistentHandleVisitor
+        ~ClearWeakPersistentHandleVisitor() {}
+      void VisitPersistentHandle(Persistent<Value>* value,
+                                           uint16_t class_id) {
+                                               value->ClearWeak();
+                                               value->MarkActive();
+                                           }
+};
+
+ClearWeakPersistentHandleVisitor* visitor;
 
 void gc_start(Isolate* isolate, GCType type, GCCallbackFlags flags) {
 #ifndef RELEASE
@@ -478,9 +515,14 @@ void gc_start(Isolate* isolate, GCType type, GCCallbackFlags flags) {
 
     m_gc_type = types[type];
 #endif
+
+//VisitHandlesForPartialDependence(visitor);
+//VisitHandlesWithClassIds(visitor);
+m_isolate->VisitWeakHandles(visitor);
 }
 
 void gc_end(Isolate* isolate, GCType type, GCCallbackFlags flags) {
+m_isolate->VisitWeakHandles(visitor);
 #ifndef RELEASE
     LOGDEBUG("{jsdebug} GC took %dms (%s)", ELAPSED(gc_bench), m_gc_type);
 #endif
@@ -683,11 +725,13 @@ bool init_js(const char *uri, const char *native_hash, jobject thiz) {
 
     V8::SetFlagsFromString(Constants::V8_STARTUP_FLAGS.c_str(), Constants::V8_STARTUP_FLAGS.size());
     m_isolate->SetCaptureStackTraceForUncaughtExceptions(true, 100, StackTrace::kOverview);
-
     m_isolate->AddMessageListener(NativeScriptException::OnUncaughtError);
 
     __android_log_print(ANDROID_LOG_DEBUG, "TNS.Native", "V8 version %s", V8::GetVersion());
     
+    
+    
+    //m_isolate-> SetEmbedderHeapTracer(tracer);
     m_isolate->AddGCPrologueCallback(gc_start, GCType::kGCTypeAll);
     m_isolate->AddGCEpilogueCallback(gc_end, GCType::kGCTypeAll);
     MARK(t);

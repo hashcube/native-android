@@ -95,10 +95,14 @@ LOCAL_MODULE := libv8_libsampler
 LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_libsampler.a
 include $(PREBUILT_STATIC_LIBRARY)
 
-
 include $(CLEAR_VARS)
 LOCAL_MODULE := libv8_snapshot
 LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_snapshot.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libv8_nosnapshot
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_nosnapshot.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 
@@ -314,7 +318,7 @@ QR_SRC_FILES := \
 	core/qr/adapter/qrprocess.c
 
 #correct order: libv8_libplatform libv8_base libv8_snapshot libv8_init libv8_initializers libv8_libsampler libv8_libbase 
-LOCAL_STATIC_LIBRARIES := curl-prebuilt libzip cpufeatures libturbojpeg libjansson libpng libv8_libplatform libv8_base libv8_snapshot libv8_init libv8_initializers libv8_libsampler libv8_libbase c++_static#libicui18n libicuuc #libv8_external_snapshot
+LOCAL_STATIC_LIBRARIES := curl-prebuilt libzip cpufeatures libturbojpeg libjansson libpng libv8_libplatform libv8_base  libv8_snapshot libv8_init libv8_initializers libv8_libsampler libv8_libbase c++_static#libicui18n libicuuc #libv8_external_snapshot
 
 
 LOCAL_LDLIBS := -llog -landroid -lGLESv2 -lz
