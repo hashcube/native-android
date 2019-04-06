@@ -5,4 +5,4 @@
 [submodule "native-core"]
 	path = native-core
 	url = https://github.com/CodeCombiner/native-core.git
-	branch = V8_v71302
+	branch = hc
