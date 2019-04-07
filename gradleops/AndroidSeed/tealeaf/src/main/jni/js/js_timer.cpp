@@ -25,7 +25,7 @@ using namespace v8;
 
 CEXPORT void js_timer_unlink(core_timer* timer) {
     js_timer *t = (js_timer*)timer->js_data;
-   // t->callback.Reset();
+    t->callback.Reset();
 }
 
 CEXPORT void js_timer_fire(core_timer *timer) {
@@ -37,21 +37,23 @@ CEXPORT void js_timer_fire(core_timer *timer) {
     TryCatch try_catch(isolate);
     
     js_timer *t = (js_timer*) timer->js_data;
-    t->callback.Get(isolate)->Call( context->Global(), 0, {});
+    t->callback.Get(isolate)->Call(context->Global(), 0, {});
    
 }
 
 static js_timer *get_timer(Local<Object> callback, Isolate *isolate) {
     js_timer* timer = new js_timer();
+    // Old
+    //js_timer *timer = (js_timer*)malloc(sizeof(js_timer));
 
     if (!callback.IsEmpty() && callback->IsFunction()) {
         Local<Function> lf = Local<Function>::Cast(callback);
         timer->callback.Reset(isolate, lf);
     }
     else{
-      //  timer->callback.Reset();
+        timer->callback.Reset();
     }
-   // timer->arguments = NULL;//FIXME make passing arguments to settimeout work
+    timer->arguments = NULL;//FIXME make passing arguments to settimeout work
     return timer;
 }
 
@@ -65,48 +67,50 @@ static int schedule_timer(Local<Object> cb, int time, bool repeat, Isolate *isol
 
 
 void defSetTimeout(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("settimeout");
     if (args[0].IsEmpty() || !args[0]->IsFunction()) {
         args.GetReturnValue().Set(Undefined(isolate));
         return;
     }
 
-    Local<Object> cb = Local<Object>::Cast(args[0]);
+    Handle<Object> cb = Handle<Object>::Cast(args[0]);
 
-    int time = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
+    int time = args[1]->Int32Value(getContext()).ToChecked();
     int id = schedule_timer(cb, time, false, isolate);
     LOGFN("end settimeout");
     args.GetReturnValue().Set(Number::New(isolate, id));
 }
 
 void defSetInterval(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("setInterval");
     if (args[0].IsEmpty() || !args[0]->IsFunction()) {
         args.GetReturnValue().Set(Undefined(isolate));
         return;
     }
-    Handle<Object> cb = args[0]->ToObject(isolate);
+    //Local<Object> cb = args[0]->ToObject(isolate);
+     Handle<Object> cb = Handle<Object>::Cast(args[0]);
 
-    int time = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
+    int time = args[1]->Int32Value(getContext()).ToChecked();
     int id = schedule_timer(cb, time, true, isolate);
     LOGFN("end setInterval");
     args.GetReturnValue().Set(Number::New(isolate, id));
 }
 
 void defClearTimeout(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("cleartimeout");
-    int id = args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked();
+    int id = args[0]->Int32Value(getContext()).ToChecked();
     core_timer_clear(id);
     LOGFN("end cleartimeout");
 }
 
 void defClearInterval(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("clearInterval");
-    int id = args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked();
+    int id = args[0]->Int32Value(getContext()).ToChecked();
     core_timer_clear(id);
     LOGFN("end clearInterval");
 }
+

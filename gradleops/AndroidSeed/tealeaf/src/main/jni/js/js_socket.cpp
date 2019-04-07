@@ -22,7 +22,7 @@
 using namespace v8;
 
 void js_socket_send(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("socket send");
     int id = args.This()->Get(STRING_CACHE___id.Get(isolate))->Int32Value(isolate->GetCurrentContext()).ToChecked();
     String::Utf8Value data(isolate, args[0]);
@@ -32,7 +32,7 @@ void js_socket_send(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_socket_close(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("socket close");
     int id = args.This()->Get(STRING_CACHE___id.Get(isolate))->Int32Value(isolate->GetCurrentContext()).ToChecked();
     socket_close(id);
@@ -50,7 +50,7 @@ Local<ObjectTemplate> get_socket_template(Isolate *isolate) {
 }
 
 void js_socket_ctor(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value host(isolate, args[0]);
     const char *host_str = ToCString(host);
     int port = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();

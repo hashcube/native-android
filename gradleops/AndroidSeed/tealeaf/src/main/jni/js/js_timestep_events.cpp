@@ -22,7 +22,7 @@ using namespace v8;
 
 void js_timestep_events_get(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("js_timestep_events_get");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     Local<Context> context = getContext();
     Local<Object> thiz = args.This();
     //TODO cache this.

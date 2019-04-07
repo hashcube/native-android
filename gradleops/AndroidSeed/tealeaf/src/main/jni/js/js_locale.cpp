@@ -20,7 +20,7 @@
 using namespace v8;
 
 void js_locale_get_country(Local< String > property, const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("in get locale");
     locale_info *locale = locale_get_locale();
     LOGFN("end native set location");
@@ -28,7 +28,7 @@ void js_locale_get_country(Local< String > property, const PropertyCallbackInfo<
 }
 
 void js_locale_get_language(Local< String > property, const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("in get locale");
     locale_info *locale = locale_get_locale();
     LOGFN("end native set location");

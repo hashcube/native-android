@@ -21,7 +21,7 @@ using namespace v8;
 
 
 void native_run_gc(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOG("{js} Full GC");
     isolate->LowMemoryNotification();
 }
@@ -30,13 +30,13 @@ void native_run_gc(const v8::FunctionCallbackInfo<v8::Value> &args) {
    continue to call IdleNotification.
 */
 void native_run_maybe_gc(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOG("{js} Maybe GC");
     args.GetReturnValue().Set( Boolean::New(isolate, isolate->IdleNotificationDeadline(45)));
 }
 
-Local<ObjectTemplate> js_gc_get_template(Isolate *isolate) {
-    Local<ObjectTemplate> gc = ObjectTemplate::New(isolate);
+Handle<ObjectTemplate> js_gc_get_template(Isolate *isolate) {
+    Handle<ObjectTemplate> gc = ObjectTemplate::New(isolate);
     gc->Set(STRING_CACHE_runGC.Get(isolate), FunctionTemplate::New(isolate, native_run_gc));
     gc->Set(STRING_CACHE_runMaybeGC.Get(isolate), FunctionTemplate::New(isolate, native_run_maybe_gc));
     return gc;

@@ -25,7 +25,7 @@ void native_initialize_location(const char *uri, Isolate *isolate);
 void native_set_location(const v8::FunctionCallbackInfo<v8::Value> &args);
 
 // window.location accessors
-void jsGetLocation(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value> &info);
-void jsSetLocation(v8::Local<v8::Name> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info);
+void jsGetLocation(v8::Handle<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value> &info);
+void jsSetLocation(v8::Handle<v8::Name> name, v8::Handle<v8::Value> value, const v8::PropertyCallbackInfo<void> &info);
 
 #endif

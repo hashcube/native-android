@@ -2,11 +2,11 @@ This is the native 'tealeaf' platform for android devices
 
 ## Installation
 
-1. Install android tools, then download and unpack android-ndk-r16b
+1. Install android tools, then download and unpack android-ndk-r18b
 2. Export path:
 export ANDROID_HOME=/home/USERNAME/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
-export PATH=$PATH:/path/to/ndk-r9b/android-ndk-r16b
+export PATH=$PATH:/YOUR_PATH_TO/android-ndk-r18b
 
 3. Install and configure NDK tools with installed SDK Manger (see 1)
 
@@ -65,3 +65,15 @@ Gameplay
 Gamecircle
 Facebook
 Please note that these plugins library projects are not imported as project modules, instead they are imported as AAR (Android archive) which contain necessary source code and resources. You can see this in android/config.json of each library project plugin This requires to rebuild .aar file after plugin source code has been modified with proces: Import project into Android Studio -> Add changes -> Build -> Rebuild project. This will rebuild .aar file, the path to which is already in config.json.
+
+## Using in Android Studio
+Disable instant run feature in Android Studio
+# Debugging native code
+Add 
+# Debugging JavaScript code
+1 open `chrome://inspect/#devices` in Crhome
+2 make sure you can see your connected device
+3 run debug in Android Studio
+4 open url which will appear as soon as you will see hashcube splashscreen
+5 wait for debugger to stop with `debugger;` command or add it in application json
+6 set your breakpoints

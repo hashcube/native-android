@@ -1176,47 +1176,69 @@ function updateManifest(api, app, config, opts) {
     .then(function () {
       return Promise.resolve(Object.keys(opts.moduleConfig));
     })
-    .map (async function (moduleName) {
+    .map (function (moduleName) {
       var module = opts.moduleConfig[moduleName];
       var config = module.config;
+      var tasks = [];
 
-      var checkTransformGragleApp = function(config) {
-          if (config.transformGradleApp) {
+        if (config.transformGradleApp) {
             var transformFilePath = path.join(module.path, 'android', config.transformGradleApp);
-            return transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config);
-          }
-          else {
-            return Promise.resolve();
-          }
-      };
-
-      var checkTransformGradleTealeaf = function (config) {
-          if (config.transformGradleTealeaf) {
-            var transformFilePath = path.join(module.path, 'android', config.transformGradleTealeaf);
-            return transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config);
-          } else {
-            return Promise.resolve();
-          }
-      };
-
-      var checkInjectionXSL = function (config) {
-          if (config.injectionXSL) {
-            var xslPath = path.join(module.path, 'android', config.injectionXSL);
-            return transformXSL(api, defaultManifest, outputManifest, xslPath, params, config);
-          }
-          else {
-            return Promise.resolve({});
-          }
-      };
-
-      var completeMap = async function (config) {
-          var result1 = await checkTransformGragleApp(config);
-          var result2 = await checkTransformGradleTealeaf(config);
-          var result3 = await checkInjectionXSL(config);
-          return {result1, result2, result3};
+            tasks.push(transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config));
         }
 
-      return await completeMap(config);
+        if (config.transformGradleTealeaf) {
+            var transformFilePath = path.join(module.path, 'android', config.transformGradleTealeaf);
+            tasks.push(transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config));
+        }
+
+        if (config.injectionXSL) {
+            var xslPath = path.join(module.path, 'android', config.injectionXSL);
+            tasks.push(transformXSL(api, defaultManifest, outputManifest, xslPath, params, config));
+        }
+
+        return Promise.all(tasks);
+
+
+
+
+
+      // var checkTransformGragleApp = function(config) {
+      //     if (config.transformGradleApp) {
+      //       var transformFilePath = path.join(module.path, 'android', config.transformGradleApp);
+      //       return transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config);
+      //     }
+      //     else {
+      //       return Promise.resolve();
+      //     }
+      // };
+      //
+      // var checkTransformGradleTealeaf = function (config) {
+      //     if (config.transformGradleTealeaf) {
+      //       var transformFilePath = path.join(module.path, 'android', config.transformGradleTealeaf);
+      //       return transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config);
+      //     } else {
+      //       return Promise.resolve();
+      //     }
+      // };
+      //
+      // var checkInjectionXSL = function (config) {
+      //     if (config.injectionXSL) {
+      //       var xslPath = path.join(module.path, 'android', config.injectionXSL);
+      //       return transformXSL(api, defaultManifest, outputManifest, xslPath, params, config);
+      //     }
+      //     else {
+      //       return Promise.resolve({});
+      //     }
+      // };
+      //
+      // var completeMap = async function (config) {
+      //     var result1 = await checkTransformGragleApp(config);
+      //     var result2 = await checkTransformGradleTealeaf(config);
+      //     var result3 = await checkInjectionXSL(config);
+      //     return {result1, result2, result3};
+      //   }
+      //
+      // return await completeMap(config);
          }, {concurrency: 1})
 
   // Run the plugin XSLT in series instead of parallel

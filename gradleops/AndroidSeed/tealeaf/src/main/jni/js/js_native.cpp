@@ -56,7 +56,7 @@ using namespace v8;
 using v8::internal::Arguments;
 
 void native_eval(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("eval");
     String::Utf8Value str(isolate, args[0]);
     const char *cstr = ToCString(str);
@@ -69,7 +69,7 @@ void native_eval(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void native_fetch(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("fetch");
     String::Utf8Value url(isolate, args[0]);
     const char *url_str = (char*) ToCString(url);
@@ -85,7 +85,7 @@ void native_fetch(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void native_start_game(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("startGame");
 
     String::Utf8Value app(isolate, args[0]);
@@ -96,7 +96,7 @@ void native_start_game(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void native_apply_update(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("applyUpdate");
     apply_update();
     LOGFN("end applyUpdate");
@@ -108,7 +108,7 @@ void native_done_loading(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_native_send_activity_to_back(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("send_activity_to_back");
     bool result = native_send_activity_to_back();
     LOGFN("end send_activity_to_back");
@@ -116,7 +116,7 @@ void js_native_send_activity_to_back(const v8::FunctionCallbackInfo<v8::Value> &
 }
 
 void js_native_stay_awake(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("stay_awake");
     int enabled = args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     native_stay_awake(enabled != 0);
@@ -124,21 +124,21 @@ void js_native_stay_awake(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_native_upload_device_info(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("upload_device_info");
     upload_device_info();
     LOGFN("end upload_device_info");
 }
 
 void js_native_reload(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("reload");
     native_reload();
     LOGFN("reload");
 }
 
 void js_native_get_microseconds(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     struct timeval tm;
     gettimeofday(&tm, NULL);
     args.GetReturnValue().Set(Number::New(isolate, (unsigned)(tm.tv_sec * 1000000 + tm.tv_usec)));
@@ -152,7 +152,7 @@ static const char *m_cached_install_referrer = 0;
 
 void js_install_referrer(Local<String> property,
                                         const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("install_referrer");
     Handle<Value> result;
     if (m_cached_install_referrer)
@@ -165,7 +165,7 @@ void js_install_referrer(Local<String> property,
 
 void js_used_heap(Local<String> property,
                                     const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     EscapableHandleScope handle_scope(isolate);
     HeapStatistics stats;
     LOGFN("used_heap");
@@ -179,7 +179,7 @@ void js_used_heap(Local<String> property,
 
 //call
 void js_native_call(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("call");
     String::Utf8Value method(isolate, args[0]);
     const char *methodStr = ToCString(method);
@@ -194,7 +194,7 @@ void js_native_call(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 CEXPORT bool device_is_simulator();
 void js_is_simulator(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     bool is_simulator = device_is_simulator();
     args.GetReturnValue().Set(Boolean::New(isolate, is_simulator));
 }

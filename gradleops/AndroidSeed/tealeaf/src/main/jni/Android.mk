@@ -33,129 +33,13 @@ include $(PREBUILT_STATIC_LIBRARY)
 
 # build libzip
 include $(CLEAR_VARS)
-LOCAL_CFLAGS := -DHAVE_CONFIG_H=1
 LOCAL_MODULE    := libzip
-LOCAL_SRC_FILES :=\
-	libzip/mkstemp.c \
-	libzip/zip.h \
-	libzip/zip_add.c \
-	libzip/zip_add_dir.c \
-	libzip/zip_add_entry.c \
-	libzip/zip_algorithm_deflate.c \
-	libzip/zip_buffer.c \
-	libzip/zip_close.c \
-	libzip/zip_delete.c \
-	libzip/zip_dir_add.c \
-	libzip/zip_dirent.c \
-	libzip/zip_discard.c \
-	libzip/zip_entry.c \
-	libzip/zip_err_str.c \
-	libzip/zip_error.c \
-	libzip/zip_error_clear.c \
-	libzip/zip_error_get.c \
-	libzip/zip_error_get_sys_type.c \
-	libzip/zip_error_strerror.c \
-	libzip/zip_error_to_str.c \
-	libzip/zip_extra_field.c \
-	libzip/zip_extra_field_api.c \
-	libzip/zip_fclose.c \
-	libzip/zip_fdopen.c \
-	libzip/zip_file_add.c \
-	libzip/zip_file_error_clear.c \
-	libzip/zip_file_error_get.c \
-	libzip/zip_file_get_comment.c \
-	libzip/zip_file_get_external_attributes.c \
-	libzip/zip_file_get_offset.c \
-	libzip/zip_file_rename.c \
-	libzip/zip_file_replace.c \
-	libzip/zip_file_set_comment.c \
-	libzip/zip_file_set_encryption.c \
-	libzip/zip_file_set_external_attributes.c \
-	libzip/zip_file_set_mtime.c \
-	libzip/zip_file_strerror.c \
-	libzip/zip_filerange_crc.c \
-	libzip/zip_fopen.c \
-	libzip/zip_fopen_encrypted.c \
-	libzip/zip_fopen_index.c \
-	libzip/zip_fopen_index_encrypted.c \
-	libzip/zip_fread.c \
-	libzip/zip_fseek.c \
-	libzip/zip_ftell.c \
-	libzip/zip_get_archive_comment.c \
-	libzip/zip_get_archive_flag.c \
-	libzip/zip_get_encryption_implementation.c \
-	libzip/zip_get_file_comment.c \
-	libzip/zip_get_name.c \
-	libzip/zip_get_num_entries.c \
-	libzip/zip_get_num_files.c \
-	libzip/zip_hash.c \
-	libzip/zip_io_util.c \
-	libzip/zip_libzip_version.c \
-	libzip/zip_memdup.c \
-	libzip/zip_name_locate.c \
-	libzip/zip_new.c \
-	libzip/zip_open.c \
-	libzip/zip_progress.c \
-	libzip/zip_random_unix.c \
-	libzip/zip_rename.c \
-	libzip/zip_replace.c \
-	libzip/zip_set_archive_comment.c \
-	libzip/zip_set_archive_flag.c \
-	libzip/zip_set_default_password.c \
-	libzip/zip_set_file_comment.c \
-	libzip/zip_set_file_compression.c \
-	libzip/zip_set_name.c \
-	libzip/zip_source_begin_write.c \
-	libzip/zip_source_begin_write_cloning.c \
-	libzip/zip_source_buffer.c \
-	libzip/zip_source_call.c \
-	libzip/zip_source_close.c \
-	libzip/zip_source_commit_write.c \
-	libzip/zip_source_compress.c \
-	libzip/zip_source_crc.c \
-	libzip/zip_source_error.c \
-	libzip/zip_source_file.c \
-	libzip/zip_source_filep.c \
-	libzip/zip_source_free.c \
-	libzip/zip_source_function.c \
-	libzip/zip_source_get_compression_flags.c \
-	libzip/zip_source_is_deleted.c \
-	libzip/zip_source_layered.c \
-	libzip/zip_source_open.c \
-	libzip/zip_source_pkware.c \
-	libzip/zip_source_read.c \
-	libzip/zip_source_remove.c \
-	libzip/zip_source_rollback_write.c \
-	libzip/zip_source_seek.c \
-	libzip/zip_source_seek_write.c \
-	libzip/zip_source_stat.c \
-	libzip/zip_source_supports.c \
-	libzip/zip_source_tell.c \
-	libzip/zip_source_tell_write.c \
-	libzip/zip_source_window.c \
-	libzip/zip_source_write.c \
-	libzip/zip_source_zip.c \
-	libzip/zip_source_zip_new.c \
-	libzip/zip_stat.c \
-	libzip/zip_stat_index.c \
-	libzip/zip_stat_init.c \
-	libzip/zip_strerror.c \
-	libzip/zip_string.c \
-	libzip/zip_unchange.c \
-	libzip/zip_unchange_all.c \
-	libzip/zip_unchange_archive.c \
-	libzip/zip_unchange_data.c \
-	libzip/zip_utf-8.c 
-
-LOCAL_LDLIBS := -lz
-
-include $(BUILD_STATIC_LIBRARY)
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libzip.a
+include $(PREBUILT_STATIC_LIBRARY)
 
 
 
 LOCAL_LDFLAGS := -Wl,-Map,tealeaf.map, --verbose
-
--include ${LOCAL_PATH}/profiler/android-ndk-profiler.mk
 
 #include $(CLEAR_VARS)
 #LOCAL_MODULE := gnustl
@@ -211,61 +95,31 @@ LOCAL_MODULE := libv8_libsampler
 LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_libsampler.a
 include $(PREBUILT_STATIC_LIBRARY)
 
-
-
-#include $(CLEAR_VARS)
-#LOCAL_MODULE := libv8_nosnapshot
-#LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_nosnapshot.a
-#include $(PREBUILT_STATIC_LIBRARY)
-
-
 include $(CLEAR_VARS)
 LOCAL_MODULE := libv8_snapshot
 LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_snapshot.a
 include $(PREBUILT_STATIC_LIBRARY)
 
-# seems not needed for nosnaphot release
-#include $(CLEAR_VARS)
-#LOCAL_MODULE := libv8_external_snapshot
-#LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_external_snapshot.a
-#include $(PREBUILT_STATIC_LIBRARY)
-
 include $(CLEAR_VARS)
-LOCAL_MODULE := libtorque_base
-LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libtorque_base.a
+LOCAL_MODULE := libv8_nosnapshot
+LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libv8_nosnapshot.a
 include $(PREBUILT_STATIC_LIBRARY)
-
-
-
 
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/lib
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/include
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8_inspector
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8_inspector/src
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/console
 
-# *** v8 updated
-
-#include $(CLEAR_VARS)
-#LOCAL_MODULE := libjpeg
-#LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libjpeg.a
-#include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libturbojpeg
 #LDFLAGS:=-Wl,Bsymbolic
 LOCAL_SRC_FILES := lib/$(TARGET_ARCH_ABI)/libturbojpeg.a
 include $(PREBUILT_STATIC_LIBRARY)
-
-
-
-
-
-
-
-
-
 
 
 include $(CLEAR_VARS)
@@ -357,6 +211,7 @@ LOCAL_SRC_FILES :=  	js/js.cpp                             \
     AssetExtractor.cpp	              \
     CallbackHandlers.cpp	              \
     Constants.cpp	              \
+    DesugaredInterfaceCompanionClassNameResolver.cpp	              \
     DirectBuffer.cpp	              \
     FieldAccessor.cpp	              \
     File.cpp	              \
@@ -462,26 +317,25 @@ QR_SRC_FILES := \
 	core/qr/quirc/version_db.c \
 	core/qr/adapter/qrprocess.c
 
-#correct order ibv8_initializers libv8_init libv8_base libv8_libplatform libv8_libbase libv8_libsampler libv8_nosnapshot libv8_snapshot libinspector libtorque_base
-LOCAL_STATIC_LIBRARIES := curl-prebuilt libzip cpufeatures libturbojpeg libjansson libpng  libv8_initializers libv8_init libv8_base libv8_libplatform libv8_libbase libv8_libsampler libv8_nosnapshot libv8_snapshot libtorque_base gnustl #libicui18n libicuuc #libv8_external_snapshot
+#correct order: libv8_libplatform libv8_base libv8_snapshot libv8_init libv8_initializers libv8_libsampler libv8_libbase 
+LOCAL_STATIC_LIBRARIES := curl-prebuilt libzip cpufeatures libturbojpeg libjansson libpng libv8_libplatform libv8_base  libv8_snapshot libv8_init libv8_initializers libv8_libsampler libv8_libbase c++_static#libicui18n libicuuc #libv8_external_snapshot
 
 
 LOCAL_LDLIBS := -llog -landroid -lGLESv2 -lz
 
 #Removed -Wall -Werror for source code updates, must be put back and fix build on release after update phase
 #Removed -std=gnu++11 in order to avoid <<--error: invalid argument '-std=gnu++11' not allowed with 'C/ObjC'-->>
-LOCAL_CFLAGS += -Wno-narrowing -Wno-unused-function -funroll-loops -ftree-vectorize -ffast-math -Wno-uninitialized -Wc++11-narrowing -w -frtti -fexceptions# -O3 
+LOCAL_CFLAGS += -Wno-narrowing -Wno-unused-function -funroll-loops -ftree-vectorize -ffast-math -Wno-uninitialized -Wc++11-narrowing -w -fno-rtti -fexceptions# -O3  # -frtti
 
 
 ifeq ($(APP_ABI),armeabi-v7a)
 	LOCAL_CFLAGS += -march=armv7-a -mfloat-abi=softfp
 endif
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib/include
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/lib/src
+LOCAL_C_INCLUDES += $(LOCAL_PATH)
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/lib
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/lib/include
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/lib/src
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/include
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/core
@@ -491,6 +345,8 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/core/qr
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/include
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8_inspector
+
+LOCAL_C_INCLUDES += ${ANDROID_NDK}/sources/cxx-stl/llvm-libc++/include
 
 LOCAL_SHARED_LIBRARIES += ssl-prebuilt
 LOCAL_SHARED_LIBRARIES += crypto-prebuilt
@@ -507,7 +363,10 @@ APP_OPTIM := release
 
 # Add inspector to release mode
 ifeq (${JSPROF}, 1)
-LOCAL_CFLAGS += -DENABLE_PROFILER -DREMOTE_DEBUG
+
+LOCAL_CFLAGS +=  -DREMOTE_DEBUG #-DENABLE_PROFILER
+
+
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/deps/v8
 #LOCAL_SRC_FILES += $(INSPECTOR_SRC_FILES)
 endif
@@ -526,7 +385,6 @@ LOCAL_CFLAGS += -DPROFILE -fno-omit-frame-pointer -fno-function-sections
 LOCAL_STATIC_LIBRARIES += andprof
 endif
 
-LOCAL_LDLIBS += -llog
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-module,android/cpufeatures)

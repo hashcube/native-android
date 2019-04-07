@@ -21,17 +21,17 @@
 using namespace v8;
 
 void sdk_hash_getter(Local< String > property, const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     info.GetReturnValue().Set(String::NewFromUtf8(isolate, build_get_sdk_hash()));
 }
 
 void android_hash_getter(Local< String > property, const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     info.GetReturnValue().Set(String::NewFromUtf8(isolate, build_get_android_hash()));
 }
 
 void game_hash_getter(Local< String > property, const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     info.GetReturnValue().Set(String::NewFromUtf8(isolate, build_get_game_hash()));
 }
 

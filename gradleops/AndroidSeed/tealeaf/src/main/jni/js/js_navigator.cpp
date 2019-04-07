@@ -29,7 +29,7 @@ extern "C" {
 using namespace v8;
 
 void js_navigator_get_online_status (Local< String > property, const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     info.GetReturnValue().Set(Boolean::New(isolate, navigator_get_online_status()));
 }
 

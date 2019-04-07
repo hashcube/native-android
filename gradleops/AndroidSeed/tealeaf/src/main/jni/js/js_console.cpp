@@ -23,7 +23,7 @@ using namespace v8;
 void native_log(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("log");
 #ifndef RELEASE
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
 
     String::Utf8Value str(isolate, args[0]);

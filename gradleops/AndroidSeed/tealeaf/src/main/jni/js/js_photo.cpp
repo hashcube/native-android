@@ -21,7 +21,7 @@
 using namespace v8;
 
 void js_camera_get_photo(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value str(isolate, args[0]);
     int width = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     int height = args[2]->Int32Value(isolate->GetCurrentContext()).ToChecked();
@@ -31,7 +31,7 @@ void js_camera_get_photo(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_camera_process_qr(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value str(isolate, args[0]);
     const char *cstr = ToCString(str);
 
@@ -42,7 +42,7 @@ void js_camera_process_qr(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_camera_encode_qr(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value str(isolate, args[0]);
     const char *cstr = ToCString(str);
 
@@ -53,7 +53,7 @@ void js_camera_encode_qr(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_camera_get_next_id(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     args.GetReturnValue().Set(Number::New(isolate, camera_get_next_id()));
 }
 
@@ -67,7 +67,7 @@ Local<ObjectTemplate> js_camera_get_template(Isolate *isolate) {
 }
 
 void js_gallery_get_photo(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value str(isolate, args[0]);
     int width = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     int height = args[2]->Int32Value(isolate->GetCurrentContext()).ToChecked();
@@ -77,7 +77,7 @@ void js_gallery_get_photo(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_gallery_get_next_id(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     args.GetReturnValue().Set(Number::New(isolate, gallery_get_next_id()));
 }
 

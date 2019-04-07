@@ -196,7 +196,7 @@ extern "C" {
         GET_STR(env, uri, uri_str);
         GET_STR(env, android_hash, android_hash_str);
 
-        bool success = core_init_js(uri_str, android_hash_str);
+        bool success = core_init_js(uri_str, android_hash_str, thiz);
 
         free(uri_str);
         free(android_hash_str);

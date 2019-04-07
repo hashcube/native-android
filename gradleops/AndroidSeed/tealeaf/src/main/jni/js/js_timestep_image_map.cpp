@@ -23,17 +23,17 @@
 using namespace v8;
 
 static void image_map_finalize(const v8::WeakCallbackInfo<timestep_image_map> &data) {
+LOGDEBUG("{jsdebug} METHOD CALLED %d ", 2);
 
-
-    timestep_image_map *map = static_cast<timestep_image_map*>( data.GetParameter() );
-    timestep_image_delete(map);
+  //  timestep_image_map *map = static_cast<timestep_image_map*>( data.GetParameter() );
+   // timestep_image_delete(map);
 
     //was in old v8: map->Reset();
-    delete map;
+  //  delete map;
 }
 
 void def_timestep_image_map_constructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     int arg_length = args.Length();
     Handle<Object> thiz = Handle<Object>::Cast(args.This());
 
@@ -70,7 +70,7 @@ void def_timestep_image_map_constructor(const v8::FunctionCallbackInfo<v8::Value
     map->url = strdup(ToCString(str));
 
     Persistent<Object> ref(isolate, thiz);
-    ref.SetWeak(map, image_map_finalize, v8::WeakCallbackType::kParameter);
+    //ref.SetWeak(map, image_map_finalize, v8::WeakCallbackType::kParameter);
 
     args.GetReturnValue().Set(thiz);
 }

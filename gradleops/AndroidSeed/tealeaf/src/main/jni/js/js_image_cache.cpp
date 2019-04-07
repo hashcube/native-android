@@ -23,7 +23,7 @@ extern "C" {
 using namespace v8;
 
 void js_image_cache_remove(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("in image cache delete");
     HandleScope handleScope(isolate);
     String::Utf8Value str(isolate, args[0]);

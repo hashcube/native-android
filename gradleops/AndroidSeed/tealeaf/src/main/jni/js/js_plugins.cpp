@@ -23,7 +23,7 @@ using namespace v8;
 
 
 void js_plugins_send_event(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("plugins send event");
     char *ret_str = NULL;
     if (args[0]->IsString() && args[1]->IsString() && args[2]->IsString()) {
@@ -51,7 +51,7 @@ void js_plugins_send_event(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_plugins_send_request(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("plugins send request");
     if (args[0]->IsString() && args[1]->IsString() && args[2]->IsString()) {
         String::Utf8Value str_plugin_class(isolate, args[0]->ToString(isolate));

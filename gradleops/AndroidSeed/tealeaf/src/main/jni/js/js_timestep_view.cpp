@@ -82,17 +82,32 @@ static void cb_js_finalize(Persistent<Value> ctx, void *param) {
 #endif
 }*/
 
+
+
+/* shorthand for new fixed v8 v 7.1
+         timestep_view *view = data.GetParameter();
+        if (view) {
+            view->js_view.Reset();
+        }
+          else {
+        // Should never happen because we have the __view reference
+        LOG("{view} ERROR: Front-end not found in backing finalizer!");
+    }
+    */
+
 static void weakCallbackForFrontend(const v8::WeakCallbackInfo<timestep_view> &data) {
+    LOGDEBUG("{jsdebug} METHOD CALLED %d ", 4);
     Isolate *isolate = data.GetIsolate();
     HandleScope handle_scope(isolate);
 
     // Get object _view reference to backing from front-end view object
-    Local<Value> _view = STRING_CACHE___view.Get(isolate);
+ /*   Handle<Value> _view = STRING_CACHE___view.Get|
+ (isolate);
 
 
     // If the reference has not been cleared,
     if (_view->IsObject()) {
-        Local<External> wrap = Local<External>::Cast(Handle<Object>::Cast(_view)->GetInternalField(0));
+        Handle<External> wrap = Handle<External>::Cast(Handle<Object>::Cast(_view)->GetInternalField(0));
         void* ptr = wrap->Value();
         timestep_view *view = static_cast<timestep_view*>(ptr);
 
@@ -104,13 +119,16 @@ static void weakCallbackForFrontend(const v8::WeakCallbackInfo<timestep_view> &d
         // Should never happen because we have the __view reference
         LOG("{view} ERROR: Front-end not found in backing finalizer!");
     }
+    */
+
+data.GetParameter()->js_view.Reset();
 
 
 #ifdef VIEW_LEAKS
     --frontend_count;
     LOG("{view} WARNING: View front count = %d", frontend_count);
 #endif
-    delete data.GetParameter();
+  //  delete data.GetParameter();
 }
 /* Moved to  weakCallbackForTimestepHolder
 // View backing finalizer
@@ -133,23 +151,24 @@ static void js_view_finalize(Persistent<Value> ctx, void *param) {
 
 
 static void weakCallbackForTimestepHolder(const v8::WeakCallbackInfo<timestep_view> &data) {
+LOGDEBUG("{jsdebug} METHOD CALLED %d ", 5);
     Isolate *isolate = data.GetIsolate();
     HandleScope handle_scope(isolate);
 
     timestep_view *view = static_cast<timestep_view*>( data.GetParameter() );
     if (view) {
-        timestep_view_delete(view);
+      //  timestep_view_delete(view);
     }
 
 #ifdef VIEW_LEAKS
     --backing_count;
     LOG("{view} WARNING: View backing count = %d", backing_count);
 #endif
-    delete data.GetParameter();
+   // delete data.GetParameter();
 }
 
 static void js_image_view_set_image(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     timestep_view *view = GET_TIMESTEP_VIEW(args[0]->ToObject(isolate));
     if (view) {
         timestep_image_map *map = GET_IMAGE_MAP(args[1]->ToObject(isolate));
@@ -165,14 +184,14 @@ static void js_image_view_set_image(const v8::FunctionCallbackInfo<v8::Value> &a
 }
 
 static void js_timestep_image_view_render(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     timestep_view *view = GET_TIMESTEP_VIEW(args.This());
     if (view) {
         view->timestep_view_render(view, GET_CONTEXT2D_FROM(args[0]->ToObject(isolate)));
     }
 }
 
-Local<ObjectTemplate> js_timestep_get_template(Isolate *isolate) {
+Handle<ObjectTemplate> js_timestep_get_template(Isolate *isolate) {
     Handle<ObjectTemplate> timestep_template = ObjectTemplate::New(isolate);
     timestep_template->Set(String::NewFromUtf8(isolate,"View"), js_timestep_view_get_template(isolate));
     timestep_template->Set(String::NewFromUtf8(isolate,"Animator"), get_animate_class(isolate));
@@ -188,9 +207,9 @@ void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &ar
     Isolate *isolate = getIsolate();
     Handle<Object> thiz = args.Holder();
     // Todo 1: verify, was here: Local<Context> context = Context::New(isolate);
-    Local<Context> contextIsolate = isolate->GetCurrentContext();
+    Handle<Context> contextIsolate = isolate->GetCurrentContext();
     // Todo 2: remove redundant context after todo 3
-    Local<Context> context = getContext();
+    Handle<Context> context = getContext();
 #ifdef VIEW_LEAKS
     ++frontend_count;
     ++backing_count;
@@ -209,7 +228,7 @@ void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &ar
 
     // Track the lifetime of the view backing
     Persistent<Object> ref(isolate, thiz);
-    ref.SetWeak(view, weakCallbackForTimestepHolder, v8::WeakCallbackType::kParameter);
+    //ref.SetWeak(view, weakCallbackForTimestepHolder, v8::WeakCallbackType::kParameter);
 
      
     // Add an internal C reference to the front-end view object in the view backing (old v8)
@@ -217,7 +236,7 @@ void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &ar
     //view->js_view = js_view;
    
 /* Testing properties loop
-    v8::Local<v8::Array> propertyNames;
+    v8::Handle<v8::Array> propertyNames;
     js_view->GetPropertyNames(context).ToLocal(&propertyNames);
     MaybeLocal<Array> maybeProperties = js_view->GetPropertyNames(context);
 
@@ -232,8 +251,8 @@ void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &ar
                 for (int i = 0; i < propsSize; ++i) {
                     LOG("property Index is: %d", i);
 
-                    Local<Value> pname = propertyNames->Get(i);
-                    Local<String> pNameStr = Local<String>::Cast(pname);
+                    Handle<Value> pname = propertyNames->Get(i);
+                    Handle<String> pNameStr = Handle<String>::Cast(pname);
                     String::Utf8Value str2(isolate, pNameStr);
                     LOG("Property name is: %s", ToCString(str2));
                 }
@@ -248,12 +267,12 @@ void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &ar
     }
 */
 
-    Handle<Value> render = js_view->GetRealNamedPropertyInPrototypeChain(context, Local<Name>::Cast(STRING_CACHE_render.Get(isolate))).ToLocalChecked();
+    Handle<Value> render = js_view->GetRealNamedPropertyInPrototypeChain(context, Handle<Name>::Cast(STRING_CACHE_render.Get(isolate))).ToLocalChecked();
 
     bool has_js_render = false;
     if (!render.IsEmpty() && render->IsFunction()) {
         Handle<Value> type = render->ToObject(isolate)->Get(context, STRING_CACHE_HAS_NATIVE_IMPL.Get(isolate)).ToLocalChecked();
-        has_js_render = !type->IsBoolean() || !type->BooleanValue();
+        has_js_render = !type->IsBoolean() || !type->BooleanValue(getIsolate());
     }
 
     view->has_jsrender = has_js_render;
@@ -266,9 +285,9 @@ void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &ar
     timestep_view_set_type(view, type);
 }
 
-void timestep_view_set_compositeOperation (Local<String> property, Local<Value> value, const PropertyCallbackInfo< void > &info) {
-    Isolate *isolate = info.GetIsolate();
-    Local<Object> thiz = info.Holder();
+void timestep_view_set_compositeOperation (Handle<String> property, Handle<Value> value, const PropertyCallbackInfo< void > &info) {
+    Isolate *isolate = getIsolate();
+    Handle<Object> thiz = info.Holder();
     timestep_view *view = GET_TIMESTEP_VIEW(thiz);
 
     if (!value->IsString()) {
@@ -310,11 +329,11 @@ void timestep_view_set_compositeOperation (Local<String> property, Local<Value> 
     }
 }
 
-void timestep_view_get_compositeOperation(Local<String> property, const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
-    Local<Object> thiz = info.Holder();
+void timestep_view_get_compositeOperation(Handle<String> property, const PropertyCallbackInfo< Value > &info) {
+    Isolate *isolate = getIsolate();
+    Handle<Object> thiz = info.Holder();
     timestep_view *view = GET_TIMESTEP_VIEW(thiz);
-    Local<String> operation;
+    Handle<String> operation;
     switch (view->composite_operation) {
     case 1337:
         operation = String::NewFromUtf8(isolate, "source-atop");
@@ -344,9 +363,9 @@ void timestep_view_get_compositeOperation(Local<String> property, const Property
     info.GetReturnValue().Set(operation);
 }
 
-void timestep_view_set_zIndex (Local< String > property, Local< Value > value, const PropertyCallbackInfo< void > &info) {
-    Isolate *isolate = info.GetIsolate();
-    Local<Object> thiz = info.Holder();
+void timestep_view_set_zIndex (Handle< String > property, Handle< Value > value, const PropertyCallbackInfo< void > &info) {
+    Isolate *isolate = getIsolate();
+    Handle<Object> thiz = info.Holder();
     timestep_view *view = GET_TIMESTEP_VIEW(thiz);
     view->z_index = value->Int32Value(isolate->GetCurrentContext()).ToChecked();
     if (view->superview) {
@@ -354,9 +373,9 @@ void timestep_view_set_zIndex (Local< String > property, Local< Value > value, c
     }
 }
 
-void timestep_view_set_opacity (Local< String > property, Local< Value > value, const PropertyCallbackInfo< void > &info) {
-    Isolate *isolate = info.GetIsolate();
-    Local<Object> thiz = info.Holder();
+void timestep_view_set_opacity (Handle< String > property, Handle< Value > value, const PropertyCallbackInfo< void > &info) {
+    Isolate *isolate = getIsolate();
+    Handle<Object> thiz = info.Holder();
     timestep_view *view = GET_TIMESTEP_VIEW(thiz);
 
     if (view) {
@@ -373,10 +392,10 @@ void timestep_view_set_opacity (Local< String > property, Local< Value > value, 
 // -- non-underscore variants, allowing JS to set width/height using either
 // -- .width/.height or ._width/._height.
 
-void timestep_view_get__width(Local<String> property, const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
+void timestep_view_get__width(Handle<String> property, const PropertyCallbackInfo< Value > &info) {
+    Isolate *isolate = getIsolate();
     //LOG("in timestep_view get _width");
-    v8::Local<v8::Object> thiz = info.Holder();
+    v8::Handle<v8::Object> thiz = info.Holder();
     timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 
     double prop = obj->width;
@@ -385,9 +404,9 @@ void timestep_view_get__width(Local<String> property, const PropertyCallbackInfo
 }
 
 void timestep_view_set__width(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     //LOG("in timestep_view set _width");
-    v8::Local<v8::Object> thiz = info.Holder();
+    v8::Handle<v8::Object> thiz = info.Holder();
     timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 
     obj->width = value->ToNumber(isolate)->Value();
@@ -395,9 +414,9 @@ void timestep_view_set__width(v8::Local<v8::String> property, v8::Local<v8::Valu
     //LOG("done in timestep_view set _width");
 }
 void timestep_view_get__height(Local<String> property, const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     //LOG("in timestep_view get _height");
-    v8::Local<v8::Object> thiz = info.Holder();
+    v8::Handle<v8::Object> thiz = info.Holder();
     timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 
     double prop = obj->height;
@@ -406,9 +425,9 @@ void timestep_view_get__height(Local<String> property, const PropertyCallbackInf
 }
 
 void timestep_view_set__height(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     //LOG("in timestep_view set _height");
-    v8::Local<v8::Object> thiz = info.Holder();
+    v8::Handle<v8::Object> thiz = info.Holder();
     timestep_view *obj = (timestep_view*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 
     obj->height = value->ToNumber(isolate)->Value();
@@ -418,8 +437,8 @@ void timestep_view_set__height(v8::Local<v8::String> property, v8::Local<v8::Val
 
 // -- end copy
 
-void def_timestep_view_render(Local<Object> js_view, Handle<Object> js_ctx, Handle<Object> js_opts, Isolate *isolate) {
-    Local<Context> context = getIsolate()->GetCurrentContext();           
+void def_timestep_view_render(Handle<Object> js_view, Handle<Object> js_ctx, Handle<Object> js_opts, Isolate *isolate) {
+    Handle<Context> context = getIsolate()->GetCurrentContext();
     Handle<Function> render = Handle<Function>::Cast(js_view->Get(context, STRING_CACHE_render.Get(isolate)).ToLocalChecked());
     if (!render.IsEmpty() && render->IsFunction()) {
             Handle<Value> args[] = {js_ctx, js_opts};
@@ -427,7 +446,7 @@ void def_timestep_view_render(Local<Object> js_view, Handle<Object> js_ctx, Hand
     }
 }
 
-Local<Object> def_get_viewport(Handle<Object> js_opts, Isolate *isolate) {
+Handle<Object> def_get_viewport(Handle<Object> js_opts, Isolate *isolate) {
     return Handle<Object>::Cast(js_opts->Get(STRING_CACHE_viewport.Get(isolate)));
 }
 
@@ -454,7 +473,7 @@ void def_timestep_view_tick(Handle<Object> js_view, double dt, Isolate *isolate)
 }
 
 void def_timestep_view_addSubview(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     Handle<Object> subview = args[0]->ToObject(isolate);
     timestep_view *view = GET_TIMESTEP_VIEW(Handle<Object>::Cast(subview->Get(STRING_CACHE___view.Get(isolate))));
     bool result = timestep_view_add_subview(GET_TIMESTEP_VIEW(args.This()), view);
@@ -462,7 +481,7 @@ void def_timestep_view_addSubview(const v8::FunctionCallbackInfo<v8::Value> &arg
 }
 
 void def_timestep_view_removeSubview(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     Handle<Object> subview = args[0]->ToObject(isolate);
     timestep_view *view = GET_TIMESTEP_VIEW(Handle<Object>::Cast(subview->Get(STRING_CACHE___view.Get(isolate))));
     bool result = timestep_view_remove_subview(GET_TIMESTEP_VIEW(args.This()), view);
@@ -470,7 +489,7 @@ void def_timestep_view_removeSubview(const v8::FunctionCallbackInfo<v8::Value> &
 }
 
 void def_timestep_view_getSuperview(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     timestep_view *v = GET_TIMESTEP_VIEW(args.This());
 
     timestep_view *view = timestep_view_get_superview(v);
@@ -486,7 +505,7 @@ void def_timestep_view_getSuperview(const v8::FunctionCallbackInfo<v8::Value> &a
 }
 
 void def_timestep_view_wrapRender(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     Handle<Object> js_ctx = Handle<Object>::Cast(args[0]);
     Handle<Object> js_opts = Handle<Object>::Cast(args[1]);
     Handle<Object> _ctx = Handle<Object>::Cast(js_ctx->Get(STRING_CACHE__ctx.Get(isolate)));
@@ -495,13 +514,13 @@ void def_timestep_view_wrapRender(const v8::FunctionCallbackInfo<v8::Value> &arg
 }
 
 void def_timestep_view_wrapTick(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     double dt = args[0]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     timestep_view_wrap_tick(GET_TIMESTEP_VIEW(args.This()), dt, isolate);
 }
 
 void def_timestep_view_getSubviews(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     timestep_view *v = GET_TIMESTEP_VIEW(args.This());
     int expected_count = v->subview_count, actual_count = 0;
     Handle<Array> subviews = Array::New(isolate, expected_count);
@@ -532,7 +551,7 @@ void def_timestep_view_getSubviews(const v8::FunctionCallbackInfo<v8::Value> &ar
 }
 
 void def_timestep_view_localizePoint(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     timestep_view *v = GET_TIMESTEP_VIEW(args.This());
     Handle<Object> pt = args[0]->ToObject(isolate);
     double x = pt->Get(STRING_CACHE_x.Get(isolate))->NumberValue(isolate->GetCurrentContext()).ToChecked();

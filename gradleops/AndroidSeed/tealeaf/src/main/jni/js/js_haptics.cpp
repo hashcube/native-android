@@ -26,7 +26,7 @@ void js_haptics_cancel(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_haptics_vibrate(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     Handle<Object> opts = Handle<Object>::Cast(args[0]);
     Handle<Value> milliseconds = opts->Get(STRING_CACHE_milliseconds.Get(isolate));
 
@@ -50,7 +50,7 @@ void js_haptics_vibrate(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_haptics_has_vibrator(Local<String> property, const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     bool result = haptics_has_vibrator();
     info.GetReturnValue().Set(Boolean::New(isolate, result));
 }

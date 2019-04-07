@@ -23,6 +23,6 @@ using namespace v8;
 using v8::Handle;
 using v8::ObjectTemplate;
 
-Local<ObjectTemplate> js_input_get_template(Isolate *isolate);
+Handle<ObjectTemplate> js_input_get_template(Isolate *isolate);
 
 #endif //JS_INPUT_H

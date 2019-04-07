@@ -23,7 +23,7 @@ using namespace v8;
 
 void defLocalStorageSetItem(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("localstorage set");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value str(isolate, args[0]);
     const char *key = ToCString(str);
     String::Utf8Value str2(isolate, args[1]);
@@ -33,7 +33,7 @@ void defLocalStorageSetItem(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defLocalStorageGetItem(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("localstorage get");
     String::Utf8Value str(isolate, args[0]);
     const char *key = ToCString(str);
@@ -53,7 +53,7 @@ void defLocalStorageGetItem(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defLocalStorageRemoveItem(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("localstorage remove");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value str(isolate, args[0]);
     const char *key = ToCString(str);
     local_storage_remove_data(key);

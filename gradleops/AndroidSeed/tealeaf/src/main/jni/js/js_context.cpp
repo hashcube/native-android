@@ -36,7 +36,7 @@ using namespace v8;
 //extern void print_model_view(context_2d*, int);
 
 void defLoadIdentity(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
 
     context_2d_loadIdentity(GET_CONTEXT2D());
@@ -44,7 +44,7 @@ void defLoadIdentity(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defDrawImage(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("drawImage");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
     int srcTex = args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     String::Utf8Value str(isolate, args[1]);
@@ -67,7 +67,7 @@ void defDrawImage(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defDrawPointSprites(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
     String::Utf8Value str(isolate, args[0]);
     const char *url = ToCString(str);
@@ -89,7 +89,7 @@ void defDrawPointSprites(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defDestroyImage(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("destroyImage");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
     String::Utf8Value str(isolate, args[0]);
     const char *url = ToCString(str);
@@ -104,7 +104,7 @@ void defDestroyImage(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defRotate(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("rotate");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
     double angle = args[0]->NumberValue(isolate->GetCurrentContext()).ToChecked();
 
@@ -114,7 +114,7 @@ void defRotate(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defTranslate(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("translate");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
     double x = args[0]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     double y = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
@@ -126,7 +126,7 @@ void defTranslate(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defScale(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("scale");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
     double x = args[0]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     double y = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
@@ -139,7 +139,7 @@ void defScale(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defSave(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("save");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
     context_2d_save(GET_CONTEXT2D());
     LOGFN("endsave");
@@ -147,7 +147,7 @@ void defSave(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defRestore(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("restore");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
     context_2d_restore(GET_CONTEXT2D());
     LOGFN("endrestore");
@@ -155,7 +155,7 @@ void defRestore(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defClear(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("clear");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
     context_2d_clear(GET_CONTEXT2D());
     LOGFN("endclear");
@@ -163,7 +163,7 @@ void defClear(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defSetGlobalAlpha(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("setglobalalpha");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
     double alpha = args[0]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     context_2d_setGlobalAlpha(GET_CONTEXT2D(), alpha);
@@ -172,7 +172,7 @@ void defSetGlobalAlpha(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defGetGlobalAlpha(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("getglobalalpha");
-    Isolate *isolate =args.GetIsolate();
+    Isolate *isolate =getIsolate();
     HandleScope handle_scope(isolate);
     double alpha = context_2d_getGlobalAlpha(GET_CONTEXT2D());
 
@@ -182,7 +182,7 @@ void defGetGlobalAlpha(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defLoadImage(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("loadImage");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     EscapableHandleScope handle_scope(isolate);
 
     String::Utf8Value str(isolate, args[0]);
@@ -205,7 +205,7 @@ void defLoadImage(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defClearRect(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("clearRect");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     double x = args[0]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     double y = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     double width = args[2]->NumberValue(isolate->GetCurrentContext()).ToChecked();
@@ -219,7 +219,7 @@ void defClearRect(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defFillRect(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     double x = args[0]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     double y = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     double width = args[2]->NumberValue(isolate->GetCurrentContext()).ToChecked();
@@ -236,7 +236,7 @@ void defFillRect(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defStrokeRect(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     double x = args[0]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     double y = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     double width = args[2]->NumberValue(isolate->GetCurrentContext()).ToChecked();
@@ -267,7 +267,7 @@ void defStrokeRect(const v8::FunctionCallbackInfo<v8::Value> &args) {
 #define FONT_SCALE	0.9
 void defMeasureText(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("measuretext");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     EscapableHandleScope handle_scope(isolate);
     String::Utf8Value text_str(isolate, args[0]);
     const char* text = ToCString(text_str);
@@ -325,7 +325,7 @@ double measureText(Handle<Object> font_info, char **text, Isolate *isolate) {
 }
 
 void defMeasureTextBitmap(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     EscapableHandleScope handle_scope(isolate);
 
     String::Utf8Value text_str(isolate, args[0]);
@@ -382,7 +382,7 @@ double textAlignValue(Handle<Object> ctx, Handle<Object> font_info, char **text,
 }
 
 void defFillTextBitmap(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     Handle<Object> ctx = Handle<Object>::Cast(args[0]);
     context_2d *context = GET_CONTEXT2D();
     double x = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
@@ -482,7 +482,7 @@ void defFillTextBitmap(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defStrokeText(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("stroketext");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value text_str(isolate, args[0]);
     const char* text = ToCString(text_str);
     int x = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
@@ -531,7 +531,7 @@ void defStrokeText(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defFillText(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("filltext");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value text_str(isolate, args[0]);
     const char* text = ToCString(text_str);
     int x = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
@@ -578,7 +578,7 @@ void defFillText(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defFlushImages(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("flushImages");
     draw_textures_flush();
     LOGFN("endflushImages");
@@ -586,7 +586,7 @@ void defFlushImages(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defNewTexture(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("newTexture");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
     int w = args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     int h = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
@@ -602,7 +602,7 @@ void defNewTexture(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defEnableScissor(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("enableScissor");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     double x = args[0]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     double y = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     double width = args[2]->NumberValue(isolate->GetCurrentContext()).ToChecked();
@@ -613,13 +613,13 @@ void defEnableScissor(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defDisableScissor(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     disable_scissor(GET_CONTEXT2D());
 }
 
 void defAddFilter(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("addFilter");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     Handle<Value> filter = args[1];
     if (filter.IsEmpty() || !filter->IsObject()) {
         LOG("{context} WARNING: Invalid filter provided");
@@ -648,7 +648,7 @@ void defAddFilter(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defClearFilters(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     GET_CONTEXT2D()->filter_type = FILTER_NONE;
     context_2d_clear_filters(GET_CONTEXT2D());
 }
@@ -682,7 +682,7 @@ static void weakCallbackForObjectHolder(const v8::WeakCallbackInfo<view_animatio
 
 void context_2d_class_ctor(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("ctx2d ctor");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     Local<Object> canvas(args[0]->ToObject(isolate));
     String::Utf8Value str(isolate, args[1]);
     const char *url = ToCString(str);
@@ -706,14 +706,14 @@ void context_2d_class_ctor(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_gl_delete_textures(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("start js_gl_delete_textures");
     texture_manager_clear_textures(texture_manager_get(), true);
     LOGFN("end js_gl_delete_textures");
 }
 
 void js_gl_touch_texture(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("end js_gl_touch_texture");
     String::Utf8Value url_str(isolate, args[0]);
     const char *url = ToCString(url_str);
@@ -722,7 +722,7 @@ void js_gl_touch_texture(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defResize(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     int width = args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     int height = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
     context_2d *ctx = GET_CONTEXT2D();
@@ -736,7 +736,7 @@ void defResize(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defFillTextBitmapDeprecated(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value str(isolate, args[0]);
     const char *text = ToCString(str);
     double x = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
@@ -777,7 +777,7 @@ void defFillTextBitmapDeprecated(const v8::FunctionCallbackInfo<v8::Value> &args
 }
 
 void defSetGlobalCompositeOperation(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
     LOGFN("setGlobalCompositeOperation");
     int composite_op = args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked();
@@ -787,7 +787,7 @@ void defSetGlobalCompositeOperation(const v8::FunctionCallbackInfo<v8::Value> &a
 
 void defGetGlobalCompositeOperation(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("getGlobalCompositeOperation");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     HandleScope handle_scope(isolate);
     int composite_op = context_2d_getGlobalCompositeOperation(GET_CONTEXT2D());
 
@@ -802,7 +802,7 @@ void defGetGlobalCompositeOperation(const v8::FunctionCallbackInfo<v8::Value> &a
    @return 	Undefined
 **/
 void defSaveBufferToFile(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     //get this context 2d instance
 //	Handle<Object> js_ctx = Handle<Object>::Cast(args[0]);
 //	Handle<Object> _ctx = Handle<Object>::Cast(js_ctx->Get(String::New("_ctx")));
@@ -820,7 +820,7 @@ void defSaveBufferToFile(const v8::FunctionCallbackInfo<v8::Value> &args) {
    @return 	Undefined
 **/
 void defToDataURL(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     //get this context 2d instance
     Handle<Object> js_ctx = Handle<Object>::Cast(args[0]);
     Handle<Object> _ctx = Handle<Object>::Cast(js_ctx->Get(String::NewFromUtf8(isolate, "_ctx")));
@@ -837,7 +837,7 @@ void defToDataURL(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defSetTransform(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     double m11 = args[0]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     double m21 = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     double m12 = args[2]->NumberValue(isolate->GetCurrentContext()).ToChecked();

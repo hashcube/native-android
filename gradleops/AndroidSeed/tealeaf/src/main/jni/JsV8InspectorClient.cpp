@@ -1,4 +1,4 @@
-#include "js/js.h"
+#include <js/js.h>
 #include "JsV8InspectorClient.h"
 #include <assert.h>
 #include <include/libplatform/libplatform.h>
@@ -9,6 +9,7 @@
 #include "ArgConverter.h"
 #include "DOMDomainCallbackHandlers.h"
 #include "NetworkDomainCallbackHandlers.h"
+
 
 using namespace std;
 using namespace tns;
@@ -61,8 +62,8 @@ void JsV8InspectorClient::disconnect() {
         return;
     }
 
-// todo fix as previosly  handlescope if wont work with getIsolate()
-    Isolate::Scope isolate_scope(getIsolate());
+    /*   adapted, working but probably wrong*/
+    /* Isolate::Scope isolate_scope(getIsolate());
     v8::HandleScope handleScope(getIsolate());
 
     session_->resume();
@@ -74,24 +75,47 @@ void JsV8InspectorClient::disconnect() {
     this->isConnected = false;
 
     this->createInspectorSession(isolate_, JsV8InspectorClient::PersistentToLocal(isolate_, context_));
+    */
+     if (this->connection == nullptr) {
+            return;
+        }
+
+        Isolate::Scope isolate_scope(isolate_);
+        v8::HandleScope handleScope(isolate_);
+
+        session_->resume();
+        session_.reset();
+
+        JEnv env;
+        env.DeleteGlobalRef(this->connection);
+        this->connection = nullptr;
+        this->isConnected = false;
+
+        this->createInspectorSession(isolate_, JsV8InspectorClient::PersistentToLocal(isolate_, context_));
 }
 
 
 void JsV8InspectorClient::dispatchMessage(const std::string& message) {
-   /* old 
-   Isolate::Scope isolate_scope(isolate_);
-    //v8::HandleScope handleScope(isolate_); probable already has handleScope
+    // original
+   /* Isolate::Scope isolate_scope(isolate_);
+    v8::EscapableHandleScope handleScope(isolate_);
     Context::Scope context_scope(isolate_->GetCurrentContext());
-*/
- /*   recommended*/
- v8::Locker locker(getIsolate());
-    Isolate::Scope isolate_scope(getIsolate());
-    v8::HandleScope handleScope(getIsolate());
-    v8::Local<v8::Context> context = v8::Local<v8::Context>::New(getIsolate(), m_context);
-    v8::Context::Scope context_scope(context);
-    
 
     this->doDispatchMessage(isolate_, message);
+*/
+     /*   adapted, working but probably wrong*/
+        v8::Locker locker(getIsolate());
+        Isolate::Scope isolate_scope(getIsolate());
+        v8::HandleScope handleScope(getIsolate());
+        v8::Local<v8::Context> context = v8::Local<v8::Context>::New(getIsolate(), m_context);
+        v8::Context::Scope context_scope(context);
+        v8::TryCatch try_catch(getIsolate());
+        this->doDispatchMessage(isolate_, message);
+        
+         if (try_catch.HasCaught()) {
+           ReportException(&try_catch);
+        }
+        
 }
 
 void JsV8InspectorClient::runMessageLoopOnPause(int context_group_id) {
@@ -107,10 +131,11 @@ void JsV8InspectorClient::runMessageLoopOnPause(int context_group_id) {
         JniLocalRef msg(env.CallStaticObjectMethod(inspectorClass, getInspectorMessageMethod, this->connection));
         if (!msg.IsNull()) {
             auto inspectorMessage = ArgConverter::jstringToString(msg);
+                                   //this->isolate_
             this->doDispatchMessage(getIsolate(), inspectorMessage);
         }
 
-        while (v8::platform::PumpMessageLoop(getPlatform(), getIsolate())) {
+        while (v8::platform::PumpMessageLoop(Runtime::platform, isolate_)) {
         }
     }
     terminated_ = false;
@@ -122,7 +147,7 @@ void JsV8InspectorClient::quitMessageLoopOnPause() {
 }
 
 v8::Local<v8::Context> JsV8InspectorClient::ensureDefaultContextInGroup(int contextGroupId) {
-    v8::Local<v8::Context> context = PersistentToLocal(getIsolate(), context_);
+    v8::Local<v8::Context> context = PersistentToLocal(isolate_, context_);
     return context;
 }
 
@@ -190,13 +215,13 @@ void JsV8InspectorClient::init() {
 
     v8::HandleScope handle_scope(isolate_);
 
-    v8::Local<Context> context = getContext();//isolate_->GetCurrentContext();
+    v8::Local<Context> context =  isolate_->GetCurrentContext(); //getContext();//
 
     inspector_ = V8Inspector::create(isolate_, this);
 
     inspector_->contextCreated(v8_inspector::V8ContextInfo(context, JsV8InspectorClient::contextGroupId, v8_inspector::StringView()));
 
-    v8::Persistent<v8::Context> persistentContext(getIsolate(), JsV8InspectorClient::PersistentToLocal(isolate_, context_));
+    v8::Persistent<v8::Context> persistentContext(context->GetIsolate(), JsV8InspectorClient::PersistentToLocal(isolate_, context_));
     context_.Reset(isolate_, persistentContext);
 
     this->createInspectorSession(isolate_, context);
@@ -204,6 +229,7 @@ void JsV8InspectorClient::init() {
 
 JsV8InspectorClient* JsV8InspectorClient::GetInstance() {
     if (instance == nullptr) {
+        /* working getIsolate()); but probably wrong */
         instance = new JsV8InspectorClient(getIsolate());//(Runtime::GetRuntime(0)->GetIsolate());
     }
 
@@ -216,12 +242,13 @@ void JsV8InspectorClient::sendToFrontEndCallback(const v8::FunctionCallbackInfo<
     }
 
     try {
+        auto isolate = args.GetIsolate();
         if ((args.Length() > 0) && args[0]->IsString()) {
-            std::string message = ArgConverter::ConvertToString(args[0]->ToString());
+            std::string message = ArgConverter::ConvertToString(args[0]->ToString(isolate));
 
             std::string level = "log";
             if (args.Length() > 1  && args[1]->IsString()) {
-                level = ArgConverter::ConvertToString(args[1]->ToString());
+                level = ArgConverter::ConvertToString(args[1]->ToString(isolate));
             }
 
             JEnv env;
@@ -250,7 +277,7 @@ void JsV8InspectorClient::consoleLogCallback(const string& message, const string
     auto isolate = getIsolate();//Runtime::GetRuntime(0)->GetIsolate();
     auto stack = v8::StackTrace::CurrentStackTrace(isolate, 1, v8::StackTrace::StackTraceOptions::kDetailed);
 
-    auto frame = stack->GetFrame(0);
+    auto frame = stack->GetFrame(isolate, 0);
 
     // will be no-op in non-debuggable builds
     v8_inspector::V8LogAgentImpl::EntryAdded(message, logLevel, ArgConverter::ConvertToString(frame->GetScriptNameOrSourceURL()), frame->GetLineNumber());

@@ -24,14 +24,15 @@
 using namespace v8;
 
 static void image_map_finalize(Persistent<Value> ctx, void *param, Isolate *isolate) {
+    LOGDEBUG("{jsdebug} METHOD CALLED %d ", 3);
     HandleScope handle_scope(isolate);
     timestep_image_map *map = static_cast<timestep_image_map*>( param );
     timestep_image_delete(map);
-    ctx.Reset();
+    //ctx.Reset();
 }
 
 Local<Value> image_map_constructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     int arg_length = args.Length();
     Handle<Object> thiz = Handle<Object>::Cast(args.This());
 

@@ -20,7 +20,7 @@
 using namespace v8;
 
 void defLoadSound(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("load sound");
     String::Utf8Value str(isolate, args[0]);
     const char *url = ToCString(str);
@@ -29,7 +29,7 @@ void defLoadSound(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defPlaySound(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("play sound");
     String::Utf8Value str(isolate, args[0]);
     double volume = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
@@ -40,7 +40,7 @@ void defPlaySound(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defStopSound(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("stop sound");
     String::Utf8Value str(isolate, args[0]);
     const char *url = ToCString(str);
@@ -49,7 +49,7 @@ void defStopSound(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defPauseSound(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("pause sound");
     String::Utf8Value str(isolate, args[0]);
     const char *url = ToCString(str);
@@ -58,7 +58,7 @@ void defPauseSound(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defSetVolume(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("set volume sound");
     String::Utf8Value str(isolate, args[0]);
     float volume = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
@@ -69,7 +69,7 @@ void defSetVolume(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 
 void defPlayBackgroundMusic(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("play bg music");
     String::Utf8Value str(isolate, args[0]);
     double volume = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
@@ -80,7 +80,7 @@ void defPlayBackgroundMusic(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defLoadBackgroundMusic(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("load bg music");
     String::Utf8Value str(isolate, args[0]);
     const char *url = ToCString(str);
@@ -89,7 +89,7 @@ void defLoadBackgroundMusic(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void defSeekTo(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("seek to position");
     String::Utf8Value str(isolate, args[0]);
     float position = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();

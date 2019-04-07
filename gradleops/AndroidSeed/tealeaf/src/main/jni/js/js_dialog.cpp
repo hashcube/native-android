@@ -22,7 +22,7 @@
 using namespace v8;
 
 void js_dialog_show_dialog(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value title(isolate, args[0]);
     char *title_str = strdup(ToCString(title));
 
@@ -65,8 +65,8 @@ void js_dialog_show_dialog(const v8::FunctionCallbackInfo<v8::Value> &args) {
     free(title_str);
 }
 
-Local<ObjectTemplate> js_dialog_get_template(Isolate *isolate) {
-    Local<ObjectTemplate> dialog = ObjectTemplate::New(isolate);
+Handle<ObjectTemplate> js_dialog_get_template(Isolate *isolate) {
+    Handle<ObjectTemplate> dialog = ObjectTemplate::New(isolate);
     dialog->Set(STRING_CACHE__showDialog.Get(isolate), FunctionTemplate::New(isolate, js_dialog_show_dialog));
     return dialog;
 }

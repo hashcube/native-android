@@ -23,7 +23,7 @@ using namespace v8;
 static Persistent<String> m_location;
 void jsGetLocation(v8::Local<Name> name, const v8::PropertyCallbackInfo<v8::Value> &info) {
     // Todo verify if scope is required
-    //Isolate *isolate = info.GetIsolate();
+    //Isolate *isolate = getIsolate();
     //HandleScope scope(isolate);
     info.GetReturnValue().Set(m_location);
 }
@@ -40,13 +40,13 @@ static void set_location(Local<String> location, Isolate *isolate) {
 }
 
 void jsSetLocation(Local<Name> name, Local<Value> value, const v8::PropertyCallbackInfo<void> &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     set_location(value->ToString(isolate), isolate);
 }
 
 void native_set_location(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("in native set location");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     if (args.Length() >= 1 && args[0]->IsString()) {
         set_location(args[0]->ToString(isolate), isolate);
     }

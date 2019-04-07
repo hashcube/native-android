@@ -28,7 +28,7 @@ using v8::Value;
 using namespace v8;
 
 void js_device_global_id(Local< String > property, const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     const char* str = device_global_id();
     Handle<String> result = String::NewFromUtf8(isolate, str);
     free((void*)str);
@@ -36,7 +36,7 @@ void js_device_global_id(Local< String > property, const PropertyCallbackInfo< V
 }
 
 void js_device_info(Local< String > property, const PropertyCallbackInfo< Value > &info) {
-    Isolate *isolate = info.GetIsolate();
+    Isolate *isolate = getIsolate();
     const char* str = device_info();
     Handle<String> result = String::NewFromUtf8(isolate, str);
     free((void*)str);
@@ -44,13 +44,13 @@ void js_device_info(Local< String > property, const PropertyCallbackInfo< Value 
 }
 
 void js_set_text_scale(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     float scale = args[0]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     device_set_text_scale(scale);
 }
 
 void js_get_text_scale(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     float scale = device_get_text_scale();
     args.GetReturnValue().Set(Number::New(isolate, scale));
 }

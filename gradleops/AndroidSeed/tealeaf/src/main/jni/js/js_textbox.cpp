@@ -53,7 +53,7 @@ int types_int[] = {
 };
 
 void js_textbox_create(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     int id = -1;
     if(args.Length() >= 5) {
         String::Utf8Value str(isolate, args[4]);
@@ -66,64 +66,63 @@ void js_textbox_create(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_textbox_destroy(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     textbox_destroy(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
 void js_textbox_show(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     textbox_show(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
 void js_textbox_hide(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     textbox_hide(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
 void js_textbox_set_position(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     textbox_set_position(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[2]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[3]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[4]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
 void js_textbox_set_dimensions(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     textbox_set_dimensions(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[2]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
 void js_textbox_set_x(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     textbox_set_x(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
 void js_textbox_set_y(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     textbox_set_y(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
 void js_textbox_set_width(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     textbox_set_width(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
 void js_textbox_set_height(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     textbox_set_height(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked());
 }
 
-
 void s_textbox_set_value(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value value(isolate, args[1]);
     textbox_set_value(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), ToCString(value));
 }
 
 void js_textbox_set_opacity(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     textbox_set_opacity(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), (float)(args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked()));
 }
 
 void js_textbox_set_type(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value value(isolate, args[1]);
     const char* val = ToCString(value);
     int type = 1;
@@ -138,39 +137,39 @@ void js_textbox_set_type(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_textbox_set_visible(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
-    textbox_set_visible(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->BooleanValue());
+    Isolate *isolate = getIsolate();
+    textbox_set_visible(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), args[1]->BooleanValue(getIsolate()));
 }
 
 
 void js_textbox_get_x(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     args.GetReturnValue().Set(Integer::New(isolate, textbox_get_x(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 
 void js_textbox_get_y(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     args.GetReturnValue().Set(Integer::New(isolate, textbox_get_y(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 
 void js_textbox_get_width(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     args.GetReturnValue().Set(Integer::New(isolate, textbox_get_width(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 
 void js_textbox_get_height(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     args.GetReturnValue().Set(Integer::New(isolate, textbox_get_height(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 
 void js_textbox_set_value(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value value(isolate, args[1]);
     textbox_set_value(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked(), ToCString(value));
 }
 
 void js_textbox_get_value(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     const char *value = textbox_get_value(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked());
     Local<String> v8value = String::NewFromUtf8(isolate, value);
     free((void*)value);
@@ -178,17 +177,17 @@ void js_textbox_get_value(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_textbox_get_opacity(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     args.GetReturnValue().Set(Number::New(isolate, textbox_get_opacity(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 
 void js_textbox_get_type(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     args.GetReturnValue().Set(Integer::New(isolate, textbox_get_type(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 
 void js_textbox_get_visible(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     args.GetReturnValue().Set(Boolean::New(isolate, textbox_get_visible(args[0]->Int32Value(isolate->GetCurrentContext()).ToChecked())));
 }
 

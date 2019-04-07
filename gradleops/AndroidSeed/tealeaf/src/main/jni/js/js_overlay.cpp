@@ -21,7 +21,7 @@ using namespace v8;
 
 void defLoadOverlay(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("JS load overlay");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value url(isolate, args[0]);
 
     const char *url_str = ToCString(url);
@@ -43,7 +43,7 @@ void defHideOverlay(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 void defSendOverlayEvent(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("send overlay event");
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     String::Utf8Value event(isolate, args[0]);
     const char *event_str = ToCString(event);
     overlay_send_event(event_str);

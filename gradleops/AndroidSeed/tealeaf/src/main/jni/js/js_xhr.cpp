@@ -22,7 +22,7 @@
 using namespace v8;
 
 void xhr_send(const FunctionCallbackInfo<Value> &args) {
-    Isolate *isolate = args.GetIsolate();
+    Isolate *isolate = getIsolate();
     LOGFN("calling xhr send");
     String::Utf8Value arg0(isolate, args[0]);
     String::Utf8Value arg1(isolate, args[1]);
@@ -30,7 +30,7 @@ void xhr_send(const FunctionCallbackInfo<Value> &args) {
     const char *method = ToCString(arg0);
     const char *url = ToCString(arg1);
 
-    bool async = args[2]->BooleanValue();
+    bool async = args[2]->BooleanValue(getIsolate());
     const char *data = NULL;
     String::Utf8Value arg3(isolate, args[3]);
     data = ToCString(arg3);

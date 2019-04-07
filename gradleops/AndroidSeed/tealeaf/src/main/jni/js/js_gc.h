@@ -22,6 +22,6 @@ using namespace v8;
 using v8::ObjectTemplate;
 using v8::Local;
 
-Local<ObjectTemplate> js_gc_get_template(Isolate *isolate);
+Handle<ObjectTemplate> js_gc_get_template(Isolate *isolate);
 
 #endif
