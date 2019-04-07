@@ -193,11 +193,12 @@ static void js_animation_finalize(Persistent<Value> js_anim, void *param, Isolat
 }
 
 static void weakCallbackForObjectHolder(const v8::WeakCallbackInfo<view_animation> &data) {
+LOGDEBUG("{jsdebug} METHOD CALLED %d ", 1);
     Isolate *isolate = getIsolate();
     HandleScope scope(isolate);
 
     view_animation_release(static_cast<view_animation*>( data.GetParameter()), isolate);
-    delete data.GetParameter();
+    //delete data.GetParameter();
 }
 
 void js_animate_constructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
@@ -213,7 +214,7 @@ void js_animate_constructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
     Persistent<Object> js_anim(isolate, thiz);
     //static void js_animation_finalize(Persistent<Value> js_anim, void *param) {
     //       void (*)                   (const WeakCallbackInfo<view_animation_t> &)
-    //js_anim.SetWeak(anim, weakCallbackForObjectHolder, v8::WeakCallbackType::kParameter);
+    js_anim.SetWeak(anim, weakCallbackForObjectHolder, v8::WeakCallbackType::kParameter);
 
    /* tealeaf/src/main/jni/deps/v8/include/v8.h:638:18:
     note: candidate function [with P = view_animation_t] not viable: no known conversion from

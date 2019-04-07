@@ -229,9 +229,9 @@ void ObjectManager::Link(const Local<Object>& object, uint32_t javaObjectID, jcl
 
     // subscribe for JS GC event
     if (m_markingMode == JavaScriptMarkingMode::None) {
-        //objectHandle->SetWeak(state, JSObjectFinalizerStatic, WeakCallbackType::kFinalizer);
+        objectHandle->SetWeak(state, JSObjectFinalizerStatic, WeakCallbackType::kFinalizer);
     } else {
-        //objectHandle->SetWeak(state, JSObjectWeakCallbackStatic, WeakCallbackType::kFinalizer);
+        objectHandle->SetWeak(state, JSObjectWeakCallbackStatic, WeakCallbackType::kFinalizer);
     }
 
     auto jsInfoIdx = static_cast<int>(MetadataNodeKeys::JsInfo);
@@ -308,7 +308,7 @@ void ObjectManager::JSObjectFinalizer(Isolate* isolate, ObjectWeakCallbackState*
     jboolean isJavaInstanceAlive = m_env.CallBooleanMethod(m_javaRuntimeObject, MAKE_INSTANCE_WEAK_AND_CHECK_IF_ALIVE_METHOD_ID, javaObjectID);
     if (isJavaInstanceAlive) {
         // If the Java instance is alive, keep the JavaScript instance alive.
-        //po->SetWeak(callbackState, JSObjectFinalizerStatic, WeakCallbackType::kFinalizer);
+        po->SetWeak(callbackState, JSObjectFinalizerStatic, WeakCallbackType::kFinalizer);
     } else {
         // If the Java instance is dead, this JavaScript instance can be let die.
         delete jsInstanceInfo;
@@ -358,7 +358,7 @@ void ObjectManager::JSObjectWeakCallback(Isolate* isolate, ObjectWeakCallbackSta
         }
     }
 
-    //po->SetWeak(callbackState, JSObjectWeakCallbackStatic, WeakCallbackType::kFinalizer);
+    po->SetWeak(callbackState, JSObjectWeakCallbackStatic, WeakCallbackType::kFinalizer);
 }
 
 int ObjectManager::GenerateNewObjectID() {

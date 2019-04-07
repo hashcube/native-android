@@ -24,10 +24,11 @@
 using namespace v8;
 
 static void image_map_finalize(Persistent<Value> ctx, void *param, Isolate *isolate) {
+    LOGDEBUG("{jsdebug} METHOD CALLED %d ", 3);
     HandleScope handle_scope(isolate);
     timestep_image_map *map = static_cast<timestep_image_map*>( param );
     timestep_image_delete(map);
-    ctx.Reset();
+    //ctx.Reset();
 }
 
 Local<Value> image_map_constructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
@@ -68,7 +69,7 @@ Local<Value> image_map_constructor(const v8::FunctionCallbackInfo<v8::Value> &ar
     map->url = strdup(ToCString(str));
 
     Persistent<Object> ref = Persistent<Object>(isolate, thiz);
-    //ref.SetWeak(map, image_map_finalize, v8::WeakCallbackType::kParameter);
+    ref.SetWeak(map, image_map_finalize, v8::WeakCallbackType::kParameter);
 
     return thiz;
 }

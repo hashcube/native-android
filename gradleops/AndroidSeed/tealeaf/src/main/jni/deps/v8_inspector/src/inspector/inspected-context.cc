@@ -59,10 +59,10 @@ InspectedContext::InspectedContext(V8InspectorImpl* inspector,
   v8::debug::SetContextId(info.context, contextId);
   m_weakCallbackData =
       new WeakCallbackData(this, m_inspector, m_contextGroupId, m_contextId);
- /* m_context.SetWeak(m_weakCallbackData,
+  m_context.SetWeak(m_weakCallbackData,
                     &InspectedContext::WeakCallbackData::resetContext,
                     v8::WeakCallbackType::kParameter);
-                    */
+                    
   if (!info.hasMemoryOnConsole) return;
   v8::Context::Scope contextScope(info.context);
   v8::Local<v8::Object> global = info.context->Global();

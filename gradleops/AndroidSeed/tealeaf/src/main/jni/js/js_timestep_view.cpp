@@ -96,6 +96,7 @@ static void cb_js_finalize(Persistent<Value> ctx, void *param) {
     */
 
 static void weakCallbackForFrontend(const v8::WeakCallbackInfo<timestep_view> &data) {
+    LOGDEBUG("{jsdebug} METHOD CALLED %d ", 4);
     Isolate *isolate = data.GetIsolate();
     HandleScope handle_scope(isolate);
 
@@ -127,7 +128,7 @@ data.GetParameter()->js_view.Reset();
     --frontend_count;
     LOG("{view} WARNING: View front count = %d", frontend_count);
 #endif
-    delete data.GetParameter();
+  //  delete data.GetParameter();
 }
 /* Moved to  weakCallbackForTimestepHolder
 // View backing finalizer
@@ -150,19 +151,20 @@ static void js_view_finalize(Persistent<Value> ctx, void *param) {
 
 
 static void weakCallbackForTimestepHolder(const v8::WeakCallbackInfo<timestep_view> &data) {
+LOGDEBUG("{jsdebug} METHOD CALLED %d ", 5);
     Isolate *isolate = data.GetIsolate();
     HandleScope handle_scope(isolate);
 
     timestep_view *view = static_cast<timestep_view*>( data.GetParameter() );
     if (view) {
-        timestep_view_delete(view);
+      //  timestep_view_delete(view);
     }
 
 #ifdef VIEW_LEAKS
     --backing_count;
     LOG("{view} WARNING: View backing count = %d", backing_count);
 #endif
-    delete data.GetParameter();
+   // delete data.GetParameter();
 }
 
 static void js_image_view_set_image(const v8::FunctionCallbackInfo<v8::Value> &args) {
@@ -220,7 +222,7 @@ void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &ar
     view->js_view.Reset(isolate, args[0]->ToObject(isolate));
     Handle<Object> js_view = view->js_view.Get(isolate);
     // todo 3: verify if paramter js_view is correct one for 1st argument, check reference chain to verify every object refers each other correctly and make sure main object is correctly removed or garbage collected
-    //view->js_view.SetWeak(view, weakCallbackForFrontend, v8::WeakCallbackType::kParameter);
+    view->js_view.SetWeak(view, weakCallbackForFrontend, v8::WeakCallbackType::kParameter);
     thiz->SetInternalField(0, External::New(isolate, view));
     thiz->SetInternalField(1, js_view);
 

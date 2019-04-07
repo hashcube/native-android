@@ -696,7 +696,7 @@ void context_2d_class_ctor(const v8::FunctionCallbackInfo<v8::Value> &args) {
     //now make it weak
     Persistent<Object> persCtx(isolate, ctx);
     // Todo test canvas works well
-    //persCtx.SetWeak(_ctx, context_2d_class_finalize, v8::WeakCallbackType::kParameter);
+    persCtx.SetWeak(_ctx, context_2d_class_finalize, v8::WeakCallbackType::kParameter);
 
     int size = _ctx->backing_width * _ctx->backing_height * 4;
     isolate->AdjustAmountOfExternalAllocatedMemory(size);
