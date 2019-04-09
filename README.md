@@ -14,10 +14,10 @@ export PATH=$PATH:/YOUR_PATH_TO/android-ndk-r18b
 Debugging with specific sgning keys might be required by some APIs and plugins or sign release build just:
 1) set up environment variables and use:
 ```
-export DEVKIT_ANDROID_KEYSTORE='path/to/your/keystore'
-export DEVKIT_ANDROID_STOREPASS='your keystore pass'
-export DEVKIT_ANDROID_KEYPASS='your alias pass'
-export DEVKIT_ANDROID_KEY='you alias name'
+export DEVKIT_ANDROID_KEYSTORE_PATH='path/to/your/keystore'
+export DEVKIT_ANDROID_KEYSTORE_PASSWORD='your keystore pass'
+export DEVKIT_ANDROID_ALIAS_PASSWORD='your alias pass'
+export DEVKIT_ANDROID_ALIAS_NAME='you alias name'
 ```
 2) Sign apk
 To debug with specific keys

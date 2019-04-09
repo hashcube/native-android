@@ -848,10 +848,10 @@ function signAPK(api, app, shortName, outputPath, debug, config) {
 
 
 
-    var keystore = process.env['DEVKIT_ANDROID_KEYSTORE'];
-    var storepass = process.env['DEVKIT_ANDROID_STOREPASS'];
-    var keypass = process.env['DEVKIT_ANDROID_KEYPASS'];
-    var key = process.env['DEVKIT_ANDROID_KEY'];
+    var keystore = process.env['DEVKIT_ANDROID_KEYSTORE_PATH'];
+    var storepass = process.env['DEVKIT_ANDROID_KEYSTORE_PASSWORD'];
+    var keypass = process.env['DEVKIT_ANDROID_ALIAS_PASSWORD'];
+    var key = process.env['DEVKIT_ANDROID_ALIAS_NAME'];
 
     // sign debug apk with  Android chosen keys, e.g. release key to debug plugins, i.e debuggable release on output
     if(keystore || storepass || keypass || key){
@@ -881,27 +881,28 @@ function signAPK(api, app, shortName, outputPath, debug, config) {
       var apkDirDebug = path.join(outputPath, "../../" + shortName + "/app/build/outputs/apk/debug/");
       return spawnWithLogger(api, process.env.ANDROID_HOME + '/build-tools/'+app.manifest.android.buildToolsVersion+'/zipalign', alignArgsDebug, {cwd: apkDirDebug})
         .then(function () {
-          spawnWithLogger(api, process.env.ANDROID_HOME + '/build-tools/'+app.manifest.android.buildToolsVersion+'/apksigner', signArgsDebug, {cwd: apkDirDebug})
+          return spawnWithLogger(api, process.env.ANDROID_HOME + '/build-tools/'+app.manifest.android.buildToolsVersion+'/apksigner', signArgsDebug, {cwd: apkDirDebug})
         })
     }
 
   } else {
-    var keystore = process.env['DEVKIT_ANDROID_KEYSTORE'];
-    if (!keystore) { throw new BuildError('missing environment variable DEVKIT_ANDROID_KEYSTORE'); }
 
-    var storepass = process.env['DEVKIT_ANDROID_STOREPASS'];
-    if (!storepass) { throw new BuildError('missing environment variable DEVKIT_ANDROID_STOREPASS'); }
+    var keystore = process.env['DEVKIT_ANDROID_KEYSTORE_PATH'];
+    if (!keystore) { throw new BuildError('missing environment variable DEVKIT_ANDROID_KEYSTORE_PATH'); }
 
-    var keypass = process.env['DEVKIT_ANDROID_KEYPASS'];
-    if (!keypass) { throw new BuildError('missing environment variable DEVKIT_ANDROID_KEYPASS'); }
+    var storepass = process.env['DEVKIT_ANDROID_KEYSTORE_PASSWORD'];
+    if (!storepass) { throw new BuildError('missing environment variable DEVKIT_ANDROID_KEYSTORE_PASSWORD'); }
 
-    var key = process.env['DEVKIT_ANDROID_KEY'];
-    if (!key) { throw new BuildError('missing environment variable DEVKIT_ANDROID_KEY'); }
+    var keypass = process.env['DEVKIT_ANDROID_ALIAS_PASSWORD'];
+    if (!keypass) { throw new BuildError('missing environment variable DEVKIT_ANDROID_ALIAS_PASSWORD'); }
+
+    var key = process.env['DEVKIT_ANDROID_ALIAS_NAME'];
+    if (!key) { throw new BuildError('missing environment variable DEVKIT_ANDROID_ALIAS_NAME'); }
 
     signArgs = [
       "sign", "--ks", keystore, "--ks-pass", "pass:"+storepass, "--key-pass", "pass:"+keypass,
       "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false", "--verbose",
-      "app-release-aligned.apk" //shortName + "app-release-unsigned.apk", key
+      "app-release-aligned.apk"
     ];
 
     alignArgs = [
@@ -909,10 +910,10 @@ function signAPK(api, app, shortName, outputPath, debug, config) {
     ];
 
     var scheme = (config.debug ? "debug" : "release");
-    var apkDir = path.join(outputPath, "../../"+shortName+"/app/build/outputs/apk/"+scheme+"/");
+    var apkDir = path.join(outputPath, shortName , "app/build/outputs/apk/", scheme);
     return spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/'+app.manifest.android.buildToolsVersion+'/zipalign', alignArgs , {cwd: apkDir})
       .then(function () {
-        spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/'+app.manifest.android.buildToolsVersion+'/apksigner', signArgs, {cwd: apkDir})
+       return spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/'+app.manifest.android.buildToolsVersion+'/apksigner', signArgs, {cwd: apkDir})
       });
   }
 
@@ -920,9 +921,9 @@ function signAPK(api, app, shortName, outputPath, debug, config) {
 
 function repackAPK(api, outputPath, apkName, cb) {
   var apkPath = path.join('bin', apkName);
-  spawnWithLogger(api, 'zip', [apkPath, '-d', 'META-INF/*'], {cwd: outputPath}, function (err) {
+  return spawnWithLogger(api, 'zip', [apkPath, '-d', 'META-INF/*'], {cwd: outputPath}, function (err) {
     if (err) { return cb(err); }
-    spawnWithLogger(api, 'zip', [apkPath, '-u'], {cwd: outputPath}, cb);
+    return spawnWithLogger(api, 'zip', [apkPath, '-u'], {cwd: outputPath}, cb);
   });
 }
 
@@ -1457,11 +1458,14 @@ exports.build = function(api, app, config, cb) {
       if (!skipSigning) {
         return signAPK(api, app, shortName, config.outputPath, config.debug, config);
       }
+      else {
+        return new Promise.resolve("bypass");
+      }
     })
     .then(function () {
       if (!skipAPK) {
         // Need a timeout because it copied unsigned build
-        var millisecondsToWait = 3000;
+        var millisecondsToWait = 5000;
         setTimeout(function() {
           // Whatever you want to do after the wait
 
