@@ -61,34 +61,16 @@ void JsV8InspectorClient::disconnect() {
     if (this->connection == nullptr) {
         return;
     }
-
-    /*   adapted, working but probably wrong*/
-    /* Isolate::Scope isolate_scope(getIsolate());
-    v8::HandleScope handleScope(getIsolate());
-
-    session_->resume();
-    session_.reset();
-
-    JEnv env;
-    env.DeleteGlobalRef(this->connection);
-    this->connection = nullptr;
-    this->isConnected = false;
-
-    this->createInspectorSession(isolate_, JsV8InspectorClient::PersistentToLocal(isolate_, context_));
-    */
+    
      if (this->connection == nullptr) {
             return;
         }
-
-       // Isolate::Scope isolate_scope(getIsolate());
-      //  v8::HandleScope handleScope(getIsolate());
-
- v8::Locker locker(getIsolate());
-              Isolate::Scope isolate_scope(getIsolate());
-              v8::HandleScope handleScope(getIsolate());
-
-              v8::Context::Scope context_scope(getContext());
-              v8::TryCatch try_catch(getIsolate());
+        
+       v8::Locker locker(getIsolate());
+       Isolate::Scope isolate_scope(getIsolate());
+       v8::HandleScope handleScope(getIsolate());
+       v8::Context::Scope context_scope(getContext());
+       v8::TryCatch try_catch(getIsolate());
 
         session_->resume();
         session_.reset();
@@ -97,7 +79,6 @@ void JsV8InspectorClient::disconnect() {
         env.DeleteGlobalRef(this->connection);
         this->connection = nullptr;
         this->isConnected = false;
-
         this->createInspectorSession(getIsolate(), getContext());
 }
 
@@ -107,10 +88,10 @@ void JsV8InspectorClient::dispatchMessage(const std::string& message) {
    /* Isolate::Scope isolate_scope(isolate_);
     v8::EscapableHandleScope handleScope(isolate_);
     Context::Scope context_scope(isolate_->GetCurrentContext());
-
+    
     this->doDispatchMessage(isolate_, message);
 */
-     /*   adapted, working but probably wrong*/
+     /*   adapted, working, todo check if no side effects produced*/
         v8::Locker locker(getIsolate());
         Isolate::Scope isolate_scope(getIsolate());
         v8::HandleScope handleScope(getIsolate());
