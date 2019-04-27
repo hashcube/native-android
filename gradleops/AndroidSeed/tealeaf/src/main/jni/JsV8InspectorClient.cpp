@@ -80,8 +80,15 @@ void JsV8InspectorClient::disconnect() {
             return;
         }
 
-        Isolate::Scope isolate_scope(isolate_);
-        v8::HandleScope handleScope(isolate_);
+       // Isolate::Scope isolate_scope(getIsolate());
+      //  v8::HandleScope handleScope(getIsolate());
+
+ v8::Locker locker(getIsolate());
+              Isolate::Scope isolate_scope(getIsolate());
+              v8::HandleScope handleScope(getIsolate());
+
+              v8::Context::Scope context_scope(getContext());
+              v8::TryCatch try_catch(getIsolate());
 
         session_->resume();
         session_.reset();
@@ -91,7 +98,7 @@ void JsV8InspectorClient::disconnect() {
         this->connection = nullptr;
         this->isConnected = false;
 
-        this->createInspectorSession(isolate_, JsV8InspectorClient::PersistentToLocal(isolate_, context_));
+        this->createInspectorSession(getIsolate(), getContext());
 }
 
 
