@@ -1,4 +1,5 @@
 #include "jni.h"
+#include <log.h>
 #include "zip.h"
 #include <assert.h>
 #include <libgen.h>
@@ -17,12 +18,23 @@ void AssetExtractor::ExtractAssets(JNIEnv* env, jobject obj, jstring apk, jstrin
     std::string filePrefix("assets/");
     int prefixLen = filePrefix.length();
     filePrefix.append(jstringToString(env, input));
+    
+ /* std::string cInput = jstringToString(env, input);
+    std::string assets_dir_str("file:///android_asset/");
+    if(cInput.compare(assets_dir_str) == 0){
+    filePrefix = cInput;
+    }
+    else {
+    filePrefix.append(cInput);
+    }
+    */
     auto prfx = filePrefix.c_str();
 
     int err = 0;
-    auto z = zip_open(strApk.c_str(), 0, &err);
-
+    auto z = zip_open(strApk.c_str(), ZIP_CREATE, &err);
+LOG("{wwjseeewww} 1");
     assert(z != nullptr);
+    LOG("{wwjseeewww} 2");
     zip_int64_t num = zip_get_num_entries(z, 0);
     struct zip_stat sb;
     struct zip_file* zf;

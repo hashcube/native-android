@@ -16,7 +16,7 @@
  */
 #include "js_photo.h"
 #include "platform/photo.h"
-#include "qr/adapter/QRCodeProcessor.h"
+//include "qr/adapter/QRCodeProcessor.h"
 #include "include/v8.h"
 using namespace v8;
 
@@ -31,7 +31,7 @@ void js_camera_get_photo(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_camera_process_qr(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = getIsolate();
+ /*   Isolate *isolate = getIsolate();
     String::Utf8Value str(isolate, args[0]);
     const char *cstr = ToCString(str);
 
@@ -39,10 +39,13 @@ void js_camera_process_qr(const v8::FunctionCallbackInfo<v8::Value> &args) {
     qr_process_base64_image(cstr, text);
 
     args.GetReturnValue().Set(String::NewFromUtf8(isolate, text));
+    */
 }
 
+
+
 void js_camera_encode_qr(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    Isolate *isolate = getIsolate();
+  /*  Isolate *isolate = getIsolate();
     String::Utf8Value str(isolate, args[0]);
     const char *cstr = ToCString(str);
 
@@ -50,6 +53,7 @@ void js_camera_encode_qr(const v8::FunctionCallbackInfo<v8::Value> &args) {
     char *b64image = qr_generate_base64_image(cstr, &width, &height);
 
     args.GetReturnValue().Set(String::NewFromUtf8(isolate, b64image));
+    */
 }
 
 void js_camera_get_next_id(const v8::FunctionCallbackInfo<v8::Value> &args) {
