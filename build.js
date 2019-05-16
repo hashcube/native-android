@@ -16,7 +16,7 @@
 var util = require('util');
 var path = require('path');
 var spawn = require('child_process').spawn;
-var Promise = require('bluebird');
+//var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs-extra'));
 var chalk = require('chalk');
 
@@ -1438,7 +1438,7 @@ exports.build = function(api, app, config, cb) {
       if (!skipAPK) {
         // build ndk libtealeaf.so, formerly named manually libpng.so ,
         return spawnWithLogger(api, 'ndk-build', [
-          "NDK_PROJECT_PATH=tealeaf/src/main",
+          "NDK_PROJECT_PATH=tealeaf/src/main", (function () { return config.debug ? "DEBUG=1" : "RELEASE=1"})(),
         ], {cwd: projectPath})
           .catch(BuildError, function (err) {
             if (err.stdout && /not valid/i.test(err.stdout)) {
