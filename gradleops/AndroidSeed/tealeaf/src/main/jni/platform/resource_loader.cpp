@@ -43,16 +43,15 @@ static pthread_mutex_t m_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 CEXPORT void resource_loader_initialize(const char *path) {
     int err = 0;
-    APKArchive = zip_open(path, ZIP_CREATE, &err);
-    LOG("{jseeewww} 1");
+    APKArchive = zip_open(path, NULL, &err);
     if (APKArchive == NULL) {
         LOG("{resources} ERROR: Unable to open APK %s", path);
         return;
     }
-    LOG("{jseeewww} 2");
     storage_dir = get_storage_directory();
     image_cache_init(storage_dir, &image_cache_load_callback);
 }
+
 CEXPORT void resource_loader_deinitialize() {
     image_cache_destroy();
     zip_close(APKArchive);
