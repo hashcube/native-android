@@ -15,18 +15,20 @@
 #ifndef JS_SOCKET_H
 #define JS_SOCKET_H
 #include "js/js.h"
+#include "include/v8.h"
+using namespace v8;
 
 using v8::Handle;
 using v8::Value;
-using v8::Arguments;
+using v8::internal::Arguments;
 using v8::Object;
 using v8::Persistent;
 
 
-Handle<Value> js_socket_send(const Arguments &args);
-Handle<Value> js_socket_close(const Arguments &args);
-Handle<Value> js_socket_default_callback(const Arguments &args);
-Handle<Value> js_socket_ctor(const Arguments &args);
+void js_socket_send(const v8::FunctionCallbackInfo<v8::Value> &args);
+void js_socket_close(const v8::FunctionCallbackInfo<v8::Value> &args);
+void js_socket_default_callback(const v8::FunctionCallbackInfo<v8::Value> &args);
+void js_socket_ctor(const v8::FunctionCallbackInfo<v8::Value> &args);
 void js_socket_connected(int id);
 void js_socket_on_data(int id, const char *data);
 void js_socket_error(int id);

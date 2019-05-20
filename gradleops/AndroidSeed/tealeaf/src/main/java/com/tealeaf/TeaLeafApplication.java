@@ -14,13 +14,20 @@
  */
 package com.tealeaf;
 import android.app.Application;
-
+import android.os.Build;
+import android.util.Log;
 import com.tealeaf.plugin.PluginManager;
 
+import java.io.File;
+
 public class TeaLeafApplication extends Application {
+
+	public static String PACKAGE_NAME;
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		PACKAGE_NAME = getApplicationContext().getPackageName();
 		PluginManager.init(this);
 		PluginManager.callAll("onCreateApplication", this.getApplicationContext());
 	}

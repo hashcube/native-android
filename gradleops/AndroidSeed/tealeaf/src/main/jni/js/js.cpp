@@ -14,12 +14,35 @@
  * You should have received a copy of the GNU General Public License
  * along with the Game Closure SDK.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+ #include "CallbackHandlers.h"
+#include "MetadataNode.h"
+#include "JsArgConverter.h"
+#include "JsArgToArrayConverter.h"
+#include "ArgConverter.h"
+#include "Util.h"
+#include "V8GlobalHelpers.h"
+#include "V8StringConstants.h"
+#include "Constants.h"
+
+#include "Version.h"
+#include "WeakRef.h"
+#include "NativeScriptAssert.h"
+#include "SimpleProfiler.h"
+#include "SimpleAllocator.h"
+#include "ModuleInternal.h"
+#include "NativeScriptException.h"
+#include "V8NativeScriptExtension.h"
+ #include "Runtime.h"
+ 
+ 
 #include <assert.h>
 #include <stdlib.h>
 #include <sys/time.h>
-
+#include <string>
 #include "core/util/detect.h"
-#include "timestep/timestep_animate.h"
+#include "core/timestep/timestep_animate.h"
+#include "platform/native_shim.h"
 
 #include "core/config.h"
 #include "core/tealeaf_context.h"
@@ -35,24 +58,84 @@
 #include "js/js_socket.h"
 #include "js/js_timer.h"
 #include "js/js_location.h"
+#include "js/js_string_cache.h"
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <log.h>
 
 #include "platform/platform.h"
+#include "src/libplatform/default-platform.h"
+#include "v8-platform.h"
+#include "libplatform/libplatform.h"
+#include "include/libplatform/libplatform.h"
+#include <chrono>
+#include <thread>
+#include <ArgConverter.h>
 
+#include "libplatform/libplatform-export.h"
+#include "libplatform/v8-tracing.h"
+#include "v8-platform.h"  // NOLINT(build/include)
+#include "v8config.h"
+#include "libplatform/libplatform.h"
+#include "include/libplatform/libplatform.h"
+#ifdef DEBUG
+#include "JsV8InspectorClient.h"
+#include "v8_inspector/src/inspector/v8-inspector-platform.h"
+#endif
+#include "src/libplatform/default-platform.h"
+#include "v8-platform.h"
+
+/*
 #if defined(REMOTE_DEBUG)
-#include "v8/v8-debug.h"
+#include "debug/debug.h"
 #endif
 
 #if defined(ENABLE_PROFILER)
 #include "lib/v8-profiler/profiler.h"
 #endif
+*/
+#include "include/libplatform/libplatform.h"
+#include "include/v8.h"
+#include "js.h"
+
+#include <jni.h>
+#include <v8-inspector.h>
+
+
+#include "File.h"
+#include "ArgConverter.h"
+#include "JEnv.h"
+#include "NativeScriptException.h"
+#include <sstream>
+
+#include "JsV8InspectorClient.h"
+#include "v8_inspector/src/inspector/v8-inspector-platform.h"
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+#include <sys/stat.h>
+
+
 
 using namespace v8;
+using namespace tns;
+using namespace std;
 
-static Persistent<Context> m_context;
-static Isolate *m_isolate = NULL;
+Persistent<Context> m_context;
+Isolate *m_isolate = NULL;
+v8::Platform* platform_;
+
+bool s_mainThreadInitialized = false;
+bool isDebug = false;
+v8::Persistent<v8::Function>* m_gcFunc;
+volatile bool m_runGC;
 
 // JS Ready flag: Indicates that the JavaScript engine is running (see core/core_js.h)
 bool js_ready = false;
+string app_package_name;
 
 CEXPORT bool js_is_ready();
 
@@ -70,17 +153,44 @@ static int calc_elapsed(struct timeval *mark) {
 /*timing stuff*/
 static DECL_BENCH(et);
 
-CEXPORT void eval_str(const char *str) {
+CEXPORT void eval_str(const char *str, const char * filename) {
     Locker l(m_isolate);
-    HandleScope handle_scope;
+    HandleScope handle_scope(m_isolate);
     if (m_context.IsEmpty()) {
         LOG("{js} ERROR: Could not evaluate. JavaScript engine is not running yet");
         return;
     }
-    Context::Scope context_scope(m_context);
-    Handle<String> source = String::New(str);
-    Handle<String> file_name = STRING_CACHE_none;
-    ExecuteString(source, file_name, true);
+
+    /*LOG("{native} execute script", "{native} execute script");
+    size_t size = strlen(str)/1000;
+    LOG(str, "{native} execute script");
+    std::string  fullScript = std::string(str);
+    for( int i = 0; i < size; i++){
+
+        int curstep = i*1000;
+        if(size == i+1){
+
+            std::string logchunk =  fullScript.substr (curstep,strlen(str)-curstep);
+            LOG(logchunk.c_str(), "{native} print script end");
+        }
+        else{
+            std::string logchunk =  fullScript.substr (curstep,curstep+1000);
+            LOG(logchunk.c_str(), "{native} print script");
+        }
+
+    }
+    LOG("{native} execute script", "{native} execute script");*/
+    Handle<Context> context = getContext();
+    Context::Scope context_scope(context);
+    Handle<String> source = String::NewFromUtf8(m_isolate, str);
+    Local<String> file_name = Local<String>::New(m_isolate, STRING_CACHE_none.Get(m_isolate));
+    if(0 == strcmp(str, "undefined")) {
+
+    }
+    else {
+        ExecuteString(source, filename, true, m_isolate);
+
+    }
 }
 
 
@@ -90,64 +200,185 @@ CEXPORT void eval_str(const char *str) {
 
 Persistent<Function> *tickFunction = NULL;
 
-Handle<Value> timer_start(const Arguments& args) {
-    HandleScope handleScope;
+
+void timer_start(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
+    HandleScope handleScope(isolate);
     Handle<Context> context = getContext();
     LOGFN("setTick");
     Context::Scope context_scope(context);
 
+    // Old block
     if (tickFunction == NULL) {
         // tickFunction = (Persistent<Function>*)calloc(1, sizeof(Persistent<Function>)); // this needs to be tested still
         tickFunction = new Persistent<Function>();
     }
-    *tickFunction = Persistent<Function>::New(Local<Function>::Cast(args[0]->ToObject()));
+
+    // Updated at Aug 28 2018
+    if (args[0]->IsFunction()) {
+        Local<v8::Function> function = Local<Function>::Cast(args[0]);
+        //Handle<Function> fun = Handle<Function>::Cast(args[0]->ToObject());
+        tickFunction->Reset(isolate, function);
+    }
+
     LOGFN("end setTick");
     MARK(et);
-    return Undefined();
+    //return Undefined(isolate);
 }
 
-Handle<Value> getGlobalObject(const Arguments& args) {
-    LOGFN("get global obj");
+//Handle<Value> getGlobalObject(const Arguments& args) {
+Handle<Value> getGlobalObject(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    LOG("get global obj");
     Handle<Context> context = getContext();
     Handle<Value> globalObject = context->Global();
     LOGFN("end get global obj");
     return globalObject;
 }
 
-Handle<Context> getContext() {
-    return m_context;
+Local<Context> getContext() {
+    return m_context.Get(m_isolate);
 }
 
 Isolate *getIsolate() {
     return m_isolate;
 }
 
+v8::Platform *getPlatform() {
+    return platform_;
+}
+
 const char* ToCString(const String::Utf8Value& value) {
     return *value ? *value : "<string conversion failed>";
 }
 
+static string getFileName(const string& s) {
+
+   char sep = '/';
+
+#ifdef _WIN32
+   sep = '\\';
+#endif
+
+   size_t i = s.rfind(sep, s.length());
+   if (i != string::npos) {
+      return(s.substr(i+1, s.length() - i));
+   }
+
+   return("");
+}
+
+static string getAppPackageName(){
+
+        if(app_package_name == ""){
+        //call NativeShim.java method example
+        JNIEnv* env = get_env();
+        jclass inspectorStarterClass = env->FindClass("com/tealeaf/NativeShim");
+        jmethodID getResourcesMethod = env->GetStaticMethodID(inspectorStarterClass, "getPackageName", "()Ljava/lang/String;");
+        env->CallStaticObjectMethod(inspectorStarterClass, getResourcesMethod);
+        jstring packageName= (jstring)env->CallStaticObjectMethod(inspectorStarterClass, getResourcesMethod);
+        const char* pname = env->GetStringUTFChars(packageName, NULL);
+        app_package_name = string(pname);
+        }
+        return app_package_name;
+}
+
+
+std::string GetDirectory (const std::string& path)
+{
+    size_t found = path.find_last_of("/\\");
+    return(path.substr(0, found));
+}
+
+void eraseSubStr(std::string & mainStr, const std::string & toErase)
+{
+	// Search for the substring in string
+	size_t pos = mainStr.find(toErase);
+ 
+	if (pos != std::string::npos)
+	{
+		// If found then erase it from string
+		mainStr.erase(pos, toErase.length());
+	}
+}
+
 // Executes a string within the current v8 context.
-Handle<Value> ExecuteString(v8::Handle<v8::String> source, v8::Handle<v8::Value> name, bool report_exceptions) {
-    v8::HandleScope handle_scope;
-    v8::TryCatch try_catch;
-    v8::Handle<v8::Script> script = v8::Script::Compile(source, name);
+Handle<Value> ExecuteString(v8::Handle<v8::String> source, const char * file_name, bool report_exceptions, Isolate *isolate) {
+    EscapableHandleScope handle_scope(isolate);
+    v8::TryCatch try_catch(isolate);
+    
+        Persistent<String> sourceP;
+        sourceP.Reset(isolate, source);
+
+         std::string filename = "";
+        #if defined(DEBUG)
+        std::string cStrName(file_name);
+
+        if(cStrName == "native.js"){
+        filename = "/data/data/"+getAppPackageName()+"/files/resources/native.js";
+        }
+        else {
+        eraseSubStr( cStrName, "http://");
+        std::replace(cStrName.begin(), cStrName.end(), '.', '_');
+        std::replace(cStrName.begin(), cStrName.end(), '-', '_');
+        std::replace(cStrName.begin(), cStrName.end(), '/', '_');
+       // filename = "/data/data/"+getAppPackageName()+"/files/resources/" +cStrName; //+"/"+ getFileName(string(cStrName)
+      //  const char *dirName = GetDirectory(filename).c_str();
+       // int result_code = mkdir(GetDirectory(dirName).c_str(), 0770);
+        
+        
+        filename = "/data/data/"+getAppPackageName()+"/files/resources/"+ string(cStrName);
+        const char *dirName = GetDirectory(filename).c_str();
+      
+      ////////
+        if (File::Exists(filename)) {
+                remove(filename.c_str());
+        }
+        //savefile
+        std::ofstream outfile ( filename);
+        outfile << ToCString(String::Utf8Value(isolate, sourceP.Get(isolate))) << std::endl;
+        outfile.close(); 
+        }
+        #endif
+
+
+ v8::MaybeLocal<v8::Script> script;
+
+    if(filename == "" || filename == "entry_point.js"){
+        script = v8::Script::Compile(getContext(), sourceP.Get(isolate));
+    }
+    else{
+    #if defined(DEBUG)
+        auto src = File::ReadText(filename);
+        auto originName = "file://" + filename;
+        v8::ScriptOrigin origin(ArgConverter::ConvertToV8String(isolate, originName));
+        script = v8::Script::Compile(getContext(), sourceP.Get(isolate), &origin);
+
+        #else
+        script = v8::Script::Compile(getContext(), sourceP.Get(isolate));
+          #endif // DEBUG
+    }
+
+
     if (script.IsEmpty()) {
         // Print errors that happened during compilation.
         if (report_exceptions)
+            sourceP.Reset();
             ReportException(&try_catch);
-        return Undefined();
+        return Undefined(m_isolate);
     } else {
-        v8::Handle<v8::Value> result = script->Run();
+        v8::MaybeLocal<v8::Value> result = script.ToLocalChecked()->Run(getContext());
         if (result.IsEmpty()) {
             assert(try_catch.HasCaught());
             // Print errors that happened during execution.
             if (report_exceptions)
                 ReportException(&try_catch);
-            return Undefined();
+            return Undefined(m_isolate);
         } else {
+            Handle<Context> context = getContext();
             assert(!try_catch.HasCaught());
-            return handle_scope.Close(result);
+            return handle_scope.Escape(result.ToLocalChecked());
         }
+        sourceP.Reset();
     }
 }
 
@@ -159,11 +390,12 @@ static inline void log_error(const char *message) {
     Handle<Object> global = context->Global();
     bool logged = false;
     if (!global.IsEmpty()) {
-        Handle<Object> native = Handle<Object>::Cast(global->Get(STRING_CACHE_NATIVE));
+        // original: Handle<Object> native = Handle<Object>::Cast(global->Get(STRING_CACHE_NATIVE));
+        Handle<Object> native = (global->Get(STRING_CACHE_NATIVE.Get(m_isolate))->ToObject(context)).ToLocalChecked();
         if (!native.IsEmpty() && native->IsObject()) {
-            Handle<Function> log = Handle<Function>::Cast(native->Get(STRING_CACHE___log));
+            Handle<Function> log = Handle<Function>::Cast(native->Get(STRING_CACHE___log.Get(m_isolate)));
             if (!log.IsEmpty() && log->IsFunction()) {
-                Handle<Value> args[] = { STRING_CACHE_ERROR, String::New(message) };
+                Handle<Value> args[] = { STRING_CACHE_ERROR.Get(m_isolate), String::NewFromUtf8(m_isolate,message) };
                 Handle<Value> ret = log->Call(global, 2, args);
                 if (!ret.IsEmpty()) {
                     logged = true;
@@ -180,9 +412,10 @@ static inline void window_on_error(const char *msg, const char *url, int line_nu
     Handle<Context> context = getContext();
     Handle<Object> global = context->Global();
     if (!global.IsEmpty()) {
-        Handle<Function> on_error = Handle<Function>::Cast(global->Get(STRING_CACHE_onerror));
+        //Handle<Function> on_error = Handle<Function>::Cast(global->Get(STRING_CACHE_onerror));
+        Handle<Function> on_error =  Local<Function>::Cast(global->Get(STRING_CACHE_onerror.Get(m_isolate)));
         if (!on_error.IsEmpty() && on_error->IsFunction()) {
-            Handle<Value> args[] = { String::New(msg), String::New(url), Number::New(line_number) };
+            Handle<Value> args[] = { String::NewFromUtf8(m_isolate,msg), String::NewFromUtf8(m_isolate, url), Number::New(m_isolate, line_number) };
             on_error->Call(global, 3, args);
         }
     }
@@ -205,19 +438,20 @@ static void remote_log_error(const char *message, const char *url, int line_numb
 //// JS Object Wrapper
 
 void js_object_wrapper_init(PERSISTENT_JS_OBJECT_WRAPPER *obj) {
-    obj->Clear();
+    if (!obj->IsEmpty()) {
+        obj->Empty();
+        obj->Reset();
+    }
 }
 
 void js_object_wrapper_root(PERSISTENT_JS_OBJECT_WRAPPER *obj, JS_OBJECT_WRAPPER target) {
     js_object_wrapper_delete(obj);
-
-    *obj = Persistent<Object>::New(target);
+    obj->Reset(m_isolate, target);
 }
 
 void js_object_wrapper_delete(PERSISTENT_JS_OBJECT_WRAPPER *obj) {
     if (!obj->IsEmpty()) {
-        obj->Dispose();
-        obj->Clear();
+        obj->Reset();
     }
 }
 
@@ -227,22 +461,68 @@ DECL_BENCH(gc_bench);
 static const char *m_gc_type = "Unknown";
 #endif
 
-void gc_start(GCType type, GCCallbackFlags flags) {
+/*EmbedderHeapTracer* tracer;
+class DevkitEmbedderHeapTracer : public EmbedderHeapTracer
+{
+    public:
+        DevkitEmbedderHeapTracer() {}
+        ~DevkitEmbedderHeapTracer() {}
+        void RegisterV8References(
+      const std::vector<std::pair<void*, void*> >& internal_fields) = 0;
+      
+      void TracePrologue() {
+        }
+      bool AdvanceTracing(double deadline_in_ms,
+                              AdvanceTracingActions actions) = 0;
+   
+  virtual void TraceEpilogue() {};
+ 
+  void EnterFinalPause() {}
+
+
+  void AbortTracing() {}    
+        
+      
+      
+      }
+      */
+
+
+class ClearWeakPersistentHandleVisitor : public PersistentHandleVisitor
+{
+    public:
+        ClearWeakPersistentHandleVisitor () {} //PersistentHandleVisitor
+        ~ClearWeakPersistentHandleVisitor() {}
+      void VisitPersistentHandle(Persistent<Value>* value,
+                                           uint16_t class_id) {
+                                               value->ClearWeak();
+                                               value->MarkActive();
+                                           }
+};
+
+ClearWeakPersistentHandleVisitor* visitor;
+
+void gc_start(Isolate* isolate, GCType type, GCCallbackFlags flags) {
 #ifndef RELEASE
     MARK(gc_bench);
 
     static const char* types[] = {
-        "Unknown",
-        "Scavenge",
-        "Mark/Sweep/Compact",
-        "All"
+            "Unknown",
+            "Scavenge",
+            "Mark/Sweep/Compact",
+            "All"
     };
 
     m_gc_type = types[type];
 #endif
+
+//VisitHandlesForPartialDependence(visitor);
+//VisitHandlesWithClassIds(visitor);
+m_isolate->VisitWeakHandles(visitor);
 }
 
-void gc_end(GCType type, GCCallbackFlags flags) {
+void gc_end(Isolate* isolate, GCType type, GCCallbackFlags flags) {
+m_isolate->VisitWeakHandles(visitor);
 #ifndef RELEASE
     LOGDEBUG("{jsdebug} GC took %dms (%s)", ELAPSED(gc_bench), m_gc_type);
 #endif
@@ -251,8 +531,8 @@ void gc_end(GCType type, GCCallbackFlags flags) {
 void ReportException(v8::TryCatch* try_catch) {
     LOG("{js} Reporting exception");
 
-    v8::HandleScope handle_scope;
-    v8::String::Utf8Value exception(try_catch->Exception());
+    HandleScope handle_scope(m_isolate);
+    v8::String::Utf8Value exception(m_isolate, try_catch->Exception());
     v8::Handle<v8::Message> message = try_catch->Message();
     if (message.IsEmpty()) {
         LOG("{js} WARNING: No exception message");
@@ -264,17 +544,17 @@ void ReportException(v8::TryCatch* try_catch) {
         window_on_error(exception_string, "", -1);
         remote_log_error(exception_string, "", -1);
     } else {
-        v8::String::Utf8Value filename(message->GetScriptResourceName());
+        v8::String::Utf8Value filename(m_isolate, message->GetScriptResourceName());
         const char* filename_string = ToCString(filename);
-        int linenum = message->GetLineNumber();
+        int linenum = message->GetLineNumber(getContext()).ToChecked();
         char buf[512];
         snprintf(buf, sizeof(buf), "%s line: %i", filename_string, linenum);
         log_error(buf);
-        v8::String::Utf8Value sourceline(message->GetSourceLine());
+        v8::String::Utf8Value sourceline(m_isolate, message->GetSourceLine(getContext()).ToLocalChecked());
         const char* sourceline_string = ToCString(sourceline);
         log_error(sourceline_string);
 
-        v8::String::Utf8Value stack_trace(try_catch->StackTrace());
+        v8::String::Utf8Value stack_trace(m_isolate, try_catch->StackTrace(getContext()).ToLocalChecked());
         const char* stack_trace_string = "no line";
         if (stack_trace.length() > 0) {
             stack_trace_string = ToCString(stack_trace);
@@ -288,11 +568,11 @@ void ReportException(v8::TryCatch* try_catch) {
 Handle<Function> get_on_resize() {
     Handle<Object> global = getContext()->Global();
     if(!global.IsEmpty()) {
-        Handle<Object> native = Handle<Object>::Cast(global->Get(STRING_CACHE_NATIVE));
+        Handle<Object> native = Handle<Object>::Cast(global->Get(STRING_CACHE_NATIVE.Get(m_isolate)));
         if(!native.IsEmpty()) {
-            Handle<Object> screen = Handle<Object>::Cast(native->Get(STRING_CACHE_screen));
+            Handle<Object> screen = Handle<Object>::Cast(native->Get(STRING_CACHE_screen.Get(m_isolate)));
             if(!screen.IsEmpty()) {
-                Handle<Function> on_resize = Handle<Function>::Cast(screen->Get(STRING_CACHE_onResize));
+                Handle<Function> on_resize = Handle<Function>::Cast(screen->Get(STRING_CACHE_onResize.Get(m_isolate)));
                 return on_resize;
             }
         }
@@ -307,11 +587,11 @@ CEXPORT void js_tick(long dt) {
         LOG("{js} WARNING: Tick attempted before JavaScript engine was running");
         return;
     }
-
-    HandleScope handle_scope;
+    TryCatch try_catch(m_isolate);
+    HandleScope handle_scope(m_isolate);
     Handle<Context> context = getContext();
     Context::Scope context_scope(context);
-    TryCatch try_catch;
+
 
     if (dt > 1000) {
         dt = 1;
@@ -325,7 +605,7 @@ CEXPORT void js_tick(long dt) {
         if (!resize.IsEmpty() && resize->IsFunction()) {
             int screen_width = config_get_screen_width();
             int screen_height = config_get_screen_height();
-            Handle<Value> args[] = { Integer::New(screen_width), Integer::New(screen_height) };
+            Handle<Value> args[] = { Integer::New(m_isolate, screen_width), Integer::New(m_isolate, screen_height) };
             Handle<Value> ret = resize->Call(global, 2, args);
             if (ret.IsEmpty()) {
                 ReportException(&try_catch);
@@ -337,10 +617,10 @@ CEXPORT void js_tick(long dt) {
         return;
     }
 
-    view_animation_tick_animations(dt);
-    Handle<Function> func = *tickFunction;
+    view_animation_tick_animations(dt, m_isolate);
+    Handle<Function> func = tickFunction->Get(m_isolate);
     if (func->IsFunction()) {
-        Handle<Value> args[] = { Number::New(dt) };
+        Handle<Value> args[] = { Number::New(m_isolate, dt) };
         Handle<Value> ret = func->Call(global, 1, args);
         if (ret.IsEmpty()) {
             ReportException(&try_catch);
@@ -353,19 +633,35 @@ CEXPORT void js_tick(long dt) {
 CEXPORT bool js_is_ready() {
     return js_ready;
 }
-
+/*
 #if defined(REMOTE_DEBUG)
 static void DispatchDebugMessages() {
     // Locker should already be held here
 
     Locker l(m_isolate);
-    HandleScope handle_scope;
-    Context::Scope context_scope(m_context);
-    TryCatch try_catch;
+    HandleScope handle_scope(m_isolate);
+    Context::Scope context_scope(getContext());
+    TryCatch try_catch(m_isolate);
 
-    v8::Debug::ProcessDebugMessages();
+    // Todo: fix, the class is removed in v8 6.9.0
+    // OLD v8::debug::ProcessDebugMessages();
+
 }
 #endif // REMOTE_DEBUG
+*/
+
+class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
+public:
+    virtual void* Allocate(size_t length) {
+        void* data = AllocateUninitialized(length);
+        return data == NULL ? data : memset(data, 0, length);
+    }
+    virtual void* AllocateUninitialized(size_t length) { return malloc(length); }
+    virtual void Free(void* data, size_t) { free(data); }
+};
+
+
+
 
 // Call this from the main thread of javascript execution, so that the isolate
 // is tied to the correct thread id.  This is important for profiling because
@@ -373,11 +669,37 @@ static void DispatchDebugMessages() {
 bool js_init_isolate() {
     DECL_BENCH(t);
     MARK(t);
+ #if defined(DEBUG)
+       isDebug = true;
+    #else // DEBUG
+        LOG("{debugger} JavaScript Debug Server is disabled");
+    #endif // DEBUG
 
-    V8::Initialize();
 
-    m_isolate = Isolate::GetCurrent();
+    // Initialize V8.
+    v8::V8::InitializeICUDefaultLocation(nullptr);
+    v8::V8::InitializeExternalStartupData(nullptr);
+    if(isDebug){
+     // The default V8 platform isn't Chrome DevTools compatible. The frontend uses the
+        // Runtime.evaluate protocol command with timeout flag for every execution in the console.
+        // The default platform doesn't implement executing delayed javascript code from a background
+        // thread. To avoid implementing a full blown scheduler, we use the default platform with a
+        // timeout=0 flag.
+        platform_ =  V8InspectorPlatform::CreateDefaultPlatform();
+     }
+     else{
+        platform_ = v8::platform::CreateDefaultPlatform();
+    }
+    Runtime::platform = platform_;
+    v8::V8::InitializePlatform(platform_);
+    v8::V8::Initialize();
+    LOG("v8engine inited");
 
+    // Create a new Isolate and make it the current one.
+    ArrayBufferAllocator allocator;
+    v8::Isolate::CreateParams create_params;
+    create_params.array_buffer_allocator = &allocator;
+    m_isolate = v8::Isolate::New(create_params);
     if (m_isolate) {
         LOG("{js} Initial setup took %ims", ELAPSED(t));
         return true;
@@ -387,82 +709,210 @@ bool js_init_isolate() {
     }
 }
 
-bool init_js(const char *uri, const char *native_hash) {
-    DECL_BENCH(t);
-    v8::Locker l(m_isolate);
-    HandleScope handleScope;
-    V8::AddGCPrologueCallback(gc_start);
-    V8::AddGCEpilogueCallback(gc_end);
-    MARK(t);
-    Handle<ObjectTemplate> global = ObjectTemplate::New();
 
-    js_string_cache_init();
+
+bool init_js(const char *uri, const char *native_hash, jobject thiz) {
+    DECL_BENCH(t);
+    //v8::Locker l(m_isolate);
+     Isolate::Scope isolate_scope(m_isolate);
+    HandleScope handleScope(m_isolate);
+    
+     //m_objectManager->SetInstanceIsolate(m_isolate);
+
+    // Sets a structure with v8 String constants on the isolate object at slot 1
+    V8StringConstants::PerIsolateV8Constants* consts = new V8StringConstants::PerIsolateV8Constants(m_isolate);
+    m_isolate->SetData((uint32_t)Runtime::IsolateData::CONSTANTS, consts);
+
+    V8::SetFlagsFromString(Constants::V8_STARTUP_FLAGS.c_str(), Constants::V8_STARTUP_FLAGS.size());
+    m_isolate->SetCaptureStackTraceForUncaughtExceptions(true, 100, StackTrace::kOverview);
+    m_isolate->AddMessageListener(NativeScriptException::OnUncaughtError);
+
+    __android_log_print(ANDROID_LOG_DEBUG, "TNS.Native", "V8 version %s", V8::GetVersion());
+    
+    
+    
+    //m_isolate-> SetEmbedderHeapTracer(tracer);
+    m_isolate->AddGCPrologueCallback(gc_start, GCType::kGCTypeAll);
+    m_isolate->AddGCEpilogueCallback(gc_end, GCType::kGCTypeAll);
+    MARK(t);
+    Local<ObjectTemplate> global = ObjectTemplate::New(m_isolate);
+
+    js_string_cache_init(m_isolate);
 
     // set the global object's functions *before* Context::New creates an instance, otherwise we just don't get them
-    global->Set(STRING_CACHE_setTimeout, FunctionTemplate::New(defSetTimeout));
-    global->Set(STRING_CACHE_clearTimeout, FunctionTemplate::New(defClearTimeout));
-    global->Set(STRING_CACHE_setInterval, FunctionTemplate::New(defSetInterval));
-    global->Set(STRING_CACHE_clearInterval, FunctionTemplate::New(defClearInterval));
-    global->Set(STRING_CACHE_setLocation, FunctionTemplate::New(native_set_location));
+    global->Set(STRING_CACHE_setTimeout.Get(m_isolate), FunctionTemplate::New(m_isolate, defSetTimeout));
+    global->Set(STRING_CACHE_clearTimeout.Get(m_isolate), FunctionTemplate::New(m_isolate, defClearTimeout));
+    global->Set(STRING_CACHE_setInterval.Get(m_isolate), FunctionTemplate::New(m_isolate, defSetInterval));
+    global->Set(STRING_CACHE_clearInterval.Get(m_isolate), FunctionTemplate::New(m_isolate, defClearInterval));
+    global->Set(STRING_CACHE_setLocation.Get(m_isolate), FunctionTemplate::New(m_isolate, native_set_location));
 
-    m_context = Context::New(NULL, global);
+const auto readOnlyFlags = static_cast<PropertyAttribute>(PropertyAttribute::DontDelete | PropertyAttribute::ReadOnly);
 
+
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__log"), FunctionTemplate::New(m_isolate, CallbackHandlers::LogMethodCallback));
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__dumpReferenceTables"), FunctionTemplate::New(m_isolate, CallbackHandlers::DumpReferenceTablesMethodCallback));
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__enableVerboseLogging"), FunctionTemplate::New(m_isolate, CallbackHandlers::EnableVerboseLoggingMethodCallback));
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__disableVerboseLogging"), FunctionTemplate::New(m_isolate, CallbackHandlers::DisableVerboseLoggingMethodCallback));
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__exit"), FunctionTemplate::New(m_isolate, CallbackHandlers::ExitMethodCallback));
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__runtimeVersion"), ArgConverter::ConvertToV8String(m_isolate, NATIVE_SCRIPT_RUNTIME_VERSION), readOnlyFlags);
+    global->Set(ArgConverter::ConvertToV8String(m_isolate, "__time"), FunctionTemplate::New(m_isolate, CallbackHandlers::TimeCallback));
+
+/*
+     * Attach `Worker` object constructor only to the main thread (m_isolate)'s global object
+     * Workers should not be created from within other Workers, for now
+     */
+    if (!s_mainThreadInitialized) {
+        Local<FunctionTemplate> workerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::NewThreadCallback);
+        Local<ObjectTemplate> prototype = workerFuncTemplate->PrototypeTemplate();
+
+        /*
+         * Attach methods from the EventTarget interface (postMessage, terminate) to the Worker object prototype
+         */
+        auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectPostMessageCallback);
+        auto terminateWorkerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectTerminateCallback);
+
+        prototype->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
+        prototype->Set(ArgConverter::ConvertToV8String(m_isolate, "terminate"), terminateWorkerFuncTemplate);
+
+        global->Set(ArgConverter::ConvertToV8String(m_isolate, "Worker"), workerFuncTemplate);
+    }
+    /*
+     * Emulate a `WorkerGlobalScope`
+     * Attach 'postMessage', 'close' to the global object
+     */
+    else {
+        auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalPostMessageCallback);
+        global->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
+        auto closeFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalCloseCallback);
+        global->Set(ArgConverter::ConvertToV8String(m_isolate, "close"), closeFuncTemplate);
+    }
+
+/*
+     * Attach `Worker` object constructor only to the main thread (m_isolate)'s global object
+     * Workers should not be created from within other Workers, for now
+     */
+    if (!s_mainThreadInitialized) {
+        Local<FunctionTemplate> workerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::NewThreadCallback);
+        Local<ObjectTemplate> prototype = workerFuncTemplate->PrototypeTemplate();
+
+        /*
+         * Attach methods from the EventTarget interface (postMessage, terminate) to the Worker object prototype
+         */
+        auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectPostMessageCallback);
+        auto terminateWorkerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectTerminateCallback);
+
+        prototype->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
+        prototype->Set(ArgConverter::ConvertToV8String(m_isolate, "terminate"), terminateWorkerFuncTemplate);
+
+        global->Set(ArgConverter::ConvertToV8String(m_isolate, "Worker"), workerFuncTemplate);
+    }
+    /*
+     * Emulate a `WorkerGlobalScope`
+     * Attach 'postMessage', 'close' to the global object
+     */
+    else {
+        auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalPostMessageCallback);
+        global->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
+        auto closeFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalCloseCallback);
+        global->Set(ArgConverter::ConvertToV8String(m_isolate, "close"), closeFuncTemplate);
+    }
+
+
+
+
+
+SimpleProfiler::Init(m_isolate, global);
+
+    CallbackHandlers::CreateGlobalCastFunctions(m_isolate, global);
+
+    m_context.Reset(m_isolate, Context::New(m_isolate, NULL, global));
+    
+    m_context.Get(m_isolate)->Enter();
+
+
+    #if defined(DEBUG)
+       JsV8InspectorClient::GetInstance()->init();
+       JsV8InspectorClient::attachInspectorCallbacks(m_isolate, global);
+    #else // DEBUG
+        LOG("{debugger} JavaScript Debug Server is disabled");
+    #endif // DEBUG
+
+
+auto gcFunc = getContext()->Global()->Get(ArgConverter::ConvertToV8String(m_isolate, "gc"));
+    if (!gcFunc.IsEmpty() && gcFunc->IsFunction()) {
+        m_gcFunc = new Persistent<Function>(m_isolate, gcFunc.As<Function>());
+        Local<Value> recv;
+        gcFunc.As<Function>()->Call( recv, 0, 0);
+    }
+
+     /*
+        call NativeShim.java method example
+        JNIEnv* env = get_env();
+        jclass inspectorStarterClass = env->FindClass("com/tealeaf/NativeShim");
+        jmethodID getResourcesMethod = env->GetStaticMethodID(inspectorStarterClass, "startInspectorServer", "()V");
+        env->CallStaticObjectMethod(inspectorStarterClass, getResourcesMethod);
+        */
+  
     if (m_context.IsEmpty()) {
         LOG("{js} ERROR: Unable to create context");
         return false;
     }
 
-#if defined(REMOTE_DEBUG)
-    v8::Debug::SetDebugMessageDispatchHandler(DispatchDebugMessages, true);
 
-    if (v8::Debug::EnableAgent("game-closure-jsds", 9222, false)) {
-        LOG("{debugger} JavaScript Debug Server running on port 9222");
-    } else {
-        LOG("{debugger} ERROR: JavaScript Debug Server could not start. Is another app already running a debug server?");
-    }
+
+
+#if defined(REMOTE_DEBUG)
+    // Todo: put inspector initialization here
+
+
 #else // REMOTE_DEBUG
     LOG("{debugger} JavaScript Debug Server is disabled");
 #endif // REMOTE_DEBUG
 
-    Context::Scope scope(m_context);
+    Local<Context> context = getContext();
+    Context::Scope scope(context);
+
+    v8::HandleScope handle_scope(getIsolate());
+
 
     // config
-    Handle<ObjectTemplate> config = ObjectTemplate::New();
-    config->Set("baseURL", String::New(config_get_code_host()));
+    Handle<ObjectTemplate> config = v8::ObjectTemplate::New(getIsolate());
+    config->Set(m_isolate, "baseURL", String::NewFromUtf8(getIsolate(), config_get_code_host()));
 
     // window.location
-    native_initialize_location(config_get_code_host());
+    native_initialize_location(config_get_code_host(), m_isolate);
 
     // screen
     int width = config_get_screen_width();
     int height = config_get_screen_height();
 
-    Handle<ObjectTemplate> screen = ObjectTemplate::New();
-    screen->Set(STRING_CACHE_width, Number::New(width));
-    screen->Set(STRING_CACHE_height, Number::New(height));
+    Handle<ObjectTemplate> screen = ObjectTemplate::New(getIsolate());
+    screen->Set(STRING_CACHE_width.Get(getIsolate()), Number::New(getIsolate(),width));
+    screen->Set(STRING_CACHE_height.Get(getIsolate()), Number::New(getIsolate(),height));
 
     // timer
-    Handle<ObjectTemplate> timer = ObjectTemplate::New();
-    timer->Set(STRING_CACHE_start, FunctionTemplate::New(timer_start));
+    Handle<ObjectTemplate> timer = ObjectTemplate::New(getIsolate());
+    timer->Set(STRING_CACHE_start.Get(getIsolate()), FunctionTemplate::New(getIsolate(), timer_start));
 
     // navigator
-    Handle<ObjectTemplate> navigator = js_navigator_get_template();
+    Handle<ObjectTemplate> navigator = js_navigator_get_template(m_isolate);
 
     // native
-    Handle<ObjectTemplate> NATIVE = js_native_get_template(uri, native_hash);
-    NATIVE->Set(STRING_CACHE_timer, timer);
+    Handle<ObjectTemplate> NATIVE = js_native_get_template(uri, native_hash, m_isolate);
+    NATIVE->Set(STRING_CACHE_timer.Get(m_isolate), timer);
 
     // global_object
-    Local<Object> global_object = m_context->Global();
+    Local<Object> global_object = m_context.Get(m_isolate)->Global();
 
-    global_object->Set(STRING_CACHE_CONFIG, config->NewInstance());
-    global_object->Set(STRING_CACHE_screen, screen->NewInstance());
-    global_object->Set(STRING_CACHE_navigator, navigator->NewInstance());
-    global_object->Set(STRING_CACHE_window, global_object);
-    global_object->Set(STRING_CACHE_NATIVE, NATIVE->NewInstance());
-    global_object->Set(STRING_CACHE_GLOBAL, global_object);
+    global_object->Set(STRING_CACHE_CONFIG.Get(m_isolate), config->NewInstance());
+    global_object->Set(STRING_CACHE_screen.Get(m_isolate), screen->NewInstance());
+    global_object->Set(STRING_CACHE_navigator.Get(m_isolate), navigator->NewInstance());
+    global_object->Set(STRING_CACHE_window.Get(m_isolate), global_object);
+    global_object->Set(STRING_CACHE_NATIVE.Get(m_isolate), NATIVE->NewInstance());
+    global_object->Set(STRING_CACHE_GLOBAL.Get(m_isolate), global_object);
 
-    global_object->SetAccessor(STRING_CACHE_location, jsGetLocation, jsSetLocation);
+    global_object->SetAccessor(context, STRING_CACHE_location.Get(m_isolate), jsGetLocation, jsSetLocation);
+
 
 #if defined(ENABLE_PROFILER)
     Handle<ObjectTemplate> PROFILER = ObjectTemplate::New();
@@ -474,6 +924,9 @@ bool init_js(const char *uri, const char *native_hash) {
 
     js_ready = true;
 
+s_mainThreadInitialized = true;
+
+
     return true;
 }
 
@@ -484,21 +937,19 @@ CEXPORT bool destroy_js() {
         js_ready = false;
         Locker l(m_isolate);
 
-        HandleScope scope;
+        HandleScope scope(m_isolate);
 
         // Cleanup timer
         core_timer_clear_all();
         if(tickFunction != NULL && !(*tickFunction).IsEmpty()) {
-            (*tickFunction).Dispose();
+            (*tickFunction).Reset();
         }
         tickFunction = NULL;
 
 
-        m_context->DetachGlobal();
-        m_context.Dispose();
-        m_context.Clear();
+        m_context.Get(getIsolate())->DetachGlobal();
+        m_context.Reset();
     }
 
     return true;
 }
-

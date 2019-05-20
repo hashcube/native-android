@@ -16,58 +16,62 @@
  */
 #include "js/js_local_storage.h"
 #include "platform/local_storage.h"
-
+#include <stdlib.h> // pulls in declaration of malloc, free
+#include <string.h> // pulls in declaration for strlen.
+#include "include/v8.h"
 using namespace v8;
 
-Handle<Value> defLocalStorageSetItem(const Arguments &args) {
+void defLocalStorageSetItem(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("localstorage set");
-    String::Utf8Value str(args[0]);
+    Isolate *isolate = getIsolate();
+    String::Utf8Value str(isolate, args[0]);
     const char *key = ToCString(str);
-    String::Utf8Value str2(args[1]);
+    String::Utf8Value str2(isolate, args[1]);
     const char *data = ToCString(str2);
     local_storage_set_data(key, data);
     LOGFN("end localstorage set");
-    return Undefined();
 }
 
-Handle<Value> defLocalStorageGetItem(const Arguments &args) {
+void defLocalStorageGetItem(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     LOGFN("localstorage get");
-    String::Utf8Value str(args[0]);
+    String::Utf8Value str(isolate, args[0]);
     const char *key = ToCString(str);
     const char *data = local_storage_get_data(key);
     if (data) {
-        Local<String> result = String::New(data);
+        Local<String> result = String::NewFromUtf8(isolate, data);
         free((void*)data);
-        return result;
+        args.GetReturnValue().Set(result);
     }
-    LOGFN("end localstorage get");
-    return Null();
+    else {
+        LOGFN("end localstorage get");
+        //return Null(); todo verify if null is used by framework
+        args.GetReturnValue().Set(Undefined(isolate));
+    }
+
 }
 
-Handle<Value> defLocalStorageRemoveItem(const Arguments &args) {
+void defLocalStorageRemoveItem(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("localstorage remove");
-    String::Utf8Value str(args[0]);
+    Isolate *isolate = getIsolate();
+    String::Utf8Value str(isolate, args[0]);
     const char *key = ToCString(str);
     local_storage_remove_data(key);
     LOGFN("end localstorage remove");
-    return Undefined();
 }
 
-Handle<Value> defLocalStorageClear(const Arguments &args) {
+void defLocalStorageClear(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("localstorage clear");
     local_storage_clear();
     LOGFN("end localstorage clear");
-    return Undefined();
-
 }
 
-Handle<ObjectTemplate> js_local_storage_get_template() {
-    Handle<ObjectTemplate> localStorage = ObjectTemplate::New();
+Handle<ObjectTemplate> js_local_storage_get_template(Isolate *isolate) {
+    Handle<ObjectTemplate> localStorage = ObjectTemplate::New(isolate);
 
-    localStorage->Set(STRING_CACHE_setItem, FunctionTemplate::New(defLocalStorageSetItem));
-    localStorage->Set(STRING_CACHE_getItem, FunctionTemplate::New(defLocalStorageGetItem));
-    localStorage->Set(STRING_CACHE_removeItem, FunctionTemplate::New(defLocalStorageRemoveItem));
-    localStorage->Set(STRING_CACHE_clear, FunctionTemplate::New(defLocalStorageClear));
-
+    localStorage->Set(STRING_CACHE_setItem.Get(isolate), FunctionTemplate::New(isolate, defLocalStorageSetItem));
+    localStorage->Set(STRING_CACHE_getItem.Get(isolate), FunctionTemplate::New(isolate, defLocalStorageGetItem));
+    localStorage->Set(STRING_CACHE_removeItem.Get(isolate), FunctionTemplate::New(isolate, defLocalStorageRemoveItem));
+    localStorage->Set(STRING_CACHE_clear.Get(isolate), FunctionTemplate::New(isolate, defLocalStorageClear));
     return localStorage;
 }

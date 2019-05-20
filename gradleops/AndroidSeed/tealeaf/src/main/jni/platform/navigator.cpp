@@ -16,6 +16,8 @@
  */
 #include "platform/platform.h"
 #include "platform/navigator.h"
+#include <signal.h>
+#include <stdlib.h>
 
 
 bool navigator_get_online_status() {

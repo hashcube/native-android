@@ -19,7 +19,7 @@
 
 
 using v8::ObjectTemplate;
-using v8::Handle;
+using v8::Local;
 
-Handle<ObjectTemplate> js_plugins_get_template();
+Local<ObjectTemplate> js_plugins_get_template(Isolate *isolate);
 #endif

@@ -18,21 +18,24 @@
 #include "js/js.h"
 #include "util/detect.h"
 #include "core/timer.h"
+#include "include/v8.h"
+using namespace v8;
 
 using v8::Handle;
 using v8::Persistent;
 using v8::Function;
 using v8::Value;
-using v8::Arguments;
+
 
 typedef struct js_timer_t {
 	Persistent<Function> callback;
 	Handle<Value> *arguments;
 } js_timer;
-Handle<Value> defSetTimeout(const Arguments &args);
-Handle<Value> defClearTimeout(const Arguments &args);
-Handle<Value> defSetInterval(const Arguments &args);
+//Handle<Value>
+void defSetTimeout(const v8::FunctionCallbackInfo<v8::Value> &args);
+void defClearTimeout(const v8::FunctionCallbackInfo<v8::Value> &args);
+void defSetInterval(const v8::FunctionCallbackInfo<v8::Value> &args);
 CEXPORT void js_timer_unlink(core_timer* timer);
 CEXPORT void js_timer_fire(core_timer *timer);
-Handle<Value> defClearInterval(const Arguments &args);
+void defClearInterval(const v8::FunctionCallbackInfo<v8::Value> &args);
 #endif

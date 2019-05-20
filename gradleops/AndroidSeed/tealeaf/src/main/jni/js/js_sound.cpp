@@ -16,97 +16,97 @@
  */
 #include "js/js_sound.h"
 #include "platform/sound_manager.h"
-
+#include "include/v8.h"
 using namespace v8;
 
-Handle<Value> defLoadSound(const Arguments& args) {
+void defLoadSound(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     LOGFN("load sound");
-    String::Utf8Value str(args[0]);
+    String::Utf8Value str(isolate, args[0]);
     const char *url = ToCString(str);
     sound_manager_load_sound(url);
     LOGFN("end load sound");
-    return Undefined();
 }
 
-Handle<Value> defPlaySound(const Arguments& args) {
+void defPlaySound(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     LOGFN("play sound");
-    String::Utf8Value str(args[0]);
-    double volume = args[1]->NumberValue();
+    String::Utf8Value str(isolate, args[0]);
+    double volume = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     bool loop = args[2]->IsTrue();
     const char *url = ToCString(str);
     sound_manager_play_sound(url, volume, loop);
     LOGFN("end play sound");
-    return Undefined();
 }
 
-Handle<Value> defStopSound(const Arguments& args) {
+void defStopSound(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     LOGFN("stop sound");
-    String::Utf8Value str(args[0]);
+    String::Utf8Value str(isolate, args[0]);
     const char *url = ToCString(str);
     sound_manager_stop_sound(url);
     LOGFN("end stop sound");
-    return Undefined();
 }
 
-Handle<Value> defPauseSound(const Arguments& args) {
+void defPauseSound(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     LOGFN("pause sound");
-    String::Utf8Value str(args[0]);
+    String::Utf8Value str(isolate, args[0]);
     const char *url = ToCString(str);
     sound_manager_pause_sound(url);
     LOGFN("end pause sound");
-    return Undefined();
 }
 
-Handle<Value> defSetVolume(const Arguments& args) {
+void defSetVolume(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     LOGFN("set volume sound");
-    String::Utf8Value str(args[0]);
-    float volume = args[1]->NumberValue();
+    String::Utf8Value str(isolate, args[0]);
+    float volume = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     const char *url = ToCString(str);
     sound_manager_set_volume(url, volume);
     LOGFN("end set volume sound");
-    return Undefined();
 }
 
 
-Handle<Value> defPlayBackgroundMusic(const Arguments& args) {
+void defPlayBackgroundMusic(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     LOGFN("play bg music");
-    String::Utf8Value str(args[0]);
-    double volume = args[1]->NumberValue();
+    String::Utf8Value str(isolate, args[0]);
+    double volume = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     bool loop = args[2]->IsTrue();
     const char *url = ToCString(str);
     sound_manager_play_background_music(url, volume, loop);
     LOGFN("end play bg music");
-    return Undefined();
 }
 
-Handle<Value> defLoadBackgroundMusic(const Arguments& args) {
+void defLoadBackgroundMusic(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     LOGFN("load bg music");
-    String::Utf8Value str(args[0]);
+    String::Utf8Value str(isolate, args[0]);
     const char *url = ToCString(str);
     sound_manager_load_background_music(url);
     LOGFN("end load bg music");
-    return Undefined();
 }
 
-Handle<Value> defSeekTo(const Arguments& args) {
+void defSeekTo(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     LOGFN("seek to position");
-    String::Utf8Value str(args[0]);
-    float position = args[1]->NumberValue();
+    String::Utf8Value str(isolate, args[0]);
+    float position = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     const char *url = ToCString(str);
     sound_manager_seek_to(url, position);
     LOGFN("end seek to position");
-    return Undefined();
 }
 
-Handle<ObjectTemplate> js_sound_get_template() {
-    Handle<ObjectTemplate> sound = ObjectTemplate::New();
-    sound->Set(STRING_CACHE_playSound, FunctionTemplate::New(defPlaySound));
-    sound->Set(STRING_CACHE_loadSound, FunctionTemplate::New(defLoadSound));
-    sound->Set(STRING_CACHE_playBackgroundMusic, FunctionTemplate::New(defPlayBackgroundMusic));
-    sound->Set(STRING_CACHE_loadBackgroundMusic, FunctionTemplate::New(defLoadBackgroundMusic));
-    sound->Set(STRING_CACHE_stopSound, FunctionTemplate::New(defStopSound));
-    sound->Set(STRING_CACHE_pauseSound, FunctionTemplate::New(defPauseSound));
-    sound->Set(STRING_CACHE_setVolume, FunctionTemplate::New(defSetVolume));
-    sound->Set(STRING_CACHE_seekTo, FunctionTemplate::New(defSeekTo));
+Local<ObjectTemplate> js_sound_get_template(Isolate *isolate) {
+    Local<ObjectTemplate> sound = ObjectTemplate::New(isolate);
+    sound->Set(STRING_CACHE_playSound.Get(isolate), FunctionTemplate::New(isolate, defPlaySound));
+    sound->Set(STRING_CACHE_loadSound.Get(isolate), FunctionTemplate::New(isolate, defLoadSound));
+    sound->Set(STRING_CACHE_playBackgroundMusic.Get(isolate), FunctionTemplate::New(isolate, defPlayBackgroundMusic));
+    sound->Set(STRING_CACHE_loadBackgroundMusic.Get(isolate), FunctionTemplate::New(isolate, defLoadBackgroundMusic));
+    sound->Set(STRING_CACHE_stopSound.Get(isolate), FunctionTemplate::New(isolate, defStopSound));
+    sound->Set(STRING_CACHE_pauseSound.Get(isolate), FunctionTemplate::New(isolate, defPauseSound));
+    sound->Set(STRING_CACHE_setVolume.Get(isolate), FunctionTemplate::New(isolate, defSetVolume));
+    sound->Set(STRING_CACHE_seekTo.Get(isolate), FunctionTemplate::New(isolate, defSeekTo));
     return sound;
 }

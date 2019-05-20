@@ -17,43 +17,45 @@
 #include "js_location.h"
 #include "platform/location_manager.h"
 
+#include "include/v8.h"
 using namespace v8;
 
 static Persistent<String> m_location;
-
-Handle<Value> jsGetLocation(Local<String> name, const AccessorInfo &info) {
-
-    return m_location;
+void jsGetLocation(v8::Local<Name> name, const v8::PropertyCallbackInfo<v8::Value> &info) {
+    // Todo verify if scope is required
+    //Isolate *isolate = getIsolate();
+    //HandleScope scope(isolate);
+    info.GetReturnValue().Set(m_location);
 }
 
-static void set_location(Handle<String> location) {
-    m_location.Dispose();
-    m_location = Persistent<String>::New(location);
-
-    String::Utf8Value str(m_location);
-    const char *utf8_location = ToCString(str);
+//Todo Check should the isolate be passed to the function parameters
+static void set_location(Local<String> location, Isolate *isolate) {
+    m_location.Reset(isolate, location);
+    String::Utf8Value str(isolate, location);
+    const char *utf8_location = *str;
 
     location_manager_set_location(utf8_location);
 
     LOG("{location} Set to %s", utf8_location);
 }
 
-void jsSetLocation(Local<String> name, Local<Value> value, const AccessorInfo &info) {
-    set_location(value->ToString());
+void jsSetLocation(Local<Name> name, Local<Value> value, const v8::PropertyCallbackInfo<void> &info) {
+    Isolate *isolate = getIsolate();
+    set_location(value->ToString(isolate), isolate);
 }
 
-Handle<Value> native_set_location(const Arguments &args) {
+void native_set_location(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("in native set location");
-
+    Isolate *isolate = getIsolate();
     if (args.Length() >= 1 && args[0]->IsString()) {
-        set_location(args[0]->ToString());
+        set_location(args[0]->ToString(isolate), isolate);
     }
 
     LOGFN("end native set location");
-    return Undefined();
 }
 
-void native_initialize_location(const char *uri) {
-    m_location = Persistent<String>::New(String::New(uri));
+void native_initialize_location(const char *uri, Isolate *isolate) {
+    m_location.Reset(isolate, (String::NewFromUtf8(isolate, uri)));
 }
 
+//FUNCTIONS' Handle<Value> changed to void (subtype FunctionCallback - need to add logics which changes variables

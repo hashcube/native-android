@@ -17,9 +17,12 @@
 
 #include "js/js.h"
 
-using v8::Handle;
+#include "include/v8.h"
+using namespace v8;
+
+using v8::Local;
 using v8::ObjectTemplate;
 
-Handle<ObjectTemplate> js_xhr_get_template();
+Local<ObjectTemplate> js_xhr_get_template(Isolate *isolate);
 
 #endif

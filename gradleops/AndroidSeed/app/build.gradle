@@ -25,13 +25,14 @@ android {
      }
     buildTypes {
         release {
-            shrinkResources true
+            shrinkResources false
             minifyEnabled true
             proguardFiles 'proguard-rules.pro'
             manifestPlaceholders = [appName: "GameNamePlaceholderRelease"]
            
         }
         debug {
+            shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [appName: "GameNamePlaceholderDebug"]

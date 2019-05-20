@@ -16,9 +16,11 @@
 #define JS_STATUS_BAR_H
 
 #include "js/js.h"
+#include "include/v8.h"
+using namespace v8;
 
 using v8::Handle;
 using v8::ObjectTemplate;
 
-Handle<ObjectTemplate> js_status_bar_get_template();
+Handle<ObjectTemplate> js_status_bar_get_template(Isolate *isolate);
 #endif // JS_STATUS_BAR_H

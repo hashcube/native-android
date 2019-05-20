@@ -16,13 +16,13 @@
 #define JS_GL_H
 
 #include "js/js.h"
+#include "include/v8.h"
 
 extern "C" {
 	#include "core/tealeaf_context.h"
 }
 using v8::Handle;
 using v8::Value;
-using v8::Arguments;
 using v8::Local;
 using v8::ObjectTemplate;
 using v8::External;
@@ -30,14 +30,14 @@ using v8::External;
 #define GET_CONTEXT2D() (static_cast<context_2d*>(Local<External>(Local<External>::Cast(args.This()->GetInternalField(0)))->Value()))
 #define GET_CONTEXT2D_FROM(obj) (static_cast<context_2d*>(Local<External>(Local<External>::Cast(obj->GetInternalField(0)))->Value()))
 
-Handle<Value> context_2d_class_ctor(const Arguments& args);
-Handle<Value> defFlushImages(const Arguments& args);
-Handle<Value> defLoadImage(const Arguments& args);
-Handle<Value> defNewTexture(const Arguments& args);
-Handle<Value> defDestroyImage(const Arguments& args);
-Handle<Value> defFillTextBitmap(const Arguments &args);
+void context_2d_class_ctor(const v8::FunctionCallbackInfo<v8::Value> &args);
+void defFlushImages(const v8::FunctionCallbackInfo<v8::Value> &args);
+void defLoadImage(const v8::FunctionCallbackInfo<v8::Value> &args);
+void defNewTexture(const v8::FunctionCallbackInfo<v8::Value> &args);
+void defDestroyImage(const v8::FunctionCallbackInfo<v8::Value> &args);
+void defFillTextBitmap(const v8::FunctionCallbackInfo<v8::Value> &args);
 
-Handle<ObjectTemplate> js_gl_get_template();
-Handle<Value> js_gl_delete_textures(const Arguments& args);
+Local<ObjectTemplate> js_gl_get_template(Isolate *isolate);
+void js_gl_delete_textures(const v8::FunctionCallbackInfo<v8::Value> &args);
 
 #endif

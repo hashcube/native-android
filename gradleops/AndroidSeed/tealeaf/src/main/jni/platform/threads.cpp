@@ -18,6 +18,8 @@
 #include "core/platform/threads.h"
 #include "platform/platform.h"
 #include <pthread.h>
+#include <signal.h>
+#include <stdlib.h>
 
 // Internal type for ThreadsThread
 struct ThreadSpec {

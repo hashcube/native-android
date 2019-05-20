@@ -64,8 +64,8 @@ if [ $(../../../../modules/devkit-core/modules/native-android/gradleops/ostype.s
 else
 #Linux
 	find ./ -type f -print0 | xargs -0 sed -i  "s/${package_old}/${package_new}/g"
-    find ./ -type f -print0 | xargs -0 sed -i "s/${old}/${new}/g"
-    find ./ -type f -print0 | xargs -0 sed -i "s/${old_lower}/${new_lower}/g"
+    	find ./ -type f -print0 | xargs -0 sed -i "s/${old}/${new}/g"
+    	find ./ -type f -print0 | xargs -0 sed -i "s/${old_lower}/${new_lower}/g"
 fi
 pwd
 cd app/src/main/java/com

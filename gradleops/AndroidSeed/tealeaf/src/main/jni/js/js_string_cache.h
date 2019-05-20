@@ -2,10 +2,14 @@
 #ifndef JS_STRING_CACHE_H
 #define JS_STRING_CACHE_H
 
+#include "include/v8.h"
+using namespace v8;
+
 using v8::Persistent;
 using v8::String;
+using v8::Isolate;
 
-void js_string_cache_init();
+void js_string_cache_init(Isolate *isolate);
 
 extern Persistent<String> STRING_CACHE_restore;
 extern Persistent<String> STRING_CACHE_show;
@@ -114,7 +118,7 @@ extern Persistent<String> STRING_CACHE_xadvance;
 extern Persistent<String> STRING_CACHE_CONFIG;
 extern Persistent<String> STRING_CACHE_load;
 extern Persistent<String> STRING_CACHE_eval;
-extern Persistent<String> STRING_CACHE_render;
+extern Persistent<Value> STRING_CACHE_render;
 extern Persistent<String> STRING_CACHE_sendEvent;
 extern Persistent<String> STRING_CACHE_sendRequest;
 extern Persistent<String> STRING_CACHE__loadImage;

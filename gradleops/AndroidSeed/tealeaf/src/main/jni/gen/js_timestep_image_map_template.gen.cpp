@@ -20,214 +20,233 @@
 
 #include "core/timestep/timestep_image_map.h"
 
+#include <signal.h>
+#include <stdlib.h>
+#include "include/v8.h"
+using namespace v8;
 
-
-
-v8::Handle<v8::Value> timestep_image_map_get_x(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_image_map_get_x(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map get x");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
 int prop = obj->x;
 	//LOG("done in timestep_image_map get x");
-	return v8::Integer::New(prop);
+	info.GetReturnValue().Set(v8::Integer::New(isolate, prop));
 	
 }
 
 
-void timestep_image_map_set_x(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_image_map_set_x(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map set x");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
-obj->x = value->ToInteger()->Value();
+obj->x = value->ToInteger(isolate)->Value();
 	
 //LOG("done in timestep_image_map set x");
 }
 
 
 
-v8::Handle<v8::Value> timestep_image_map_get_y(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_image_map_get_y(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map get y");
 	v8::Local<v8::Object> thiz = info.Holder();
-	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
+	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz -> GetInternalField(0))->Value();
 	
 int prop = obj->y;
 	//LOG("done in timestep_image_map get y");
-	return v8::Integer::New(prop);
+	info.GetReturnValue().Set(v8::Integer::New(isolate, prop));
 	
 }
 
 
-void timestep_image_map_set_y(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_image_map_set_y(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map set y");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
-obj->y = value->ToInteger()->Value();
+obj->y = value->ToInteger(isolate)->Value();
 	
 //LOG("done in timestep_image_map set y");
 }
 
 
 
-v8::Handle<v8::Value> timestep_image_map_get_width(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_image_map_get_width(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map get width");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
 int prop = obj->width;
 	//LOG("done in timestep_image_map get width");
-	return v8::Integer::New(prop);
+	info.GetReturnValue().Set(v8::Integer::New(isolate, prop));
 	
 }
 
 
-void timestep_image_map_set_width(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_image_map_set_width(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map set width");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
-obj->width = value->ToInteger()->Value();
+obj->width = value->ToInteger(isolate)->Value();
 	
 //LOG("done in timestep_image_map set width");
 }
 
 
-
-v8::Handle<v8::Value> timestep_image_map_get_height(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_image_map_get_height(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map get height");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
 int prop = obj->height;
 	//LOG("done in timestep_image_map get height");
-	return v8::Integer::New(prop);
+	info.GetReturnValue().Set(v8::Integer::New(isolate, prop));
 	
 }
 
 
-void timestep_image_map_set_height(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_image_map_set_height(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map set height");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
-obj->height = value->ToInteger()->Value();
+obj->height = value->ToInteger(isolate)->Value();
 	
 //LOG("done in timestep_image_map set height");
 }
 
 
 
-v8::Handle<v8::Value> timestep_image_map_get_marginTop(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_image_map_get_marginTop(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map get marginTop");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
 int prop = obj->margin_top;
 	//LOG("done in timestep_image_map get marginTop");
-	return v8::Integer::New(prop);
+	info.GetReturnValue().Set(v8::Integer::New(isolate, prop));
 	
 }
 
 
-void timestep_image_map_set_marginTop(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_image_map_set_marginTop(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map set marginTop");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
-obj->margin_top = value->ToInteger()->Value();
+obj->margin_top = value->ToInteger(isolate)->Value();
 	
 //LOG("done in timestep_image_map set marginTop");
 }
 
 
 
-v8::Handle<v8::Value> timestep_image_map_get_marginRight(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_image_map_get_marginRight(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map get marginRight");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
 int prop = obj->margin_right;
 	//LOG("done in timestep_image_map get marginRight");
-	return v8::Integer::New(prop);
+	info.GetReturnValue().Set(v8::Integer::New(isolate, prop));
 	
 }
 
 
-void timestep_image_map_set_marginRight(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_image_map_set_marginRight(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map set marginRight");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
-obj->margin_right = value->ToInteger()->Value();
+obj->margin_right = value->ToInteger(isolate)->Value();
 	
 //LOG("done in timestep_image_map set marginRight");
 }
 
 
 
-v8::Handle<v8::Value> timestep_image_map_get_marginBottom(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_image_map_get_marginBottom(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map get marginBottom");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
 int prop = obj->margin_bottom;
 	//LOG("done in timestep_image_map get marginBottom");
-	return v8::Integer::New(prop);
+	info.GetReturnValue().Set(v8::Integer::New(isolate, prop));
 	
 }
 
 
-void timestep_image_map_set_marginBottom(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_image_map_set_marginBottom(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map set marginBottom");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
-obj->margin_bottom = value->ToInteger()->Value();
+obj->margin_bottom = value->ToInteger(isolate)->Value();
 	
 //LOG("done in timestep_image_map set marginBottom");
 }
 
 
 
-v8::Handle<v8::Value> timestep_image_map_get_marginLeft(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_image_map_get_marginLeft(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map get marginLeft");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
 int prop = obj->margin_left;
 	//LOG("done in timestep_image_map get marginLeft");
-	return v8::Integer::New(prop);
+	info.GetReturnValue().Set(v8::Integer::New(isolate, prop));
 	
 }
 
 
-void timestep_image_map_set_marginLeft(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_image_map_set_marginLeft(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map set marginLeft");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
-obj->margin_left = value->ToInteger()->Value();
+obj->margin_left = value->ToInteger(isolate)->Value();
 	
 //LOG("done in timestep_image_map set marginLeft");
 }
 
 
 
-v8::Handle<v8::Value> timestep_image_map_get_url(v8::Local<v8::String> property, const v8::AccessorInfo &info) {
+void timestep_image_map_get_url(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map get url");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
 	
 char* prop = obj->url;
 	//LOG("done in timestep_image_map get url");
-	return v8::String::New(prop);
+	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, prop));
 	
 }
 
 
-void timestep_image_map_set_url(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info) {
+void timestep_image_map_set_url(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info) {
+	Isolate *isolate = info.GetIsolate();
 	//LOG("in timestep_image_map set url");
 	v8::Local<v8::Object> thiz = info.Holder();
 	timestep_image_map *obj = (timestep_image_map*) v8::Local<v8::External>::Cast(thiz->GetInternalField(0))->Value();
@@ -235,7 +254,7 @@ void timestep_image_map_set_url(v8::Local<v8::String> property, v8::Local<v8::Va
 if (obj->url) {
 	free(obj->url);
 }
-v8::String::Utf8Value s(value);
+v8::String::Utf8Value s(isolate, value);
 const char *str = ToCString(s);
 obj->url = strdup(str);
 
@@ -245,64 +264,63 @@ obj->url = strdup(str);
 
 
 
-v8::Handle<v8::FunctionTemplate> js_timestep_image_map_get_template() {
-	v8::Handle<v8::FunctionTemplate> templ = v8::FunctionTemplate::New();
+v8::Handle<v8::FunctionTemplate> js_timestep_image_map_get_template(Isolate *isolate) {
+	v8::Handle<v8::FunctionTemplate> templ = v8::FunctionTemplate::New(isolate);
 	v8::Handle<v8::ObjectTemplate> timestep_image_map = templ->InstanceTemplate();
 	timestep_image_map->SetInternalFieldCount(2);
 	
-v8::Handle<v8::Value> def_timestep_image_map_constructor(const v8::Arguments &args);
-	templ->SetCallHandler(def_timestep_image_map_constructor);	
-	
+void def_timestep_image_map_constructor(const v8::FunctionCallbackInfo<v8::Value> &args);
+	templ->SetCallHandler(def_timestep_image_map_constructor);
 
 
 
 
-v8::Handle<v8::Value> timestep_image_map_get_x(v8::Local<v8::String> property, const v8::AccessorInfo &info);
 
-void timestep_image_map_set_x(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+void timestep_image_map_get_x(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_image_map->SetAccessor(v8::String::New("x"), timestep_image_map_get_x, timestep_image_map_set_x);
-v8::Handle<v8::Value> timestep_image_map_get_y(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_image_map_set_x(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_image_map_set_y(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_image_map->SetAccessor(v8::String::NewFromUtf8(isolate, "x"), timestep_image_map_get_x, timestep_image_map_set_x);
+void timestep_image_map_get_y(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_image_map->SetAccessor(v8::String::New("y"), timestep_image_map_get_y, timestep_image_map_set_y);
-v8::Handle<v8::Value> timestep_image_map_get_width(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_image_map_set_y(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_image_map_set_width(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_image_map->SetAccessor(v8::String::NewFromUtf8(isolate, "y"), timestep_image_map_get_y, timestep_image_map_set_y);
+void timestep_image_map_get_width(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_image_map->SetAccessor(v8::String::New("width"), timestep_image_map_get_width, timestep_image_map_set_width);
-v8::Handle<v8::Value> timestep_image_map_get_height(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_image_map_set_width(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_image_map_set_height(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_image_map->SetAccessor(v8::String::NewFromUtf8(isolate, "width"), timestep_image_map_get_width, timestep_image_map_set_width);
+void timestep_image_map_get_height(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_image_map->SetAccessor(v8::String::New("height"), timestep_image_map_get_height, timestep_image_map_set_height);
-v8::Handle<v8::Value> timestep_image_map_get_marginTop(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_image_map_set_height(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_image_map_set_marginTop(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_image_map->SetAccessor(v8::String::NewFromUtf8(isolate, "height"), timestep_image_map_get_height, timestep_image_map_set_height);
+void timestep_image_map_get_marginTop(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_image_map->SetAccessor(v8::String::New("marginTop"), timestep_image_map_get_marginTop, timestep_image_map_set_marginTop);
-v8::Handle<v8::Value> timestep_image_map_get_marginRight(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_image_map_set_marginTop(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_image_map_set_marginRight(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_image_map->SetAccessor(v8::String::NewFromUtf8(isolate, "marginTop"), timestep_image_map_get_marginTop, timestep_image_map_set_marginTop);
+void timestep_image_map_get_marginRight(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_image_map->SetAccessor(v8::String::New("marginRight"), timestep_image_map_get_marginRight, timestep_image_map_set_marginRight);
-v8::Handle<v8::Value> timestep_image_map_get_marginBottom(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_image_map_set_marginRight(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_image_map_set_marginBottom(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_image_map->SetAccessor(v8::String::NewFromUtf8(isolate, "marginRight"), timestep_image_map_get_marginRight, timestep_image_map_set_marginRight);
+void timestep_image_map_get_marginBottom(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_image_map->SetAccessor(v8::String::New("marginBottom"), timestep_image_map_get_marginBottom, timestep_image_map_set_marginBottom);
-v8::Handle<v8::Value> timestep_image_map_get_marginLeft(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_image_map_set_marginBottom(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_image_map_set_marginLeft(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_image_map->SetAccessor(v8::String::NewFromUtf8(isolate, "marginBottom"), timestep_image_map_get_marginBottom, timestep_image_map_set_marginBottom);
+void timestep_image_map_get_marginLeft(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_image_map->SetAccessor(v8::String::New("marginLeft"), timestep_image_map_get_marginLeft, timestep_image_map_set_marginLeft);
-v8::Handle<v8::Value> timestep_image_map_get_url(v8::Local<v8::String> property, const v8::AccessorInfo &info);
+void timestep_image_map_set_marginLeft(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
-void timestep_image_map_set_url(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info);
+timestep_image_map->SetAccessor(v8::String::NewFromUtf8(isolate, "marginLeft"), timestep_image_map_get_marginLeft, timestep_image_map_set_marginLeft);
+void timestep_image_map_get_url(Local<String> property, const PropertyCallbackInfo< Value > &info);
 
-timestep_image_map->SetAccessor(v8::String::New("url"), timestep_image_map_get_url, timestep_image_map_set_url);
+void timestep_image_map_set_url(v8::Local<v8::String> property, v8::Local<v8::Value> value, const PropertyCallbackInfo< void > &info);
 
+timestep_image_map->SetAccessor(v8::String::NewFromUtf8(isolate, "url"), timestep_image_map_get_url, timestep_image_map_set_url);
 
 
 return templ;

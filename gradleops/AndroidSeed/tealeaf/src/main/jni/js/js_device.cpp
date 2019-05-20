@@ -16,41 +16,52 @@
  */
 #include "js/js_device.h"
 #include "platform/device.h"
+#include <stdlib.h> // pulls in declaration of malloc, free
+#include <string.h> // pulls in declaration for strlen.
+#include "include/v8.h"
+using v8::Handle;
+using v8::ObjectTemplate;
+using v8::String;
+using v8::Local;
+using v8::Value;
 
 using namespace v8;
 
-Handle<Value> js_device_global_id(Local<String> name, const AccessorInfo &info) {
+void js_device_global_id(Local< String > property, const PropertyCallbackInfo< Value > &info) {
+    Isolate *isolate = getIsolate();
     const char* str = device_global_id();
-    Handle<String> result = String::New(str);
+    Handle<String> result = String::NewFromUtf8(isolate, str);
     free((void*)str);
-    return result;
+    info.GetReturnValue().Set(result);
 }
 
-Handle<Value> js_device_info(Local<String> name, const AccessorInfo &info) {
+void js_device_info(Local< String > property, const PropertyCallbackInfo< Value > &info) {
+    Isolate *isolate = getIsolate();
     const char* str = device_info();
-    Handle<String> result = String::New(str);
+    Handle<String> result = String::NewFromUtf8(isolate, str);
     free((void*)str);
-    return result;
+    info.GetReturnValue().Set(result);
 }
 
-static Handle<Value> js_set_text_scale(const Arguments &args) {
-    float scale = args[0]->NumberValue();
+void js_set_text_scale(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
+    float scale = args[0]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     device_set_text_scale(scale);
-    return Undefined();
 }
 
-static Handle<Value> js_get_text_scale(const Arguments &args) {
+void js_get_text_scale(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     float scale = device_get_text_scale();
-    return Number::New(scale);
+    args.GetReturnValue().Set(Number::New(isolate, scale));
 }
 
 
 
-Handle<ObjectTemplate> js_device_get_template() {
-    Handle<ObjectTemplate> device = ObjectTemplate::New();
-    device->SetAccessor(STRING_CACHE_globalID, js_device_global_id);
-    device->SetAccessor(STRING_CACHE_native_info, js_device_info);
-    device->Set(String::New("setTextScale"), FunctionTemplate::New(js_set_text_scale));
-    device->Set(String::New("getTextScale"), FunctionTemplate::New(js_get_text_scale));
+Local<ObjectTemplate> js_device_get_template(Isolate *isolate) {
+    Local<ObjectTemplate> device = ObjectTemplate::New(isolate);
+    device->SetAccessor(STRING_CACHE_globalID.Get(isolate), js_device_global_id);
+    device->SetAccessor(STRING_CACHE_native_info.Get(isolate), js_device_info);
+    device->Set(String::NewFromUtf8(isolate, "setTextScale"), FunctionTemplate::New(isolate, js_set_text_scale));
+    device->Set(String::NewFromUtf8(isolate, "getTextScale"), FunctionTemplate::New(isolate, js_get_text_scale));
     return device;
 }

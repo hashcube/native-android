@@ -17,9 +17,9 @@
 
 #include "js/js.h"
 
-using v8::Handle;
+using v8::Local;
 using v8::ObjectTemplate;
 
-Handle<ObjectTemplate> js_profiler_get_template();
+Local<ObjectTemplate> js_profiler_get_template(Isolate *isolate);
 
 #endif //JS_PROFILER_H

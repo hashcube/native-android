@@ -16,9 +16,9 @@
 #define JS_SOUND_H
 
 #include "js/js.h"
-using v8::Handle;
+using v8::Local;
 using v8::ObjectTemplate;
 
-Handle<ObjectTemplate> js_sound_get_template();
+Local<ObjectTemplate> js_sound_get_template(Isolate *isolate);
 
 #endif

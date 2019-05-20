@@ -18,49 +18,50 @@
 
 #include "platform/socket.h"
 
-
+#include "include/v8.h"
 using namespace v8;
 
-Handle<Value> js_socket_send(const Arguments &args) {
+void js_socket_send(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     LOGFN("socket send");
-    int id = args.This()->Get(STRING_CACHE___id)->Int32Value();
-    String::Utf8Value data(args[0]);
+    int id = args.This()->Get(STRING_CACHE___id.Get(isolate))->Int32Value(isolate->GetCurrentContext()).ToChecked();
+    String::Utf8Value data(isolate, args[0]);
     const char *data_str = ToCString(data);
     socket_send(id, data_str);
     LOGFN("end socket send");
-    return Undefined();
 }
 
-Handle<Value> js_socket_close(const Arguments &args) {
+void js_socket_close(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     LOGFN("socket close");
-    int id = args.This()->Get(STRING_CACHE___id)->Int32Value();
+    int id = args.This()->Get(STRING_CACHE___id.Get(isolate))->Int32Value(isolate->GetCurrentContext()).ToChecked();
     socket_close(id);
     LOGFN("end socket close");
-    return Undefined();
 }
 
-Handle<ObjectTemplate> get_socket_template() {
-    Handle<ObjectTemplate> socket = ObjectTemplate::New();
-    socket->Set(STRING_CACHE_send, FunctionTemplate::New(js_socket_send));
-    socket->Set(STRING_CACHE_close, FunctionTemplate::New(js_socket_close));
-    socket->Set(STRING_CACHE_onConnect, FunctionTemplate::New(js_socket_default_callback));
-    socket->Set(STRING_CACHE_onRead, FunctionTemplate::New(js_socket_default_callback));
-    socket->Set(STRING_CACHE_onClose, FunctionTemplate::New(js_socket_default_callback));
+Local<ObjectTemplate> get_socket_template(Isolate *isolate) {
+    Handle<ObjectTemplate> socket = ObjectTemplate::New(isolate);
+    socket->Set(STRING_CACHE_send.Get(isolate), FunctionTemplate::New(isolate, js_socket_send));
+    socket->Set(STRING_CACHE_close.Get(isolate), FunctionTemplate::New(isolate, js_socket_close));
+    socket->Set(STRING_CACHE_onConnect.Get(isolate), FunctionTemplate::New(isolate, js_socket_default_callback));
+    socket->Set(STRING_CACHE_onRead.Get(isolate), FunctionTemplate::New(isolate, js_socket_default_callback));
+    socket->Set(STRING_CACHE_onClose.Get(isolate), FunctionTemplate::New(isolate, js_socket_default_callback));
     return socket;
 }
 
-Handle<Value> js_socket_ctor(const Arguments &args) {
-    String::Utf8Value host(args[0]);
+void js_socket_ctor(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
+    String::Utf8Value host(isolate, args[0]);
     const char *host_str = ToCString(host);
-    int port = args[1]->Int32Value();
+    int port = args[1]->Int32Value(isolate->GetCurrentContext()).ToChecked();
 
     int id = socket_create(host_str, port);
 
-    Handle<Object> socket = get_socket_template()->NewInstance();
-    socket->Set(STRING_CACHE___id, Number::New(id));
-    return socket;
+    Handle<Object> socket = get_socket_template(isolate)->NewInstance();
+    socket->Set(STRING_CACHE___id.Get(isolate), Number::New(isolate, id));
+    args.GetReturnValue().Set(socket);
 }
 
-Handle<Value> js_socket_default_callback(const Arguments &args) {
-    return Undefined();
+void js_socket_default_callback(const v8::FunctionCallbackInfo<v8::Value> &args) {
+
 }

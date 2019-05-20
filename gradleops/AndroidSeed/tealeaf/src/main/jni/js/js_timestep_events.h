@@ -17,10 +17,9 @@
 
 #include "js/js.h"
 
-using v8::Handle;
+using v8::Local;
 using v8::Value;
-using v8::Arguments;
 
-Handle<Value> js_timestep_events_get(const Arguments& args);
+void js_timestep_events_get(const v8::FunctionCallbackInfo<v8::Value> &args);
 
 #endif // JS_TIMESTEP_EVENTS_H

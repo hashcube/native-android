@@ -16,11 +16,13 @@
 #define JS_LOCAL_STORAGE_H
 
 #include "js/js.h"
+#include "include/v8.h"
+using namespace v8;
 
 using v8::Value;
 using v8::Handle;
 using v8::ObjectTemplate;
 
-Handle<ObjectTemplate> js_local_storage_get_template();
+Local<ObjectTemplate> js_local_storage_get_template(Isolate *isolate);
 
 #endif

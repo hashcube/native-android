@@ -16,7 +16,7 @@
 var util = require('util');
 var path = require('path');
 var spawn = require('child_process').spawn;
-var Promise = require('bluebird');
+//var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs-extra'));
 var chalk = require('chalk');
 
@@ -116,8 +116,9 @@ var getModuleConfig = function(api, app) {
           throw err;
         }
       });
-  })
-    .return(moduleConfig);
+  }).then(function (){
+    return Promise.resolve(moduleConfig);
+    });
 };
 
 var getTextBetween = function(text, startToken, endToken) {
@@ -382,7 +383,7 @@ function injectPluginXML(opts) {
           } else {
             logger.log('No plugin gradle dependency to inject');
           }
-        })
+        });
     })
     // read and apply manifest placeholders to app build.gradle
     .then(function () {
@@ -428,7 +429,7 @@ function injectPluginXML(opts) {
           } else {
             logger.log('No plugin gradle dependency to inject');
           }
-        })
+        });
     })
     // read and apply plugins to main build.gradle (mainly to integrate Google Play Services plugin)
     .then(function () {
@@ -473,7 +474,7 @@ function injectPluginXML(opts) {
           } else {
             logger.log('No plugin gradle dependency to inject');
           }
-        })
+        });
     })
     // read and apply styles
     .then(function () {
@@ -482,7 +483,6 @@ function injectPluginXML(opts) {
         fs.readFileAsync(stylesFile, 'utf-8')]
         .concat(readStylesFiles)
       )
-
         .then(function (results) {
           var xml = results.shift();
           if (results && results.length > 0 && xml && xml.length > 0) {
@@ -503,9 +503,9 @@ function injectPluginXML(opts) {
 
             return fs.writeFileAsync(stylesFile, xml, 'utf-8');
           } else {
-            logger.log('No plugin gradle dependency to inject');
+            return Promise.resolve(logger.log('No plugin gradle dependency to inject'));
           }
-        })
+        });
     })
     // read and apply plugins proguard settings for tealeaf
     .then(function () {
@@ -858,7 +858,7 @@ function executeOnCreate(api, app, config, opts) {
 var projectPath = '';
 var manifestXml = '';
 function makeAndroidProject(api, app, config, opts) {
-  projectPath = path.join(opts.outputPath, app.manifest.shortName);
+  projectPath = path.join(opts.outputPath, app.manifest.shortName); //path.resolve(__dirname+"/../../../../build/"+app.manifest.shortName);
   manifestXml = path.join(projectPath ,"/app/src/main",  'AndroidManifest.xml');
   var projectPropertiesFile = path.join(projectPath, 'project.properties');
   return fs.unlinkAsync(projectPropertiesFile)
@@ -910,10 +910,11 @@ function makeAndroidProject(api, app, config, opts) {
               saveLocalizedStringsXmls(projectPath, config.titles),
               updateManifest(api, app, config, opts),
               updateActivity(app, config),
-              executeOnCreate(api, app, config, opts)
             ]);
           })
-          .all()
+            .then(function() {
+                executeOnCreate(api, app, config, opts);
+            })
       }
       else {
         return Promise.resolve();
@@ -925,33 +926,34 @@ function makeAndroidProject(api, app, config, opts) {
         return setGradleParameters(app).then(spawnWithLogger(api, './gradlew', [
             "clean"
           ], {cwd: projectPath})
-        )})
+        )});
 }
 
 function signAPK(api, app, shortName, outputPath, debug, config) {
-  var signArgsDebug, alignArgsDebug;
+  var signArgsDebug, alignArgsDebug, signArgsRelease;
   var binDir = path.join(outputPath, "bin");
-  var scheme = (config.debug ? "debug" : "release");
-  var apkDir = path.join(outputPath, shortName + "/app/build/outputs/apk/" + scheme + "/");
-  var keystore = process.env['DEVKIT_ANDROID_KEYSTORE'];
-  var storepass = process.env['DEVKIT_ANDROID_STOREPASS'];
-  var keypass = process.env['DEVKIT_ANDROID_KEYPASS'];
-  var key = process.env['DEVKIT_ANDROID_KEY'];
-  var buildToolsPath = process.env.ANDROID_HOME + '/build-tools/' + app.manifest.android.buildToolsVersion;
-  var apk = scheme === "debug"? "app-" + scheme + ".apk": "app-" + scheme + "-aligned.apk";
-  var signArgsRelease = [
-    "sign", "--ks", keystore, "--ks-pass", "pass:" + storepass, "--key-pass", "pass:" + keypass,
-    "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false", "--verbose",
-    apk
-  ];
 
   logger.log('Signing APK at', binDir);
   if (debug) {
-    // sign debug apk with  Android chosen keys, e.g. release key to debug plugins, i.e debuggable release on output
-    if(keystore || storepass || keypass || key) {
-      logger.log('Data != null');
 
-      return spawnWithLogger(api, buildToolsPath + '/apksigner', signArgsRelease, {cwd: apkDir})
+
+
+    var keystore = process.env['DEVKIT_ANDROID_KEYSTORE_PATH'];
+    var storepass = process.env['DEVKIT_ANDROID_KEYSTORE_PASSWORD'];
+    var keypass = process.env['DEVKIT_ANDROID_ALIAS_PASSWORD'];
+    var key = process.env['DEVKIT_ANDROID_ALIAS_NAME'];
+
+    // sign debug apk with  Android chosen keys, e.g. release key to debug plugins, i.e debuggable release on output
+    if(keystore || storepass || keypass || key){
+      logger.log('Data != null');
+      signArgsRelease = [
+        "sign", "--ks", keystore, "--ks-pass", "pass:"+storepass, "--key-pass", "pass:"+keypass,
+        "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false", "--verbose",
+        "app-debug.apk"
+      ];
+
+      var apkDirDebug = path.join(outputPath, "../../"+shortName+"/app/build/outputs/apk/debug/");
+      return spawnWithLogger(api, process.env.ANDROID_HOME + '/build-tools/'+app.manifest.android.buildToolsVersion+'/apksigner', signArgsRelease, {cwd: apkDirDebug})
     }
     else {  // sign debug apk with default Android debug keys
       var keyPath = path.join(process.env['HOME'], '.android', 'debug.keystore');
@@ -966,25 +968,42 @@ function signAPK(api, app, shortName, outputPath, debug, config) {
         "-f", "-v", "4", "app-debug.apk", "app-debug-aligned.apk"
       ];
 
-      return spawnWithLogger(api, buildToolsPath + '/zipalign', alignArgsDebug, {cwd: apkDir})
+      var apkDirDebug = path.join(outputPath, "../../" + shortName + "/app/build/outputs/apk/debug/");
+      return spawnWithLogger(api, process.env.ANDROID_HOME + '/build-tools/'+app.manifest.android.buildToolsVersion+'/zipalign', alignArgsDebug, {cwd: apkDirDebug})
         .then(function () {
-          spawnWithLogger(api, buildToolsPath + '/apksigner', signArgsDebug, {cwd: apkDir})
+          return spawnWithLogger(api, process.env.ANDROID_HOME + '/build-tools/'+app.manifest.android.buildToolsVersion+'/apksigner', signArgsDebug, {cwd: apkDirDebug})
         })
     }
 
   } else {
-    if (!keystore) { throw new BuildError('missing environment variable DEVKIT_ANDROID_KEYSTORE'); }
-    if (!storepass) { throw new BuildError('missing environment variable DEVKIT_ANDROID_STOREPASS'); }
-    if (!keypass) { throw new BuildError('missing environment variable DEVKIT_ANDROID_KEYPASS'); }
-    if (!key) { throw new BuildError('missing environment variable DEVKIT_ANDROID_KEY'); }
+
+    var keystore = process.env['DEVKIT_ANDROID_KEYSTORE_PATH'];
+    if (!keystore) { throw new BuildError('missing environment variable DEVKIT_ANDROID_KEYSTORE_PATH'); }
+
+    var storepass = process.env['DEVKIT_ANDROID_KEYSTORE_PASSWORD'];
+    if (!storepass) { throw new BuildError('missing environment variable DEVKIT_ANDROID_KEYSTORE_PASSWORD'); }
+
+    var keypass = process.env['DEVKIT_ANDROID_ALIAS_PASSWORD'];
+    if (!keypass) { throw new BuildError('missing environment variable DEVKIT_ANDROID_ALIAS_PASSWORD'); }
+
+    var key = process.env['DEVKIT_ANDROID_ALIAS_NAME'];
+    if (!key) { throw new BuildError('missing environment variable DEVKIT_ANDROID_ALIAS_NAME'); }
+
+    signArgs = [
+      "sign", "--ks", keystore, "--ks-pass", "pass:"+storepass, "--key-pass", "pass:"+keypass,
+      "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false", "--verbose",
+      "app-release-aligned.apk"
+    ];
 
     alignArgs = [
       "-f", "-v", "4", "app-release-unsigned.apk", "app-release-aligned.apk" //shortName + "-unaligned.apk", shortName + "-aligned.apk"
     ];
 
-    return spawnWithLogger(api, buildToolsPath + '/zipalign', alignArgs , {cwd: apkDir})
+    var scheme = (config.debug ? "debug" : "release");
+    var apkDir = path.join(outputPath, shortName , "app/build/outputs/apk/", scheme);
+    return spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/'+app.manifest.android.buildToolsVersion+'/zipalign', alignArgs , {cwd: apkDir})
       .then(function () {
-        spawnWithLogger(api, buildToolsPath + '/apksigner', signArgsRelease, {cwd: apkDir})
+       return spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/'+app.manifest.android.buildToolsVersion+'/apksigner', signArgs, {cwd: apkDir})
       });
   }
 
@@ -992,9 +1011,9 @@ function signAPK(api, app, shortName, outputPath, debug, config) {
 
 function repackAPK(api, outputPath, apkName, cb) {
   var apkPath = path.join('bin', apkName);
-  spawnWithLogger(api, 'zip', [apkPath, '-d', 'META-INF/*'], {cwd: outputPath}, function (err) {
+  return spawnWithLogger(api, 'zip', [apkPath, '-d', 'META-INF/*'], {cwd: outputPath}, function (err) {
     if (err) { return cb(err); }
-    spawnWithLogger(api, 'zip', [apkPath, '-u'], {cwd: outputPath}, cb);
+    return spawnWithLogger(api, 'zip', [apkPath, '-u'], {cwd: outputPath}, cb);
   });
 }
 
@@ -1246,26 +1265,74 @@ function updateManifest(api, app, config, opts) {
       return injectPluginXML(opts);
     })
     .then(function () {
-      return Object.keys(opts.moduleConfig);
+      return Promise.resolve(Object.keys(opts.moduleConfig));
     })
-    .map(function (moduleName) {
+    .map (function (moduleName) {
       var module = opts.moduleConfig[moduleName];
       var config = module.config;
-      if (config.transformGradleApp) {
-        var transformFilePath = path.join(module.path, 'android', config.transformGradleApp);
-        transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config);
-      }
+      var tasks = [];
 
-      if (config.transformGradleTealeaf) {
-        var transformFilePath = path.join(module.path, 'android', config.transformGradleTealeaf);
-        transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config);
-      }
+        if (config.transformGradleApp) {
+            var transformFilePath = path.join(module.path, 'android', config.transformGradleApp);
+            tasks.push(transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config));
+        }
 
-      if (config.injectionXSL) {
-        var xslPath = path.join(module.path, 'android', config.injectionXSL);
-        return transformXSL(api, defaultManifest, outputManifest, xslPath, params, config);
-      }
-    }, {concurrency: 1}) // Run the plugin XSLT in series instead of parallel
+        if (config.transformGradleTealeaf) {
+            var transformFilePath = path.join(module.path, 'android', config.transformGradleTealeaf);
+            tasks.push(transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config));
+        }
+
+        if (config.injectionXSL) {
+            var xslPath = path.join(module.path, 'android', config.injectionXSL);
+            tasks.push(transformXSL(api, defaultManifest, outputManifest, xslPath, params, config));
+        }
+
+        return Promise.all(tasks);
+
+
+
+
+
+      // var checkTransformGragleApp = function(config) {
+      //     if (config.transformGradleApp) {
+      //       var transformFilePath = path.join(module.path, 'android', config.transformGradleApp);
+      //       return transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config);
+      //     }
+      //     else {
+      //       return Promise.resolve();
+      //     }
+      // };
+      //
+      // var checkTransformGradleTealeaf = function (config) {
+      //     if (config.transformGradleTealeaf) {
+      //       var transformFilePath = path.join(module.path, 'android', config.transformGradleTealeaf);
+      //       return transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config);
+      //     } else {
+      //       return Promise.resolve();
+      //     }
+      // };
+      //
+      // var checkInjectionXSL = function (config) {
+      //     if (config.injectionXSL) {
+      //       var xslPath = path.join(module.path, 'android', config.injectionXSL);
+      //       return transformXSL(api, defaultManifest, outputManifest, xslPath, params, config);
+      //     }
+      //     else {
+      //       return Promise.resolve({});
+      //     }
+      // };
+      //
+      // var completeMap = async function (config) {
+      //     var result1 = await checkTransformGragleApp(config);
+      //     var result2 = await checkTransformGradleTealeaf(config);
+      //     var result3 = await checkInjectionXSL(config);
+      //     return {result1, result2, result3};
+      //   }
+      //
+      // return await completeMap(config);
+         }, {concurrency: 1})
+
+  // Run the plugin XSLT in series instead of parallel
 
     .then(function() {
       /** Before this copy to original file seed of mygame/manifest.json:
@@ -1281,7 +1348,7 @@ function updateManifest(api, app, config, opts) {
       return transformXSL(api, xmlPath, xmlPath,
         path.join(__dirname, "AndroidManifest.xsl"),
         params, config);
-    });
+    })
 }
 
 function setGradleParameters(app) {
@@ -1304,7 +1371,7 @@ function setGradleParameters(app) {
           .replace(/BuildToolVersionlaceholder/g, app.manifest.android.buildToolsVersion);
         return fs.writeFileAsync(gradleAppFile, contents);
       });
-  }
+  };
 
   var writeTealeafGradle = function() {
     var gradleTeleafFile = path.join(projectPath,
@@ -1315,9 +1382,9 @@ function setGradleParameters(app) {
           .replace(/BuildToolVersionlaceholder/g, app.manifest.android.buildToolsVersion);
         return fs.writeFileAsync(gradleTeleafFile, contents);
       });
-  }
+  };
 
-  return Promise.all([writeAppGradle(), writeTealeafGradle()])
+  return Promise.all([writeAppGradle(), writeTealeafGradle()]);
 }
 
 function updateActivity(app, config) {
@@ -1345,8 +1412,9 @@ function createProject(api, app, config) {
       return makeAndroidProject(api, app, config, {
         outputPath: config.outputPath,
         moduleConfig: moduleConfig
+      }).then(function(){
+        return Promise.resolve(moduleConfig);
       })
-        .return(moduleConfig);
     })
     .then(function (moduleConfig) {
       return installModuleCode(api, app, {
@@ -1398,8 +1466,8 @@ exports.build = function(api, app, config, cb) {
     if (!config.repack) {
       return createProject(api, app, config);
     }
-  })
-    .then(function copyResourcesToProject() {
+  }).
+  then(function copyResourcesToProject() {
       var appSrcMainDir = projectPath + "/app/src/main"
       return [
         // changed from config.outputPath to gradle project path
@@ -1409,14 +1477,12 @@ exports.build = function(api, app, config, cb) {
         copySplash(api, app, appSrcMainDir),
         copyAssets(api, app, appSrcMainDir)
       ];
-    })
-    .all()
-
-    .then(function buildAPK() {
+    }).all().
+      then(function buildAPK() {
       if (!skipAPK) {
         // build ndk libtealeaf.so, formerly named manually libpng.so ,
         return spawnWithLogger(api, 'ndk-build', [
-          "NDK_PROJECT_PATH=tealeaf/src/main",
+          "NDK_PROJECT_PATH=tealeaf/src/main", (function () { return config.debug ? "DEBUG=1" : "RELEASE=1"})(),
         ], {cwd: projectPath})
           .catch(BuildError, function (err) {
             if (err.stdout && /not valid/i.test(err.stdout)) {
@@ -1440,10 +1506,9 @@ exports.build = function(api, app, config, cb) {
             }
 
             throw err;
-          })
+          }).
+            then(function () {
 
-          // build Android project
-          .then(function () {
             var assembleCommand = 'assembleDebug'
 
             if (!config.debug) {
@@ -1483,11 +1548,14 @@ exports.build = function(api, app, config, cb) {
       if (!skipSigning) {
         return signAPK(api, app, shortName, config.outputPath, config.debug, config);
       }
+      else {
+        return new Promise.resolve("bypass");
+      }
     })
     .then(function () {
       if (!skipAPK) {
         // Need a timeout because it copied unsigned build
-        var millisecondsToWait = 3000;
+        var millisecondsToWait = 5000;
         setTimeout(function() {
           // Whatever you want to do after the wait
 

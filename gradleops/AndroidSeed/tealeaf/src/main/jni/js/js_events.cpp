@@ -16,6 +16,8 @@
  */
 #include "js/js_events.h"
 #include "js/js.h"
+#include <stdlib.h> // pulls in declaration of malloc, free
+#include <string.h> // pulls in declaration for strlen.
 
 using namespace v8;
 
@@ -24,21 +26,22 @@ static char *m_buffer[MAX_BUFFERED_EVENTS] = { 0 };
 static int m_buffer_len = 0;
 
 CEXPORT void js_dispatch_event(const char *event_str) {
-    Locker l(getIsolate());
-    HandleScope handle_scope;
+    Isolate *isolate = getIsolate();
+    Locker l(isolate);
+    HandleScope handle_scope(isolate);
     Handle<Context> context = getContext();
     if (!context.IsEmpty()) {
         Context::Scope context_scope(context);
-        TryCatch try_catch;
+        TryCatch try_catch(isolate);
         Handle<Object> global = context->Global();
         if(!global.IsEmpty()) {
-            Handle<Object> native = Handle<Object>::Cast(global->Get(STRING_CACHE_NATIVE));
+            Handle<Object> native = Handle<Object>::Cast(global->Get(STRING_CACHE_NATIVE.Get(isolate)));
 
             if(!native.IsEmpty()) {
-                Handle<Object> events = Handle<Object>::Cast(native->Get(STRING_CACHE_events));
+                Handle<Object> events = Handle<Object>::Cast(native->Get(STRING_CACHE_events.Get(isolate)));
 
                 if(!events.IsEmpty()) {
-                    Handle<Value> function_object = events->Get(STRING_CACHE_dispatchEvent);
+                    Handle<Value> function_object = events->Get(STRING_CACHE_dispatchEvent.Get(isolate));
 
                     if (!function_object.IsEmpty()) {
                         Handle<Function> dispatch_event = Handle<Function>::Cast(function_object);
@@ -54,7 +57,7 @@ CEXPORT void js_dispatch_event(const char *event_str) {
                                     char *buffered_event_str = m_buffer[ii];
 
                                     // Call handler
-                                    Handle<Value> args[] = { String::New(buffered_event_str) };
+                                    Handle<Value> args[] = { String::NewFromUtf8(isolate, buffered_event_str) };
                                     Handle<Value> result = dispatch_event->Call(global, 1, args);
                                     if (result.IsEmpty()) {
                                         ReportException(&try_catch);
@@ -66,7 +69,7 @@ CEXPORT void js_dispatch_event(const char *event_str) {
                                 m_buffer_len = 0;
                             }
 
-                            Handle<Value> args[] = { String::New(event_str) };
+                            Handle<Value> args[] = { String::NewFromUtf8(isolate, event_str) };
                             Handle<Value> result = dispatch_event->Call(global, 1, args);
                             if (result.IsEmpty()) {
                                 ReportException(&try_catch);

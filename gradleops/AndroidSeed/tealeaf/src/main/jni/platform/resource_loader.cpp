@@ -23,13 +23,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "libzip/zip.h"
-#include "libzip/zipint.h"
 #include "core/platform/native.h"
 #include "core/config.h"
 #include "deps/cpu-features.h"
 #include "libzip/zip.h"
-#include "libzip/zipint.h"
 
 extern "C" {
 #include "core/texture_manager.h"
@@ -45,7 +42,8 @@ static char *storage_dir = NULL;
 static pthread_mutex_t m_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 CEXPORT void resource_loader_initialize(const char *path) {
-    APKArchive = zip_open(path, 0, NULL);
+    int err = 0;
+    APKArchive = zip_open(path, NULL, &err);
     if (APKArchive == NULL) {
         LOG("{resources} ERROR: Unable to open APK %s", path);
         return;
@@ -53,6 +51,7 @@ CEXPORT void resource_loader_initialize(const char *path) {
     storage_dir = get_storage_directory();
     image_cache_init(storage_dir, &image_cache_load_callback);
 }
+
 CEXPORT void resource_loader_deinitialize() {
     image_cache_destroy();
     zip_close(APKArchive);
@@ -209,7 +208,7 @@ CEXPORT unsigned char *resource_loader_read_file(const char * url, unsigned long
         struct zip_stat stats;
         zip_stat(APKArchive, filename, 4, &stats);
         // + 1 for the null termination
-        *sz = file->bytes_left;
+        *sz = stats.size;//file->bytes_left;
         //read file to buffer
         data = (unsigned char*)malloc(*sz + 1);
         memset(data, 0, *sz);

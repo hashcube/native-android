@@ -17,38 +17,40 @@
 #include "js/js_dialog.h"
 #include "platform/dialog.h"
 #include <stdlib.h>
+#include "include/v8.h"
 
 using namespace v8;
 
-Handle<Value> js_dialog_show_dialog(const Arguments &args) {
-    String::Utf8Value title(args[0]);
+void js_dialog_show_dialog(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
+    String::Utf8Value title(isolate, args[0]);
     char *title_str = strdup(ToCString(title));
 
-    String::Utf8Value text(args[1]);
+    String::Utf8Value text(isolate, args[1]);
     char *text_str = strdup(ToCString(text));
 
     char* image_url = NULL;
     if(!args[2].IsEmpty() && !args[2]->IsUndefined() && !args[2]->IsNull()) {
-        String::Utf8Value imgurl(args[2]);
+        String::Utf8Value imgurl(isolate, args[2]);
         image_url = strdup(ToCString(imgurl));
     }
 
     Handle<Object> buttons = Handle<Array>::Cast(args[3]);
     Handle<Object> cbs = Handle<Array>::Cast(args[4]);
 
-    int buttonLen = buttons->Get(STRING_CACHE_length)->Int32Value(),
-        cbLen = cbs->Get(STRING_CACHE_length)->Int32Value();
+    int buttonLen = buttons->Get(STRING_CACHE_length.Get(isolate))->Int32Value(isolate->GetCurrentContext()).ToChecked(),
+        cbLen = cbs->Get(STRING_CACHE_length.Get(isolate))->Int32Value(isolate->GetCurrentContext()).ToChecked();
 
     char** buttons_str = (char**)malloc(sizeof(char*) * buttonLen);
     int* callbacks = (int*)malloc(sizeof(int) * cbLen);
 
     for(int i = 0; i < buttonLen; i++) {
-        String::Utf8Value str(buttons->Get(Number::New(i)));
+        String::Utf8Value str(isolate, buttons->Get(Number::New(isolate, i)));
         buttons_str[i] = strdup(ToCString(str));
     }
     for(int i = 0; i < cbLen; i++) {
-        Handle<Value> obj = cbs->Get(Number::New(i));
-        callbacks[i] = obj->Int32Value();
+        Handle<Value> obj = cbs->Get(Number::New(isolate, i));
+        callbacks[i] = obj->Int32Value(isolate->GetCurrentContext()).ToChecked();
     }
 
     dialog_show_dialog(title_str, text_str, image_url, buttons_str, buttonLen, callbacks, cbLen);
@@ -61,12 +63,10 @@ Handle<Value> js_dialog_show_dialog(const Arguments &args) {
     free(image_url);
     free(text_str);
     free(title_str);
-
-    return Undefined();
 }
 
-Handle<ObjectTemplate> js_dialog_get_template() {
-    Handle<ObjectTemplate> dialog = ObjectTemplate::New();
-    dialog->Set(STRING_CACHE__showDialog, FunctionTemplate::New(js_dialog_show_dialog));
+Handle<ObjectTemplate> js_dialog_get_template(Isolate *isolate) {
+    Handle<ObjectTemplate> dialog = ObjectTemplate::New(isolate);
+    dialog->Set(STRING_CACHE__showDialog.Get(isolate), FunctionTemplate::New(isolate, js_dialog_show_dialog));
     return dialog;
 }

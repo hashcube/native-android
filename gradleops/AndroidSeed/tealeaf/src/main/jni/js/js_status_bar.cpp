@@ -18,23 +18,22 @@
 #include "js/js_status_bar.h"
 #include "platform/status_bar.h"
 
+#include "include/v8.h"
 using namespace v8;
 
-Handle<Value> js_status_bar_show(const Arguments &args) {
+void js_status_bar_show(const v8::FunctionCallbackInfo<v8::Value> &args) {
     status_bar_show();
-    return Undefined();
 }
 
-Handle<Value> js_status_bar_hide(const Arguments &args) {
+void js_status_bar_hide(const v8::FunctionCallbackInfo<v8::Value> &args) {
     status_bar_hide();
-    return Undefined();
 }
 
-Handle<ObjectTemplate> js_status_bar_get_template() {
-    Handle<ObjectTemplate> status_bar = ObjectTemplate::New();
-    status_bar->Set(STRING_CACHE_show_status_bar, FunctionTemplate::New(js_status_bar_show));
-    status_bar->Set(STRING_CACHE_hide_status_bar, FunctionTemplate::New(js_status_bar_hide));
-    status_bar->Set(STRING_CACHE_status_bar_height, Integer::New(status_bar_get_height()), ReadOnly);
+Handle<ObjectTemplate> js_status_bar_get_template(Isolate *isolate) {
+    Handle<ObjectTemplate> status_bar = ObjectTemplate::New(isolate);
+    status_bar->Set(STRING_CACHE_show_status_bar.Get(isolate), FunctionTemplate::New(isolate, js_status_bar_show));
+    status_bar->Set(STRING_CACHE_hide_status_bar.Get(isolate), FunctionTemplate::New(isolate, js_status_bar_hide));
+    status_bar->Set(STRING_CACHE_status_bar_height.Get(isolate), Integer::New(isolate, status_bar_get_height()), ReadOnly);
     return status_bar;
 }
 

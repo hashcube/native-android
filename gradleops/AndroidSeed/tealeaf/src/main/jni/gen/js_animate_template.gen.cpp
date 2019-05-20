@@ -18,41 +18,36 @@
 #include "js_animate_template.gen.h"
 #include "js/js_animate.h"
 
+#include "include/v8.h"
+using namespace v8;
 
 
-
-v8::Handle<v8::FunctionTemplate> js_animate_get_template() {
-	v8::Handle<v8::FunctionTemplate> templ = v8::FunctionTemplate::New();
-	v8::Handle<v8::ObjectTemplate> animate = templ->InstanceTemplate();
+v8::Local<v8::FunctionTemplate> js_animate_get_template(Isolate *isolate) {
+	v8::Local<v8::FunctionTemplate> templ = v8::FunctionTemplate::New(isolate);
+	v8::Local<v8::ObjectTemplate> animate = templ->InstanceTemplate();
 	animate->SetInternalFieldCount(2);
 	
-v8::Handle<v8::Value> def_animate_constructor(const v8::Arguments &args);
-	templ->SetCallHandler(def_animate_constructor);	
-	
+void def_animate_constructor(const v8::FunctionCallbackInfo<v8::Value> &args);
+templ->SetCallHandler(def_animate_constructor);
 
-
-v8::Handle<v8::Value> def_animate_now(const v8::Arguments &args);
-animate->Set(v8::String::New("now"), v8::FunctionTemplate::New(def_animate_now));
-v8::Handle<v8::Value> def_animate_then(const v8::Arguments &args);
-animate->Set(v8::String::New("then"), v8::FunctionTemplate::New(def_animate_then));
-v8::Handle<v8::Value> def_animate_commit(const v8::Arguments &args);
-animate->Set(v8::String::New("commit"), v8::FunctionTemplate::New(def_animate_commit));
-v8::Handle<v8::Value> def_animate_clear(const v8::Arguments &args);
-animate->Set(v8::String::New("clear"), v8::FunctionTemplate::New(def_animate_clear));
-v8::Handle<v8::Value> def_animate_wait(const v8::Arguments &args);
-animate->Set(v8::String::New("wait"), v8::FunctionTemplate::New(def_animate_wait));
-v8::Handle<v8::Value> def_animate_pause(const v8::Arguments &args);
-animate->Set(v8::String::New("pause"), v8::FunctionTemplate::New(def_animate_pause));
-v8::Handle<v8::Value> def_animate_resume(const v8::Arguments &args);
-animate->Set(v8::String::New("resume"), v8::FunctionTemplate::New(def_animate_resume));
-v8::Handle<v8::Value> def_animate_isPaused(const v8::Arguments &args);
-animate->Set(v8::String::New("isPaused"), v8::FunctionTemplate::New(def_animate_isPaused));
-v8::Handle<v8::Value> def_animate_hasFrames(const v8::Arguments &args);
-animate->Set(v8::String::New("hasFrames"), v8::FunctionTemplate::New(def_animate_hasFrames));
-
-
-
-
+void def_animate_now(const v8::FunctionCallbackInfo<v8::Value> &args);
+animate->Set(v8::String::NewFromUtf8(isolate, "now"), v8::FunctionTemplate::New(isolate, def_animate_now));
+void def_animate_then(const v8::FunctionCallbackInfo<v8::Value> &args);
+animate->Set(v8::String::NewFromUtf8(isolate, "then"), v8::FunctionTemplate::New(isolate, def_animate_then));
+void def_animate_commit(const v8::FunctionCallbackInfo<v8::Value> &args);
+animate->Set(v8::String::NewFromUtf8(isolate, "commit"), v8::FunctionTemplate::New(isolate, def_animate_commit));
+void def_animate_clear(const v8::FunctionCallbackInfo<v8::Value> &args);
+animate->Set(v8::String::NewFromUtf8(isolate, "clear"), v8::FunctionTemplate::New(isolate, def_animate_clear));
+void def_animate_wait(const v8::FunctionCallbackInfo<v8::Value> &args);
+animate->Set(v8::String::NewFromUtf8(isolate, "wait"), v8::FunctionTemplate::New(isolate, def_animate_wait));
+void def_animate_pause(const v8::FunctionCallbackInfo<v8::Value> &args);
+animate->Set(v8::String::NewFromUtf8(isolate, "pause"), v8::FunctionTemplate::New(isolate, def_animate_pause));
+void def_animate_resume(const v8::FunctionCallbackInfo<v8::Value> &args);
+animate->Set(v8::String::NewFromUtf8(isolate, "resume"), v8::FunctionTemplate::New(isolate, def_animate_resume));
+void def_animate_isPaused(const v8::FunctionCallbackInfo<v8::Value> &args);
+animate->Set(v8::String::NewFromUtf8(isolate, "isPaused"), v8::FunctionTemplate::New(isolate, def_animate_isPaused));
+void def_animate_hasFrames(const v8::FunctionCallbackInfo<v8::Value> &args);
+animate->Set(v8::String::NewFromUtf8(isolate, "hasFrames"), v8::FunctionTemplate::New(isolate, def_animate_hasFrames));
 
 return templ;
 }

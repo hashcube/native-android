@@ -19,30 +19,31 @@
 #include "timestep/timestep_view.h"
 #include "timestep/timestep_image_map.h"
 
+
+#include "include/v8.h"
 using namespace v8;
 
-static void image_map_finalize(Persistent<Value> ctx, void *param) {
-    HandleScope handle_scope;
-
+static void image_map_finalize(Persistent<Value> ctx, void *param, Isolate *isolate) {
+    LOGDEBUG("{jsdebug} METHOD CALLED %d ", 3);
+    HandleScope handle_scope(isolate);
     timestep_image_map *map = static_cast<timestep_image_map*>( param );
     timestep_image_delete(map);
-
-    ctx.Dispose();
-    ctx.Clear();
+    //ctx.Reset();
 }
 
-Handle<Value> image_map_constructor(const Arguments &args) {
+Local<Value> image_map_constructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     int arg_length = args.Length();
     Handle<Object> thiz = Handle<Object>::Cast(args.This());
 
     timestep_image_map *map = timestep_image_map_init();
-    Local<External> m = External::New(map);
+    Local<External> m = External::New(isolate, map);
     thiz->SetInternalField(0, m);
 
-    map->x = args[1]->NumberValue();
-    map->y = args[2]->NumberValue();
-    map->width = args[3]->NumberValue();
-    map->height = args[4]->NumberValue();
+    map->x = args[1]->NumberValue(isolate->GetCurrentContext()).ToChecked();
+    map->y = args[2]->NumberValue(isolate->GetCurrentContext()).ToChecked();
+    map->width = args[3]->NumberValue(isolate->GetCurrentContext()).ToChecked();
+    map->height = args[4]->NumberValue(isolate->GetCurrentContext()).ToChecked();
 
     // to support both marcus-spritemaps (TM) as well as
     // normal old style image maps (those that don't have explicit margins),
@@ -57,18 +58,18 @@ Handle<Value> image_map_constructor(const Arguments &args) {
         map->margin_left = 0;
     } else {
         url_val = args[9];
-        map->margin_top = args[5]->NumberValue();
-        map->margin_right = args[6]->NumberValue();
-        map->margin_bottom = args[7]->NumberValue();
-        map->margin_left = args[8]->NumberValue();
+        map->margin_top = args[5]->NumberValue(isolate->GetCurrentContext()).ToChecked();
+        map->margin_right = args[6]->NumberValue(isolate->GetCurrentContext()).ToChecked();
+        map->margin_bottom = args[7]->NumberValue(isolate->GetCurrentContext()).ToChecked();
+        map->margin_left = args[8]->NumberValue(isolate->GetCurrentContext()).ToChecked();
     }
 
     // WARNING: must not forget to free this at some point
     String::Utf8Value str(url_val);
     map->url = strdup(ToCString(str));
 
-    Persistent<Object> ref = Persistent<Object>::New(thiz);
-    ref.MakeWeak(map, image_map_finalize);
+    Persistent<Object> ref = Persistent<Object>(isolate, thiz);
+    ref.SetWeak(map, image_map_finalize, v8::WeakCallbackType::kParameter);
 
     return thiz;
 }

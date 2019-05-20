@@ -17,9 +17,12 @@
 
 #include "js/js.h"
 
+#include "include/v8.h"
+using namespace v8;
+
 using v8::Handle;
 using v8::ObjectTemplate;
 
-Handle<ObjectTemplate> js_input_get_template();
+Handle<ObjectTemplate> js_input_get_template(Isolate *isolate);
 
 #endif //JS_INPUT_H

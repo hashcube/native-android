@@ -16,29 +16,30 @@
  */
 #include "js/js_console.h"
 #include <stdlib.h>
-
+#include "include/v8.h"
 using namespace v8;
 
 
-Handle<Value> native_log(const v8::Arguments& args) {
+void native_log(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("log");
 #ifndef RELEASE
-    HandleScope handle_scope;
+    Isolate *isolate = getIsolate();
+    HandleScope handle_scope(isolate);
 
-    String::Utf8Value str(args[0]);
+    String::Utf8Value str(isolate, args[0]);
 
     const char* cstr = ToCString(str);
 
     __android_log_write(ANDROID_LOG_DEBUG, "JS", cstr);
 #endif
     LOGFN("endlog");
-    return Undefined();
+    //return Undefined(isolate);
 }
 
-Handle<ObjectTemplate> js_console_get_template() {
-    Handle<ObjectTemplate> console = ObjectTemplate::New();
+Local<ObjectTemplate> js_console_get_template(Isolate *isolate) {
+    Local<ObjectTemplate> console = ObjectTemplate::New(isolate);
 
-    console->Set(STRING_CACHE_log, FunctionTemplate::New(native_log));
+    console->Set(STRING_CACHE_log.Get(isolate), FunctionTemplate::New(isolate, native_log));
 
     return console;
 }

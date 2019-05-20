@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with the Game Closure SDK.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "platform/profiler.h"
-#include "profiler/prof.h"
+//#include "platform/profiler.h"
+//#include "profiler/prof.h"
 #include "core/config.h"
 
 #include <string.h>
@@ -30,23 +30,25 @@ static char *current_tag = NULL;
 
 void profiler_start_profile(const char *tag) {
 #ifdef PROFILER_ENABLED
-    if (current_tag) {
+  /*  if (current_tag) {
         profiler_stop_profile();
     }
     current_tag = strdup(tag);
     monstartup(LIBRARY_NAME);
+    */
 #endif
 }
 
 
 void profiler_stop_profile() {
 #ifdef PROFILER_ENABLED
-    size_t buf_len = strlen(PATH) + strlen(current_tag) + 1;
+   /* size_t buf_len = strlen(PATH) + strlen(current_tag) + 1;
     char *buf = (char*)malloc(buf_len);
     snprintf(buf, buf_len, "%s%s", PATH, current_tag);
     setenv("CPUPROFILE", buf, 1);
     free(current_tag);
     current_tag = NULL;
     moncleanup();
+    */
 #endif
 }

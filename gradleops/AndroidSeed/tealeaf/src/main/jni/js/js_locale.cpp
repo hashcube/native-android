@@ -16,28 +16,30 @@
  */
 #include "js_locale.h"
 #include "platform/get_locale.h"
-
+#include "include/v8.h"
 using namespace v8;
 
-Handle<Value> js_locale_get_country(Local<String> property, const AccessorInfo &info) {
+void js_locale_get_country(Local< String > property, const PropertyCallbackInfo< Value > &info) {
+    Isolate *isolate = getIsolate();
     LOGFN("in get locale");
     locale_info *locale = locale_get_locale();
     LOGFN("end native set location");
-    return String::New(locale->country);
+    info.GetReturnValue().Set(String::NewFromUtf8(isolate, locale->country));
 }
 
-Handle<Value> js_locale_get_language(Local<String> property, const AccessorInfo &info) {
+void js_locale_get_language(Local< String > property, const PropertyCallbackInfo< Value > &info) {
+    Isolate *isolate = getIsolate();
     LOGFN("in get locale");
     locale_info *locale = locale_get_locale();
     LOGFN("end native set location");
-    return String::New(locale->language);
+    info.GetReturnValue().Set(String::NewFromUtf8(isolate, locale->language));
 }
 
 
-Handle<ObjectTemplate> js_locale_get_template() {
-    Handle<ObjectTemplate> locale = ObjectTemplate::New();
-    locale->SetAccessor(STRING_CACHE_language, js_locale_get_language);
-    locale->SetAccessor(STRING_CACHE_country, js_locale_get_country);
+Local<ObjectTemplate> js_locale_get_template(Isolate *isolate) {
+    Handle<ObjectTemplate> locale = ObjectTemplate::New(isolate);
+    locale->SetAccessor(STRING_CACHE_language.Get(isolate), js_locale_get_language);
+    locale->SetAccessor(STRING_CACHE_country.Get(isolate), js_locale_get_country);
 
     return locale;
 }

@@ -16,48 +16,46 @@
  */
 #include "js/js_overlay.h"
 #include "platform/overlay.h"
-
+#include "include/v8.h"
 using namespace v8;
 
-Handle<Value> defLoadOverlay(const Arguments &args) {
+void defLoadOverlay(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("JS load overlay");
-    String::Utf8Value url(args[0]);
+    Isolate *isolate = getIsolate();
+    String::Utf8Value url(isolate, args[0]);
 
     const char *url_str = ToCString(url);
     overlay_load(url_str);
     LOGFN("ENDJS load overlay");
-    return Undefined();
 }
 
-Handle<Value> defShowOverlay(const Arguments &args) {
+void defShowOverlay(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("JS show overlay");
     overlay_show();
     LOGFN("end js show overlay");
-    return Undefined();
 }
 
-Handle<Value> defHideOverlay(const Arguments &args) {
+void defHideOverlay(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("JS hide overlay");
     overlay_hide();
     LOGFN("endJS hide overlay");
-    return Undefined();
 }
 
-Handle<Value> defSendOverlayEvent(const Arguments &args) {
+void defSendOverlayEvent(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("send overlay event");
-    String::Utf8Value event(args[0]);
+    Isolate *isolate = getIsolate();
+    String::Utf8Value event(isolate, args[0]);
     const char *event_str = ToCString(event);
     overlay_send_event(event_str);
     LOGFN("end send overlay event");
-    return Undefined();
 }
 
 
-Handle<ObjectTemplate> js_overlay_get_template() {
-    Handle<ObjectTemplate> overlay = ObjectTemplate::New();
-    overlay->Set(STRING_CACHE_load, FunctionTemplate::New(defLoadOverlay));
-    overlay->Set(STRING_CACHE_show, FunctionTemplate::New(defShowOverlay));
-    overlay->Set(STRING_CACHE_hide, FunctionTemplate::New(defHideOverlay));
-    overlay->Set(STRING_CACHE_send, FunctionTemplate::New(defSendOverlayEvent));
+Local<ObjectTemplate> js_overlay_get_template(Isolate *isolate) {
+    Local<ObjectTemplate> overlay = ObjectTemplate::New(isolate);
+    overlay->Set(STRING_CACHE_load.Get(isolate), FunctionTemplate::New(isolate, defLoadOverlay));
+    overlay->Set(STRING_CACHE_show.Get(isolate), FunctionTemplate::New(isolate, defShowOverlay));
+    overlay->Set(STRING_CACHE_hide.Get(isolate), FunctionTemplate::New(isolate, defHideOverlay));
+    overlay->Set(STRING_CACHE_send.Get(isolate), FunctionTemplate::New(isolate, defSendOverlayEvent));
     return overlay;
 }

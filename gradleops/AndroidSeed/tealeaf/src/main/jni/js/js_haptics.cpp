@@ -17,57 +17,49 @@
 #include "js/js_haptics.h"
 #include "platform/haptics.h"
 #include <stdlib.h>
-
+#include "include/v8.h"
 using namespace v8;
 
 
-Handle<Value> js_haptics_cancel(const Arguments &args) {
+void js_haptics_cancel(const v8::FunctionCallbackInfo<v8::Value> &args) {
     haptics_cancel();
-
-    return Undefined();
 }
 
-Handle<Value> js_haptics_vibrate(const Arguments &args) {
+void js_haptics_vibrate(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    Isolate *isolate = getIsolate();
     Handle<Object> opts = Handle<Object>::Cast(args[0]);
-    Handle<Value> milliseconds = opts->Get(STRING_CACHE_milliseconds);
+    Handle<Value> milliseconds = opts->Get(STRING_CACHE_milliseconds.Get(isolate));
 
     if ( milliseconds->IsUndefined() ) {
 
-        Handle<Object> pattern = Handle<Array>::Cast( opts->Get(STRING_CACHE_pattern) );
-        int repeat = opts->Get(STRING_CACHE_repeat)->Int32Value();
+        Handle<Object> pattern = Handle<Array>::Cast( opts->Get(STRING_CACHE_pattern.Get(isolate)) );
+        int repeat = opts->Get(STRING_CACHE_repeat.Get(isolate))->Int32Value(isolate->GetCurrentContext()).ToChecked();
 
-        int patternLen = pattern->Get(STRING_CACHE_length)->Int32Value();
+        int patternLen = pattern->Get(STRING_CACHE_length.Get(isolate))->Int32Value(isolate->GetCurrentContext()).ToChecked();
         long long* patternArr = (long long*)malloc(sizeof(long long) * patternLen);
 
         for ( int i = 0; i < patternLen; i++ ) {
-            patternArr[i] = pattern->Get(Number::New(i))->IntegerValue();
+            patternArr[i] = pattern->Get(Number::New(isolate, i))->IntegerValue(isolate->GetCurrentContext()).ToChecked();
         }
-
         haptics_vibrate(patternArr, repeat, patternLen);
-
         free(patternArr);
-
     } else {
 
-        haptics_vibrate(milliseconds->IntegerValue());
-
+        haptics_vibrate(milliseconds->IntegerValue(isolate->GetCurrentContext()).ToChecked());
     }
-
-    return Undefined();
 }
 
-Handle<Value> js_haptics_has_vibrator(Local<String> property, const AccessorInfo& info) {
+void js_haptics_has_vibrator(Local<String> property, const PropertyCallbackInfo< Value > &info) {
+    Isolate *isolate = getIsolate();
     bool result = haptics_has_vibrator();
-
-    return Boolean::New(result);
+    info.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
-Handle<ObjectTemplate> js_haptics_get_template() {
-    Handle<ObjectTemplate> haptics = ObjectTemplate::New();
-
-    haptics->Set(STRING_CACHE_cancel, FunctionTemplate::New(js_haptics_cancel));
-    haptics->Set(STRING_CACHE_vibrate, FunctionTemplate::New(js_haptics_vibrate));
-    haptics->SetAccessor(STRING_CACHE_hasVibrator, js_haptics_has_vibrator);
+Handle<ObjectTemplate> js_haptics_get_template(Isolate *isolate) {
+    Handle<ObjectTemplate> haptics = ObjectTemplate::New(isolate);
+    haptics->Set(STRING_CACHE_cancel.Get(isolate), FunctionTemplate::New(isolate, js_haptics_cancel));
+    haptics->Set(STRING_CACHE_vibrate.Get(isolate), FunctionTemplate::New(isolate, js_haptics_vibrate));
+    haptics->SetAccessor(STRING_CACHE_hasVibrator.Get(isolate), js_haptics_has_vibrator);
 
     return haptics;
 }
