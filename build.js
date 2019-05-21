@@ -885,11 +885,29 @@ function makeAndroidProject(api, app, config, opts) {
         )});
 }
 
-function signAPK(api, app, shortName, outputPath, debug, config) {
+function signArchive(api, app, shortName, outputPath, debug, config) {
   var signArgsDebug, alignArgsDebug, signArgsRelease;
   var binDir = path.join(outputPath, "bin");
+  var archiveType = 'apk';
+  var archiveName = '';
+  var archiveUnsignedName = '';
+  if(config.bundle){
+    archiveType = 'bundle';
+    archiveName = 'app-aligned.aab';
+    archiveUnsignedName = 'app.aab';
+  }
+  else {
+    if (debug) {
+      archiveName =  "app-debug.apk"
+    }
+    else {
+      archiveName =  "app-release-aligned.apk"
+      archiveUnsignedName = "app-release-unsigned.apk";
+    }
+  }
 
   logger.log('Signing APK at', binDir);
+
   if (debug) {
 
 
@@ -904,11 +922,11 @@ function signAPK(api, app, shortName, outputPath, debug, config) {
       logger.log('Data != null');
       signArgsRelease = [
         "sign", "--ks", keystore, "--ks-pass", "pass:"+storepass, "--key-pass", "pass:"+keypass,
-        "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false", "--verbose",
-        "app-debug.apk"
+        "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false", "--min-sdk-version", "21", "--verbose",
+       archiveName
       ];
 
-      var apkDirDebug = path.join(outputPath, "../../"+shortName+"/app/build/outputs/apk/debug/");
+      var apkDirDebug = path.join(outputPath, "../../"+shortName+"/app/build/outputs/"+archiveType+"/debug/");
       return spawnWithLogger(api, process.env.ANDROID_HOME + '/build-tools/'+app.manifest.android.buildToolsVersion+'/apksigner', signArgsRelease, {cwd: apkDirDebug})
     }
     else {  // sign debug apk with default Android debug keys
@@ -921,10 +939,10 @@ function signAPK(api, app, shortName, outputPath, debug, config) {
       ];
 
       alignArgsDebug = [
-        "-f", "-v", "4", "app-debug.apk", "app-debug-aligned.apk"
+        "-f", "-v", "4", "app-debug.apk", archiveName
       ];
 
-      var apkDirDebug = path.join(outputPath, "../../" + shortName + "/app/build/outputs/apk/debug/");
+      var apkDirDebug = path.join(outputPath, "../../" + shortName + "/app/build/outputs/"+archiveType+"/debug/");
       return spawnWithLogger(api, process.env.ANDROID_HOME + '/build-tools/'+app.manifest.android.buildToolsVersion+'/zipalign', alignArgsDebug, {cwd: apkDirDebug})
         .then(function () {
           return spawnWithLogger(api, process.env.ANDROID_HOME + '/build-tools/'+app.manifest.android.buildToolsVersion+'/apksigner', signArgsDebug, {cwd: apkDirDebug})
@@ -947,16 +965,16 @@ function signAPK(api, app, shortName, outputPath, debug, config) {
 
     signArgs = [
       "sign", "--ks", keystore, "--ks-pass", "pass:"+storepass, "--key-pass", "pass:"+keypass,
-      "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false", "--verbose",
-      "app-release-aligned.apk"
+      "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false",  "--min-sdk-version", "21", "--verbose",
+     archiveName
     ];
 
     alignArgs = [
-      "-f", "-v", "4", "app-release-unsigned.apk", "app-release-aligned.apk" //shortName + "-unaligned.apk", shortName + "-aligned.apk"
+      "-f", "-v", "4", archiveUnsignedName, archiveName //shortName + "-unaligned.apk", shortName + "-aligned.apk"
     ];
 
     var scheme = (config.debug ? "debug" : "release");
-    var apkDir = path.join(outputPath, shortName , "app/build/outputs/apk/", scheme);
+    var apkDir = path.join(outputPath, shortName , "app/build/outputs/"+archiveType+"/", scheme);
     return spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/'+app.manifest.android.buildToolsVersion+'/zipalign', alignArgs , {cwd: apkDir})
       .then(function () {
        return spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/'+app.manifest.android.buildToolsVersion+'/apksigner', signArgs, {cwd: apkDir})
@@ -1383,6 +1401,149 @@ function createProject(api, app, config) {
   return Promise.all(tasks);
 }
 
+function assembleAPK(app, api, config, argv, skipAPK, skipSigning, shortName, archiveBuildName, buildType, argv) {
+  logger.log(chalk.cyan(["Build type: APK"].join('\n')));
+
+  var assembleCommand = 'assembleDebug'
+
+  if (!config.debug) {
+    assembleCommand = 'assembleRelease'
+  }
+  return spawnWithLogger(api, './gradlew', [
+    assembleCommand
+    // , '--debug', '--stacktrace', // UNCOMMENT TO DEBUG
+  ], {cwd: projectPath})
+    .then(function () {
+      if (!skipSigning) {
+        return signArchive(api, app, shortName, config.outputPath, config.debug, config);
+      }
+      else {
+        return new Promise.resolve("bypass");
+      }
+    })
+    .then(function () {
+      if (!skipAPK) {
+        // Need a timeout because it copied unsigned build
+        var millisecondsToWait = 5000;
+        setTimeout(function() {
+          // Whatever you want to do after the wait
+
+          return moveBuildFile(api, app, config, archiveBuildName, buildType)
+            .tap(function (apkPath) {
+              logger.log("built", chalk.yellow(config.packageName));
+              logger.log("saved to " + chalk.blue(apkPath));
+            })
+            .then(function (apkPath) {
+              if (argv.reveal) {
+                require('child_process').exec('open --reveal "' + apkPath + '"');
+              }
+
+              if (argv.install || argv.open) {
+                return installAPK(api, config, apkPath, {
+                  open: !!argv.open,
+                  clearStorage: argv.clearStorage
+                });
+              }
+            });
+        }, millisecondsToWait);
+      }
+    })
+    .catch(BuildError, function (err) {
+      if (err.stdout && /not valid/i.test(err.stdout)) {
+        logger.log(chalk.yellow([
+          '',
+          'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
+          'you have installed the Android SDK properly, and use the',
+          '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
+          ''
+        ].join('\n')));
+      }
+
+      if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
+        logger.log(chalk.yellow([
+          '',
+          'You must install the Android SDK first. Please ensure the ',
+          '"android" tool is available from the command line by adding',
+          'the sdk\'s "tools/" directory to your system path.',
+          ''
+        ].join('\n')));
+      }
+
+      throw err;
+    });
+}
+
+function assembleBundle(app, api, config, skipAPK, skipSigning, shortName, archiveBuildName, buildType, argv) {
+  logger.log(chalk.cyan(["Build type: Bundle"].join('\n')));
+
+  var assembleCommand = 'bundleDebug'
+
+  if (!config.debug) {
+    assembleCommand = 'bundleRelease'
+  }
+  return spawnWithLogger(api, './gradlew', [
+    assembleCommand,
+    // , '--debug', '--stacktrace', // UNCOMMENT TO DEBUG
+  ], {cwd: projectPath})
+    .then(function () {
+      if (!skipSigning) {
+        return signArchive(api, app, shortName, config.outputPath, config.debug, config);
+      }
+      else {
+        return new Promise.resolve("bypass");
+      }
+    })
+    .then(function () {
+      if (!skipAPK) {
+        // Need a timeout because it copied unsigned build
+        var millisecondsToWait = 5000;
+        setTimeout(function() {
+          // Whatever you want to do after the wait
+
+          return moveBuildFile(api, app, config, archiveBuildName, buildType)
+            .tap(function (apkPath) {
+              logger.log("built", chalk.yellow(config.packageName));
+              logger.log("saved to " + chalk.blue(apkPath));
+            })
+            .then(function (apkPath) {
+              if (argv.reveal) {
+                require('child_process').exec('open --reveal "' + apkPath + '"');
+              }
+
+              if (argv.install || argv.open) {
+                return installAPK(api, config, apkPath, {
+                  open: !!argv.open,
+                  clearStorage: argv.clearStorage
+                });
+              }
+            });
+        }, millisecondsToWait);
+      }
+    })
+    .catch(BuildError, function (err) {
+      if (err.stdout && /not valid/i.test(err.stdout)) {
+        logger.log(chalk.yellow([
+          '',
+          'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
+          'you have installed the Android SDK properly, and use the',
+          '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
+          ''
+        ].join('\n')));
+      }
+
+      if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
+        logger.log(chalk.yellow([
+          '',
+          'You must install the Android SDK first. Please ensure the ',
+          '"android" tool is available from the command line by adding',
+          'the sdk\'s "tools/" directory to your system path.',
+          ''
+        ].join('\n')));
+      }
+      throw err;
+    });
+}
+
 exports.build = function(api, app, config, cb) {
   logger = api.logging.get('android');
 
@@ -1401,15 +1562,28 @@ exports.build = function(api, app, config, cb) {
     throw new BuildError("Build aborted: No shortName in the manifest");
   }
 
-  var apkBuildName = "";
-  if (!config.debug) {
-    if (skipSigning) {
-      apkBuildName = "app-release-unsigned.apk";
+  var archiveBuildName = "";
+  if(!config.bundle) {
+    if (!config.debug) {
+      if (skipSigning) {
+        archiveBuildName = "app-release-unsigned.apk";
+      } else {
+        archiveBuildName = "app-release-aligned.apk";
+      }
     } else {
-      apkBuildName = "app-release-aligned.apk";
+      archiveBuildName = "app-debug.apk";
     }
-  } else {
-    apkBuildName = "app-debug.apk";
+  }
+  else {
+    if (!config.debug) {
+      if (skipSigning) {
+        archiveBuildName = "app-aligned.aab";
+      } else {
+        archiveBuildName = "app-aligned.aab";
+      }
+    } else {
+      archiveBuildName = "app.aab";
+    }
   }
 
   if (!app.manifest.android) {
@@ -1464,86 +1638,23 @@ exports.build = function(api, app, config, cb) {
             throw err;
           }).
             then(function () {
-
-            var assembleCommand = 'assembleDebug'
-
-            if (!config.debug) {
-              assembleCommand = 'assembleRelease'
+            if (config.bundle) {
+              return assembleBundle(app, api, config, skipAPK, skipSigning, shortName, archiveBuildName, "bundle", argv);
             }
-            return spawnWithLogger(api, './gradlew', [
-              assembleCommand
-              // , '--debug', '--stacktrace', // UNCOMMENT TO DEBUG
-            ], {cwd: projectPath})
-              .catch(BuildError, function (err) {
-                if (err.stdout && /not valid/i.test(err.stdout)) {
-                  logger.log(chalk.yellow([
-                    '',
-                    'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
-                    'you have installed the Android SDK properly, and use the',
-                    '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
-                    ''
-                  ].join('\n')));
-                }
-
-                if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
-                  logger.log(chalk.yellow([
-                    '',
-                    'You must install the Android SDK first. Please ensure the ',
-                    '"android" tool is available from the command line by adding',
-                    'the sdk\'s "tools/" directory to your system path.',
-                    ''
-                  ].join('\n')));
-                }
-
-                throw err;
-              });
+            else {
+              return assembleAPK(app, api, config, argv, skipAPK, skipSigning, shortName, archiveBuildName, "apk", argv);
+            }
           })
-      }
-    })
-    .then(function () {
-      if (!skipSigning) {
-        return signAPK(api, app, shortName, config.outputPath, config.debug, config);
-      }
-      else {
-        return new Promise.resolve("bypass");
-      }
-    })
-    .then(function () {
-      if (!skipAPK) {
-        // Need a timeout because it copied unsigned build
-        var millisecondsToWait = 5000;
-        setTimeout(function() {
-          // Whatever you want to do after the wait
-
-          return moveAPK(api, app, config, apkBuildName)
-            .tap(function (apkPath) {
-              logger.log("built", chalk.yellow(config.packageName));
-              logger.log("saved to " + chalk.blue(apkPath));
-            })
-            .then(function (apkPath) {
-              if (argv.reveal) {
-                require('child_process').exec('open --reveal "' + apkPath + '"');
-              }
-
-              if (argv.install || argv.open) {
-                return installAPK(api, config, apkPath, {
-                  open: !!argv.open,
-                  clearStorage: argv.clearStorage
-                });
-              }
-            });
-        }, millisecondsToWait);
       }
     })
     .nodeify(cb);
 };
 
-function moveAPK(api, app, config, apkBuildName) {
+function moveBuildFile(api, app, config, archiveBuildName, buildType) {
   var shortName = app.manifest.shortName;
   var scheme = (config.debug ? "debug" : "release");
-  var apkPath = path.join(projectPath,"app/build/outputs/apk",scheme, apkBuildName);
-  var destApkPath = path.join(config.outputPath, "bin", apkBuildName);
-
+  var apkPath = path.join(projectPath, "app/build/outputs", buildType, scheme, archiveBuildName);
+  var destApkPath = path.join(config.outputPath, "bin", archiveBuildName);
   return Promise.all([
     existsAsync(apkPath),
     fs.unlinkAsync(destApkPath)

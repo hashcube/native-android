@@ -88,15 +88,6 @@
 #include "src/libplatform/default-platform.h"
 #include "v8-platform.h"
 
-/*
-#if defined(REMOTE_DEBUG)
-#include "debug/debug.h"
-#endif
-
-#if defined(ENABLE_PROFILER)
-#include "lib/v8-profiler/profiler.h"
-#endif
-*/
 #include "include/libplatform/libplatform.h"
 #include "include/v8.h"
 #include "js.h"
@@ -111,8 +102,6 @@
 #include "NativeScriptException.h"
 #include <sstream>
 
-#include "JsV8InspectorClient.h"
-#include "v8_inspector/src/inspector/v8-inspector-platform.h"
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
@@ -679,17 +668,16 @@ bool js_init_isolate() {
     // Initialize V8.
     v8::V8::InitializeICUDefaultLocation(nullptr);
     v8::V8::InitializeExternalStartupData(nullptr);
-    if(isDebug){
+    #if defined(DEBUG)
      // The default V8 platform isn't Chrome DevTools compatible. The frontend uses the
         // Runtime.evaluate protocol command with timeout flag for every execution in the console.
         // The default platform doesn't implement executing delayed javascript code from a background
         // thread. To avoid implementing a full blown scheduler, we use the default platform with a
         // timeout=0 flag.
         platform_ =  V8InspectorPlatform::CreateDefaultPlatform();
-     }
-     else{
+     #else // DEBUG
         platform_ = v8::platform::CreateDefaultPlatform();
-    }
+    #endif // DEBUG
     Runtime::platform = platform_;
     v8::V8::InitializePlatform(platform_);
     v8::V8::Initialize();

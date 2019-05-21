@@ -22,8 +22,10 @@ export DEVKIT_ANDROID_ALIAS_NAME='you alias name'
 2) Sign apk
 To debug with specific keys
 `devkit debug native-android --signing true`
-For release
+For release apk
 `devkit release native-android`
+For release bundle (aab)
+`devkit release native-android bundle`
 
 ### Warning!
 Do not update barista submodule. Current source code requires specific commit `f2356f0`
