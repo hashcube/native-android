@@ -70,8 +70,14 @@ Please note that these plugins library projects are not imported as project modu
 
 ## Using in Android Studio
 Disable instant run feature in Android Studio
-# Debugging native code
-Add 
+
+# Debugging or modifying native code
+To modify or debug native code it is necessary to delete folder `AndroidSeed/tealeaf/src/main/libs/` with its content and to build game in debug mode
+
+In order to save building time, NDK building is skipped if there are precompiled shared libraries `libtealeaf.so` exist at path `AndroidSeed/tealeaf/src/main/libs/` and these libraries correspond to list of abis enumerated in APP_ABI parameter in file `AndroidSeed/tealeaf/src/main/jni/Application.mk`
+
+By default there are armeabi-v7a and arm64-v8a precompiled libraries exist at path `AndroidSeed/tealeaf/src/main/libs/` and are enumerated in file `AndroidSeed/tealeaf/src/main/jni/Application.mk`. The libraries are built in release mode so no changes required for games or plugins development.
+
 # Debugging JavaScript code
 1 open `chrome://inspect/#devices` in Crhome
 2 make sure you can see your connected device

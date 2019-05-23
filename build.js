@@ -1401,7 +1401,7 @@ function createProject(api, app, config) {
   return Promise.all(tasks);
 }
 
-function assembleAPK(app, api, config, argv, skipAPK, skipSigning, shortName, archiveBuildName, buildType, argv) {
+function assembleAPK(app, api, config, skipAPK, skipSigning, shortName, archiveBuildName, buildType, argv) {
   logger.log(chalk.cyan(["Build type: APK"].join('\n')));
 
   var assembleCommand = 'assembleDebug'
@@ -1544,6 +1544,77 @@ function assembleBundle(app, api, config, skipAPK, skipSigning, shortName, archi
     });
 }
 
+function buildNDKIfRequired(app, api, skipAPK, skipSigning, shortName, archiveBuildName, config, argv) {
+  //Read Application.mk file
+  var fileApplicationMk = fs.readFileSync(path.join(projectPath,'tealeaf/src/main/jni/Application.mk'), 'utf-8').split('\n');
+
+  //Parse string N1
+  var abis = fileApplicationMk[0].split(" ").filter(word => word.includes("arm"));
+  //Get required abi
+  var rebuild = false;
+
+  //Check required abi biulds
+  var abisTobuld = abis.map(function(abi){
+    if(abi == 'armeabi-v7a'){
+     if(!fs.existsSync(path.join(projectPath, 'tealeaf/src/main/libs/armeabi-v7a/libtealeaf.so'))){
+       return true;
+     }
+    }
+    else if (abi == 'arm64-v8a'){
+      if(!fs.existsSync(path.join(projectPath, 'tealeaf/src/main/libs/arm64-v8a/libtealeaf.so'))){
+        return true;
+      }
+    }
+
+  }).filter(rebuild => rebuild === true);
+
+   return Promise.try(function () {
+      //If build required then remove tealeaf/src/main/libs
+      if(abisTobuld.length > 0){
+        //Rebuild
+    return spawnWithLogger(api, 'ndk-build', [
+      "NDK_PROJECT_PATH=tealeaf/src/main", (function () { return config.debug ? "DEBUG=1" : "RELEASE=1"})(),
+    ], {cwd: projectPath})
+      .catch(BuildError, function (err) {
+        if (err.stdout && /not valid/i.test(err.stdout)) {
+          logger.log(chalk.yellow([
+            '',
+            'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
+            'you have installed the Android SDK properly, and use the',
+            '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
+            ''
+          ].join('\n')));
+        }
+
+        if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
+          logger.log(chalk.yellow([
+            '',
+            'You must install the Android SDK first. Please ensure the ',
+            '"android" tool is available from the command line by adding',
+            'the sdk\'s "tools/" directory to your system path.',
+            ''
+          ].join('\n')));
+        }
+
+        throw err;
+      })
+  } else {
+  return logger.log(chalk.yellow([
+    'Ndk rebuild not required',
+    ''
+  ].join('\n')));
+  }})
+   .then(function () {
+    if (config.bundle) {
+      return assembleBundle(app, api, config, skipAPK, skipSigning, shortName, archiveBuildName, "bundle", argv);
+    }
+    else {
+      return assembleAPK(app, api, config, skipAPK, skipSigning, shortName, archiveBuildName, "apk", argv);
+    }
+  })
+
+}
+
 exports.build = function(api, app, config, cb) {
   logger = api.logging.get('android');
 
@@ -1610,41 +1681,7 @@ exports.build = function(api, app, config, cb) {
     }).all().
       then(function buildAPK() {
       if (!skipAPK) {
-        // build ndk libtealeaf.so, formerly named manually libpng.so ,
-        return spawnWithLogger(api, 'ndk-build', [
-          "NDK_PROJECT_PATH=tealeaf/src/main", (function () { return config.debug ? "DEBUG=1" : "RELEASE=1"})(),
-        ], {cwd: projectPath})
-          .catch(BuildError, function (err) {
-            if (err.stdout && /not valid/i.test(err.stdout)) {
-              logger.log(chalk.yellow([
-                '',
-                'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
-                'you have installed the Android SDK properly, and use the',
-                '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
-                ''
-              ].join('\n')));
-            }
-
-            if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
-              logger.log(chalk.yellow([
-                '',
-                'You must install the Android SDK first. Please ensure the ',
-                '"android" tool is available from the command line by adding',
-                'the sdk\'s "tools/" directory to your system path.',
-                ''
-              ].join('\n')));
-            }
-
-            throw err;
-          }).
-            then(function () {
-            if (config.bundle) {
-              return assembleBundle(app, api, config, skipAPK, skipSigning, shortName, archiveBuildName, "bundle", argv);
-            }
-            else {
-              return assembleAPK(app, api, config, argv, skipAPK, skipSigning, shortName, archiveBuildName, "apk", argv);
-            }
-          })
+       return buildNDKIfRequired(app, api, skipAPK, skipSigning, shortName, archiveBuildName, config, argv);
       }
     })
     .nodeify(cb);

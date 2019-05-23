@@ -1,9 +1,11 @@
-APP_ABI := armeabi-v7a #armeabi-v7a arm64-v8a
-APP_PLATFORM := android-21 
+APP_ABI := armeabi-v7a arm64-v8a
+# do not put this comment from the right of the 1st line: armeabi-v7a arm64-v8a
 
+
+APP_PLATFORM := android-21 
 APP_STL := c++_static
-APP_CPPFLAGS += -std=c++14 # -fexceptions # -static-libstdc++
-CMAKE_CXX_FLAGS +=  -frtti #for debug 
+APP_CPPFLAGS += -std=c++14
+CMAKE_CXX_FLAGS +=  -frtti
 ifeq (${RELEASE}, 1)
 
 else
