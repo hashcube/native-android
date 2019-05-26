@@ -785,30 +785,29 @@ function saveLocalizedStringsXmls(outputPath, titles) {
 function executeOnCreate(api, app, config, opts) {
   var modules = app.modules;
   var hookName = 'onCreateProject';
-
-  return Promise.all([Promise.resolve(Object.keys(modules))
-    .map(function (moduleName) {
+  return Object.keys(modules).reduce(function (promise, moduleName) {
+      return promise.then(function (){
       var module = modules[moduleName];
       var buildExtension = module.extensions && module.extensions.build;
-
       buildExtension = buildExtension ? require(buildExtension) : null;
 
       if (!buildExtension || !buildExtension[hookName]) {
-        return;
+        return Promise.resolve();
       }
 
       return new Promise(function (resolve, reject) {
         var retVal = buildExtension[hookName](api, app, config, function (err, res) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(res);
-          }
-        });
+            if (err) {
+              reject(err);
+            } else {
+              resolve(res);
+            }
+          });
 
-        if (retVal) { resolve(retVal); }
-      }.catch(function () {}));
-    })]).catch(function () {});
+          if (retVal) { resolve(retVal); } // if (retVal) { this.then(function() {return retVal}); }
+      });
+    }) }, Promise.resolve());
+
 }
 
 var projectPath = '';
@@ -842,7 +841,6 @@ function makeAndroidProject(api, app, config, opts) {
           // new package
           config.packageName
         ], {cwd: './modules/devkit-core/modules/native-android/gradleops/'})
-
         // make new package dir
           .then(function () {
             return spawnWithLogger(api, 'mkdir', ["-p", path.join(projectPath,
@@ -859,24 +857,20 @@ function makeAndroidProject(api, app, config, opts) {
               "app/src/main/java",
               config.packageName.split('.').join('/'),
               app.manifest.shortName + "Activity.java");
-            return spawnWithLogger(api, 'mv', [activityFileOld,activityFileNew]);
+            return spawnWithLogger(api, 'mv', [activityFileOld,activityFileNew]).catch(function () {});
           })
           .then(function() {
-            return executeOnCreate(api, app, config, opts);
+            return executeOnCreate(api, app, config, opts).catch(function () {});
           })
           .then(function () {
-
-            return saveLocalizedStringsXmls(projectPath, config.titles);
-
-          } )
+            return saveLocalizedStringsXmls(projectPath, config.titles).catch(function () {});
+          })
           .then(function () {
-
-            return updateManifest(api, app, config, opts);
-
-          } )
+            return updateManifest(api, app, config, opts).catch(function () {});
+          })
           .then(function () {
-             return updateActivity(app, config);
-          } );
+             return updateActivity(app, config).catch(function () {});
+          });
 
       }
       else {
