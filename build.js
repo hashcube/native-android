@@ -314,7 +314,7 @@ function injectPluginXML(opts) {
         xml = replaceTextBetween(xml, XML_START_PLUGINS_APPLICATION, XML_END_PLUGINS_APPLICATION, manifestXmlApplicationStr);
         return fs.writeFileAsync(manifestXml, xml, 'utf-8');
       } else {
-        logger.log('No plugin XML to inject');
+        return Promise.resolve(logger.log('No plugin XML to inject'));
       }
     })
     // read and apply plugins to tealeaf build.gradle
@@ -369,7 +369,7 @@ function injectPluginXML(opts) {
 
             return fs.writeFileAsync(gradleTealeafBuildFile, xml, 'utf-8');
           } else {
-            logger.log('No plugin gradle dependency to inject');
+            return Promise.resolve(logger.log('No plugin gradle dependency to inject'));
           }
         });
     })
@@ -415,7 +415,7 @@ function injectPluginXML(opts) {
 
             return fs.writeFileAsync(gradleAppBuildFile, xml, 'utf-8');
           } else {
-            logger.log('No plugin gradle dependency to inject');
+            return Promise.resolve(logger.log('No plugin gradle dependency to inject'));
           }
         });
     })
@@ -460,7 +460,7 @@ function injectPluginXML(opts) {
 
             return fs.writeFileAsync(gradleClasspathMainBuildFile, xml, 'utf-8');
           } else {
-            logger.log('No plugin gradle dependency to inject');
+            return Promise.resolve(logger.log('No plugin gradle dependency to inject'));
           }
         });
     })
@@ -522,11 +522,11 @@ function injectPluginXML(opts) {
 
             return fs.writeFileAsync(gradleProguardTealeafFile, xml, 'utf-8');
           } else {
-            logger.log('No plugin gradle dependency to inject');
+            return Promise.resolve(logger.log('No plugin gradle dependency to inject'));
           }
         })
         .then (function () {
-          return installJarsDependencies()
+          return installJarsDependencies().catch(function () {});
         })
     })
     // read and apply plugins proguard settings for app
@@ -556,11 +556,11 @@ function injectPluginXML(opts) {
 
             return fs.writeFileAsync(gradleProguardAppFile, xml, 'utf-8');
           } else {
-            logger.log('No plugin gradle dependency to inject');
+            return Promise.resolve(logger.log('No plugin gradle dependency to inject'));
           }
         })
         .then (function () {
-          return installJarsDependencies()
+          return installJarsDependencies();
         })
     });
 }
@@ -596,7 +596,7 @@ var installModuleCode = function (api, app, opts) {
             }
           }
 
-          return fs.outputFileAsync(outFile, contents, 'utf-8');
+          return fs.outputFileAsync(outFile, contents, 'utf-8').catch(function () {});
         });
     } else if (ext == '.so') {
       var src = path.join(baseDir, filePath);
@@ -607,7 +607,7 @@ var installModuleCode = function (api, app, opts) {
         fs.copyAsync(src, path.join(projectPath, "tealeaf/src/main", 'libs', 'armeabi-v7a', basename))
       ]);
     } else {
-      return fs.copyAsync(path.join(baseDir, filePath), path.join(projectPath, "tealeaf/src/main", filePath));
+      return fs.copyAsync(path.join(baseDir, filePath), path.join(projectPath, "tealeaf/src/main", filePath)).catch(function () {});
     }
   }
 
@@ -618,7 +618,7 @@ var installModuleCode = function (api, app, opts) {
     return fs.unlinkAsync(jarDestPath)
       .catch(function () {})
       .then(function () {
-        return fs.copy(jarFile, jarDestPath, 'junction');
+        return fs.copy(jarFile, jarDestPath, 'junction').catch(function () {});
       });
   }
 
@@ -630,23 +630,23 @@ var installModuleCode = function (api, app, opts) {
     var modulePath = moduleConfig[moduleName].path;
 
     config.copyFiles && config.copyFiles.forEach(function (filename) {
-      tasks.push(handleFile(path.join(modulePath, 'android'), filename, config.injectionSource));
+      tasks.push(handleFile(path.join(modulePath, 'android'), filename, config.injectionSource).catch(function () {}));
     });
     config.copyFilesToApp && config.copyFiles.forEach(function (filename) {
-      tasks.push(handleFile(path.join(modulePath, 'android'), filename, config.injectionSource));
+      tasks.push(handleFile(path.join(modulePath, 'android'), filename, config.injectionSource).catch(function () {}));
     });
 
     config.copyCustomFiles && config.copyCustomFiles.forEach(function (customfile) {
       tasks.push(fs.copyAsync(path.join(modulePath, 'android', customfile.file),
-        path.join(projectPath, customfile.path, customfile.file)));
+        path.join(projectPath, customfile.path, customfile.file)).catch(function () {}));
     });
 
     config.copyGameFiles && config.copyGameFiles.forEach(function (filename) {
-      tasks.push(handleFile(app.paths.root, filename, config.injectionSource));
+      tasks.push(handleFile(app.paths.root, filename, config.injectionSource).catch(function () {}));
     });
 
     config.jars && config.jars.forEach(function (jar) {
-      tasks.push(installJar(path.join(modulePath, 'android', jar)));
+      tasks.push(installJar(path.join(modulePath, 'android', jar)).catch(function () {}));
     });
 
   }
@@ -683,7 +683,7 @@ function installJarsDependencies() {
         gradleJarDependencyStr += "\n" + archivesDependencies;
 
         gradleBuildFileData = replaceTextBetween(gradleBuildFileData, XML_START_PLUGINS_BULK_DEPENDENCIES, XML_END_PLUGINS_BULK_DEPENDENCIES, gradleJarDependencyStr);
-        return fs.writeFileAsync(gradleBuildFile, gradleBuildFileData, 'utf-8');
+        return fs.writeFileAsync(gradleBuildFile, gradleBuildFileData, 'utf-8').catch(function () {});
       }
       else{
         return Promise.resolve("Success");
@@ -730,7 +730,7 @@ function transformXSL(api, inFile, outFile, xslFile, params, config) {
       return fs.readFileAsync(outFileTemp, 'utf-8');
     })
     .then(function(contents) {
-      fs.writeFile(outFile, contents, 'utf-8');
+     return fs.writeFile(outFile, contents, 'utf-8');
     });
 }
 
@@ -763,7 +763,7 @@ function transformGradle(app, inFilePath, outFilePath, transformFilePath, config
     }
 
     return fs.writeFile(outFilePath, inFileContents, 'utf-8');
-  });
+  }).catch(function () {});
 }
 
 function saveLocalizedStringsXmls(outputPath, titles) {
@@ -779,14 +779,14 @@ function saveLocalizedStringsXmls(outputPath, titles) {
     var values = lang == 'en' ? 'values' : 'values-' + lang;
     var stringsFile = path.join(outputPath, "app/src/main",'res', values, 'strings.xml');
     return fs.outputFileAsync(stringsFile, finalXml, 'utf-8');
-  });
+  }).catch(function () {});
 }
 
 function executeOnCreate(api, app, config, opts) {
   var modules = app.modules;
   var hookName = 'onCreateProject';
 
-  return Promise.resolve(Object.keys(modules))
+  return Promise.all([Promise.resolve(Object.keys(modules))
     .map(function (moduleName) {
       var module = modules[moduleName];
       var buildExtension = module.extensions && module.extensions.build;
@@ -807,8 +807,8 @@ function executeOnCreate(api, app, config, opts) {
         });
 
         if (retVal) { resolve(retVal); }
-      })
-    });
+      }.catch(function () {}));
+    })]).catch(function () {});
 }
 
 var projectPath = '';
@@ -861,27 +861,36 @@ function makeAndroidProject(api, app, config, opts) {
               app.manifest.shortName + "Activity.java");
             return spawnWithLogger(api, 'mv', [activityFileOld,activityFileNew]);
           })
-          .then(function () {
-            return Promise.all([
-              saveLocalizedStringsXmls(projectPath, config.titles),
-              updateManifest(api, app, config, opts),
-              updateActivity(app, config),
-            ]);
+          .then(function() {
+            return executeOnCreate(api, app, config, opts);
           })
-            .then(function() {
-                executeOnCreate(api, app, config, opts);
-            })
+          .then(function () {
+
+            return saveLocalizedStringsXmls(projectPath, config.titles);
+
+          } )
+          .then(function () {
+
+            return updateManifest(api, app, config, opts);
+
+          } )
+          .then(function () {
+             return updateActivity(app, config);
+          } );
+
       }
       else {
         return Promise.resolve();
       }
     })
-    .then(
-      function () {
+    .then(function () {
         // Clean gradle projects
-        return setGradleParameters(app).then(spawnWithLogger(api, './gradlew', [
+        return setGradleParameters(app)
+          .then(function () {
+            return spawnWithLogger(api, './gradlew', [
             "clean"
           ], {cwd: projectPath})
+          }
         )});
 }
 
@@ -1165,6 +1174,7 @@ function copyResDir(app, outputDir) {
 }
 
 function updateManifest(api, app, config, opts) {
+
   var params = {
     // Empty defaults
     installShortcut: "false",
@@ -1233,38 +1243,39 @@ function updateManifest(api, app, config, opts) {
   var outputGradleApp =  defaultGradleApp;
   var outputGradleTealeaf =  defaultGradleTealeaf;
 
-  injectAppLinks(app.manifest.android)
 
+
+  return injectAppLinks(app.manifest.android)
     .then(function () {
-      return injectPluginXML(opts);
+      return injectPluginXML(opts).catch(function () {});
     })
     .then(function () {
       return Promise.resolve(Object.keys(opts.moduleConfig));
     })
-    .map (function (moduleName) {
+    .then(function (array) {
+      return  array.reduce(function (promise, moduleName) {
+      return promise.then(function (){
+      logger.log("MODULE: ", chalk.yellow(moduleName));
       var module = opts.moduleConfig[moduleName];
       var config = module.config;
       var tasks = [];
 
         if (config.transformGradleApp) {
             var transformFilePath = path.join(module.path, 'android', config.transformGradleApp);
-            tasks.push(transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config));
+            tasks.push(transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config).catch(function () {}));
         }
 
         if (config.transformGradleTealeaf) {
             var transformFilePath = path.join(module.path, 'android', config.transformGradleTealeaf);
-            tasks.push(transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config));
+            tasks.push(transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config).catch(function () {}));
         }
 
         if (config.injectionXSL) {
             var xslPath = path.join(module.path, 'android', config.injectionXSL);
-            tasks.push(transformXSL(api, defaultManifest, outputManifest, xslPath, params, config));
+            tasks.push(transformXSL(api, defaultManifest, outputManifest, xslPath, params, config).catch(function () {}));
         }
 
-        return Promise.all(tasks);
-
-
-
+       return Promise.all(tasks).catch(function () {});
 
 
       // var checkTransformGragleApp = function(config) {
@@ -1304,8 +1315,10 @@ function updateManifest(api, app, config, opts) {
       //   }
       //
       // return await completeMap(config);
-         }, {concurrency: 1})
-
+         }) }, Promise.resolve())})
+/*    .then(function (tasks) {
+      return Promise.all(tasks);
+    })*/
   // Run the plugin XSLT in series instead of parallel
 
     .then(function() {
@@ -1322,7 +1335,7 @@ function updateManifest(api, app, config, opts) {
       return transformXSL(api, xmlPath, xmlPath,
         path.join(__dirname, "AndroidManifest.xsl"),
         params, config);
-    })
+    });
 }
 
 function setGradleParameters(app) {
@@ -1409,6 +1422,10 @@ function assembleAPK(app, api, config, skipAPK, skipSigning, shortName, archiveB
   if (!config.debug) {
     assembleCommand = 'assembleRelease'
   }
+
+  //var err = new BuildError(chalk.red(' exited by request'));
+  //throw err;
+
   return spawnWithLogger(api, './gradlew', [
     assembleCommand
     // , '--debug', '--stacktrace', // UNCOMMENT TO DEBUG
@@ -1615,7 +1632,7 @@ function buildNDKIfRequired(app, api, skipAPK, skipSigning, shortName, archiveBu
 
 }
 
-exports.build = function(api, app, config, cb) {
+return exports.build = function(api, app, config, cb) {
   logger = api.logging.get('android');
 
   var sdkVersion = parseFloat(config.sdkVersion);
@@ -1667,18 +1684,21 @@ exports.build = function(api, app, config, cb) {
     if (!config.repack) {
       return createProject(api, app, config);
     }
+    else {
+      return Promise.resolve("config.repack selected");
+    }
   }).
   then(function copyResourcesToProject() {
       var appSrcMainDir = projectPath + "/app/src/main"
-      return [
+      return Promise.all([
         // changed from config.outputPath to gradle project path
         copyIcons(app, appSrcMainDir),
         copyMusic(app, appSrcMainDir),
         copyResDir(app, appSrcMainDir),
         copySplash(api, app, appSrcMainDir),
         copyAssets(api, app, appSrcMainDir)
-      ];
-    }).all().
+      ]);
+    }).
       then(function buildAPK() {
       if (!skipAPK) {
        return buildNDKIfRequired(app, api, skipAPK, skipSigning, shortName, archiveBuildName, config, argv);
