@@ -654,7 +654,10 @@ bool init_js(const char *uri, const char *native_hash, jobject thiz) {
     global->Set(STRING_CACHE_clearInterval.Get(m_isolate), FunctionTemplate::New(m_isolate, defClearInterval));
     global->Set(STRING_CACHE_setLocation.Get(m_isolate), FunctionTemplate::New(m_isolate, native_set_location));
 
+#if defined DEBUG
+
 const auto readOnlyFlags = static_cast<PropertyAttribute>(PropertyAttribute::DontDelete | PropertyAttribute::ReadOnly);
+
 
 
     global->Set(ArgConverter::ConvertToV8String(m_isolate, "__log"), FunctionTemplate::New(m_isolate, CallbackHandlers::LogMethodCallback));
@@ -669,43 +672,15 @@ const auto readOnlyFlags = static_cast<PropertyAttribute>(PropertyAttribute::Don
      * Attach `Worker` object constructor only to the main thread (m_isolate)'s global object
      * Workers should not be created from within other Workers, for now
      */
+
     if (!s_mainThreadInitialized) {
         Local<FunctionTemplate> workerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::NewThreadCallback);
         Local<ObjectTemplate> prototype = workerFuncTemplate->PrototypeTemplate();
-
-        /*
-         * Attach methods from the EventTarget interface (postMessage, terminate) to the Worker object prototype
-         */
-        auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectPostMessageCallback);
-        auto terminateWorkerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectTerminateCallback);
-
-        prototype->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
-        prototype->Set(ArgConverter::ConvertToV8String(m_isolate, "terminate"), terminateWorkerFuncTemplate);
-
-        global->Set(ArgConverter::ConvertToV8String(m_isolate, "Worker"), workerFuncTemplate);
-    }
-    /*
-     * Emulate a `WorkerGlobalScope`
-     * Attach 'postMessage', 'close' to the global object
-     */
-    else {
-        auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalPostMessageCallback);
-        global->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
-        auto closeFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalCloseCallback);
-        global->Set(ArgConverter::ConvertToV8String(m_isolate, "close"), closeFuncTemplate);
-    }
 
 /*
-     * Attach `Worker` object constructor only to the main thread (m_isolate)'s global object
-     * Workers should not be created from within other Workers, for now
-     */
-    if (!s_mainThreadInitialized) {
-        Local<FunctionTemplate> workerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::NewThreadCallback);
-        Local<ObjectTemplate> prototype = workerFuncTemplate->PrototypeTemplate();
-
-        /*
          * Attach methods from the EventTarget interface (postMessage, terminate) to the Worker object prototype
          */
+
         auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectPostMessageCallback);
         auto terminateWorkerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectTerminateCallback);
 
@@ -714,27 +689,24 @@ const auto readOnlyFlags = static_cast<PropertyAttribute>(PropertyAttribute::Don
 
         global->Set(ArgConverter::ConvertToV8String(m_isolate, "Worker"), workerFuncTemplate);
     }
-    /*
+/*
      * Emulate a `WorkerGlobalScope`
      * Attach 'postMessage', 'close' to the global object
      */
+
     else {
         auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalPostMessageCallback);
         global->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
         auto closeFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalCloseCallback);
         global->Set(ArgConverter::ConvertToV8String(m_isolate, "close"), closeFuncTemplate);
     }
+    
+   SimpleProfiler::Init(m_isolate, global);
+   CallbackHandlers::CreateGlobalCastFunctions(m_isolate, global);
 
-
-
-
-
-SimpleProfiler::Init(m_isolate, global);
-
-    CallbackHandlers::CreateGlobalCastFunctions(m_isolate, global);
+#endif
 
     m_context.Reset(m_isolate, Context::New(m_isolate, NULL, global));
-    
     m_context.Get(m_isolate)->Enter();
 
 
