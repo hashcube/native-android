@@ -57,5 +57,3 @@ void native_set_location(const v8::FunctionCallbackInfo<v8::Value> &args) {
 void native_initialize_location(const char *uri, Isolate *isolate) {
     m_location.Reset(isolate, (String::NewFromUtf8(isolate, uri)));
 }
-
-//FUNCTIONS' Handle<Value> changed to void (subtype FunctionCallback - need to add logics which changes variables
