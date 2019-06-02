@@ -31,7 +31,9 @@ void js_camera_get_photo(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 void js_camera_process_qr(const v8::FunctionCallbackInfo<v8::Value> &args) {
- /*   Isolate *isolate = getIsolate();
+ /*
+  * QR funcs not needed now
+  * Isolate *isolate = getIsolate();
     String::Utf8Value str(isolate, args[0]);
     const char *cstr = ToCString(str);
 
@@ -45,7 +47,10 @@ void js_camera_process_qr(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 
 void js_camera_encode_qr(const v8::FunctionCallbackInfo<v8::Value> &args) {
-  /*  Isolate *isolate = getIsolate();
+  /*
+   * QR funcs not needed now
+   *
+   * Isolate *isolate = getIsolate();
     String::Utf8Value str(isolate, args[0]);
     const char *cstr = ToCString(str);
 

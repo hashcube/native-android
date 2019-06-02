@@ -45,7 +45,6 @@ void defLocalStorageGetItem(const v8::FunctionCallbackInfo<v8::Value> &args) {
     }
     else {
         LOGFN("end localstorage get");
-        //return Null(); todo verify if null is used by framework
         args.GetReturnValue().Set(Undefined(isolate));
     }
 

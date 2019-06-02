@@ -206,38 +206,18 @@ void js_animate_constructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
     Handle<Object> thiz = Handle<Object>::Cast(args.Holder());
     Handle<Object> js_timestep_view = Handle<Object>::Cast(args[0]);
 
-    //timestep_view *view = GET_TIMESTEP_VIEW(Local<Object>::Cast(js_timestep_view->Get(getContext(), STRING_CACHE___view.Get(getIsolate())).ToLocalChecked()));
     timestep_view *view = GET_TIMESTEP_VIEW(Handle<Object>::Cast(js_timestep_view->Get(STRING_CACHE___view.Get(isolate))));
     view_animation *anim = view_animation_init(view);
 
     thiz->SetInternalField(0, External::New(isolate, anim));
     Persistent<Object> js_anim(isolate, thiz);
-    //static void js_animation_finalize(Persistent<Value> js_anim, void *param) {
-    //       void (*)                   (const WeakCallbackInfo<view_animation_t> &)
     js_anim.SetWeak(anim, weakCallbackForObjectHolder, v8::WeakCallbackType::kParameter);
-
-   /* tealeaf/src/main/jni/deps/v8/include/v8.h:638:18:
-    note: candidate function [with P = view_animation_t] not viable: no known conversion from
-    'void (Persistent<v8::Value>, void *)' to 'typename WeakCallbackInfo<view_animation_t>::Callback'
-    (aka 'void (*)(const WeakCallbackInfo<view_animation_t> &)') for 2nd argument*/
-
-
-    //anim->js_anim = js_anim.Get(isolate);
-   /* if(!anim->js_anim.IsNearDeath()){
-    anim->js_anim.MarkActive();
-    }
-    */
     
     if(!anim->js_anim.IsEmpty()){
     anim->js_anim.Empty();
     }	
-    
-   /*     if(anim->js_anim.IsNearDeath()){
-    anim->js_anim.MarkActive();
-    }
-*/
-    anim->js_anim.Reset(isolate, js_anim);
 
+    anim->js_anim.Reset(isolate, js_anim);
     args.GetReturnValue().Set(thiz);
 }
 
@@ -257,7 +237,6 @@ void def_animate_add_to_group(Handle<Object> js_anim, Isolate *isolate) {
 void def_animate_remove_from_group(Handle<Object> js_anim, Isolate *isolate) {
     LOGFN("def_animate_remove_from_group");
     Handle<Function> finish = Handle<Function>::Cast(js_anim->Get(STRING_CACHE__removeFromGroup.Get(isolate)));
-    //Handle<Function> finish = Handle<Function>::Cast(js_anim->Get(isolate->GetCurrentContext(), STRING_CACHE__removeFromGroup.Get(isolate)).ToLocalChecked());
     if (!finish.IsEmpty() && finish->IsFunction()) {
         Handle<Value> args[] = {js_anim};
         finish->Call(js_anim, 1, args);
@@ -275,8 +254,6 @@ Handle<FunctionTemplate> get_animate_class(Isolate *isolate) {
     animate_class->SetCallHandler(js_animate_constructor);
 
     Handle<Template> proto = animate_class->PrototypeTemplate();
-    //Local<ObjectTemplate> global = ObjectTemplate::New(isolate);
-   
     
     proto->Set(String::NewFromUtf8(isolate,"now"), FunctionTemplate::New(isolate, js_animate_now));
     proto->Set(String::NewFromUtf8(isolate,"then"), FunctionTemplate::New(isolate, js_animate_then));
