@@ -46,7 +46,7 @@ void SIGABRT_handler(int sigNumber) {
 }
 
 void Runtime::Init(JavaVM* vm, void* reserved) {
-    __android_log_print(ANDROID_LOG_INFO, "TNS.Native", "NativeScript Runtime Version %s, commit %s", NATIVE_SCRIPT_RUNTIME_VERSION, NATIVE_SCRIPT_RUNTIME_COMMIT_SHA);
+   // __android_log_print(ANDROID_LOG_INFO, "TNS.Native", "NativeScript Runtime Version %s, commit %s", NATIVE_SCRIPT_RUNTIME_VERSION, NATIVE_SCRIPT_RUNTIME_COMMIT_SHA);
     DEBUG_WRITE("JNI_ONLoad");
 
     if (Runtime::s_jvm == nullptr) {
