@@ -326,7 +326,7 @@ function injectPluginXML(opts) {
         xml = replaceTextBetween(xml, XML_START_PLUGINS_APPLICATION, XML_END_PLUGINS_APPLICATION, manifestXmlApplicationStr);
         return fs.writeFileAsync(manifestXml, xml, 'utf-8');
       } else {
-        logger.log('No plugin XML to inject');
+        return Promise.resolve(logger.log('No plugin XML to inject'));
       }
     })
     // read and apply plugins to tealeaf build.gradle
@@ -381,7 +381,7 @@ function injectPluginXML(opts) {
 
             return fs.writeFileAsync(gradleTealeafBuildFile, xml, 'utf-8');
           } else {
-            logger.log('No plugin gradle dependency to inject');
+            return Promise.resolve(logger.log('No plugin gradle dependency to inject'));
           }
         });
     })
@@ -427,7 +427,7 @@ function injectPluginXML(opts) {
 
             return fs.writeFileAsync(gradleAppBuildFile, xml, 'utf-8');
           } else {
-            logger.log('No plugin gradle dependency to inject');
+            return Promise.resolve(logger.log('No plugin gradle dependency to inject'));
           }
         });
     })
@@ -472,7 +472,7 @@ function injectPluginXML(opts) {
 
             return fs.writeFileAsync(gradleClasspathMainBuildFile, xml, 'utf-8');
           } else {
-            logger.log('No plugin gradle dependency to inject');
+            return Promise.resolve(logger.log('No plugin gradle dependency to inject'));
           }
         });
     })
@@ -534,11 +534,11 @@ function injectPluginXML(opts) {
 
             return fs.writeFileAsync(gradleProguardTealeafFile, xml, 'utf-8');
           } else {
-            logger.log('No plugin gradle dependency to inject');
+            return Promise.resolve(logger.log('No plugin gradle dependency to inject'));
           }
         })
         .then (function () {
-          return installJarsDependencies()
+          return installJarsDependencies().catch(function () {});
         })
     })
     // read and apply plugins proguard settings for app
@@ -568,11 +568,11 @@ function injectPluginXML(opts) {
 
             return fs.writeFileAsync(gradleProguardAppFile, xml, 'utf-8');
           } else {
-            logger.log('No plugin gradle dependency to inject');
+            return Promise.resolve(logger.log('No plugin gradle dependency to inject'));
           }
         })
         .then (function () {
-          return installJarsDependencies()
+          return installJarsDependencies();
         })
     })
     // read and apply network security config
@@ -640,7 +640,7 @@ var installModuleCode = function (api, app, opts) {
             }
           }
 
-          return fs.outputFileAsync(outFile, contents, 'utf-8');
+          return fs.outputFileAsync(outFile, contents, 'utf-8').catch(function () {});
         });
     } else if (ext == '.so') {
       var src = path.join(baseDir, filePath);
@@ -651,7 +651,7 @@ var installModuleCode = function (api, app, opts) {
         fs.copyAsync(src, path.join(projectPath, "tealeaf/src/main", 'libs', 'armeabi-v7a', basename))
       ]);
     } else {
-      return fs.copyAsync(path.join(baseDir, filePath), path.join(projectPath, "tealeaf/src/main", filePath));
+      return fs.copyAsync(path.join(baseDir, filePath), path.join(projectPath, "tealeaf/src/main", filePath)).catch(function () {});
     }
   }
 
@@ -662,7 +662,7 @@ var installModuleCode = function (api, app, opts) {
     return fs.unlinkAsync(jarDestPath)
       .catch(function () {})
       .then(function () {
-        return fs.copy(jarFile, jarDestPath, 'junction');
+        return fs.copy(jarFile, jarDestPath, 'junction').catch(function () {});
       });
   }
 
@@ -674,23 +674,23 @@ var installModuleCode = function (api, app, opts) {
     var modulePath = moduleConfig[moduleName].path;
 
     config.copyFiles && config.copyFiles.forEach(function (filename) {
-      tasks.push(handleFile(path.join(modulePath, 'android'), filename, config.injectionSource));
+      tasks.push(handleFile(path.join(modulePath, 'android'), filename, config.injectionSource).catch(function () {}));
     });
     config.copyFilesToApp && config.copyFiles.forEach(function (filename) {
-      tasks.push(handleFile(path.join(modulePath, 'android'), filename, config.injectionSource));
+      tasks.push(handleFile(path.join(modulePath, 'android'), filename, config.injectionSource).catch(function () {}));
     });
 
     config.copyCustomFiles && config.copyCustomFiles.forEach(function (customfile) {
       tasks.push(fs.copyAsync(path.join(modulePath, 'android', customfile.file),
-        path.join(projectPath, customfile.path, customfile.file)));
+        path.join(projectPath, customfile.path, customfile.file)).catch(function () {}));
     });
 
     config.copyGameFiles && config.copyGameFiles.forEach(function (filename) {
-      tasks.push(handleFile(app.paths.root, filename, config.injectionSource));
+      tasks.push(handleFile(app.paths.root, filename, config.injectionSource).catch(function () {}));
     });
 
     config.jars && config.jars.forEach(function (jar) {
-      tasks.push(installJar(path.join(modulePath, 'android', jar)));
+      tasks.push(installJar(path.join(modulePath, 'android', jar)).catch(function () {}));
     });
 
   }
@@ -727,7 +727,7 @@ function installJarsDependencies() {
         gradleJarDependencyStr += "\n" + archivesDependencies;
 
         gradleBuildFileData = replaceTextBetween(gradleBuildFileData, XML_START_PLUGINS_BULK_DEPENDENCIES, XML_END_PLUGINS_BULK_DEPENDENCIES, gradleJarDependencyStr);
-        return fs.writeFileAsync(gradleBuildFile, gradleBuildFileData, 'utf-8');
+        return fs.writeFileAsync(gradleBuildFile, gradleBuildFileData, 'utf-8').catch(function () {});
       }
       else{
         return Promise.resolve("Success");
@@ -774,7 +774,7 @@ function transformXSL(api, inFile, outFile, xslFile, params, config) {
       return fs.readFileAsync(outFileTemp, 'utf-8');
     })
     .then(function(contents) {
-      fs.writeFile(outFile, contents, 'utf-8');
+     return fs.writeFile(outFile, contents, 'utf-8');
     });
 }
 
@@ -807,7 +807,7 @@ function transformGradle(app, inFilePath, outFilePath, transformFilePath, config
     }
 
     return fs.writeFile(outFilePath, inFileContents, 'utf-8');
-  });
+  }).catch(function () {});
 }
 
 function saveLocalizedStringsXmls(outputPath, titles) {
@@ -823,36 +823,35 @@ function saveLocalizedStringsXmls(outputPath, titles) {
     var values = lang == 'en' ? 'values' : 'values-' + lang;
     var stringsFile = path.join(outputPath, "app/src/main",'res', values, 'strings.xml');
     return fs.outputFileAsync(stringsFile, finalXml, 'utf-8');
-  });
+  }).catch(function () {});
 }
 
 function executeOnCreate(api, app, config, opts) {
   var modules = app.modules;
   var hookName = 'onCreateProject';
-
-  return Promise.resolve(Object.keys(modules))
-    .map(function (moduleName) {
+  return Object.keys(modules).reduce(function (promise, moduleName) {
+      return promise.then(function (){
       var module = modules[moduleName];
       var buildExtension = module.extensions && module.extensions.build;
-
       buildExtension = buildExtension ? require(buildExtension) : null;
 
       if (!buildExtension || !buildExtension[hookName]) {
-        return;
+        return Promise.resolve();
       }
 
       return new Promise(function (resolve, reject) {
         var retVal = buildExtension[hookName](api, app, config, function (err, res) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(res);
-          }
-        });
+            if (err) {
+              reject(err);
+            } else {
+              resolve(res);
+            }
+          });
 
-        if (retVal) { resolve(retVal); }
-      })
-    });
+          if (retVal) { resolve(retVal); } // if (retVal) { this.then(function() {return retVal}); }
+      });
+    }) }, Promise.resolve());
+
 }
 
 var projectPath = '';
@@ -886,7 +885,6 @@ function makeAndroidProject(api, app, config, opts) {
           // new package
           config.packageName
         ], {cwd: './modules/devkit-core/modules/native-android/gradleops/'})
-
         // make new package dir
           .then(function () {
             return spawnWithLogger(api, 'mkdir', ["-p", path.join(projectPath,
@@ -903,37 +901,60 @@ function makeAndroidProject(api, app, config, opts) {
               "app/src/main/java",
               config.packageName.split('.').join('/'),
               app.manifest.shortName + "Activity.java");
-            return spawnWithLogger(api, 'mv', [activityFileOld,activityFileNew]);
+            return spawnWithLogger(api, 'mv', [activityFileOld,activityFileNew]).catch(function () {});
+          })
+          .then(function() {
+            return executeOnCreate(api, app, config, opts).catch(function () {});
           })
           .then(function () {
-            return Promise.all([
-              saveLocalizedStringsXmls(projectPath, config.titles),
-              updateManifest(api, app, config, opts),
-              updateActivity(app, config),
-            ]);
+            return saveLocalizedStringsXmls(projectPath, config.titles).catch(function () {});
           })
-            .then(function() {
-                executeOnCreate(api, app, config, opts);
-            })
+          .then(function () {
+            return updateManifest(api, app, config, opts).catch(function () {});
+          })
+          .then(function () {
+             return updateActivity(app, config).catch(function () {});
+          });
+
       }
       else {
         return Promise.resolve();
       }
     })
-    .then(
-      function () {
+    .then(function () {
         // Clean gradle projects
-        return setGradleParameters(app).then(spawnWithLogger(api, './gradlew', [
+        return setGradleParameters(app)
+          .then(function () {
+            return spawnWithLogger(api, './gradlew', [
             "clean"
           ], {cwd: projectPath})
+          }
         )});
 }
 
-function signAPK(api, app, shortName, outputPath, debug, config) {
+function signArchive(api, app, shortName, outputPath, debug, config) {
   var signArgsDebug, alignArgsDebug, signArgsRelease;
   var binDir = path.join(outputPath, "bin");
+  var archiveType = 'apk';
+  var archiveName = '';
+  var archiveUnsignedName = '';
+  if(config.bundle){
+    archiveType = 'bundle';
+    archiveName = 'app-aligned.aab';
+    archiveUnsignedName = 'app.aab';
+  }
+  else {
+    if (debug) {
+      archiveName =  "app-debug.apk"
+    }
+    else {
+      archiveName =  "app-release-aligned.apk"
+      archiveUnsignedName = "app-release-unsigned.apk";
+    }
+  }
 
   logger.log('Signing APK at', binDir);
+
   if (debug) {
 
 
@@ -948,11 +969,11 @@ function signAPK(api, app, shortName, outputPath, debug, config) {
       logger.log('Data != null');
       signArgsRelease = [
         "sign", "--ks", keystore, "--ks-pass", "pass:"+storepass, "--key-pass", "pass:"+keypass,
-        "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false", "--verbose",
-        "app-debug.apk"
+        "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false", "--min-sdk-version", "21", "--verbose",
+       archiveName
       ];
 
-      var apkDirDebug = path.join(outputPath, "../../"+shortName+"/app/build/outputs/apk/debug/");
+      var apkDirDebug = path.join(outputPath, "../../"+shortName+"/app/build/outputs/"+archiveType+"/debug/");
       return spawnWithLogger(api, process.env.ANDROID_HOME + '/build-tools/'+app.manifest.android.buildToolsVersion+'/apksigner', signArgsRelease, {cwd: apkDirDebug})
     }
     else {  // sign debug apk with default Android debug keys
@@ -965,10 +986,10 @@ function signAPK(api, app, shortName, outputPath, debug, config) {
       ];
 
       alignArgsDebug = [
-        "-f", "-v", "4", "app-debug.apk", "app-debug-aligned.apk"
+        "-f", "-v", "4", "app-debug.apk", archiveName
       ];
 
-      var apkDirDebug = path.join(outputPath, "../../" + shortName + "/app/build/outputs/apk/debug/");
+      var apkDirDebug = path.join(outputPath, "../../" + shortName + "/app/build/outputs/"+archiveType+"/debug/");
       return spawnWithLogger(api, process.env.ANDROID_HOME + '/build-tools/'+app.manifest.android.buildToolsVersion+'/zipalign', alignArgsDebug, {cwd: apkDirDebug})
         .then(function () {
           return spawnWithLogger(api, process.env.ANDROID_HOME + '/build-tools/'+app.manifest.android.buildToolsVersion+'/apksigner', signArgsDebug, {cwd: apkDirDebug})
@@ -991,16 +1012,16 @@ function signAPK(api, app, shortName, outputPath, debug, config) {
 
     signArgs = [
       "sign", "--ks", keystore, "--ks-pass", "pass:"+storepass, "--key-pass", "pass:"+keypass,
-      "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false", "--verbose",
-      "app-release-aligned.apk"
+      "--ks-key-alias", key, "--v1-signing-enabled", "true", "--v2-signing-enabled", "false",  "--min-sdk-version", "21", "--verbose",
+     archiveName
     ];
 
     alignArgs = [
-      "-f", "-v", "4", "app-release-unsigned.apk", "app-release-aligned.apk" //shortName + "-unaligned.apk", shortName + "-aligned.apk"
+      "-f", "-v", "4", archiveUnsignedName, archiveName //shortName + "-unaligned.apk", shortName + "-aligned.apk"
     ];
 
     var scheme = (config.debug ? "debug" : "release");
-    var apkDir = path.join(outputPath, shortName , "app/build/outputs/apk/", scheme);
+    var apkDir = path.join(outputPath, shortName , "app/build/outputs/"+archiveType+"/", scheme);
     return spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/'+app.manifest.android.buildToolsVersion+'/zipalign', alignArgs , {cwd: apkDir})
       .then(function () {
        return spawnWithLogger(api, process.env.ANDROID_HOME +'/build-tools/'+app.manifest.android.buildToolsVersion+'/apksigner', signArgs, {cwd: apkDir})
@@ -1191,6 +1212,7 @@ function copyResDir(app, outputDir) {
 }
 
 function updateManifest(api, app, config, opts) {
+
   var params = {
     // Empty defaults
     installShortcut: "false",
@@ -1259,38 +1281,39 @@ function updateManifest(api, app, config, opts) {
   var outputGradleApp =  defaultGradleApp;
   var outputGradleTealeaf =  defaultGradleTealeaf;
 
-  injectAppLinks(app.manifest.android)
 
+
+  return injectAppLinks(app.manifest.android)
     .then(function () {
-      return injectPluginXML(opts);
+      return injectPluginXML(opts).catch(function () {});
     })
     .then(function () {
       return Promise.resolve(Object.keys(opts.moduleConfig));
     })
-    .map (function (moduleName) {
+    .then(function (array) {
+      return  array.reduce(function (promise, moduleName) {
+      return promise.then(function (){
+      logger.log("MODULE: ", chalk.yellow(moduleName));
       var module = opts.moduleConfig[moduleName];
       var config = module.config;
       var tasks = [];
 
         if (config.transformGradleApp) {
             var transformFilePath = path.join(module.path, 'android', config.transformGradleApp);
-            tasks.push(transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config));
+            tasks.push(transformGradle(app, defaultGradleApp, outputGradleApp, transformFilePath, config).catch(function () {}));
         }
 
         if (config.transformGradleTealeaf) {
             var transformFilePath = path.join(module.path, 'android', config.transformGradleTealeaf);
-            tasks.push(transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config));
+            tasks.push(transformGradle(app, defaultGradleTealeaf, outputGradleTealeaf, transformFilePath, config).catch(function () {}));
         }
 
         if (config.injectionXSL) {
             var xslPath = path.join(module.path, 'android', config.injectionXSL);
-            tasks.push(transformXSL(api, defaultManifest, outputManifest, xslPath, params, config));
+            tasks.push(transformXSL(api, defaultManifest, outputManifest, xslPath, params, config).catch(function () {}));
         }
 
-        return Promise.all(tasks);
-
-
-
+       return Promise.all(tasks).catch(function () {});
 
 
       // var checkTransformGragleApp = function(config) {
@@ -1330,8 +1353,10 @@ function updateManifest(api, app, config, opts) {
       //   }
       //
       // return await completeMap(config);
-         }, {concurrency: 1})
-
+         }) }, Promise.resolve())})
+/*    .then(function (tasks) {
+      return Promise.all(tasks);
+    })*/
   // Run the plugin XSLT in series instead of parallel
 
     .then(function() {
@@ -1348,7 +1373,7 @@ function updateManifest(api, app, config, opts) {
       return transformXSL(api, xmlPath, xmlPath,
         path.join(__dirname, "AndroidManifest.xsl"),
         params, config);
-    })
+    });
 }
 
 function setGradleParameters(app) {
@@ -1427,126 +1452,25 @@ function createProject(api, app, config) {
   return Promise.all(tasks);
 }
 
-exports.build = function(api, app, config, cb) {
-  logger = api.logging.get('android');
+function assembleAPK(app, api, config, skipAPK, skipSigning, shortName, archiveBuildName, buildType, argv) {
+  logger.log(chalk.cyan(["Build type: APK"].join('\n')));
 
-  var sdkVersion = parseFloat(config.sdkVersion);
-  if (isNaN(sdkVersion) || sdkVersion < 3.1) {
-    spawnWithLogger = legacySpawnWithLogger;
-  }
+  var assembleCommand = 'assembleDebug'
 
-  var argv = config.argv;
-
-  var skipAPK = argv.apk === false;
-  var skipSigning = skipAPK || !argv.signing && config.debug;
-
-  var shortName = app.manifest.shortName;
-  if (shortName === null) {
-    throw new BuildError("Build aborted: No shortName in the manifest");
-  }
-
-  var apkBuildName = "";
   if (!config.debug) {
-    if (skipSigning) {
-      apkBuildName = "app-release-unsigned.apk";
-    } else {
-      apkBuildName = "app-release-aligned.apk";
-    }
-  } else {
-    apkBuildName = "app-debug.apk";
+    assembleCommand = 'assembleRelease'
   }
 
-  if (!app.manifest.android) {
-    logger.warn('you should add an "android" key to your app\'s manifest.json',
-      'for android-specific settings');
-    app.manifest.android = {};
-  }
+  //var err = new BuildError(chalk.red(' exited by request'));
+  //throw err;
 
-  return Promise.try(function createAndroidProjectFiles() {
-    if (!config.repack) {
-      return createProject(api, app, config);
-    }
-  }).
-  then(function copyResourcesToProject() {
-      var appSrcMainDir = projectPath + "/app/src/main"
-      return [
-        // changed from config.outputPath to gradle project path
-        copyIcons(app, appSrcMainDir),
-        copyMusic(app, appSrcMainDir),
-        copyResDir(app, appSrcMainDir),
-        copySplash(api, app, appSrcMainDir),
-        copyAssets(api, app, appSrcMainDir)
-      ];
-    }).all().
-      then(function buildAPK() {
-      if (!skipAPK) {
-        // build ndk libtealeaf.so, formerly named manually libpng.so ,
-        return spawnWithLogger(api, 'ndk-build', [
-          "NDK_PROJECT_PATH=tealeaf/src/main", (function () { return config.debug ? "DEBUG=1" : "RELEASE=1"})(),
-        ], {cwd: projectPath})
-          .catch(BuildError, function (err) {
-            if (err.stdout && /not valid/i.test(err.stdout)) {
-              logger.log(chalk.yellow([
-                '',
-                'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
-                'you have installed the Android SDK properly, and use the',
-                '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
-                ''
-              ].join('\n')));
-            }
-
-            if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
-              logger.log(chalk.yellow([
-                '',
-                'You must install the Android SDK first. Please ensure the ',
-                '"android" tool is available from the command line by adding',
-                'the sdk\'s "tools/" directory to your system path.',
-                ''
-              ].join('\n')));
-            }
-
-            throw err;
-          }).
-            then(function () {
-
-            var assembleCommand = 'assembleDebug'
-
-            if (!config.debug) {
-              assembleCommand = 'assembleRelease'
-            }
-            return spawnWithLogger(api, './gradlew', [
-              assembleCommand
-              // , '--debug', '--stacktrace', // UNCOMMENT TO DEBUG
-            ], {cwd: projectPath})
-              .catch(BuildError, function (err) {
-                if (err.stdout && /not valid/i.test(err.stdout)) {
-                  logger.log(chalk.yellow([
-                    '',
-                    'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
-                    'you have installed the Android SDK properly, and use the',
-                    '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
-                    ''
-                  ].join('\n')));
-                }
-
-                if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
-                  logger.log(chalk.yellow([
-                    '',
-                    'You must install the Android SDK first. Please ensure the ',
-                    '"android" tool is available from the command line by adding',
-                    'the sdk\'s "tools/" directory to your system path.',
-                    ''
-                  ].join('\n')));
-                }
-
-                throw err;
-              });
-          })
-      }
-    })
+  return spawnWithLogger(api, './gradlew', [
+    assembleCommand
+    // , '--debug', '--stacktrace', // UNCOMMENT TO DEBUG
+  ], {cwd: projectPath})
     .then(function () {
       if (!skipSigning) {
-        return signAPK(api, app, shortName, config.outputPath, config.debug, config);
+        return signArchive(api, app, shortName, config.outputPath, config.debug, config);
       }
       else {
         return new Promise.resolve("bypass");
@@ -1559,7 +1483,7 @@ exports.build = function(api, app, config, cb) {
         setTimeout(function() {
           // Whatever you want to do after the wait
 
-          return moveAPK(api, app, config, apkBuildName)
+          return moveBuildFile(api, app, config, archiveBuildName, buildType)
             .tap(function (apkPath) {
               logger.log("built", chalk.yellow(config.packageName));
               logger.log("saved to " + chalk.blue(apkPath));
@@ -1579,15 +1503,253 @@ exports.build = function(api, app, config, cb) {
         }, millisecondsToWait);
       }
     })
+    .catch(BuildError, function (err) {
+      if (err.stdout && /not valid/i.test(err.stdout)) {
+        logger.log(chalk.yellow([
+          '',
+          'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
+          'you have installed the Android SDK properly, and use the',
+          '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
+          ''
+        ].join('\n')));
+      }
+
+      if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
+        logger.log(chalk.yellow([
+          '',
+          'You must install the Android SDK first. Please ensure the ',
+          '"android" tool is available from the command line by adding',
+          'the sdk\'s "tools/" directory to your system path.',
+          ''
+        ].join('\n')));
+      }
+
+      throw err;
+    });
+}
+
+function assembleBundle(app, api, config, skipAPK, skipSigning, shortName, archiveBuildName, buildType, argv) {
+  logger.log(chalk.cyan(["Build type: Bundle"].join('\n')));
+
+  var assembleCommand = 'bundleDebug'
+
+  if (!config.debug) {
+    assembleCommand = 'bundleRelease'
+  }
+  return spawnWithLogger(api, './gradlew', [
+    assembleCommand,
+    // , '--debug', '--stacktrace', // UNCOMMENT TO DEBUG
+  ], {cwd: projectPath})
+    .then(function () {
+      if (!skipSigning) {
+        return signArchive(api, app, shortName, config.outputPath, config.debug, config);
+      }
+      else {
+        return new Promise.resolve("bypass");
+      }
+    })
+    .then(function () {
+      if (!skipAPK) {
+        // Need a timeout because it copied unsigned build
+        var millisecondsToWait = 5000;
+        setTimeout(function() {
+          // Whatever you want to do after the wait
+
+          return moveBuildFile(api, app, config, archiveBuildName, buildType)
+            .tap(function (apkPath) {
+              logger.log("built", chalk.yellow(config.packageName));
+              logger.log("saved to " + chalk.blue(apkPath));
+            })
+            .then(function (apkPath) {
+              if (argv.reveal) {
+                require('child_process').exec('open --reveal "' + apkPath + '"');
+              }
+
+              if (argv.install || argv.open) {
+                return installAPK(api, config, apkPath, {
+                  open: !!argv.open,
+                  clearStorage: argv.clearStorage
+                });
+              }
+            });
+        }, millisecondsToWait);
+      }
+    })
+    .catch(BuildError, function (err) {
+      if (err.stdout && /not valid/i.test(err.stdout)) {
+        logger.log(chalk.yellow([
+          '',
+          'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
+          'you have installed the Android SDK properly, and use the',
+          '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
+          ''
+        ].join('\n')));
+      }
+
+      if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
+        logger.log(chalk.yellow([
+          '',
+          'You must install the Android SDK first. Please ensure the ',
+          '"android" tool is available from the command line by adding',
+          'the sdk\'s "tools/" directory to your system path.',
+          ''
+        ].join('\n')));
+      }
+      throw err;
+    });
+}
+
+function buildNDKIfRequired(app, api, skipAPK, skipSigning, shortName, archiveBuildName, config, argv) {
+  //Read Application.mk file
+  var fileApplicationMk = fs.readFileSync(path.join(projectPath,'tealeaf/src/main/jni/Application.mk'), 'utf-8').split('\n');
+
+  //Parse string N1
+  var abis = fileApplicationMk[0].split(" ").filter(word => word.includes("arm"));
+  //Get required abi
+  var rebuild = false;
+
+  //Check required abi biulds
+  var abisTobuld = abis.map(function(abi){
+    if(abi == 'armeabi-v7a'){
+     if(!fs.existsSync(path.join(projectPath, 'tealeaf/src/main/libs/armeabi-v7a/libtealeaf.so'))){
+       return true;
+     }
+    }
+    else if (abi == 'arm64-v8a'){
+      if(!fs.existsSync(path.join(projectPath, 'tealeaf/src/main/libs/arm64-v8a/libtealeaf.so'))){
+        return true;
+      }
+    }
+
+  }).filter(rebuild => rebuild === true);
+
+   return Promise.try(function () {
+      //If build required then remove tealeaf/src/main/libs
+      if(abisTobuld.length > 0){
+        //Rebuild
+    return spawnWithLogger(api, 'ndk-build', [
+      "NDK_PROJECT_PATH=tealeaf/src/main", (function () { return config.debug ? "DEBUG=1" : "RELEASE=1"})(),
+    ], {cwd: projectPath})
+      .catch(BuildError, function (err) {
+        if (err.stdout && /not valid/i.test(err.stdout)) {
+          logger.log(chalk.yellow([
+            '',
+            'Android target ' + ANDROID_TARGET + ' was not available. Please ensure',
+            'you have installed the Android SDK properly, and use the',
+            '"android" tool to install API Level ' + ANDROID_TARGET.split('-')[1] + '.',
+            ''
+          ].join('\n')));
+        }
+
+        if (err.stdout && /no such file/i.test(err.stdout) || err.code == 126) {
+          logger.log(chalk.yellow([
+            '',
+            'You must install the Android SDK first. Please ensure the ',
+            '"android" tool is available from the command line by adding',
+            'the sdk\'s "tools/" directory to your system path.',
+            ''
+          ].join('\n')));
+        }
+
+        throw err;
+      })
+  } else {
+  return logger.log(chalk.yellow([
+    'Ndk rebuild not required',
+    ''
+  ].join('\n')));
+  }})
+   .then(function () {
+    if (config.bundle) {
+      return assembleBundle(app, api, config, skipAPK, skipSigning, shortName, archiveBuildName, "bundle", argv);
+    }
+    else {
+      return assembleAPK(app, api, config, skipAPK, skipSigning, shortName, archiveBuildName, "apk", argv);
+    }
+  })
+
+}
+
+return exports.build = function(api, app, config, cb) {
+  logger = api.logging.get('android');
+
+  var sdkVersion = parseFloat(config.sdkVersion);
+  if (isNaN(sdkVersion) || sdkVersion < 3.1) {
+    spawnWithLogger = legacySpawnWithLogger;
+  }
+
+  var argv = config.argv;
+
+  var skipAPK = argv.apk === false;
+  var skipSigning = skipAPK || !argv.signing && config.debug;
+
+  var shortName = app.manifest.shortName;
+  if (shortName === null) {
+    throw new BuildError("Build aborted: No shortName in the manifest");
+  }
+
+  var archiveBuildName = "";
+  if(!config.bundle) {
+    if (!config.debug) {
+      if (skipSigning) {
+        archiveBuildName = "app-release-unsigned.apk";
+      } else {
+        archiveBuildName = "app-release-aligned.apk";
+      }
+    } else {
+      archiveBuildName = "app-debug.apk";
+    }
+  }
+  else {
+    if (!config.debug) {
+      if (skipSigning) {
+        archiveBuildName = "app-aligned.aab";
+      } else {
+        archiveBuildName = "app-aligned.aab";
+      }
+    } else {
+      archiveBuildName = "app.aab";
+    }
+  }
+
+  if (!app.manifest.android) {
+    logger.warn('you should add an "android" key to your app\'s manifest.json',
+      'for android-specific settings');
+    app.manifest.android = {};
+  }
+
+  return Promise.try(function createAndroidProjectFiles() {
+    if (!config.repack) {
+      return createProject(api, app, config);
+    }
+    else {
+      return Promise.resolve("config.repack selected");
+    }
+  }).
+  then(function copyResourcesToProject() {
+      var appSrcMainDir = projectPath + "/app/src/main"
+      return Promise.all([
+        // changed from config.outputPath to gradle project path
+        copyIcons(app, appSrcMainDir),
+        copyMusic(app, appSrcMainDir),
+        copyResDir(app, appSrcMainDir),
+        copySplash(api, app, appSrcMainDir),
+        copyAssets(api, app, appSrcMainDir)
+      ]);
+    }).
+      then(function buildAPK() {
+      if (!skipAPK) {
+       return buildNDKIfRequired(app, api, skipAPK, skipSigning, shortName, archiveBuildName, config, argv);
+      }
+    })
     .nodeify(cb);
 };
 
-function moveAPK(api, app, config, apkBuildName) {
+function moveBuildFile(api, app, config, archiveBuildName, buildType) {
   var shortName = app.manifest.shortName;
   var scheme = (config.debug ? "debug" : "release");
-  var apkPath = path.join(projectPath,"app/build/outputs/apk",scheme, apkBuildName);
-  var destApkPath = path.join(config.outputPath, "bin", apkBuildName);
-
+  var apkPath = path.join(projectPath, "app/build/outputs", buildType, scheme, archiveBuildName);
+  var destApkPath = path.join(config.outputPath, "bin", archiveBuildName);
   return Promise.all([
     existsAsync(apkPath),
     fs.unlinkAsync(destApkPath)

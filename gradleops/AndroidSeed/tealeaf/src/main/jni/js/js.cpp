@@ -88,15 +88,6 @@
 #include "src/libplatform/default-platform.h"
 #include "v8-platform.h"
 
-/*
-#if defined(REMOTE_DEBUG)
-#include "debug/debug.h"
-#endif
-
-#if defined(ENABLE_PROFILER)
-#include "lib/v8-profiler/profiler.h"
-#endif
-*/
 #include "include/libplatform/libplatform.h"
 #include "include/v8.h"
 #include "js.h"
@@ -111,8 +102,6 @@
 #include "NativeScriptException.h"
 #include <sstream>
 
-#include "JsV8InspectorClient.h"
-#include "v8_inspector/src/inspector/v8-inspector-platform.h"
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
@@ -161,25 +150,6 @@ CEXPORT void eval_str(const char *str, const char * filename) {
         return;
     }
 
-    /*LOG("{native} execute script", "{native} execute script");
-    size_t size = strlen(str)/1000;
-    LOG(str, "{native} execute script");
-    std::string  fullScript = std::string(str);
-    for( int i = 0; i < size; i++){
-
-        int curstep = i*1000;
-        if(size == i+1){
-
-            std::string logchunk =  fullScript.substr (curstep,strlen(str)-curstep);
-            LOG(logchunk.c_str(), "{native} print script end");
-        }
-        else{
-            std::string logchunk =  fullScript.substr (curstep,curstep+1000);
-            LOG(logchunk.c_str(), "{native} print script");
-        }
-
-    }
-    LOG("{native} execute script", "{native} execute script");*/
     Handle<Context> context = getContext();
     Context::Scope context_scope(context);
     Handle<String> source = String::NewFromUtf8(m_isolate, str);
@@ -208,25 +178,19 @@ void timer_start(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOGFN("setTick");
     Context::Scope context_scope(context);
 
-    // Old block
     if (tickFunction == NULL) {
-        // tickFunction = (Persistent<Function>*)calloc(1, sizeof(Persistent<Function>)); // this needs to be tested still
         tickFunction = new Persistent<Function>();
     }
 
-    // Updated at Aug 28 2018
     if (args[0]->IsFunction()) {
         Local<v8::Function> function = Local<Function>::Cast(args[0]);
-        //Handle<Function> fun = Handle<Function>::Cast(args[0]->ToObject());
         tickFunction->Reset(isolate, function);
     }
 
     LOGFN("end setTick");
     MARK(et);
-    //return Undefined(isolate);
 }
 
-//Handle<Value> getGlobalObject(const Arguments& args) {
 Handle<Value> getGlobalObject(const v8::FunctionCallbackInfo<v8::Value> &args) {
     LOG("get global obj");
     Handle<Context> context = getContext();
@@ -270,7 +234,6 @@ static string getFileName(const string& s) {
 static string getAppPackageName(){
 
         if(app_package_name == ""){
-        //call NativeShim.java method example
         JNIEnv* env = get_env();
         jclass inspectorStarterClass = env->FindClass("com/tealeaf/NativeShim");
         jmethodID getResourcesMethod = env->GetStaticMethodID(inspectorStarterClass, "getPackageName", "()Ljava/lang/String;");
@@ -390,7 +353,6 @@ static inline void log_error(const char *message) {
     Handle<Object> global = context->Global();
     bool logged = false;
     if (!global.IsEmpty()) {
-        // original: Handle<Object> native = Handle<Object>::Cast(global->Get(STRING_CACHE_NATIVE));
         Handle<Object> native = (global->Get(STRING_CACHE_NATIVE.Get(m_isolate))->ToObject(context)).ToLocalChecked();
         if (!native.IsEmpty() && native->IsObject()) {
             Handle<Function> log = Handle<Function>::Cast(native->Get(STRING_CACHE___log.Get(m_isolate)));
@@ -412,7 +374,6 @@ static inline void window_on_error(const char *msg, const char *url, int line_nu
     Handle<Context> context = getContext();
     Handle<Object> global = context->Global();
     if (!global.IsEmpty()) {
-        //Handle<Function> on_error = Handle<Function>::Cast(global->Get(STRING_CACHE_onerror));
         Handle<Function> on_error =  Local<Function>::Cast(global->Get(STRING_CACHE_onerror.Get(m_isolate)));
         if (!on_error.IsEmpty() && on_error->IsFunction()) {
             Handle<Value> args[] = { String::NewFromUtf8(m_isolate,msg), String::NewFromUtf8(m_isolate, url), Number::New(m_isolate, line_number) };
@@ -461,33 +422,6 @@ DECL_BENCH(gc_bench);
 static const char *m_gc_type = "Unknown";
 #endif
 
-/*EmbedderHeapTracer* tracer;
-class DevkitEmbedderHeapTracer : public EmbedderHeapTracer
-{
-    public:
-        DevkitEmbedderHeapTracer() {}
-        ~DevkitEmbedderHeapTracer() {}
-        void RegisterV8References(
-      const std::vector<std::pair<void*, void*> >& internal_fields) = 0;
-      
-      void TracePrologue() {
-        }
-      bool AdvanceTracing(double deadline_in_ms,
-                              AdvanceTracingActions actions) = 0;
-   
-  virtual void TraceEpilogue() {};
- 
-  void EnterFinalPause() {}
-
-
-  void AbortTracing() {}    
-        
-      
-      
-      }
-      */
-
-
 class ClearWeakPersistentHandleVisitor : public PersistentHandleVisitor
 {
     public:
@@ -515,9 +449,6 @@ void gc_start(Isolate* isolate, GCType type, GCCallbackFlags flags) {
 
     m_gc_type = types[type];
 #endif
-
-//VisitHandlesForPartialDependence(visitor);
-//VisitHandlesWithClassIds(visitor);
 m_isolate->VisitWeakHandles(visitor);
 }
 
@@ -633,22 +564,6 @@ CEXPORT void js_tick(long dt) {
 CEXPORT bool js_is_ready() {
     return js_ready;
 }
-/*
-#if defined(REMOTE_DEBUG)
-static void DispatchDebugMessages() {
-    // Locker should already be held here
-
-    Locker l(m_isolate);
-    HandleScope handle_scope(m_isolate);
-    Context::Scope context_scope(getContext());
-    TryCatch try_catch(m_isolate);
-
-    // Todo: fix, the class is removed in v8 6.9.0
-    // OLD v8::debug::ProcessDebugMessages();
-
-}
-#endif // REMOTE_DEBUG
-*/
 
 class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
 public:
@@ -679,17 +594,16 @@ bool js_init_isolate() {
     // Initialize V8.
     v8::V8::InitializeICUDefaultLocation(nullptr);
     v8::V8::InitializeExternalStartupData(nullptr);
-    if(isDebug){
+    #if defined(DEBUG)
      // The default V8 platform isn't Chrome DevTools compatible. The frontend uses the
         // Runtime.evaluate protocol command with timeout flag for every execution in the console.
         // The default platform doesn't implement executing delayed javascript code from a background
         // thread. To avoid implementing a full blown scheduler, we use the default platform with a
         // timeout=0 flag.
         platform_ =  V8InspectorPlatform::CreateDefaultPlatform();
-     }
-     else{
+     #else // DEBUG
         platform_ = v8::platform::CreateDefaultPlatform();
-    }
+    #endif // DEBUG
     Runtime::platform = platform_;
     v8::V8::InitializePlatform(platform_);
     v8::V8::Initialize();
@@ -713,11 +627,8 @@ bool js_init_isolate() {
 
 bool init_js(const char *uri, const char *native_hash, jobject thiz) {
     DECL_BENCH(t);
-    //v8::Locker l(m_isolate);
      Isolate::Scope isolate_scope(m_isolate);
     HandleScope handleScope(m_isolate);
-    
-     //m_objectManager->SetInstanceIsolate(m_isolate);
 
     // Sets a structure with v8 String constants on the isolate object at slot 1
     V8StringConstants::PerIsolateV8Constants* consts = new V8StringConstants::PerIsolateV8Constants(m_isolate);
@@ -728,10 +639,7 @@ bool init_js(const char *uri, const char *native_hash, jobject thiz) {
     m_isolate->AddMessageListener(NativeScriptException::OnUncaughtError);
 
     __android_log_print(ANDROID_LOG_DEBUG, "TNS.Native", "V8 version %s", V8::GetVersion());
-    
-    
-    
-    //m_isolate-> SetEmbedderHeapTracer(tracer);
+
     m_isolate->AddGCPrologueCallback(gc_start, GCType::kGCTypeAll);
     m_isolate->AddGCEpilogueCallback(gc_end, GCType::kGCTypeAll);
     MARK(t);
@@ -746,7 +654,10 @@ bool init_js(const char *uri, const char *native_hash, jobject thiz) {
     global->Set(STRING_CACHE_clearInterval.Get(m_isolate), FunctionTemplate::New(m_isolate, defClearInterval));
     global->Set(STRING_CACHE_setLocation.Get(m_isolate), FunctionTemplate::New(m_isolate, native_set_location));
 
+#if defined DEBUG
+
 const auto readOnlyFlags = static_cast<PropertyAttribute>(PropertyAttribute::DontDelete | PropertyAttribute::ReadOnly);
+
 
 
     global->Set(ArgConverter::ConvertToV8String(m_isolate, "__log"), FunctionTemplate::New(m_isolate, CallbackHandlers::LogMethodCallback));
@@ -761,43 +672,15 @@ const auto readOnlyFlags = static_cast<PropertyAttribute>(PropertyAttribute::Don
      * Attach `Worker` object constructor only to the main thread (m_isolate)'s global object
      * Workers should not be created from within other Workers, for now
      */
+
     if (!s_mainThreadInitialized) {
         Local<FunctionTemplate> workerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::NewThreadCallback);
         Local<ObjectTemplate> prototype = workerFuncTemplate->PrototypeTemplate();
-
-        /*
-         * Attach methods from the EventTarget interface (postMessage, terminate) to the Worker object prototype
-         */
-        auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectPostMessageCallback);
-        auto terminateWorkerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectTerminateCallback);
-
-        prototype->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
-        prototype->Set(ArgConverter::ConvertToV8String(m_isolate, "terminate"), terminateWorkerFuncTemplate);
-
-        global->Set(ArgConverter::ConvertToV8String(m_isolate, "Worker"), workerFuncTemplate);
-    }
-    /*
-     * Emulate a `WorkerGlobalScope`
-     * Attach 'postMessage', 'close' to the global object
-     */
-    else {
-        auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalPostMessageCallback);
-        global->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
-        auto closeFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalCloseCallback);
-        global->Set(ArgConverter::ConvertToV8String(m_isolate, "close"), closeFuncTemplate);
-    }
 
 /*
-     * Attach `Worker` object constructor only to the main thread (m_isolate)'s global object
-     * Workers should not be created from within other Workers, for now
-     */
-    if (!s_mainThreadInitialized) {
-        Local<FunctionTemplate> workerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::NewThreadCallback);
-        Local<ObjectTemplate> prototype = workerFuncTemplate->PrototypeTemplate();
-
-        /*
          * Attach methods from the EventTarget interface (postMessage, terminate) to the Worker object prototype
          */
+
         auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectPostMessageCallback);
         auto terminateWorkerFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerObjectTerminateCallback);
 
@@ -806,27 +689,24 @@ const auto readOnlyFlags = static_cast<PropertyAttribute>(PropertyAttribute::Don
 
         global->Set(ArgConverter::ConvertToV8String(m_isolate, "Worker"), workerFuncTemplate);
     }
-    /*
+/*
      * Emulate a `WorkerGlobalScope`
      * Attach 'postMessage', 'close' to the global object
      */
+
     else {
         auto postMessageFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalPostMessageCallback);
         global->Set(ArgConverter::ConvertToV8String(m_isolate, "postMessage"), postMessageFuncTemplate);
         auto closeFuncTemplate = FunctionTemplate::New(m_isolate, CallbackHandlers::WorkerGlobalCloseCallback);
         global->Set(ArgConverter::ConvertToV8String(m_isolate, "close"), closeFuncTemplate);
     }
+    
+   SimpleProfiler::Init(m_isolate, global);
+   CallbackHandlers::CreateGlobalCastFunctions(m_isolate, global);
 
-
-
-
-
-SimpleProfiler::Init(m_isolate, global);
-
-    CallbackHandlers::CreateGlobalCastFunctions(m_isolate, global);
+#endif
 
     m_context.Reset(m_isolate, Context::New(m_isolate, NULL, global));
-    
     m_context.Get(m_isolate)->Enter();
 
 
@@ -844,14 +724,6 @@ auto gcFunc = getContext()->Global()->Get(ArgConverter::ConvertToV8String(m_isol
         Local<Value> recv;
         gcFunc.As<Function>()->Call( recv, 0, 0);
     }
-
-     /*
-        call NativeShim.java method example
-        JNIEnv* env = get_env();
-        jclass inspectorStarterClass = env->FindClass("com/tealeaf/NativeShim");
-        jmethodID getResourcesMethod = env->GetStaticMethodID(inspectorStarterClass, "startInspectorServer", "()V");
-        env->CallStaticObjectMethod(inspectorStarterClass, getResourcesMethod);
-        */
   
     if (m_context.IsEmpty()) {
         LOG("{js} ERROR: Unable to create context");

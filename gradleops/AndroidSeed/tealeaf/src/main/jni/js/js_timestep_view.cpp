@@ -49,105 +49,19 @@ using namespace v8;
 static int backing_count = 0;
 static int frontend_count = 0;
 #endif
-/* Moved to weakCallbackForFrontend
-// View front-end finalizer
-static void cb_js_finalize(Persistent<Value> ctx, void *param) {
-    Isolate *isolate = Isolate::GetCurrent();
-    HandleScope handle_scope(isolate);
-
-    // Get object _view reference to backing from front-end view object
-    Local<Value> _view = STRING_CACHE___view.Get(isolate);
-
-
-    // If the reference has not been cleared,
-    if (_view->IsObject()) {
-        Local<External> wrap = Local<External>::Cast(Handle<Object>::Cast(_view)->GetInternalField(0));
-        void* ptr = wrap->Value();
-        timestep_view *view = static_cast<timestep_view*>(ptr);
-
-        if (view) {
-            // LOOK: This assumes that js_view is never modified after the view is created
-            view->js_view.Get(isolate).Clear();
-        }
-    } else {
-        // Should never happen because we have the __view reference
-        LOG("{view} ERROR: Front-end not found in backing finalizer!");
-    }
-
-    ctx.Reset();
-
-#ifdef VIEW_LEAKS
-    --frontend_count;
-    LOG("{view} WARNING: View front count = %d", frontend_count);
-#endif
-}*/
-
-
-
-/* shorthand for new fixed v8 v 7.1
-         timestep_view *view = data.GetParameter();
-        if (view) {
-            view->js_view.Reset();
-        }
-          else {
-        // Should never happen because we have the __view reference
-        LOG("{view} ERROR: Front-end not found in backing finalizer!");
-    }
-    */
 
 static void weakCallbackForFrontend(const v8::WeakCallbackInfo<timestep_view> &data) {
     LOGDEBUG("{jsdebug} METHOD CALLED %d ", 4);
     Isolate *isolate = data.GetIsolate();
     HandleScope handle_scope(isolate);
-
-    // Get object _view reference to backing from front-end view object
- /*   Handle<Value> _view = STRING_CACHE___view.Get|
- (isolate);
-
-
-    // If the reference has not been cleared,
-    if (_view->IsObject()) {
-        Handle<External> wrap = Handle<External>::Cast(Handle<Object>::Cast(_view)->GetInternalField(0));
-        void* ptr = wrap->Value();
-        timestep_view *view = static_cast<timestep_view*>(ptr);
-
-        if (view) {
-            // LOOK: This assumes that js_view is never modified after the view is created
-            view->js_view.Get(isolate).Clear();
-        }
-    } else {
-        // Should never happen because we have the __view reference
-        LOG("{view} ERROR: Front-end not found in backing finalizer!");
-    }
-    */
-
-data.GetParameter()->js_view.Reset();
+    data.GetParameter()->js_view.Reset();
 
 
 #ifdef VIEW_LEAKS
     --frontend_count;
     LOG("{view} WARNING: View front count = %d", frontend_count);
 #endif
-  //  delete data.GetParameter();
 }
-/* Moved to  weakCallbackForTimestepHolder
-// View backing finalizer
-static void js_view_finalize(Persistent<Value> ctx, void *param) {
-    ??? isolate
-    HandleScope handle_scope(isolate);
-
-    timestep_view *view = static_cast<timestep_view*>( param );
-    if (view) {
-        timestep_view_delete(view);
-    }
-
-    ctx.Reset();
-
-#ifdef VIEW_LEAKS
-    --backing_count;
-    LOG("{view} WARNING: View backing count = %d", backing_count);
-#endif
-}*/
 
 
 static void weakCallbackForTimestepHolder(const v8::WeakCallbackInfo<timestep_view> &data) {
@@ -164,7 +78,6 @@ LOGDEBUG("{jsdebug} METHOD CALLED %d ", 5);
     --backing_count;
     LOG("{view} WARNING: View backing count = %d", backing_count);
 #endif
-   // delete data.GetParameter();
 }
 
 static void js_image_view_set_image(const v8::FunctionCallbackInfo<v8::Value> &args) {
@@ -206,66 +119,24 @@ Handle<ObjectTemplate> js_timestep_get_template(Isolate *isolate) {
 void def_timestep_view_constructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
     Isolate *isolate = getIsolate();
     Handle<Object> thiz = args.Holder();
-    // Todo 1: verify, was here: Local<Context> context = Context::New(isolate);
-    Handle<Context> contextIsolate = isolate->GetCurrentContext();
-    // Todo 2: remove redundant context after todo 3
     Handle<Context> context = getContext();
+
 #ifdef VIEW_LEAKS
     ++frontend_count;
     ++backing_count;
     LOG("{view} WARNING: View front count = %d, backing count = %d", frontend_count, backing_count);
 #endif
 
-    
     // Create an internal C object and attach it to the view backing
     timestep_view *view = timestep_view_init();
     view->js_view.Reset(isolate, args[0]->ToObject(isolate));
     Handle<Object> js_view = view->js_view.Get(isolate);
-    // todo 3: verify if paramter js_view is correct one for 1st argument, check reference chain to verify every object refers each other correctly and make sure main object is correctly removed or garbage collected
     view->js_view.SetWeak(view, weakCallbackForFrontend, v8::WeakCallbackType::kParameter);
     thiz->SetInternalField(0, External::New(isolate, view));
     thiz->SetInternalField(1, js_view);
 
     // Track the lifetime of the view backing
     Persistent<Object> ref(isolate, thiz);
-    //ref.SetWeak(view, weakCallbackForTimestepHolder, v8::WeakCallbackType::kParameter);
-
-     
-    // Add an internal C reference to the front-end view object in the view backing (old v8)
-    // Todo 4 : remove this line, move above comment to appropriate place
-    //view->js_view = js_view;
-   
-/* Testing properties loop
-    v8::Handle<v8::Array> propertyNames;
-    js_view->GetPropertyNames(context).ToLocal(&propertyNames);
-    MaybeLocal<Array> maybeProperties = js_view->GetPropertyNames(context);
-
-    if(!maybeProperties.IsEmpty()){
-        Handle<Array> properties = maybeProperties.ToLocalChecked();
-        if( !properties.IsEmpty() && properties->IsArray() && properties->Length()>0){
-
-            int propsSize = properties->Length();
-
-            LOG("Properties NOT empty and size: %d", propsSize);
-            if (propsSize < 200) {
-                for (int i = 0; i < propsSize; ++i) {
-                    LOG("property Index is: %d", i);
-
-                    Handle<Value> pname = propertyNames->Get(i);
-                    Handle<String> pNameStr = Handle<String>::Cast(pname);
-                    String::Utf8Value str2(isolate, pNameStr);
-                    LOG("Property name is: %s", ToCString(str2));
-                }
-            }
-        }
-        else {
-            LOG("%s", "Properties are empty");
-        }
-    }
-    else {
-        LOG("%s", "Maybe properties are empty");
-    }
-*/
 
     Handle<Value> render = js_view->GetRealNamedPropertyInPrototypeChain(context, Handle<Name>::Cast(STRING_CACHE_render.Get(isolate))).ToLocalChecked();
 

@@ -25,11 +25,9 @@ using namespace v8;
 static void image_map_finalize(const v8::WeakCallbackInfo<timestep_image_map> &data) {
 LOGDEBUG("{jsdebug} METHOD CALLED %d ", 2);
 
-  //  timestep_image_map *map = static_cast<timestep_image_map*>( data.GetParameter() );
-   // timestep_image_delete(map);
-
-    //was in old v8: map->Reset();
-  //  delete map;
+    timestep_image_map *map = static_cast<timestep_image_map*>( data.GetParameter() );
+    //timestep_image_delete(map);
+    delete(map);
 }
 
 void def_timestep_image_map_constructor(const v8::FunctionCallbackInfo<v8::Value> &args) {

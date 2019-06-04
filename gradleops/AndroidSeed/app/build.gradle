@@ -44,6 +44,12 @@ android {
             path '../tealeaf/src/main/jni/Application.mk'
         }
     }
+    
+    bundle {
+        abi {
+            enableSplit = true
+        }
+    }
 }
 
 dependencies {

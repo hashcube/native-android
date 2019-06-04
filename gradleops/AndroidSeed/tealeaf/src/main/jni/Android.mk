@@ -294,7 +294,7 @@ ifeq (${DEBUG}, 1)
         deps/v8_inspector/src/inspector/v8-schema-agent-impl.cc	              \
         deps/v8_inspector/src/inspector/v8-stack-trace-impl.cc	              \
         deps/v8_inspector/src/inspector/v8-value-utils.cc	              \
-        deps/v8_inspector/src/inspector/wasm-translation.cc<br />
+        deps/v8_inspector/src/inspector/wasm-translation.cc
 endif   
 
 

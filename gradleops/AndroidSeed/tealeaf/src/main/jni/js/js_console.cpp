@@ -33,7 +33,6 @@ void native_log(const v8::FunctionCallbackInfo<v8::Value> &args) {
     __android_log_write(ANDROID_LOG_DEBUG, "JS", cstr);
 #endif
     LOGFN("endlog");
-    //return Undefined(isolate);
 }
 
 Local<ObjectTemplate> js_console_get_template(Isolate *isolate) {
