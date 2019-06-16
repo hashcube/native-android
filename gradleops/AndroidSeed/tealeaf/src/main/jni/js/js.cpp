@@ -145,6 +145,7 @@ static DECL_BENCH(et);
 CEXPORT void eval_str(const char *str, const char * filename) {
     Locker l(m_isolate);
     HandleScope handle_scope(m_isolate);
+    {
     if (m_context.IsEmpty()) {
         LOG("{js} ERROR: Could not evaluate. JavaScript engine is not running yet");
         return;
@@ -160,6 +161,8 @@ CEXPORT void eval_str(const char *str, const char * filename) {
     else {
         ExecuteString(source, filename, true, m_isolate);
 
+    }
+    v8::Unlocker unlocker(m_isolate);
     }
 }
 
@@ -513,7 +516,7 @@ Handle<Function> get_on_resize() {
 
 CEXPORT void js_tick(long dt) {
     Locker l(m_isolate);
-
+{
     if (!js_ready) {
         LOG("{js} WARNING: Tick attempted before JavaScript engine was running");
         return;
@@ -559,6 +562,8 @@ CEXPORT void js_tick(long dt) {
     } else {
         LOG("{js} ERROR: Invalid tick callback");
     }
+    v8::Unlocker unlocker(m_isolate);
+}
 }
 
 CEXPORT bool js_is_ready() {
@@ -589,8 +594,6 @@ bool js_init_isolate() {
     #else // DEBUG
         LOG("{debugger} JavaScript Debug Server is disabled");
     #endif // DEBUG
-
-
     // Initialize V8.
     v8::V8::InitializeICUDefaultLocation(nullptr);
     v8::V8::InitializeExternalStartupData(nullptr);
@@ -607,11 +610,10 @@ bool js_init_isolate() {
     Runtime::platform = platform_;
     v8::V8::InitializePlatform(platform_);
     v8::V8::Initialize();
-    LOG("v8engine inited");
-
+    LOG("V8 engine inited");
+    v8::Isolate::CreateParams create_params;
     // Create a new Isolate and make it the current one.
     ArrayBufferAllocator allocator;
-    v8::Isolate::CreateParams create_params;
     create_params.array_buffer_allocator = &allocator;
     m_isolate = v8::Isolate::New(create_params);
     if (m_isolate) {
@@ -628,7 +630,7 @@ bool js_init_isolate() {
 bool init_js(const char *uri, const char *native_hash, jobject thiz) {
     DECL_BENCH(t);
      Isolate::Scope isolate_scope(m_isolate);
-    HandleScope handleScope(m_isolate);
+     HandleScope handleScope(m_isolate);
 
     // Sets a structure with v8 String constants on the isolate object at slot 1
     V8StringConstants::PerIsolateV8Constants* consts = new V8StringConstants::PerIsolateV8Constants(m_isolate);
@@ -803,14 +805,10 @@ s_mainThreadInitialized = true;
 }
 
 CEXPORT bool destroy_js() {
-    LOG("{js} Shutting down");
+   LOG("{js} Shutting down");
 
     if(js_ready) {
         js_ready = false;
-        Locker l(m_isolate);
-
-        HandleScope scope(m_isolate);
-
         // Cleanup timer
         core_timer_clear_all();
         if(tickFunction != NULL && !(*tickFunction).IsEmpty()) {
@@ -818,10 +816,13 @@ CEXPORT bool destroy_js() {
         }
         tickFunction = NULL;
 
-
-        m_context.Get(getIsolate())->DetachGlobal();
+        //Shutting down V8
         m_context.Reset();
+        m_isolate->Dispose();
+        v8::V8::Dispose();
+        v8::V8::ShutdownPlatform();
+        m_isolate = NULL;
+        exit(0);
     }
-
     return true;
 }
