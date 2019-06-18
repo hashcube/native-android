@@ -548,7 +548,6 @@ public class TeaLeaf extends FragmentActivity {
 			if (ActivityState.hasResumed(true)) {
 				onRealResume();
 			}
-			registerScreenOffReceiver();
 
 			// always send acquired focus event
 			EventQueue.pushEvent(new WindowFocusAcquiredEvent());
@@ -558,16 +557,6 @@ public class TeaLeaf extends FragmentActivity {
 			logger.log("{focus} Lost focus");
 			ActivityState.onWindowFocusLost();
 			pause();
-			/* Fix Crash in Android 7.0 Samsung devices where screenOffReceiver is null
-			TODO: Need to find why it is null */
-			if (screenOffReceiver != null) {
-				try {
-					unregisterReceiver(screenOffReceiver);
-				} catch (Exception e) {
-					logger.log("{focus} Unable to unregister screenOffReciever");
-					e.printStackTrace();
-				}
-			}
 			if (jsRunning) {
 				//always send lost focus event
 				String[] events = {new WindowFocusLostEvent().pack()};
